@@ -3,6 +3,8 @@ import './App.css';
 import Map from './tabs/Map.js'
 import Data from './tabs/Data.js'
 import FlightPlan from './tabs/FlightPlan.js'
+import Params from './tabs/Params.js'
+import Interop from './tabs/Interop.js'
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Navbar from 'react-bootstrap/Navbar'
 import Nav from 'react-bootstrap/Nav'
@@ -12,6 +14,8 @@ function App() {
   let map = <Map></Map>;
   let flightPlan = <FlightPlan></FlightPlan>;
   let data = <Data></Data>;
+  let params = <Params></Params>;
+  let interop = <Interop></Interop>;
   const [view, setView] = useState(map);
 
   const onSelect = (selectedKey) => {
@@ -23,8 +27,14 @@ function App() {
       case "data":
         setView(data);
         break;
-      case "flight-plan":
-        setView(flightPlan);
+        case "flight-plan":
+          setView(flightPlan);
+          break;
+      case "params":
+        setView(params);
+        break;
+      case "interop":
+        setView(interop);
         break;
       default:
         setView(map);
@@ -48,6 +58,12 @@ function App() {
             </Nav.Item>
             <Nav.Item>
               <Nav.Link eventKey="data">Data</Nav.Link>
+            </Nav.Item>
+            <Nav.Item>
+              <Nav.Link eventKey="params">Params</Nav.Link>
+            </Nav.Item>
+            <Nav.Item>
+              <Nav.Link eventKey="interop">Interop</Nav.Link>
             </Nav.Item>
           </Nav>
         </Navbar.Collapse>
