@@ -1,4 +1,7 @@
+import os
+import time
 from pymavlink import mavutil
+from pymavlink import mavparm
 
 # https://github.com/ArduPilot/pymavlink/blob/master/mavparm.py
 # https://www.ardusub.com/developers/pymavlink.html
@@ -17,7 +20,7 @@ def read_all_params(master: mavutil.mavfile):
             message = master.recv_match(type='PARAM_VALUE', blocking=True, timeout=1)
             if message is None:
                 break
-            param_name = message.to_dict()['param_id']
+            param_name = message.param_id
         except Exception as e:
             print(e)
             exit(0)
@@ -34,39 +37,35 @@ def read_single_param(master: mavutil.mavfile, name: 'str') -> dict:
     # TODO: Check if this automatically updates master.params
     message = master.recv_match(type='PARAM_VALUE', blocking=True, timeout=1)
     if message is None:
-        # Invalid parameter name, so return None
         return None
-    message = message.to_dict()
-    return {message['param_id']: message['param_value']}
+    return {message.param_id: message.param_value}
 
 
-def load_file(filename):
-    # TODO: Load params from file
-    return
+"""
+Load params from a file into a dictionary
+Returns None if filepath doesn't exist, otherwise returns dictionary
+"""
+def load_file(filepath):
+    mavparm_handler = mavparm.MAVParmDict()
+    mavparm_handler.load(filepath)
+    return dict(mavparm_handler)
 
 
-def compare_files(filename1, filename2):
-    params1 = load_file(filename1)
-    params2 = load_file(filename2)
-    # TODO: Compare the params
-    return
+def diff(filepath1, filepath2):
+    handler1 = mavparm.MAVParmDict()
+    if filepath2 is not None:
+        handler1 = load_file(filepath)
+    mavparm_handler.diff(filepath)
+
+
+def save_params(filepath):
+    pass
 
 
 """
 Read a single param to the target system (Pixhawk)
-Returns True if the write succeeded otherwise False
+Returns True if the param write succeeded otherwise False
 """
-def write_param(mav, name, value, param_type) -> bool:
-    master.param_set_send(name, value, param_type)
-
-    message = master.recv_match(type='PARAM_VALUE', blocking=True)
-    if message is None:
-        print("Unable to write param value")
-        return False
-    message = message.to_dict()
-    assert(message['param_id'] == name)
-    if message['param_value'] != value:
-        print("Read check after writing param failed")
-        return False
-    return True
-    # TODO: Read the param again to confirm that the write worked
+def write_param(master, name, value, param_type) -> bool:
+    mavparm_handler = mavparm.MAVParmDict()
+    return mavparm_handler.mavset(master, name, value, param_type)
