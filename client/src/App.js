@@ -1,69 +1,61 @@
 import React, { useState } from 'react';
 import './App.css';
-import Map from './tabs/Map.js'
-import Data from './tabs/Data.js'
+import FlightData from './tabs/FlightData.js'
 import FlightPlan from './tabs/FlightPlan.js'
 import Params from './tabs/Params.js'
-import Interop from './tabs/Interop.js'
+import Submissions from './tabs/Submissions.js'
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Navbar from 'react-bootstrap/Navbar'
 import Nav from 'react-bootstrap/Nav'
 
 
-function App() {
-  let map = <Map></Map>;
+const App = () => {
+  let flightData = <FlightData></FlightData>;
   let flightPlan = <FlightPlan></FlightPlan>;
-  let data = <Data></Data>;
   let params = <Params></Params>;
-  let interop = <Interop></Interop>;
-  const [view, setView] = useState(map);
+  let submissions = <Submissions></Submissions>;
+  const [view, setView] = useState(flightData);
 
   const onSelect = (selectedKey) => {
     console.log(selectedKey);
     switch(selectedKey){
-      case "map":
-        setView(map);
+      case "flight-data":
+        setView(flightData);
         break;
-      case "data":
-        setView(data);
+      case "flight-plan":
+        setView(flightPlan);
         break;
-        case "flight-plan":
-          setView(flightPlan);
-          break;
       case "params":
         setView(params);
         break;
-      case "interop":
-        setView(interop);
+      case "submissions":
+        setView(submissions);
         break;
       default:
-        setView(map);
+        setView(flightData);
     }
-  }
+  };
 
   return (
     <div>
       <Navbar bg="light" expand="lg">
-        <Navbar.Brand href="#home">React-Bootstrap</Navbar.Brand>
+        <Navbar.Brand href="#home">TJUAV Ground Station</Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav
-            activeKey="map"
+            activeKey="flight-data"
             onSelect={(selectedKey) => onSelect(selectedKey)}>
             <Nav.Item>
-              <Nav.Link eventKey="map">Map</Nav.Link>
+              <Nav.Link eventKey="flight-data">Flight Data</Nav.Link>
             </Nav.Item>
             <Nav.Item>
               <Nav.Link eventKey="flight-plan">Flight Plan</Nav.Link>
             </Nav.Item>
             <Nav.Item>
-              <Nav.Link eventKey="data">Data</Nav.Link>
-            </Nav.Item>
-            <Nav.Item>
               <Nav.Link eventKey="params">Params</Nav.Link>
             </Nav.Item>
             <Nav.Item>
-              <Nav.Link eventKey="interop">Interop</Nav.Link>
+              <Nav.Link eventKey="submissions">Submissions</Nav.Link>
             </Nav.Item>
           </Nav>
         </Navbar.Collapse>
@@ -72,5 +64,6 @@ function App() {
     </div>
   );
 }
+
 
 export default App;
