@@ -66,6 +66,15 @@ const FlightPlanMap = (props) => {
     set(temp);
   }
 
+  const circle = (arr) => {
+    if(arr.length <= 2){
+      return arr;
+    }
+    return arr.concat([arr[0]]);
+  }
+
+  console.log(props.getters.fence);
+
   return (
     <div>
     <Map
@@ -82,8 +91,8 @@ const FlightPlanMap = (props) => {
       />
       <Marker position={state.latlng}></Marker>
       <Polyline positions={props.getters.waypoints} color="#00AA00"></Polyline>
-      <Polyline positions={props.getters.polygons} color="#FF0000"></Polyline>
-      <Polyline positions={props.getters.fence} color="#0000FF"></Polyline>
+      <Polyline positions={circle(props.getters.polygons)} color="#FF0000"></Polyline>
+      <Polyline positions={circle(props.getters.fence)} color="#0000FF"></Polyline>
       {props.getters.waypoints.map((thing, index) => {
         return popup(thing, index, 'waypoints');
       })}
