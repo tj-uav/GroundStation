@@ -1,9 +1,17 @@
 // @flow
 
-import React, { createRef, useState } from 'react'
+import React, { createRef, useState, useEffect } from 'react'
 // import 'leaflet/dist/leaflet.css';
 import { Map, TileLayer, Marker, Polyline } from 'react-leaflet'
+import { get } from '../backend.js'
+import L from 'leaflet'
 
+// TODO: Popup for home icon
+// TODO: Popup for waypoint labels
+// TODO: Mode radio button (or dropdown) -> (waypoint, polygon, fence, remove)
+// TODO: Implement marker removal
+// TODO: Display current location of plane (use telem, and also need to make plane icon)
+// TODO: Polyline overlay -> take polyline file (custom file structure) and overlay it onto map (allow for color option in file)
 
 const FlightPlanMap = (props) => {
   const [state, setState] = useState({
@@ -14,6 +22,36 @@ const FlightPlanMap = (props) => {
   })
 
   let mapRef = createRef<Map>()
+  const [icons, setIcons] = useState({});
+  const [telem, setTelem] = useState([]);
+
+  const queryValues = () => {
+      get("/mav/telem", (response) => setTelem(response.data));
+  }
+
+  useEffect(() => {
+    var LeafIcon = L.Icon.extend({
+        options: {
+          iconSize: [25, 41],
+          iconAnchor: [12, 41],
+          popupAnchor: [1, -34],
+          shadowUrl: 'assets/marker-shadow.png',
+          shadowSize: [41, 41],
+          tooltipAnchor: [16, -28],
+          shadowAnchor: [12, 41]
+        }
+    });
+    setIcons({
+      "waypoints": new LeafIcon({iconUrl: 'assets/icon-waypoints.png'}),
+      "polygons":  new LeafIcon({iconUrl: 'assets/icon-polygons.png'}),
+      "fence": new LeafIcon({iconUrl: 'assets/icon-fence.png'})
+    })
+    const interval = setInterval(() => {
+      queryValues();
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
 
   const handleMove = (event, idx) => {
     let tempWaypoints = props.waypoints.slice();
@@ -21,8 +59,9 @@ const FlightPlanMap = (props) => {
     props.setWaypoints(tempWaypoints);
   }
 
-  const popup = (latlng, key) => (
-    <Marker position={latlng} key={key} 
+  const popup = (latlng, key, datatype) => (
+    <Marker icon={icons[datatype]}
+    position={latlng} key={key} 
     draggable={true} onmove={(event) => handleMove(event, key)} />
   );
 
@@ -46,10 +85,16 @@ const FlightPlanMap = (props) => {
         attribution='&amp;copy <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
-      <Polyline positions={props.waypoints} color="red"></Polyline>
+      <Polyline positions={props.waypoints}></Polyline>
       <Marker position={state.latlng}></Marker>
       {props.waypoints.map((thing, index) => {
-        return popup(thing, index);
+        return popup(thing, index, 'waypoints');
+      })}
+      {props.polygons.map((thing, index) => {
+        return popup(thing, index, 'polygons');
+      })}
+      {props.fence.map((thing, index) => {
+        return popup(thing, index, 'fence');
       })}
     </Map>
     </div>

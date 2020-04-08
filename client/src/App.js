@@ -10,8 +10,10 @@ import Nav from 'react-bootstrap/Nav'
 
 
 const App = () => {
-  let flightData = <FlightData></FlightData>;
-  let flightPlan = <FlightPlan></FlightPlan>;
+  const [telem, setTelem] = useState([]);
+
+  let flightData = <FlightData telem={telem} setTelem={setTelem}></FlightData>;
+  let flightPlan = <FlightPlan telem={telem} setTelem={setTelem}></FlightPlan>;
   let params = <Params></Params>;
   let submissions = <Submissions></Submissions>;
   const [view, setView] = useState(flightData);
