@@ -4,6 +4,16 @@ import FlightPlanToolbar from '../components/FlightPlanToolbar.js'
 import SplitPane from 'react-split-pane'
 //import InputPage from '../components/test.js'
 
+// TODO: Popup for home icon
+// TODO: Popup for waypoint labels
+// TODO: Add option to make new polygon
+// TODO: Implement marker insertion
+// TODO: Implement marker removal
+// TODO: Display current location of plane (use telem, and also need to make plane icon)
+// TODO: Polyline overlay -> take polyline file (custom file structure) and overlay it onto map (allow for color option in file)
+// TODO: Display 
+
+
 const FlightPlan = (props) => {
 
     const [mode, setMode] = useState("waypoints")

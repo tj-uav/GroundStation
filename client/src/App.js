@@ -45,20 +45,11 @@ const App = () => {
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav
-            activeKey="flight-data"
             onSelect={(selectedKey) => onSelect(selectedKey)}>
-            <Nav.Item>
-              <Nav.Link eventKey="flight-data">Flight Data</Nav.Link>
-            </Nav.Item>
-            <Nav.Item>
-              <Nav.Link eventKey="flight-plan">Flight Plan</Nav.Link>
-            </Nav.Item>
-            <Nav.Item>
-              <Nav.Link eventKey="params">Params</Nav.Link>
-            </Nav.Item>
-            <Nav.Item>
-              <Nav.Link eventKey="submissions">Submissions</Nav.Link>
-            </Nav.Item>
+            <Nav.Link eventKey="flight-data">Flight Data</Nav.Link>
+            <Nav.Link eventKey="flight-plan">Flight Plan</Nav.Link>
+            <Nav.Link eventKey="params">Params</Nav.Link>
+            <Nav.Link eventKey="submissions">Submissions</Nav.Link>
           </Nav>
         </Navbar.Collapse>
       </Navbar>

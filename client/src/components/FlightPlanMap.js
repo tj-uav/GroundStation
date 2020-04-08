@@ -6,14 +6,6 @@ import { Map, TileLayer, Marker, Polyline } from 'react-leaflet'
 import { get } from '../backend.js'
 import L from 'leaflet'
 
-// TODO: Popup for home icon
-// TODO: Popup for waypoint labels
-// TODO: Mode radio button (or dropdown) -> (waypoint, polygon, fence, remove)
-// TODO: Implement marker insertion
-// TODO: Implement marker removal
-// TODO: Display current location of plane (use telem, and also need to make plane icon)
-// TODO: Polyline overlay -> take polyline file (custom file structure) and overlay it onto map (allow for color option in file)
-
 const FlightPlanMap = (props) => {
   const [state, setState] = useState({
     latlng: {
