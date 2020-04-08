@@ -8,5 +8,10 @@ const get = async (endpoint, func) => {
     });
 }
 
+const load = (filetype) => {
+    console.log("Loading " + filetype);
+    return [[50, 60], [70, 80]]
+}
 
-export { get };
+
+export { get, load };

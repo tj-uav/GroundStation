@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="initial-scale=1,maximum-scale=1,user-scalable=no"
+    />
+    <title>Track current location - 4.14</title>
+
+    <style>
+      html,
+      body,
+      #viewDiv {
+        padding: 0;
+        margin: 0;
+        height: 100%;
+        width: 100%;
+      }
+    </style>
+    <link
+      rel="stylesheet"
+      href="https://js.arcgis.com/4.14/esri/themes/light/main.css"
+    />
+    <script src="https://js.arcgis.com/4.14/"></script>
+
+    <script>
+      require([
+        "esri/widgets/Track",
+        "esri/views/MapView",
+        "esri/Map"
+      ], function(Track, MapView, Map) {
+        var map = new Map({
+          basemap: "topo"
+        });
+
+        var view = new MapView({
+          map: map,
+          container: "viewDiv"
+        });
+
+        // Create an instance of the Track widget
+        // and add it to the view's UI
+        var track = new Track({
+          view: view
+        });
+        view.ui.add(track, "top-left");
+
+        // The sample will start tracking your location
+        // once the view becomes ready
+        view.when(function() {
+          track.start();
+        });
+      });
+    </script>
+  </head>
+
+  <body>
+    <div id="viewDiv"></div>
+  </body>
+</html>

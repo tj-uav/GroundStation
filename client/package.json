@@ -8,12 +8,20 @@
     "@testing-library/user-event": "^7.2.1",
     "axios": "^0.19.2",
     "bootstrap": "^4.4.1",
+    "esri": "0.0.1-security",
+    "leaflet": "^1.6.0",
+    "mapbox-gl": "^1.9.1",
+    "prop-types": "^15.7.2",
     "react": "^16.13.1",
     "react-bootstrap": "^1.0.0",
     "react-dom": "^16.13.1",
+    "react-leaflet": "^2.6.3",
+    "react-mapbox-gl": "^4.8.3",
     "react-redux": "^7.2.0",
     "react-scripts": "3.4.1",
-    "redux": "^4.0.5"
+    "react-split-pane": "^0.1.91",
+    "redux": "^4.0.5",
+    "styled-components": "^5.1.0"
   },
   "scripts": {
     "start": "react-scripts start",
