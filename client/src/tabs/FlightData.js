@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { get } from '../backend.js'
+import { httpget } from '../backend.js'
 
 const FlightData = () => {
 
     const [telem, setTelem] = useState([]);
 
     const queryValues = () => {
-        get("/mav/telem", (response) => setTelem(response.data));
+        httpget("/mav/telem", (response) => setTelem(response.data));
     }
 
     useEffect(() => {

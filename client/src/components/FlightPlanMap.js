@@ -2,8 +2,8 @@
 
 import React, { createRef, useState, useEffect } from 'react'
 // import 'leaflet/dist/leaflet.css';
-import { Map, TileLayer, Marker, Polyline } from 'react-leaflet'
-import { get } from '../backend.js'
+import { Map, TileLayer, Popup, Tooltip, Marker, Polyline } from 'react-leaflet'
+import { httpget } from '../backend.js'
 import L from 'leaflet'
 
 const FlightPlanMap = (props) => {
@@ -19,7 +19,7 @@ const FlightPlanMap = (props) => {
   const [telem, setTelem] = useState([]);
 
   const queryValues = () => {
-      get("/mav/telem", (response) => setTelem(response.data));
+      httpget("/mav/telem", (response) => setTelem(response.data));
   }
 
   useEffect(() => {
@@ -46,17 +46,32 @@ const FlightPlanMap = (props) => {
   }, []);
 
 
+  const handleKeyPress = (event, idx) => {
+    console.log(event.originalEvent.key);
+    switch(event.originalEvent.key){
+      case "Delete":
+        let datatype = event.target.options.datatype;
+        let get = props.getters[datatype]; let set = props.setters[datatype];
+        let temp = get.slice();
+        temp.splice(idx, 1);
+        set(temp);
+    }
+  }
+
+
   const handleMove = (event, idx, datatype) => {
+    console.log(event);
     let get = props.getters[datatype]; let set = props.setters[datatype];
     let temp = get.slice();
-    temp[idx] = event.latlng;
+    temp[idx] = [event.target.getLatLng().lat, event.target.getLatLng().lng];
     set(temp);
   }
 
   const popup = (latlng, key, datatype) => (
-    <Marker icon={icons[datatype]}
-    position={latlng} key={key} 
-    draggable={true} onmove={(event) => handleMove(event, key, datatype)} />
+      <Marker icon={icons[datatype]} position={latlng} onclick={console.log} onkeydown={(event) => handleKeyPress(event, key)}
+      draggable={true} onmoveend={(event) => handleMove(event, key, datatype)} datatype={datatype}>
+        <Tooltip>Waypoint {key + 1}</Tooltip>
+      </Marker>
   );
 
   const handleClick = (event) => {
