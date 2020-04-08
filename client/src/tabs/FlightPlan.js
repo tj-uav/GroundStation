@@ -5,7 +5,7 @@ import SplitPane from 'react-split-pane'
 //import InputPage from '../components/test.js'
 
 // TODO: Popup for home icon
-// TODO: Popup for waypoint labels
+// TODO: Popup for waypoint number (maybe use different icon for this)
 // TODO: Add option to make new polygon
 // TODO: Implement marker insertion
 // TODO: Implement marker removal

@@ -19,6 +19,7 @@
     "react-mapbox-gl": "^4.8.3",
     "react-radio-buttons": "^1.2.2",
     "react-scripts": "3.4.1",
+    "react-scrollable-list": "^1.2.0",
     "react-split-pane": "^0.1.91",
     "styled-components": "^5.1.0"
   },

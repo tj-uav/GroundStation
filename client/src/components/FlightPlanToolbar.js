@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react'
 import Dropdown from 'react-bootstrap/Dropdown'
 import DropdownButton from 'react-bootstrap/DropdownButton'
+import ReactScrollableList from 'react-scrollable-list'
 import { load, save, read, write } from '../backend.js'
 
 
@@ -37,6 +38,16 @@ const FlightPlanToolbar = (props) => {
         props.setMode(event.target.value)
     }
 
+    const getItemsList = (arr) => {
+        let ret = [];
+        for(let idx in arr){
+            let sigfig = [arr[idx][0].toFixed(3), arr[idx][1].toFixed(3)];
+            let displayIdx = parseInt(idx)+1;
+            ret.push({id: idx, content: "Waypoint " + displayIdx + ": " + sigfig[0] + ", " + sigfig[1]});
+        }
+        return ret;
+    }
+
     useEffect(() => {
         let radio = document.getElementById(props.mode);
         radio.checked = true;
@@ -61,11 +72,16 @@ const FlightPlanToolbar = (props) => {
                 <Dropdown.Item id="save-polygons" onClick={handleClick}>Save polygons to file</Dropdown.Item>
             </DropdownButton>
             <DropdownButton id="fence-dropdown" title="Geofence" style={{"marginBottom": 20}}>
-                <Dropdown.Item id="load-fence" onClick={handleClick}>Load fence from file</Dropdown.Item>
-                <Dropdown.Item id="save-fence" onClick={handleClick}>Save fence to file</Dropdown.Item>
-                <Dropdown.Item id="read-fence" onClick={handleClick}>Read fence to Pixhawk</Dropdown.Item>
-                <Dropdown.Item id="write-fence" onClick={handleClick}>Write fence to Pixhawk</Dropdown.Item>
+                <Dropdown.Item id="load-fence" onClick={handleClick}>Load geofence from file</Dropdown.Item>
+                <Dropdown.Item id="save-fence" onClick={handleClick}>Save geofence to file</Dropdown.Item>
+                <Dropdown.Item id="read-fence" onClick={handleClick}>Read geofence to Pixhawk</Dropdown.Item>
+                <Dropdown.Item id="write-fence" onClick={handleClick}>Write geofence to Pixhawk</Dropdown.Item>
             </DropdownButton>
+            <ReactScrollableList
+                listItems={getItemsList(props.getters[props.mode])}
+                heightOfItem={30}
+                maxItemsToRender={50}
+            />
         </div>
     )
 
