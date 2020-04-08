@@ -11,23 +11,26 @@ import SplitPane from 'react-split-pane'
 // TODO: Implement marker removal
 // TODO: Display current location of plane (use telem, and also need to make plane icon)
 // TODO: Polyline overlay -> take polyline file (custom file structure) and overlay it onto map (allow for color option in file)
-// TODO: Display 
+// TODO: Commands
 
 
 const FlightPlan = (props) => {
 
     const [mode, setMode] = useState("waypoints")
     const [waypoints, setWaypoints] = useState([]);
+    const [commands, setCommands] = useState([]);
     const [polygons, setPolygons] = useState([]);
     const [fence, setFence] = useState([]);
 
     const getters = {
+        'commands': commands,
         'waypoints': waypoints,
         'polygons': polygons,
         'fence': fence
     }
 
     const setters = {
+        'comamnds': setCommands,
         'waypoints': setWaypoints,
         'polygons': setPolygons,
         'fence': setFence
@@ -39,10 +42,12 @@ const FlightPlan = (props) => {
                 getters={getters} setters={setters}
                 mode={mode} setMode={setMode}
                  />
+{/*
             <FlightPlanToolbar 
                 getters={getters} setters={setters}
                 mode={mode} setMode={setMode}
                  />
+*/}
         </SplitPane>
     )
     

@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const get = async (endpoint, func) => {
+const httpget = async (endpoint, func) => {
     axios.get(endpoint, {
         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
     }).then(function(response){
@@ -27,4 +27,4 @@ const write = (filetype, data) => {
 }
 
 
-export { get, load, save, read, write };
+export { httpget, load, save, read, write };

@@ -3,7 +3,7 @@ import Dropdown from 'react-bootstrap/Dropdown'
 import DropdownButton from 'react-bootstrap/DropdownButton'
 import ReactScrollableList from 'react-scrollable-list'
 import { load, save, read, write } from '../backend.js'
-
+import '../css/scroll.css'
 
 const FlightPlanToolbar = (props) => {
 
@@ -34,13 +34,21 @@ const FlightPlanToolbar = (props) => {
         }
     }
 
+    const handleCommandClick = (event) => {
+        let command = event.target.id;
+        console.log(command);
+        alert("You tried to add an " + command);
+    }
+
     const modeChange = (event) => {
         props.setMode(event.target.value)
     }
 
-    const getItemsList = (arr) => {
+    const getItemsList = (mode) => {
         let ret = [];
+        let arr = props.getters[mode];
         for(let idx in arr){
+            console.log(arr[idx]);
             let sigfig = [arr[idx][0].toFixed(3), arr[idx][1].toFixed(3)];
             let displayIdx = parseInt(idx)+1;
             ret.push({id: idx, content: "Waypoint " + displayIdx + ": " + sigfig[0] + ", " + sigfig[1]});
@@ -77,10 +85,14 @@ const FlightPlanToolbar = (props) => {
                 <Dropdown.Item id="read-fence" onClick={handleClick}>Read geofence to Pixhawk</Dropdown.Item>
                 <Dropdown.Item id="write-fence" onClick={handleClick}>Write geofence to Pixhawk</Dropdown.Item>
             </DropdownButton>
+            <DropdownButton id="command-dropdown" title="Commands" style={{"marginBottom": 20, display: props.mode === "waypoints" ? "block" : "none"}}>
+                <Dropdown.Item id="actuate-servo" onClick={handleCommandClick}>Actuate servo</Dropdown.Item>
+            </DropdownButton>
             <ReactScrollableList
-                listItems={getItemsList(props.getters[props.mode])}
+                listItems={getItemsList(props.mode)}
                 heightOfItem={30}
-                maxItemsToRender={50}
+                maxItemsToRender={10}
+                style={{color: '#333'}}
             />
         </div>
     )
