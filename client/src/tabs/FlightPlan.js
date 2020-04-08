@@ -30,24 +30,31 @@ const FlightPlan = (props) => {
     }
 
     const setters = {
-        'comamnds': setCommands,
+        'commands': setCommands,
         'waypoints': setWaypoints,
         'polygons': setPolygons,
         'fence': setFence
+    }
+
+    const display = {
+        'commands': 'Command',
+        'waypoints': 'Waypoint',
+        'polygons': 'Polygon',
+        'fence': 'Geofence'
     }
     
     return (
         <SplitPane split="vertical" minSize="80%" defaultSize="80%">
             <FlightPlanMap
+                display={display}
                 getters={getters} setters={setters}
                 mode={mode} setMode={setMode}
                  />
-{/*
             <FlightPlanToolbar 
+                display={display}
                 getters={getters} setters={setters}
                 mode={mode} setMode={setMode}
                  />
-*/}
         </SplitPane>
     )
     
