@@ -21,21 +21,26 @@ const FlightPlan = (props) => {
     const [polygons, setPolygons] = useState([]);
     const [fence, setFence] = useState([]);
 
-    const datatypeAccessors = {
-        'waypoints': [waypoints, setWaypoints],
-        'polygons': [polygons, setPolygons],
-        'fence': [fence, setFence]
+    const getters = {
+        'waypoints': waypoints,
+        'polygons': polygons,
+        'fence': fence
     }
 
+    const setters = {
+        'waypoints': setWaypoints,
+        'polygons': setPolygons,
+        'fence': setFence
+    }
     
     return (
         <SplitPane split="vertical" minSize="80%" defaultSize="80%">
             <FlightPlanMap
-                datatypeAccessors={datatypeAccessors}
+                getters={getters} setters={setters}
                 mode={mode} setMode={setMode}
                  />
             <FlightPlanToolbar 
-                datatypeAccessors={datatypeAccessors}
+                getters={getters} setters={setters}
                 mode={mode} setMode={setMode}
                  />
         </SplitPane>
