@@ -10,10 +10,10 @@ const FlightData = () => {
     }
 
     useEffect(() => {
-        const interval = setInterval(() => {
-            queryValues();
-        }, 1000);
-        return () => clearInterval(interval);
+//        const interval = setInterval(() => {
+//            queryValues();
+//        }, 1000);
+//        return () => clearInterval(interval);
     }, []);
 
     return (

@@ -1,23 +1,19 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import Dropdown from 'react-bootstrap/Dropdown'
 import DropdownButton from 'react-bootstrap/DropdownButton'
 import { load, save, read, write } from '../backend.js'
+
 
 const FlightPlanToolbar = (props) => {
 
     const handleClick = (event) => {
         let btnId = event.target.id;
         let [action, datatype] = btnId.split("-");
-        let [get, set] = [undefined, undefined];
-        switch(datatype){
-            case 'waypoints':
-                get = props.waypoints;
-                set = props.setWaypoints;
-                break;
-            case 'polygons':
-                get = props.polygons;
-                set = props.setPolygons;
+        if(!props.datatypeAccessors.includes(datatype)){
+            console.log("Unknown datatype nani");
+            return;
         }
+        let [get, set] = props.datatypeAccessors[datatype];
         switch(action){
             case 'load':
                 set(load(datatype));
@@ -31,23 +27,39 @@ const FlightPlanToolbar = (props) => {
             case 'write':
                 write(datatype, get);
                 break;
+            default:
+                console.log("ERROR");
         }
-    }    
+    }
+
+    const modeChange = (event) => {
+        props.setMode(event.target.value)
+    }
+
+    useEffect(() => {
+        let radio = document.getElementById(props.mode);
+        radio.checked = true;
+    }, [])
 
 
     return (
         <div style={{"marginLeft": 10}}>
-            <DropdownButton id="waypoint-dropdown" title="Waypoint" style={{"margin-bottom": 20}}>
+            <div id="mode-div" onChange={modeChange} style={{"paddingBottom": 20}}>
+                <div><input type="radio" id="waypoints" value="waypoints" name="mode"/> Waypoint Mode</div>
+                <div><input type="radio" id="polygons" value="polygons" name="mode"/> Polygon Mode</div>
+                <div><input type="radio" id="fence" value="fence" name="mode"/> Geofence Mode</div>
+            </div>
+            <DropdownButton id="waypoint-dropdown" title="Waypoint" style={{"marginBottom": 20}}>
                 <Dropdown.Item id="load-waypoints" onClick={handleClick}>Load waypoints from file</Dropdown.Item>
                 <Dropdown.Item id="save-waypoints" onClick={handleClick}>Save waypoints to file</Dropdown.Item>
                 <Dropdown.Item id="read-waypoints" onClick={handleClick}>Read waypoints to Pixhawk</Dropdown.Item>
                 <Dropdown.Item id="write-waypoints" onClick={handleClick}>Write waypoints to Pixhawk</Dropdown.Item>
             </DropdownButton>
-            <DropdownButton id="polygon-dropdown" title="Polygon" style={{"margin-bottom": 20}}>
+            <DropdownButton id="polygon-dropdown" title="Polygon" style={{"marginBottom": 20}}>
                 <Dropdown.Item id="load-polygons" onClick={handleClick}>Load polygons from file</Dropdown.Item>
                 <Dropdown.Item id="save-polygons" onClick={handleClick}>Save polygons to file</Dropdown.Item>
             </DropdownButton>
-            <DropdownButton id="fence-dropdown" title="Geofence" style={{"margin-bottom": 20}}>
+            <DropdownButton id="fence-dropdown" title="Geofence" style={{"marginBottom": 20}}>
                 <Dropdown.Item id="load-fence" onClick={handleClick}>Load fence from file</Dropdown.Item>
                 <Dropdown.Item id="save-fence" onClick={handleClick}>Save fence to file</Dropdown.Item>
                 <Dropdown.Item id="read-fence" onClick={handleClick}>Read fence to Pixhawk</Dropdown.Item>

@@ -9,6 +9,7 @@ import L from 'leaflet'
 // TODO: Popup for home icon
 // TODO: Popup for waypoint labels
 // TODO: Mode radio button (or dropdown) -> (waypoint, polygon, fence, remove)
+// TODO: Implement marker insertion
 // TODO: Implement marker removal
 // TODO: Display current location of plane (use telem, and also need to make plane icon)
 // TODO: Polyline overlay -> take polyline file (custom file structure) and overlay it onto map (allow for color option in file)
@@ -46,29 +47,31 @@ const FlightPlanMap = (props) => {
       "polygons":  new LeafIcon({iconUrl: 'assets/icon-polygons.png'}),
       "fence": new LeafIcon({iconUrl: 'assets/icon-fence.png'})
     })
-    const interval = setInterval(() => {
-      queryValues();
-    }, 1000);
-    return () => clearInterval(interval);
+//    const interval = setInterval(() => {
+//      queryValues();
+//    }, 1000);
+//    return () => clearInterval(interval);
   }, []);
 
 
-  const handleMove = (event, idx) => {
-    let tempWaypoints = props.waypoints.slice();
-    tempWaypoints[idx] = event.latlng;
-    props.setWaypoints(tempWaypoints);
+  const handleMove = (event, idx, datatype) => {
+    let [get, set] = props.datatypeAccessors[datatype];
+    let temp = get.slice();
+    temp[idx] = event.latlng;
+    set(temp);
   }
 
   const popup = (latlng, key, datatype) => (
     <Marker icon={icons[datatype]}
     position={latlng} key={key} 
-    draggable={true} onmove={(event) => handleMove(event, key)} />
+    draggable={true} onmove={(event) => handleMove(event, key, datatype)} />
   );
 
   const handleClick = (event) => {
-    let tempWaypoints = props.waypoints.slice();
-    tempWaypoints.push([event.latlng.lat, event.latlng.lng]);
-    props.setWaypoints(tempWaypoints);
+    let [get, set] = props.datatypeAccessors[props.mode];
+    let temp = get.slice();
+    temp.push([event.latlng.lat, event.latlng.lng]);
+    set(temp);
   }
 
   return (
@@ -85,15 +88,17 @@ const FlightPlanMap = (props) => {
         attribution='&amp;copy <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
-      <Polyline positions={props.waypoints}></Polyline>
       <Marker position={state.latlng}></Marker>
-      {props.waypoints.map((thing, index) => {
+      <Polyline positions={props.datatypeAccessors.waypoints[0]} color="#00AA00"></Polyline>
+      <Polyline positions={props.datatypeAccessors.polygons[0]} color="#FF0000"></Polyline>
+      <Polyline positions={props.datatypeAccessors.fence[0]} color="#0000FF"></Polyline>
+      {props.datatypeAccessors.waypoints[0].map((thing, index) => {
         return popup(thing, index, 'waypoints');
       })}
-      {props.polygons.map((thing, index) => {
+      {props.datatypeAccessors.polygons[0].map((thing, index) => {
         return popup(thing, index, 'polygons');
       })}
-      {props.fence.map((thing, index) => {
+      {props.datatypeAccessors.fence[0].map((thing, index) => {
         return popup(thing, index, 'fence');
       })}
     </Map>
