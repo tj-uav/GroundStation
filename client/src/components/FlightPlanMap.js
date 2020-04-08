@@ -47,7 +47,7 @@ const FlightPlanMap = (props) => {
 
 
   const handleMove = (event, idx, datatype) => {
-    let [get, set] = props.datatypeAccessors[datatype];
+    let get = props.getters[datatype]; let set = props.setters[datatype];
     let temp = get.slice();
     temp[idx] = event.latlng;
     set(temp);
@@ -60,7 +60,7 @@ const FlightPlanMap = (props) => {
   );
 
   const handleClick = (event) => {
-    let [get, set] = props.datatypeAccessors[props.mode];
+    let get = props.getters[props.mode]; let set = props.setters[props.mode];
     let temp = get.slice();
     temp.push([event.latlng.lat, event.latlng.lng]);
     set(temp);
@@ -81,16 +81,16 @@ const FlightPlanMap = (props) => {
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
       <Marker position={state.latlng}></Marker>
-      <Polyline positions={props.datatypeAccessors.waypoints[0]} color="#00AA00"></Polyline>
-      <Polyline positions={props.datatypeAccessors.polygons[0]} color="#FF0000"></Polyline>
-      <Polyline positions={props.datatypeAccessors.fence[0]} color="#0000FF"></Polyline>
-      {props.datatypeAccessors.waypoints[0].map((thing, index) => {
+      <Polyline positions={props.getters.waypoints} color="#00AA00"></Polyline>
+      <Polyline positions={props.getters.polygons} color="#FF0000"></Polyline>
+      <Polyline positions={props.getters.fence} color="#0000FF"></Polyline>
+      {props.getters.waypoints.map((thing, index) => {
         return popup(thing, index, 'waypoints');
       })}
-      {props.datatypeAccessors.polygons[0].map((thing, index) => {
+      {props.getters.polygons.map((thing, index) => {
         return popup(thing, index, 'polygons');
       })}
-      {props.datatypeAccessors.fence[0].map((thing, index) => {
+      {props.getters.fence.map((thing, index) => {
         return popup(thing, index, 'fence');
       })}
     </Map>
