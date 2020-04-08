@@ -51,7 +51,7 @@ const FlightPlanToolbar = (props) => {
             console.log(arr[idx]);
             let sigfig = [arr[idx][0].toFixed(3), arr[idx][1].toFixed(3)];
             let displayIdx = parseInt(idx)+1;
-            ret.push({id: idx, content: "Waypoint " + displayIdx + ": " + sigfig[0] + ", " + sigfig[1]});
+            ret.push({id: idx, content: props.display[mode] + " " + displayIdx + ": " + sigfig[0] + ", " + sigfig[1]});
         }
         return ret;
     }
@@ -65,9 +65,9 @@ const FlightPlanToolbar = (props) => {
     return (
         <div style={{"marginLeft": 10}}>
             <div id="mode-div" onChange={modeChange} style={{"paddingBottom": 20}}>
-                <div><input type="radio" id="waypoints" value="waypoints" name="mode"/> Waypoint Mode</div>
-                <div><input type="radio" id="polygons" value="polygons" name="mode"/> Polygon Mode</div>
-                <div><input type="radio" id="fence" value="fence" name="mode"/> Geofence Mode</div>
+                <div><input type="radio" id="waypoints" value="waypoints" name="mode"/>Waypoint Mode</div>
+                <div><input type="radio" id="polygons" value="polygons" name="mode"/>Polygon Mode</div>
+                <div><input type="radio" id="fence" value="fence" name="mode"/>Geofence Mode</div>
             </div>
             <DropdownButton id="waypoint-dropdown" title="Waypoint" style={{"marginBottom": 20}}>
                 <Dropdown.Item id="load-waypoints" onClick={handleClick}>Load waypoints from file</Dropdown.Item>
