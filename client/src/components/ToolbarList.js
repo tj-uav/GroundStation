@@ -1,23 +1,40 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 
-// fake data generator
-const getItems = (count) => {
-  return Array.from({ length: count }, (v, k) => k).map(k => ({
-    id: `item-${k}`,
-    content: `item ${k}`
-  }));
-}
-// a little function to help us with reordering the result
-const reorder = (list, startIndex, endIndex) => {
-  const result = Array.from(list);
-  const [removed] = result.splice(startIndex, 1);
-  result.splice(endIndex, 0, removed);
-
-  return result;
-};
-
 const grid = 8;
+
+// fake data generator
+const getItemsList = (mode, data, display) => {
+  console.log(data.length);
+  if(data.length == 0){
+    return [];
+  }
+  let ret = [];
+  switch(mode){
+      case 'waypoints':
+      case 'fence':
+          for(let idx in data){
+              let sigfig = [data[idx][0].toFixed(3), data[idx][1].toFixed(3)];
+              let displayIdx = parseInt(idx)+1;
+              ret.push({id: idx, content: display[mode] + " " + displayIdx + ": " + sigfig[0] + ", " + sigfig[1]});
+          }
+          break;
+      case 'polygons':
+          for(let idx in data){
+              let polygon = data[idx];
+              console.log(polygon);
+              for(let subidx in polygon){
+                  console.log(polygon[subidx]);
+                  let sigfig = [polygon[subidx][0].toFixed(3), polygon[subidx][1].toFixed(3)];
+                  ret.push({id: idx, content: "Polygon " + (parseInt(idx)+1) + ", marker " + (parseInt(subidx)+1) + ": " + sigfig[0] + ", " + sigfig[1]});
+              }
+          }
+          break;
+      }
+  console.log(ret);
+  return ret;
+}
+
 
 const DisplayItem = (props) => (
   <Draggable key={props.item.id} draggableId={props.item.id} index={props.index}>
@@ -38,33 +55,49 @@ const DisplayItem = (props) => (
 )
 
 const DisplayList = (props) => {
-  return props.state.items.map((item, index) => (
+  return props.state.map((item, index) => (
     <DisplayItem item={item} index={index}></DisplayItem>
   ))
 }
 
 
 const ToolbarList = (props) => {
-  let [state, setState] = useState({items: getItems(20)})
+
+//  const state = useRef([]);
+//  let [state, setState] = useState([]);
+
+  // a little function to help us with reordering the result
+  const reorder = (list, startIndex, endIndex) => {
+    const result = Array.from(list);
+    const [removed] = result.splice(startIndex, 1);
+    result.splice(endIndex, 0, removed);
+    return result;
+  };
 
   const onDragEnd = (result) => {
     // dropped outside the list
     if (!result.destination) {
       return;
     }
-
-    const items = reorder(
-      state.items,
-      result.source.index,
-      result.destination.index
-    );
-
-    setState({items});
+    const items = reorder(props.data, result.source.index, result.destination.index);
+    console.log(items);
+    props.setData(items);
+    console.log(props.data);
+//    state.current = items;
+//    const items = reorder(state, result.source.index, result.destination.index);
+//    state.current = items;
+//    setState(items);
   }
 
-  // Normally you would want to split things out into separate components.
-  // But in this example everything is just done in one place for simplicity
+  useEffect(() => {
+//    setState(getItemsList(props.mode, props.data, props.display));
+//    state.current = getItemsList(props.mode, props.data, props.display);
+//    console.log(state);
+  }, [props.data])
+
   return (
+    <div>
+      {/* {state.current.length} */}
       <DragDropContext onDragEnd={onDragEnd}>
         <Droppable droppableId="droppable">
           {(provided, snapshot) => (
@@ -73,12 +106,14 @@ const ToolbarList = (props) => {
               ref={provided.innerRef}
               style={{background: snapshot.isDraggingOver ? "lightblue" : "lightgrey", padding: grid, width: 250}}
             >
-            <DisplayList state={state}></DisplayList>
+{/*            <DisplayList state={state.current}></DisplayList> */}
+            <DisplayList state={getItemsList(props.mode, props.data, props.display)}></DisplayList>
             {provided.placeholder}
             </div>
           )}
         </Droppable>
       </DragDropContext>
+    </div>
     );
   }
 
