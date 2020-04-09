@@ -80,7 +80,9 @@ const FlightPlanMap = (props) => {
   const popup = (latlng, key, datatype) => (
       <Marker icon={icons[datatype]} position={latlng} onclick={() => {}} onkeydown={(event) => handleKeyPress(event, key)}
       draggable={true} onmoveend={(event) => handleMove(event, key, datatype)} datatype={datatype}>
-        <Tooltip>{props.display[datatype]} </Tooltip>
+        <Tooltip>{datatype == "polygons" ?
+        "Polygon " + (key[0]+1) + ", Marker " + (key[1]+1):
+        props.display[datatype] + " " + (key+1)}</Tooltip>
       </Marker>
   );
 

@@ -5,7 +5,6 @@ const grid = 8;
 
 // fake data generator
 const getItemsList = (mode, data, display) => {
-  console.log(data.length);
   if(data.length == 0){
     return [];
   }
@@ -22,12 +21,14 @@ const getItemsList = (mode, data, display) => {
       case 'polygons':
           for(let idx in data){
               let polygon = data[idx];
-              console.log(polygon);
+//              console.log(polygon);
+              let temp = [];
               for(let subidx in polygon){
-                  console.log(polygon[subidx]);
+//                  console.log(polygon[subidx]);
                   let sigfig = [polygon[subidx][0].toFixed(3), polygon[subidx][1].toFixed(3)];
-                  ret.push({id: idx, content: "Polygon " + (parseInt(idx)+1) + ", marker " + (parseInt(subidx)+1) + ": " + sigfig[0] + ", " + sigfig[1]});
+                  temp.push({id: idx, content: "Polygon " + (parseInt(idx)+1) + ", marker " + (parseInt(subidx)+1) + ": " + sigfig[0] + ", " + sigfig[1]});
               }
+              ret.push(temp);
           }
           break;
       }
@@ -55,18 +56,28 @@ const DisplayItem = (props) => (
 )
 
 const DisplayList = (props) => {
+  console.log(props.state);
   return props.state.map((item, index) => (
     <DisplayItem item={item} index={index}></DisplayItem>
   ))
 }
 
+const getDisplayList = (mode, data, display) => {
+  let items = getItemsList(mode, data, display);
+  console.log(items);
+  if(mode == "polygons"){
+    console.log("Hai");
+    return items.map((polygon, idx) => (
+      <DisplayList state={polygon}></DisplayList>
+    ))
+  }
+  else {
+    return <DisplayList state={items}></DisplayList>
+  }
+}
+
 
 const ToolbarList = (props) => {
-
-//  const state = useRef([]);
-//  let [state, setState] = useState([]);
-
-  // a little function to help us with reordering the result
   const reorder = (list, startIndex, endIndex) => {
     const result = Array.from(list);
     const [removed] = result.splice(startIndex, 1);
@@ -80,24 +91,11 @@ const ToolbarList = (props) => {
       return;
     }
     const items = reorder(props.data, result.source.index, result.destination.index);
-    console.log(items);
     props.setData(items);
-    console.log(props.data);
-//    state.current = items;
-//    const items = reorder(state, result.source.index, result.destination.index);
-//    state.current = items;
-//    setState(items);
   }
-
-  useEffect(() => {
-//    setState(getItemsList(props.mode, props.data, props.display));
-//    state.current = getItemsList(props.mode, props.data, props.display);
-//    console.log(state);
-  }, [props.data])
 
   return (
     <div>
-      {/* {state.current.length} */}
       <DragDropContext onDragEnd={onDragEnd}>
         <Droppable droppableId="droppable">
           {(provided, snapshot) => (
@@ -106,8 +104,7 @@ const ToolbarList = (props) => {
               ref={provided.innerRef}
               style={{background: snapshot.isDraggingOver ? "lightblue" : "lightgrey", padding: grid, width: 250}}
             >
-{/*            <DisplayList state={state.current}></DisplayList> */}
-            <DisplayList state={getItemsList(props.mode, props.data, props.display)}></DisplayList>
+            {getDisplayList(props.mode, props.data, props.display)}
             {provided.placeholder}
             </div>
           )}
@@ -117,6 +114,4 @@ const ToolbarList = (props) => {
     );
   }
 
-
-// Put the thing into the DOM!
 export default ToolbarList;

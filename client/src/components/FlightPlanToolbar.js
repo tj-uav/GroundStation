@@ -41,10 +41,6 @@ const FlightPlanToolbar = (props) => {
         alert("You tried to add an " + command);
     }
 
-    const modeChange = (event) => {
-        props.setMode(event.target.value)
-    }
-
     const newPolygon = () => {
         let temp = props.getters.polygons;
         temp.push([]);
@@ -59,7 +55,7 @@ const FlightPlanToolbar = (props) => {
 
     return (
         <div style={{"marginLeft": 10}}>
-            <div id="mode-div" onChange={modeChange}>
+            <div id="mode-div" onChange={(event) => props.setMode(event.target.value)}>
                 <div><input type="radio" id="waypoints" value="waypoints" name="mode"/>Waypoint Mode</div>
                 <div><input type="radio" id="polygons" value="polygons" name="mode"/>Polygon Mode</div>
                 <div><input type="radio" id="fence" value="fence" name="mode"/>Geofence Mode</div>
@@ -84,7 +80,7 @@ const FlightPlanToolbar = (props) => {
                 <Dropdown.Item id="actuate-servo" onClick={handleCommandClick}>Actuate servo</Dropdown.Item>
             </DropdownButton>
             <Button id="new-polygon" style={{"marginTop": 20, display: props.mode === "polygons" ? "block" : "none"}} onClick={newPolygon}>New Polygon</Button>
-            <div style={{"marginTop": 20}}><ToolbarList mode={props.mode} data={props.getters.waypoints} setData={props.setters.waypoints} display={props.display}></ToolbarList></div>
+            <div style={{"marginTop": 20}}><ToolbarList mode={props.mode} data={props.getters[props.mode]} setData={props.setters[props.mode]} display={props.display}></ToolbarList></div>
         </div>
     )
 
