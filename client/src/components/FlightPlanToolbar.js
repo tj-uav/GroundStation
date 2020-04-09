@@ -45,35 +45,6 @@ const FlightPlanToolbar = (props) => {
         props.setMode(event.target.value)
     }
 
-    const getItemsList = (mode) => {
-        let ret = [];
-        switch(mode){
-            case 'waypoints':
-            case 'fence':
-                let arr = props.getters[mode];
-                for(let idx in arr){
-                    let sigfig = [arr[idx][0].toFixed(3), arr[idx][1].toFixed(3)];
-                    let displayIdx = parseInt(idx)+1;
-                    ret.push({id: idx, content: props.display[mode] + " " + displayIdx + ": " + sigfig[0] + ", " + sigfig[1]});
-                }
-                break;
-            case 'polygons':
-                let polygons = props.getters[mode];
-                for(let idx in polygons){
-                    let polygon = polygons[idx];
-                    console.log(polygon);
-                    for(let subidx in polygon){
-                        console.log(polygon[subidx]);
-                        let sigfig = [polygon[subidx][0].toFixed(3), polygon[subidx][1].toFixed(3)];
-                        ret.push({id: idx, content: "Polygon " + (parseInt(idx)+1) + ", marker " + (parseInt(subidx)+1) + ": " + sigfig[0] + ", " + sigfig[1]});
-                    }
-                }
-                break;
-            }
-        console.log(ret);
-        return ret;
-    }
-
     const newPolygon = () => {
         let temp = props.getters.polygons;
         temp.push([]);
@@ -81,8 +52,8 @@ const FlightPlanToolbar = (props) => {
     }
 
     useEffect(() => {
-//        let radio = document.getElementById(props.mode);
-//        radio.checked = true;
+        let radio = document.getElementById(props.mode);
+        radio.checked = true;
     }, [])
 
 
@@ -113,7 +84,7 @@ const FlightPlanToolbar = (props) => {
                 <Dropdown.Item id="actuate-servo" onClick={handleCommandClick}>Actuate servo</Dropdown.Item>
             </DropdownButton>
             <Button id="new-polygon" style={{"marginTop": 20, display: props.mode === "polygons" ? "block" : "none"}} onClick={newPolygon}>New Polygon</Button>
-            <ToolbarList></ToolbarList>
+            <div style={{"marginTop": 20}}><ToolbarList mode={props.mode} data={props.getters.waypoints} setData={props.setters.waypoints} display={props.display}></ToolbarList></div>
         </div>
     )
 
