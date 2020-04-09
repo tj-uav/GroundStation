@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 
-const grid = 8;
+const grid = 5;
 
 // fake data generator
 const getItemsList = (mode, data, display) => {
@@ -97,7 +97,7 @@ const ToolbarList = (props) => {
   return (
     <div>
       <DragDropContext onDragEnd={onDragEnd}>
-        <Droppable droppableId="droppable">
+      <Droppable droppableId="droppable">
           {(provided, snapshot) => (
             <div
               {...provided.droppableProps}

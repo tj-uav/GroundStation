@@ -12,6 +12,8 @@ import SplitPane from 'react-split-pane'
 // TODO: Commands creation in toolbar
 // TODO: Interactive display list (move around, delete, insert)
 // TODO: Fix error where waypoint and fence modes display polygon points
+// TODO: Polyline arrows showing direction of waypoints
+// TODO: Display list highlighting
 
 
 const FlightPlan = (props) => {

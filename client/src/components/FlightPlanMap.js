@@ -5,13 +5,11 @@ import React, { createRef, useState, useEffect } from 'react'
 import { Map, TileLayer, Popup, Tooltip, Marker, Polyline } from 'react-leaflet'
 import { httpget } from '../backend.js'
 import L from 'leaflet'
+import PolylineDecorator from './PolylineDecorator.js';
 
 const FlightPlanMap = (props) => {
   const [state, setState] = useState({
-    latlng: {
-      lat: 51.505,
-      lng: -0.09,
-    },
+    latlng: {lat: 51.505, lng: -0.09}
   })
 
   let mapRef = createRef<Map>()
@@ -23,6 +21,7 @@ const FlightPlanMap = (props) => {
   }
 
   useEffect(() => {
+    console.log(mapRef.current);
     var LeafIcon = L.Icon.extend({
         options: {
           iconSize: [25, 41],
@@ -119,7 +118,8 @@ const FlightPlanMap = (props) => {
         attribution='&amp;copy <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
-      <Polyline positions={props.getters.waypoints} color="#00AA00"></Polyline>
+      {/* <Polyline positions={props.getters.waypoints} color="#00AA00"></Polyline> */}
+      <PolylineDecorator positions={props.getters.waypoints} color="#00AA00" />
       {props.getters.polygons.map((arr) => {
         return <Polyline positions={circle(arr)} color="#FF0000"></Polyline>
       })}
@@ -129,7 +129,7 @@ const FlightPlanMap = (props) => {
       })}
       {props.getters.polygons.map((arr, index1) => {
         return arr.map((marker, index2) => {
-          console.log(marker);
+//          console.log(marker);
           return popup(marker, [index1, index2], 'polygons');
         })
       })}

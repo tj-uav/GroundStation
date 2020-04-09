@@ -10,6 +10,7 @@
     "bootstrap": "^4.4.1",
     "esri": "0.0.1-security",
     "leaflet": "^1.6.0",
+    "leaflet-polylinedecorator": "^1.6.0",
     "mapbox-gl": "^1.9.1",
     "prop-types": "^15.7.2",
     "react": "^16.13.1",
