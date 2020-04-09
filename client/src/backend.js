@@ -1,5 +1,5 @@
 import axios from 'axios'
-import makeWaypointFile from 'helper.js'
+import { makeWaypointFile } from './helper.js'
 
 const httpget = async (endpoint, func) => {
     axios.get(endpoint, {
@@ -16,7 +16,7 @@ const load = (filetype) => {
 
 const save = (filetype, data) => {
     console.log("Saving " + data + " to " + filetype);
-    if(datatype == "waypoints"){
+    if(filetype == "waypoints"){
         makeWaypointFile(data)
      }
 }
