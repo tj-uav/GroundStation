@@ -2,7 +2,6 @@ import React, { useState } from 'react'
 import FlightPlanMap from '../components/FlightPlanMap.js'
 import FlightPlanToolbar from '../components/FlightPlanToolbar.js'
 import SplitPane from 'react-split-pane'
-//import InputPage from '../components/test.js'
 
 // TODO: Home icon
 // TODO: Waypoint number icon
@@ -45,7 +44,7 @@ const FlightPlan = (props) => {
     }
     
     return (
-        <SplitPane split="vertical" minSize="80%" defaultSize="80%">
+        <SplitPane split="vertical" minSize="80%" defaultSize="80%" overflow="auto">
             <FlightPlanMap
                 display={display}
                 getters={getters} setters={setters}
@@ -57,7 +56,7 @@ const FlightPlan = (props) => {
                 mode={mode} setMode={setMode}
                  />
         </SplitPane>
-    )
+      )
     
 //   return (
 //       <InputPage></InputPage>

@@ -2,9 +2,9 @@ import React, { useEffect } from 'react'
 import Button from 'react-bootstrap/Button'
 import Dropdown from 'react-bootstrap/Dropdown'
 import DropdownButton from 'react-bootstrap/DropdownButton'
-import ReactScrollableList from 'react-scrollable-list'
+
 import { load, save, read, write } from '../backend.js'
-import '../css/scroll.css'
+import ToolbarList from './ToolbarList.js'
 
 const FlightPlanToolbar = (props) => {
 
@@ -81,8 +81,8 @@ const FlightPlanToolbar = (props) => {
     }
 
     useEffect(() => {
-        let radio = document.getElementById(props.mode);
-        radio.checked = true;
+//        let radio = document.getElementById(props.mode);
+//        radio.checked = true;
     }, [])
 
 
@@ -113,12 +113,7 @@ const FlightPlanToolbar = (props) => {
                 <Dropdown.Item id="actuate-servo" onClick={handleCommandClick}>Actuate servo</Dropdown.Item>
             </DropdownButton>
             <Button id="new-polygon" style={{"marginTop": 20, display: props.mode === "polygons" ? "block" : "none"}} onClick={newPolygon}>New Polygon</Button>
-            <ReactScrollableList
-                listItems={getItemsList(props.mode)}
-                heightOfItem={30}
-                maxItemsToRender={10}
-                style={{color: '#333', "marginTop": 20}}
-            />
+            <ToolbarList></ToolbarList>
         </div>
     )
 
