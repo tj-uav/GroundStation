@@ -53,31 +53,46 @@ const FlightPlanMap = (props) => {
         let datatype = event.target.options.datatype;
         let get = props.getters[datatype]; let set = props.setters[datatype];
         let temp = get.slice();
-        temp.splice(idx, 1);
+        if(datatype == "polygons"){
+          temp[idx[0]].splice(idx[1], 1);
+        }
+        else{
+          temp.splice(idx, 1);
+        }
         set(temp);
     }
   }
 
 
   const handleMove = (event, idx, datatype) => {
-    console.log(event);
     let get = props.getters[datatype]; let set = props.setters[datatype];
     let temp = get.slice();
-    temp[idx] = [event.target.getLatLng().lat, event.target.getLatLng().lng];
+    let loc = [event.target.getLatLng().lat, event.target.getLatLng().lng];
+    if(datatype == "polygons"){
+      temp[idx[0]][idx[1]] = loc;
+    }
+    else{
+      temp[idx] = loc;
+    }     
     set(temp);
   }
 
   const popup = (latlng, key, datatype) => (
-      <Marker icon={icons[datatype]} position={latlng} onclick={console.log} onkeydown={(event) => handleKeyPress(event, key)}
+      <Marker icon={icons[datatype]} position={latlng} onclick={() => {}} onkeydown={(event) => handleKeyPress(event, key)}
       draggable={true} onmoveend={(event) => handleMove(event, key, datatype)} datatype={datatype}>
-        <Tooltip>{props.display[datatype]} {key + 1}</Tooltip>
+        <Tooltip>{props.display[datatype]} </Tooltip>
       </Marker>
   );
 
   const handleClick = (event) => {
     let get = props.getters[props.mode]; let set = props.setters[props.mode];
     let temp = get.slice();
-    temp.push([event.latlng.lat, event.latlng.lng]);
+    if(props.mode == "polygons"){
+      temp[temp.length - 1].push([event.latlng.lat, event.latlng.lng]);
+    }
+    else{
+      temp.push([event.latlng.lat, event.latlng.lng]);
+    }
     set(temp);
   }
 
@@ -87,8 +102,6 @@ const FlightPlanMap = (props) => {
     }
     return arr.concat([arr[0]]);
   }
-
-  console.log(props.getters.fence);
 
   return (
     <div>
@@ -106,16 +119,21 @@ const FlightPlanMap = (props) => {
       />
       <Marker position={state.latlng}></Marker>
       <Polyline positions={props.getters.waypoints} color="#00AA00"></Polyline>
-      <Polyline positions={circle(props.getters.polygons)} color="#FF0000"></Polyline>
+      {props.getters.polygons.map((arr) => {
+        return <Polyline positions={circle(arr)} color="#FF0000"></Polyline>
+      })}
       <Polyline positions={circle(props.getters.fence)} color="#0000FF"></Polyline>
-      {props.getters.waypoints.map((thing, index) => {
-        return popup(thing, index, 'waypoints');
+      {props.getters.waypoints.map((marker, index) => {
+        return popup(marker, index, 'waypoints');
       })}
-      {props.getters.polygons.map((thing, index) => {
-        return popup(thing, index, 'polygons');
+      {props.getters.polygons.map((arr, index1) => {
+        return arr.map((marker, index2) => {
+          console.log(marker);
+          return popup(marker, [index1, index2], 'polygons');
+        })
       })}
-      {props.getters.fence.map((thing, index) => {
-        return popup(thing, index, 'fence');
+      {props.getters.fence.map((marker, index) => {
+        return popup(marker, index, 'fence');
       })}
     </Map>
     </div>
