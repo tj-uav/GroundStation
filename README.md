@@ -5,10 +5,19 @@ TJUAV's custom UI ground station
 
 In the project directory, you can run:
 
+### `npm i`
+
+Run the above command in client/.
+Installs all of the necessary packages (specified in package-lock.json).<br />
+
+### `npm i <package name>`
+
+Run the above command in client/.
+Installs the package that you specify (and adds it to package-lock.json).<br />
+
 ### `npm start`
 
 Run the above command in client/.
-Runs the app in the development mode.<br />
 Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 
 The page will reload if you make edits.<br />
