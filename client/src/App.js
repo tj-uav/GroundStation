@@ -36,8 +36,9 @@ const App = () => {
         break;
       case "antenna-tracker":
         setView(antennaTracker)
+        break;
       default:
-        setView(flightData);
+        setView(<div>Unknown tab selected</div>);
     }
   };
 
