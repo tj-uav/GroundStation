@@ -4,7 +4,6 @@ import { httpget } from '../backend.js'
 const FlightData = () => {
 
     const [telem, setTelem] = useState([]);
-
     const queryValues = () => {
         httpget("/mav/telem", (response) => setTelem(response.data));
     }
