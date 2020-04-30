@@ -21,7 +21,7 @@ Inside the venv:
 install necessary packages into the venv run:
 'pip3 install -r requirements.txt --user'
 
-import the auvsi interop server, instructions at:
+Import the auvsi interop server, instructions at:
 https://tjuav.gitbook.io/tjuav/software/python/package-installation-w-pip/interop-library
 
 To exit the virtualenv, run:
