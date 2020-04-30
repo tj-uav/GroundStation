@@ -1,6 +1,26 @@
 # GroundStation
 TJUAV's custom UI ground station
 
+## Virtual Environment
+
+### Create a virtualenv
+First make sure you have the virutalenv python library, run:
+`pip3 install virutalenv`
+
+Then, to create a virtualenv, run:
+`python3 -m venv venv/`
+in the outermost repo
+
+### Get into the venv
+For Linux run:
+`venv/bin/activate`
+and for Windows run:
+`venv\Scripts\activate`
+
+To exit the virtualenv, run:
+`deactivate`
+
+
 ## Available Scripts
 
 In the project directory, you can run:
