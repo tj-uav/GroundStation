@@ -9,7 +9,7 @@ First make sure you have the virutalenv python library, run:
 
 Then, to create a virtualenv, run:
 `python3 -m venv venv/`
-in the outermost repo
+in the outermost folder (GroundStation/)
 
 ### Get into the venv
 For Linux run:
