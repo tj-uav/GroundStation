@@ -17,14 +17,13 @@ For Linux run:
 and for Windows run:
 `venv\Scripts\activate`
 
+To install necessary packages into the venv (while inside of it) run:
+'pip3 install -r requirements.txt --user'
+
 To exit the virtualenv, run:
 `deactivate`
 
-Install necessary packages into the venv:
-'pip install flask flask-cors'
-'pip install pymavlink'
-Import interop, how to:
-https://tjuav.gitbook.io/tjuav/software/python/package-installation-w-pip/interop-library
+
 
 ## Available Scripts
 
