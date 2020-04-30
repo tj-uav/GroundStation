@@ -1,2 +1,4 @@
 client/node_modules/
 server/config.json
+venv/
+.vscode/
