@@ -20,6 +20,11 @@ and for Windows run:
 To exit the virtualenv, run:
 `deactivate`
 
+Install necessary packages into the venv:
+'pip install flask flask-cors'
+'pip install pymavlink'
+Import interop, how to:
+https://tjuav.gitbook.io/tjuav/software/python/package-installation-w-pip/interop-library
 
 ## Available Scripts
 
