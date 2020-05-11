@@ -11,10 +11,8 @@ const FlightPlanToolbar = (props) => {
   const handleClick = (event) => {
     let btnId = event.target.id;
     let [action, datatype] = btnId.split("-");
-    if (!props.getters.includes(datatype)) {
-      console.log("Unknown datatype nani");
+    if (!datatype in props.getters)
       return;
-    }
     let get = props.getters[datatype];
     let set = props.setters[datatype];
     switch (action) {
