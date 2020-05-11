@@ -20,51 +20,51 @@ TODO: Display list highlighting (and vice versa)
 
 const FlightPlan = (props) => {
 
-    const [mode, setMode] = useState("waypoints")
-    const [waypoints, setWaypoints] = useState([]);
-    const [commands, setCommands] = useState([]);
-    const [polygons, setPolygons] = useState([[]]);
-    const [fence, setFence] = useState([]);
+  const [mode, setMode] = useState("waypoints")
+  const [waypoints, setWaypoints] = useState([]);
+  const [commands, setCommands] = useState([]);
+  const [polygons, setPolygons] = useState([[]]);
+  const [fence, setFence] = useState([]);
 
-    const getters = {
-        'commands': commands,
-        'waypoints': waypoints,
-        'polygons': polygons,
-        'fence': fence
-    }
+  const getters = {
+    'commands': commands,
+    'waypoints': waypoints,
+    'polygons': polygons,
+    'fence': fence
+  }
 
-    const setters = {
-        'commands': setCommands,
-        'waypoints': setWaypoints,
-        'polygons': setPolygons,
-        'fence': setFence
-    }
+  const setters = {
+    'commands': setCommands,
+    'waypoints': setWaypoints,
+    'polygons': setPolygons,
+    'fence': setFence
+  }
 
-    const display = {
-        'commands': 'Command',
-        'waypoints': 'Waypoint',
-        'polygons': 'Polygon',
-        'fence': 'Geofence'
-    }
-    
-    return (
-        <SplitPane split="vertical" minSize="80%" defaultSize="80%" overflow="auto">
-            <FlightPlanMap
-                display={display}
-                getters={getters} setters={setters}
-                mode={mode} setMode={setMode}
-                 />
-            <FlightPlanToolbar 
-                display={display}
-                getters={getters} setters={setters}
-                mode={mode} setMode={setMode}
-                 />
-        </SplitPane>
-      )
-    
-//   return (
-//       <InputPage></InputPage>
-//   )
+  const display = {
+    'commands': 'Command',
+    'waypoints': 'Waypoint',
+    'polygons': 'Polygon',
+    'fence': 'Geofence'
+  }
+
+  return (
+    <SplitPane split="vertical" minSize="80%" defaultSize="80%" overflow="auto">
+      <FlightPlanMap
+        display={display}
+        getters={getters} setters={setters}
+        mode={mode} setMode={setMode}
+      />
+      <FlightPlanToolbar
+        display={display}
+        getters={getters} setters={setters}
+        mode={mode} setMode={setMode}
+      />
+    </SplitPane>
+  )
+
+  //   return (
+  //       <InputPage></InputPage>
+  //   )
 }
 
 export default FlightPlan;
