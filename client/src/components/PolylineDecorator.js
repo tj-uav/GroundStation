@@ -24,20 +24,20 @@ const PolylineDecorator = withLeaflet(props => {
     const polyline = polyRef.current.leafletElement; //get native Leaflet polyline
     const { map } = polyRef.current.props.leaflet; //get native Leaflet map
 
-    if(decoRef.current){
+    if (decoRef.current) {
       decoRef.current.removeFrom(map);
     }
 
     let temp = [];
     let latlngs = polyline.getLatLngs();
-    if(latlngs.length > 1){
-      for(let i of Array(latlngs.length - 1).keys()){
-        temp.push([latlngs[i], latlngs[i+1]]);
+    if (latlngs.length > 1) {
+      for (let i of Array(latlngs.length - 1).keys()) {
+        temp.push([latlngs[i], latlngs[i + 1]]);
       }
     }
 
     decoRef.current = L.polylineDecorator(temp, {
-        patterns : arrow
+      patterns: arrow
     });
     decoRef.current.addTo(map);
   });

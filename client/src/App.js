@@ -21,7 +21,7 @@ const App = () => {
 
   const onSelect = (selectedKey) => {
     console.log(selectedKey);
-    switch(selectedKey){
+    switch (selectedKey) {
       case "flight-data":
         setView(flightData);
         break;
