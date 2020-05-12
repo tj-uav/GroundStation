@@ -9,18 +9,18 @@ import ToolbarList from './ToolbarList.js'
 const FlightPlanToolbar = (props) => {
 
   const read = () => {
-    
+
   }
 
 
   const write = () => {
-    
+
   }
 
   const handleClick = (event) => {
     let btnId = event.target.id;
     let [action, datatype] = btnId.split("-");
-    if (!datatype in props.getters)
+    if (!(datatype in props.getters))
       return;
     let get = props.getters[datatype];
     let set = props.setters[datatype];
