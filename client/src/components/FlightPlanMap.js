@@ -52,7 +52,7 @@ const FlightPlanMap = (props) => {
         let datatype = event.target.options.datatype;
         let get = props.getters[datatype]; let set = props.setters[datatype];
         let temp = get.slice();
-        if (datatype == "polygons") {
+        if (datatype === "polygons") {
           temp[idx[0]].splice(idx[1], 1);
         }
         else {
@@ -67,7 +67,7 @@ const FlightPlanMap = (props) => {
     let get = props.getters[datatype]; let set = props.setters[datatype];
     let temp = get.slice();
     let loc = [event.target.getLatLng().lat, event.target.getLatLng().lng];
-    if (datatype == "polygons") {
+    if (datatype === "polygons") {
       temp[idx[0]][idx[1]] = loc;
     }
     else {
@@ -79,7 +79,7 @@ const FlightPlanMap = (props) => {
   const popup = (latlng, key, datatype) => (
     <Marker icon={icons[datatype]} position={latlng} onclick={() => { }} onkeydown={(event) => handleKeyPress(event, key)}
       draggable={true} onmoveend={(event) => handleMove(event, key, datatype)} datatype={datatype}>
-      <Tooltip>{datatype == "polygons" ?
+      <Tooltip>{datatype === "polygons" ?
         "Polygon " + (key[0] + 1) + ", Marker " + (key[1] + 1) :
         props.display[datatype] + " " + (key + 1)}</Tooltip>
     </Marker>
@@ -88,7 +88,7 @@ const FlightPlanMap = (props) => {
   const handleClick = (event) => {
     let get = props.getters[props.mode]; let set = props.setters[props.mode];
     let temp = get.slice();
-    if (props.mode == "polygons") {
+    if (props.mode === "polygons") {
       temp[temp.length - 1].push([event.latlng.lat, event.latlng.lng]);
     }
     else {
