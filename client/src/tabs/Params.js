@@ -15,19 +15,16 @@ TODO: Read params from mavlink
 TODO: Write params to mavlink
 */
 
+const parameters = require("../parameters.json")
 
-const paramDescriptions = {
-  "Bank angle": "The plane's maximum bank angle",
-  "RC Failsafe": "What to do when RC connection is lost",
-  "Geofence": "What to do when plane exits geofence"
-};
+const paramDescriptions = {};
+const initialParams = [];
 
+for (const param in parameters)
+  paramDescriptions[param] = parameters[param].description;
 
-const initialParams = [
-  ["Bank angle", "30"],
-  ["RC Failsafe", "RTL"],
-  ["Geofence", "RTL"]
-]
+for (const param in parameters)
+  initialParams.push([param, "0"]);
 
 
 const Params = () => {
@@ -37,7 +34,7 @@ const Params = () => {
 
   return (
     <div>
-      <div style={{float: "left", paddingLeft: 20}}>
+      <div style={{ float: "left", paddingLeft: 20, width: "65%" }}>
         <Table striped bordered hover>
           <thead>
             <tr>
@@ -57,7 +54,7 @@ const Params = () => {
           </tbody>
         </Table>
       </div>
-      <ParamToolbar paramDescriptions={paramDescriptions} setDisplay={setDisplay} params={params} setParams={(data) => {setParams(data); setDisplay(data);}}></ParamToolbar>
+      <ParamToolbar paramDescriptions={paramDescriptions} setDisplay={setDisplay} params={params} setParams={(data) => { setParams(data); setDisplay(data); }}></ParamToolbar>
     </div>
   )
 }
