@@ -18,10 +18,13 @@ TODO: Write params to mavlink
 const parameters = require("../parameters.json")
 
 const paramDescriptions = {};
+const paramLinks = {};
 const initialParams = [];
 
-for (const param in parameters)
+for (const param in parameters) {
   paramDescriptions[param] = parameters[param].description;
+  paramLinks[param] = parameters[param].link;
+}
 
 for (const param in parameters)
   initialParams.push([param, "0"]);
@@ -44,11 +47,11 @@ const Params = () => {
             </tr>
           </thead>
           <tbody>
-            {params.map((element, i) =>
+            {params.map((param, i) =>
               <tr key={i}>
-                <td>{element[0]}</td>
-                <td>{element[1]}</td>
-                <td>{paramDescriptions[element[0]]}</td>
+                <td><a href={paramLinks[param[0]]} target="_blank" rel="noopener">{param[0]}</a></td>
+                <td>{param[1]}</td>
+                <td>{paramDescriptions[param[0]]}</td>
               </tr>
             )}
           </tbody>
