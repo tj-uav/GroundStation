@@ -1,11 +1,12 @@
 import React, { useState } from "react"
-import { dark, blue } from "../components/Colors"
+import { dark, blue } from "../theme/Colors"
 import styled from "styled-components"
 
 export const Button = ({ active, ...props }) => {
     const [isActive, setActive] = useState(active ?? false)
     return (
         <StyledButton
+            className="paragraph"
             active={isActive}
             onClick={props.onClick ?? (e => { setActive(!isActive); e.persist() })}
             {...props}
