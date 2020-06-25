@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Box } from "../components/UIElements"
-import { Row, Column } from "../components/Containers"
+import FlightPlanMap from '../components/FlightPlanMap.js'
+import Quick from '../components/quick.js'
+import SplitPane from 'react-split-pane'
 import { httpget } from '../backend.js'
 
 const FlightData = () => {
@@ -8,6 +9,33 @@ const FlightData = () => {
   const [telem, setTelem] = useState([]);
   const queryValues = () => {
     httpget("/mav/telem", (response) => setTelem(response.data));
+  }
+
+  const [mode, setMode] = useState("waypoints")
+  const [waypoints, setWaypoints] = useState([]);
+  const [commands, setCommands] = useState([]);
+  const [polygons, setPolygons] = useState([[]]);
+  const [fence, setFence] = useState([]);
+
+  const getters = {
+    'commands': commands,
+    'waypoints': waypoints,
+    'polygons': polygons,
+    'fence': fence
+  }
+
+  const setters = {
+    'commands': setCommands,
+    'waypoints': setWaypoints,
+    'polygons': setPolygons,
+    'fence': setFence
+  }
+
+  const display = {
+    'commands': 'Command',
+    'waypoints': 'Waypoint',
+    'polygons': 'Polygon',
+    'fence': 'Geofence'
   }
 
   useEffect(() => {
@@ -18,18 +46,14 @@ const FlightData = () => {
   }, []);
 
   return (
-    <div>You opened the flight data tab {telem[0]} {telem[1]} {telem[2]}
-      <Row gap="1rem" height="3rem" width="40rem">
-        <Button>Quick</Button>
-        <Button>Click Me!</Button>
-        <Button>Click Me!</Button>
-      </Row>
-      <Column gap="1rem" height="15rem" width="20rem">
-        <Button>Click Me!</Button>
-        <Box label="data" content="some stat" />
-        <Box content="234" editable />
-      </Column>
-    </div>
+    <SplitPane split="vertical" minSize="35%" defaultSize="35%" overflow="auto">
+      <Quick />
+      <FlightPlanMap
+        display={display}
+        getters={getters} setters={setters}
+        mode={mode} setMode={setMode}
+      />
+    </SplitPane>
   )
 }
 
