@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import FlightPlanMap from '../components/FlightPlanMap.js'
-import Quick from '../components/quick.js'
+import Servo from '../components/Servo.js'
 import SplitPane from 'react-split-pane'
 import { httpget } from '../backend.js'
 
@@ -47,7 +47,7 @@ const FlightData = () => {
 
   return (
     <SplitPane split="vertical" minSize="35%" defaultSize="35%" overflow="auto">
-      <Quick />
+      <Servo />
       <FlightPlanMap
         display={display}
         getters={getters} setters={setters}

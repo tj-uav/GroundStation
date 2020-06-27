@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Box } from "../components/UIElements"
-import { Row, Column } from "../components/Containers"
+import { Button, Box } from "./UIElements"
+import { Row, Column } from "./Containers"
 
 const Quick = props => {
     const [altitude, setAltitude] = useState(0)
