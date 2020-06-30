@@ -2,13 +2,21 @@ import React, { useState } from "react"
 import { dark, darker, blue } from "../theme/Colors"
 import styled from "styled-components"
 
-export const Button = ({ active, ...props }) => {
+export const Button = ({ active, controlled, ...props }) => {
     const [isActive, setActive] = useState(active ?? false)
+
     return (
         <StyledButton
             className="paragraph"
-            active={isActive}
-            onClick={props.onClick ?? (e => { setActive(!isActive); e.persist() })}
+            active={controlled ? active : isActive}
+            onMouseDown={() => {
+                if (!controlled)
+                    setActive(true)
+            }}
+            onMouseUp={() => {
+                if (!controlled)
+                    setActive(false)
+            }}
             {...props}
         />
     )
@@ -18,6 +26,7 @@ const StyledButton = styled.a`
     position: relative;
     box-sizing: border-box;
     background: ${props => props.active ? blue : dark};
+    transition: background-color 0.1s ease;
     color: ${props => props.active ? dark : blue} !important;
     text-decoration: none !important;
     display: flex;
@@ -82,7 +91,7 @@ const StyledBoxContent = styled.textarea`
 const StyledBoxLabel = styled.p`
     margin: 0;
     padding: 0;
-    width: ${props => props.style.width ?? "100%"};
+    width: ${props => props.style?.width ?? "100%"};
     height: 2rem;
     color: ${blue};
     position: relative;
