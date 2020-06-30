@@ -1,5 +1,5 @@
 import React, { useState } from "react"
-import { dark, darker, blue } from "../theme/Colors"
+import { dark, darker, blue, red } from "../theme/Colors"
 import styled from "styled-components"
 
 export const Button = ({ active, controlled, ...props }) => {
@@ -56,7 +56,7 @@ export const Box = ({ content, label, editable, ...props }) => {
     const [value, setValue] = useState(content)
 
     return (
-        <StyledBox {...props}>
+        <StyledBox {...props} style={{ flexGrow: 1, ...props.style }}>
             {label
                 ? <StyledBoxLabel className="paragraph" onInput={e => console.log(e)} {...props}>{label}</StyledBoxLabel>
                 : ""
@@ -96,7 +96,7 @@ const StyledBoxLabel = styled.p`
     padding: 0;
     width: ${props => props.style?.width ?? "100%"};
     height: 2rem;
-    color: ${blue};
+    color: ${props => props.error ? red : blue};
     position: relative;
 
     ::after {

@@ -8,6 +8,7 @@ import AntennaTracker from './pages/AntennaTracker.js'
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Navbar from 'react-bootstrap/Navbar'
 import Nav from 'react-bootstrap/Nav'
+import { darker } from "./theme/Colors"
 
 const App = () => {
   const [telem, setTelem] = useState([]);
@@ -43,7 +44,7 @@ const App = () => {
   };
 
   return (
-    <div>
+    <div style={{ background: darker, height: "100vh", display: "grid", gridTemplateRows: "3.5rem auto 1rem" }}>
       <Navbar bg="light" expand="lg">
         <Navbar.Brand href="#home">TJUAV Ground Station</Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
