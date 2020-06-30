@@ -33,13 +33,6 @@ const Quick = props => {
     return (
         <div style={{ padding: "15px" }}>
             <Row gap="1rem" height="3rem" width="40rem">
-                <Button>Quick</Button>
-                <Button>All</Button>
-                <Button>Actions</Button>
-                <Button>Servo</Button>
-            </Row>
-            <br /><br />
-            <Row gap="1rem" height="3rem" width="40rem">
                 <Column gap="1rem" height="30rem" width="20rem">
                     <Box label="Altitude" content={altitude} />
                     <Box label="Ground Speed" content={groundSpeed} />

@@ -20,7 +20,7 @@ const DropdownRow = ({ with: buttons, ...props }) => {
     return (
         <Row height="2rem" gap="0.5rem" {...props}>
             {buttons.map((button, index) =>
-                <Button key={index} style={indent(index)} onClick={button.onClick}>
+                <Button key={index} style={indent(index)}>
                     {button.name}
                 </Button>
             )}
@@ -47,12 +47,18 @@ const Actions = props => {
     return (
         <div>
             <Column>
-                <Row id="tabs" gap="1rem" height="3rem">
+                {/* <Tabs>
                     <Button>Quick</Button>
                     <Button>All</Button>
                     <Button>Actions</Button>
                     <Button>Servo</Button>
-                </Row>
+                </Tabs> */}
+                {/* <Row id="tabs" gap="1rem" height="3rem">
+                    <Button>Quick</Button>
+                    <Button>All</Button>
+                    <Button>Actions</Button>
+                    <Button>Servo</Button>
+                </Row> */}
 
                 <Row id="labels" height="2rem" gap="0.5rem">
                     <Label columns={1}>Dropdown</Label>

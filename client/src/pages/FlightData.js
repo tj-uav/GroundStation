@@ -4,6 +4,53 @@ import Quick from '../components/tabs/Quick.js'
 import Actions from '../components/tabs/Actions.js'
 import Servo from '../components/tabs/Servo.js'
 import { httpget } from '../backend.js'
+import { Row } from "../components/Containers"
+import { Button } from "../components/UIElements"
+
+const Tabs = ({ ...props }) => {
+  const [tab, setTab] = useState(<Actions />)
+  const [active, setActive] = useState(tab.type.name)
+
+  const modifyActive = isActive => {
+    setActive(isActive)
+  }
+
+  const quickButton = <Button
+    onClick={() => { setTab(<Quick />); modifyActive(Quick.name) }}
+    active={active === Quick.name}
+    controlled
+  >
+    {Quick.name}
+  </Button>
+
+  const actionsButton = <Button
+    onClick={() => { setTab(<Actions />); modifyActive(Actions.name) }}
+    active={active === Actions.name}
+    controlled
+  >
+    {Actions.name}
+  </Button>
+
+  const servoButton = <Button
+    onClick={() => { setTab(<Servo />); modifyActive(Servo.name) }}
+    active={active === Servo.name}
+    controlled
+  >
+    {Servo.name}
+  </Button>
+
+
+  return (
+    <section>
+      <Row id="tabs" gap="1rem" height="3rem" style={{ marginBottom: "1rem" }} {...props}>
+        {quickButton}
+        {actionsButton}
+        {servoButton}
+      </Row>
+      {tab}
+    </section>
+  )
+}
 
 const FlightData = () => {
 
@@ -56,7 +103,7 @@ const FlightData = () => {
       height: "auto",
       overflowY: "auto"
     }}>
-      <Actions />
+      <Tabs />
       <FlightPlanMap
         display={display}
         getters={getters} setters={setters}
