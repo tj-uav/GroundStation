@@ -79,12 +79,15 @@ const StyledBox = styled.div`
 `
 
 const StyledBoxContent = styled.textarea`
+    height: ${props => props.styles?.height ?? "3rem"};
     border: 0;
     margin: 0;
     padding: 0;
     flex-grow: 1;
     resize: none;
     text-align: center;
+    line-height: 300%;
+    overflow: hidden;
     background: ${dark};
 `
 
