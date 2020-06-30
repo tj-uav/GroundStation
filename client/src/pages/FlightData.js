@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import FlightPlanMap from '../components/FlightPlanMap.js'
-import Quick from '../components/quick.js'
-import Actions from '../components/actions.js'
-import Servo from '../components/Servo.js'
+import Quick from '../components/tabs/Quick.js'
+import Actions from '../components/tabs/Actions.js'
+import Servo from '../components/tabs/Servo.js'
 import SplitPane from 'react-split-pane'
 import { httpget } from '../backend.js'
 

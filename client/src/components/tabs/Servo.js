@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Box } from "./UIElements"
-import { Row, Column } from "./Containers"
+import { Button, Box } from "../UIElements"
+import { Row, Column } from "../Containers"
 
 const Quick = props => {
     const [altitude, setAltitude] = useState(0)
@@ -31,17 +31,17 @@ const Quick = props => {
     })
 
     return (
-        <div style={{padding: "15px"}}>
+        <div style={{ padding: "15px" }}>
             <Row gap="1rem" height="3rem" width="40rem">
                 <Button>Quick</Button>
                 <Button>All</Button>
                 <Button>Actions</Button>
                 <Button>Servo</Button>
             </Row>
-            <div style={{height: "15px"}}></div>
+            <div style={{ height: "15px" }}></div>
             <Row gap="1rem" height="3rem" width="40rem" >
                 <Column gap="1rem" height="30rem" width="1rem">
-                    <p style={{color: "#346CBC"}}>Servo</p>
+                    <p style={{ color: "#346CBC" }}>Servo</p>
                     <Box content="0" />
                     <Box content="0" />
                     <Box content="0" />
@@ -54,7 +54,7 @@ const Quick = props => {
                     <Box content="0" />
                 </Column>
                 <Column gap="1rem" height="30rem" width="3rem">
-                    <p style={{color: "#346CBC"}}>Function</p>
+                    <p style={{ color: "#346CBC" }}>Function</p>
                     <Button>Low</Button>
                     <Button>Low</Button>
                     <Button>Low</Button>
@@ -67,7 +67,7 @@ const Quick = props => {
                     <Button>Low</Button>
                 </Column>
                 <Column gap="1rem" height="30rem" width="3rem">
-                    <p style={{color: "#346CBC"}}></p>
+                    <p style={{ color: "#346CBC" }}></p>
                     <Button>Mid</Button>
                     <Button>Mid</Button>
                     <Button>Mid</Button>
@@ -80,7 +80,7 @@ const Quick = props => {
                     <Button>Mid</Button>
                 </Column>
                 <Column gap="1rem" height="30rem" width="3rem">
-                    <p style={{color: "#346CBC"}}></p>
+                    <p style={{ color: "#346CBC" }}></p>
                     <Button>High</Button>
                     <Button>High</Button>
                     <Button>High</Button>
@@ -93,7 +93,7 @@ const Quick = props => {
                     <Button>High</Button>
                 </Column>
                 <Column gap="1rem" height="30rem" width="3rem">
-                    <p style={{color: "#346CBC"}}></p>
+                    <p style={{ color: "#346CBC" }}></p>
                     <Button>Toggle</Button>
                     <Button>Toggle</Button>
                     <Button>Toggle</Button>
@@ -106,7 +106,7 @@ const Quick = props => {
                     <Button>Toggle</Button>
                 </Column>
                 <Column gap="1rem" height="30rem" width="1rem">
-                    <p style={{color: "#346CBC"}}>Port(s)</p>
+                    <p style={{ color: "#346CBC" }}>Port(s)</p>
                     <Box content="1110" />
                     <Box content="1110" />
                     <Box content="1110" />
@@ -119,7 +119,7 @@ const Quick = props => {
                     <Box content="1110" />
                 </Column>
                 <Column gap="1rem" height="30rem" width="1rem">
-                    <p style={{color: "#346CBC"}}></p>
+                    <p style={{ color: "#346CBC" }}></p>
                     <Box content="1900" />
                     <Box content="1900" />
                     <Box content="1900" />

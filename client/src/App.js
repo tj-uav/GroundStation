@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import './App.css';
-import FlightData from './tabs/FlightData.js'
-import FlightPlan from './tabs/FlightPlan.js'
-import Params from './tabs/Params.js'
-import Submissions from './tabs/Submissions.js'
-import AntennaTracker from './tabs/AntennaTracker.js'
+import FlightData from './pages/FlightData.js'
+import FlightPlan from './pages/FlightPlan.js'
+import Params from './pages/Params.js'
+import Submissions from './pages/Submissions.js'
+import AntennaTracker from './pages/AntennaTracker.js'
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Navbar from 'react-bootstrap/Navbar'
 import Nav from 'react-bootstrap/Nav'

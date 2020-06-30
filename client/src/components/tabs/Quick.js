@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Box } from "./UIElements"
-import { Row, Column } from "./Containers"
+import { Button, Box } from "../UIElements"
+import { Row, Column } from "../Containers"
 
 const Quick = props => {
     const [altitude, setAltitude] = useState(0)
@@ -31,7 +31,7 @@ const Quick = props => {
     })
 
     return (
-        <div style={{padding: "15px"}}>
+        <div style={{ padding: "15px" }}>
             <Row gap="1rem" height="3rem" width="40rem">
                 <Button>Quick</Button>
                 <Button>All</Button>

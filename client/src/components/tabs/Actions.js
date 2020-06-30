@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Box, Label } from "./UIElements"
-import { Row, Column } from "./Containers"
+import { Button, Box, Label } from "../UIElements"
+import { Row, Column } from "../Containers"
 
 const LabelledSlider = ({ for: label, value, ...props }) => {
     return (
@@ -71,8 +71,8 @@ const Actions = props => {
                 </Row>
 
                 <LabelledSlider for="Speed" value={speed} />
-                <LabelledSlider for="Altitude" value={speed} />
-                <LabelledSlider for="Loiter Rate" value={speed} />
+                <LabelledSlider for="Altitude" value={altitude} />
+                <LabelledSlider for="Loiter Rate" value={loiterRate} />
             </Column>
 
 
