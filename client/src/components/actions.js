@@ -2,6 +2,18 @@ import React, { useState, useEffect } from 'react';
 import { Button, Box, Label } from "./UIElements"
 import { Row, Column } from "./Containers"
 
+const LabelledSlider = ({ for: label, value, ...props }) => {
+    return (
+        <Column gap="0" style={{ display: "unset" }} {...props}>
+            <Label>{label}</Label>
+            <Row columns="repeat(4, minmax(0, 1fr))" gap="0.5rem">
+                <Box content={value} style={{ marginRight: "0.5rem" }} editable />
+                <Box style={{ gridColumn: "span 3" }} />
+            </Row>
+        </Column>
+    )
+}
+
 const Actions = props => {
     const [speed, setSpeed] = useState(0)
     const [altitude, setAltitude] = useState(0)
@@ -58,32 +70,12 @@ const Actions = props => {
                     <Button>Arm or Disarm</Button>
                 </Row>
 
-                {/* <Row height="5rem" gap="0.5rem" columns="1fr 3fr"> */}
-                {/* <Column width="25%"> */}
-                {/* <div style={{ display: "grid", gridTemplateColumns: "1fr 3fr" }}> */}
-                <Box label="Speed" content={speed} editable />
-                {/* <Box /> */}
-                {/* </div> */}
-                {/* </Column> */}
-                {/* </Row> */}
+                <LabelledSlider for="Speed" value={speed} />
+                <LabelledSlider for="Altitude" value={speed} />
+                <LabelledSlider for="Loiter Rate" value={speed} />
             </Column>
 
 
-            {/* <Row gap="1rem" height="11rem" width="20rem">
-                <Column gap="1rem" height="10rem" width="10rem">
-                    <Box label="Speed" content={speed} />
-                    <Box label="Altitude" content={altitude} />
-                    <Box label="Loiter Rate" content={loiterRate} />
-                </Column>
-                <Column gap="1rem" height="10rem" width="15rem">
-                    <Box />
-                    <Box />
-                    <Box />
-                </Column>
-            </Row>
-            <Row gap="1rem" height="11rem" width="25rem">
-                <Box label="Console/Error Messages" />
-            </Row> */}
         </div>
     );
 }
