@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Button, Box } from "../UIElements"
 import { Row, Column } from "../Containers"
 
-const Quick = props => {
+const Servo = props => {
     const [altitude, setAltitude] = useState(0)
     const [orientation, setOrientation] = useState(0)
     const [groundSpeed, setGroundSpeed] = useState(0)
@@ -136,4 +136,4 @@ const Quick = props => {
     );
 }
 
-export default Quick;
+export default Servo;
