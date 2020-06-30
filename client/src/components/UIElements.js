@@ -47,9 +47,9 @@ export const Box = ({ content, label, editable, ...props }) => {
     const [value, setValue] = useState(content)
 
     return (
-        <StyledBox>
+        <StyledBox {...props}>
             {label
-                ? <StyledBoxLabel className="paragraph" onInput={e => console.log(e)}>{label}</StyledBoxLabel>
+                ? <StyledBoxLabel className="paragraph" onInput={e => console.log(e)} {...props}>{label}</StyledBoxLabel>
                 : ""
             }
             <StyledBoxContent
@@ -75,13 +75,14 @@ const StyledBoxContent = styled.textarea`
     padding: 0;
     flex-grow: 1;
     resize: none;
+    text-align: center;
     background: ${dark};
 `
 
 const StyledBoxLabel = styled.p`
     margin: 0;
     padding: 0;
-    width: 100%;
+    width: ${props => props.style.width ?? "100%"};
     height: 2rem;
     color: ${blue};
     position: relative;
@@ -109,6 +110,6 @@ export const Label = ({ children, ...props }) => {
 
 const StyledLabel = styled.p`
     color: ${blue};
-    grid-row: ${props => `span ${props.rows}` ?? "initial"};
-    grid-column: ${props => `span ${props.columns}` ?? "initial"};
+    grid-row: ${props => props.rows ? `span ${props.rows}` : "initial"};
+    grid-column: ${props => props.columns ? `span ${props.columns}` : "initial"};
 `
