@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react"
 import { Button, Box } from "../UIElements"
 import { Row, Column } from "../Containers"
 
@@ -31,23 +31,47 @@ const Quick = props => {
     })
 
     return (
-        <div style={{ padding: "15px" }}>
-            <Row gap="1rem" height="3rem" width="40rem">
-                <Column gap="1rem" height="30rem" width="20rem">
+        <div style={{
+            display: "flex",
+            flexDirection: "column",
+            height: "100%"
+        }}>
+            <Column style={{ marginBottom: "1rem" }}>
+                <Row>
                     <Box label="Altitude" content={altitude} />
-                    <Box label="Ground Speed" content={groundSpeed} />
-                    <Box label="Text" content={text} />
-                    <Box label="Throttle" content={throttle} />
-                </Column>
-                <Column gap="1rem" height="30rem" width="20rem">
                     <Box label="Orientation" content={orientation} />
+                </Row>
+                <Row>
+                    <Box label="Ground Speed" content={groundSpeed} />
                     <Box label="Airspeed" content={airspeed} />
+                </Row>
+                <Row>
+                    <Box label="Text" content={text} />
                     <Box label="Battery" content={battery} />
+                </Row>
+                <Row>
+                    <Box label="Throttle" content={throttle} />
                     <Box label="Latitude / Longitude" content={latLong} />
-                </Column>
-            </Row>
+                </Row>
+            </Column>
+            <Box label="Console + Error Messages" error />
         </div>
-    );
+
+        // <Row gap="1rem" height="3rem" width="40rem">
+        //     <Column gap="1rem" height="30rem" width="20rem">
+        //         <Box label="Altitude" content={altitude} />
+        //         <Box label="Ground Speed" content={groundSpeed} />
+        //         <Box label="Text" content={text} />
+        //         <Box label="Throttle" content={throttle} />
+        //     </Column>
+        //     <Column gap="1rem" height="30rem" width="20rem">
+        //         <Box label="Orientation" content={orientation} />
+        //         <Box label="Airspeed" content={airspeed} />
+        //         <Box label="Battery" content={battery} />
+        //         <Box label="Latitude / Longitude" content={latLong} />
+        //     </Column>
+        // </Row>
+    )
 }
 
-export default Quick;
+export default Quick
