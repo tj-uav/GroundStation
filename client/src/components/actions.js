@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Box } from "./UIElements"
+import { Button, Box, Label } from "./UIElements"
 import { Row, Column } from "./Containers"
 
 const Actions = props => {
@@ -8,7 +8,7 @@ const Actions = props => {
     const [loiterRate, setLoiterRate] = useState(0)
 
     const updateData = () => {
-        
+
     }
 
     useEffect(() => {
@@ -19,41 +19,57 @@ const Actions = props => {
     })
 
     return (
-        <div style={{padding: "15px"}}>
-            <Row gap="1rem" height="3rem" width="40rem">
-                <Button>Quick</Button>
+        <div style={{ padding: "0 1rem", maxWidth: "37rem" }}>
+            <Row id="tabs" gap="1rem" height="3rem">
+                <Button style={{ marginRight: "0.5rem" }}>Quick</Button>
                 <Button>All</Button>
                 <Button>Actions</Button>
                 <Button>Servo</Button>
             </Row>
-            <br /><br />
-            <Row gap="1rem" height="11rem" width="40rem">
-                <Column gap="1rem" height="10rem" width="10rem">
-                    <Button>Actions</Button>
-                    <Button>Waypoint</Button>
-                    <Button>Flight</Button>
-                    <Button>Mount</Button>
-                </Column>
-                <Column gap="1rem" height="10rem" width="10rem">
-                    <Button>Do Action</Button>
-                    <Button>Set Waypoint</Button>
-                    <Button>Set Mode</Button>
-                    <Button>Set Mount</Button>
-                </Column>
-                <Column gap="1rem" height="10rem" width="10rem">
-                    <Button>Auto</Button>
-                    <Button>Loiter</Button>
-                    <Button>RTL</Button>
-                    <Button>Clear Track</Button>
-                </Column>
-                <Column gap="1rem" height="10rem" width="10rem">
-                    <Button>Set Home Alt</Button>
-                    <Button>Restart Mission</Button>
-                    <Button>Raw View</Button>
-                    <Button>Arm/Disarm</Button>
-                </Column>
+
+            <Row id="labels" height="2rem" gap="0.5rem" style={{ marginTop: "1rem" }}>
+                <Label columns={1}>Dropdown</Label>
+                <Label columns={3}>Functions</Label>
             </Row>
-            <Row gap="1rem" height="11rem" width="20rem">
+
+            <Column>
+                <Row id="actions" height="2rem" gap="0.5rem">
+                    <Button style={{ marginRight: "0.5rem" }}>Actions</Button>
+                    <Button>Do Action</Button>
+                    <Button>Auto</Button>
+                    <Button>Set Home Alt</Button>
+                </Row>
+                <Row id="waypoints" height="2rem" gap="0.5rem">
+                    <Button style={{ marginRight: "0.5rem" }}>Waypoint</Button>
+                    <Button>Set Waypoint</Button>
+                    <Button>Loiter</Button>
+                    <Button>Restart Mission</Button>
+                </Row>
+                <Row id="flight" height="2rem" gap="0.5rem">
+                    <Button style={{ marginRight: "0.5rem" }}>Flight</Button>
+                    <Button>Set Mode</Button>
+                    <Button>RTL</Button>
+                    <Button>Raw View</Button>
+                </Row>
+                <Row id="mount" height="2rem" gap="0.5rem">
+                    <Button style={{ marginRight: "0.5rem" }}>Mount</Button>
+                    <Button>Set Mount</Button>
+                    <Button>Clear Track</Button>
+                    <Button>Arm or Disarm</Button>
+                </Row>
+
+                {/* <Row height="5rem" gap="0.5rem" columns="1fr 3fr"> */}
+                {/* <Column width="25%"> */}
+                {/* <div style={{ display: "grid", gridTemplateColumns: "1fr 3fr" }}> */}
+                <Box label="Speed" content={speed} editable />
+                {/* <Box /> */}
+                {/* </div> */}
+                {/* </Column> */}
+                {/* </Row> */}
+            </Column>
+
+
+            {/* <Row gap="1rem" height="11rem" width="20rem">
                 <Column gap="1rem" height="10rem" width="10rem">
                     <Box label="Speed" content={speed} />
                     <Box label="Altitude" content={altitude} />
@@ -67,7 +83,7 @@ const Actions = props => {
             </Row>
             <Row gap="1rem" height="11rem" width="25rem">
                 <Box label="Console/Error Messages" />
-            </Row>
+            </Row> */}
         </div>
     );
 }
