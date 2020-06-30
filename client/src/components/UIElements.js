@@ -49,10 +49,10 @@ export const Box = ({ content, label, editable, ...props }) => {
     return (
         <StyledBox>
             {label
-                ? <StyledLabel className="paragraph" onInput={e => console.log(e)}>{label}</StyledLabel>
+                ? <StyledBoxLabel className="paragraph" onInput={e => console.log(e)}>{label}</StyledBoxLabel>
                 : ""
             }
-            <StyledContent
+            <StyledBoxContent
                 onChange={e => { setValue(e.target.value) }}
                 className="paragraph" {...props}
                 readOnly={!editable ?? true}
@@ -63,12 +63,13 @@ export const Box = ({ content, label, editable, ...props }) => {
 }
 
 const StyledBox = styled.div`
+    width: 100%;
     display: flex;
     position: relative;
     flex-direction: column;
 `
 
-const StyledContent = styled.textarea`
+const StyledBoxContent = styled.textarea`
     border: 0;
     margin: 0;
     padding: 0;
@@ -77,7 +78,7 @@ const StyledContent = styled.textarea`
     background: ${dark};
 `
 
-const StyledLabel = styled.p`
+const StyledBoxLabel = styled.p`
     margin: 0;
     padding: 0;
     width: 100%;
@@ -93,4 +94,21 @@ const StyledLabel = styled.p`
         background: ${darker};
         left: 0; right: 0; top: 0;
     }
+`
+
+export const Label = ({ children, ...props }) => {
+    return (
+        <StyledLabel
+            {...props}
+            className={`paragraph ${props.className}`}
+        >
+            {children}
+        </StyledLabel>
+    )
+}
+
+const StyledLabel = styled.p`
+    color: ${blue};
+    grid-row: ${props => `span ${props.rows}` ?? "initial"};
+    grid-column: ${props => `span ${props.columns}` ?? "initial"};
 `
