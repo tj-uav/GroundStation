@@ -3,7 +3,6 @@ import FlightPlanMap from '../components/FlightPlanMap.js'
 import Quick from '../components/tabs/Quick.js'
 import Actions from '../components/tabs/Actions.js'
 import Servo from '../components/tabs/Servo.js'
-import SplitPane from 'react-split-pane'
 import { httpget } from '../backend.js'
 
 const FlightData = () => {
@@ -48,14 +47,22 @@ const FlightData = () => {
   }, []);
 
   return (
-    <SplitPane split="vertical" minSize="35%" defaultSize="35%" overflow="auto">
+    <div style={{
+      display: "grid",
+      padding: "1rem",
+      gridTemplateColumns: "37rem 100fr",
+      gap: "2rem",
+      width: "100%",
+      height: "auto",
+      overflowY: "auto"
+    }}>
       <Actions />
       <FlightPlanMap
         display={display}
         getters={getters} setters={setters}
         mode={mode} setMode={setMode}
       />
-    </SplitPane>
+    </div>
   )
 }
 

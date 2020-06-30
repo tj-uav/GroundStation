@@ -45,7 +45,7 @@ const Actions = props => {
     })
 
     return (
-        <div style={{ padding: "0 1rem", maxWidth: "37rem" }}>
+        <div>
             <Column>
                 <Row id="tabs" gap="1rem" height="3rem">
                     <Button>Quick</Button>
