@@ -76,7 +76,7 @@ export const Box = ({ content, label, editable, ...props }) => {
 				className="paragraph"
 				{...props}
 				readOnly={!editable ?? true}
-				value={value}
+				value={editable ? value : content}
 			/>
 		</StyledBox>
 	)
