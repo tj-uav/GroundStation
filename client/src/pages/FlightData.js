@@ -8,7 +8,7 @@ import { Row } from "../components/Containers"
 import { Button } from "../components/UIElements"
 
 const Tabs = ({ ...props }) => {
-  const [tab, setTab] = useState(<Actions />)
+  const [tab, setTab] = useState(<Quick />)
   const [active, setActive] = useState(tab.type.name)
 
   const modifyActive = isActive => {
