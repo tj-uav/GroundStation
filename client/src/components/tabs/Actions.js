@@ -4,7 +4,7 @@ import { Row, Column } from "../Containers"
 
 const LabelledSlider = ({ for: label, value, ...props }) => {
     return (
-        <Column gap="0" style={{ display: "unset" }} {...props}>
+        <Column gap="0" style={{ display: "initial" }} {...props}>
             <Label>{label}</Label>
             <Row columns="repeat(4, minmax(0, 1fr))" gap="0.5rem">
                 <Box content={value} style={{ marginRight: "0.5rem" }} editable />
@@ -45,28 +45,19 @@ const Actions = props => {
     })
 
     return (
-        <div>
+        <div style={{
+            display: "flex",
+            flexDirection: "column",
+            height: "calc(100vh - 9.5rem)"
+        }}>
             <Column>
-                {/* <Tabs>
-                    <Button>Quick</Button>
-                    <Button>All</Button>
-                    <Button>Actions</Button>
-                    <Button>Servo</Button>
-                </Tabs> */}
-                {/* <Row id="tabs" gap="1rem" height="3rem">
-                    <Button>Quick</Button>
-                    <Button>All</Button>
-                    <Button>Actions</Button>
-                    <Button>Servo</Button>
-                </Row> */}
-
                 <Row id="labels" height="2rem" gap="0.5rem">
                     <Label columns={1}>Dropdown</Label>
                     <Label columns={3}>Functions</Label>
                 </Row>
             </Column>
 
-            <Column>
+            <Column style={{ marginBottom: "1rem" }}>
                 <DropdownRow with={[
                     { name: "Actions" },
                     { name: "Do Action" },
@@ -99,6 +90,7 @@ const Actions = props => {
                 <LabelledSlider for="Altitude" value={altitude} />
                 <LabelledSlider for="Loiter Rate" value={loiterRate} />
             </Column>
+            <Box label="Console + Error Messages" error />
 
 
         </div>

@@ -8,7 +8,7 @@ import { Row } from "../components/Containers"
 import { Button } from "../components/UIElements"
 
 const Tabs = ({ ...props }) => {
-  const [tab, setTab] = useState(<Quick />)
+  const [tab, setTab] = useState(<Actions />)
   const [active, setActive] = useState(tab.type.name)
 
   const modifyActive = isActive => {
@@ -98,7 +98,7 @@ const FlightData = () => {
       display: "grid",
       padding: "1rem",
       gridTemplateColumns: "37rem 100fr",
-      gap: "2rem",
+      gap: "1rem",
       width: "100%",
       height: "auto",
       overflowY: "hidden"
