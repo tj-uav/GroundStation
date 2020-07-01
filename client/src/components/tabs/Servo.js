@@ -1,6 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Box } from "../UIElements"
+import { Button, Box, Label } from "../UIElements"
 import { Row, Column } from "../Containers"
+
+const ServoRow = ({ number, port1, port2, ...props }) => {
+    return (
+        <Row columns="minmax(0, 4fr) 22fr minmax(0, 4fr) minmax(0, 4fr)" height="2rem">
+            <Box content={number} line="200%" />
+            <Row gap="0.5rem">
+                <Button>Low</Button>
+                <Button>Mid</Button>
+                <Button>High</Button>
+                <Button>Toggle</Button>
+            </Row>
+            <Box content={port1} line="200%" />
+            <Box content={port2} line="200%" />
+        </Row>
+    )
+}
 
 const Servo = props => {
     const [altitude, setAltitude] = useState(0)
@@ -31,107 +47,17 @@ const Servo = props => {
     })
 
     return (
-        <div style={{ padding: "15px" }}>
-            <Row gap="1rem" height="3rem" width="40rem">
-                <Button>Quick</Button>
-                <Button>All</Button>
-                <Button>Actions</Button>
-                <Button>Servo</Button>
+        <div>
+            <Row columns="minmax(0, 4fr) 22fr minmax(0, 4fr) minmax(0, 4fr)" height="2rem">
+                <Label>Servo</Label>
+                <Label>Function</Label>
+                <Label>Port(s)</Label>
             </Row>
-            <div style={{ height: "15px" }}></div>
-            <Row gap="1rem" height="3rem" width="40rem" >
-                <Column gap="1rem" height="30rem" width="1rem">
-                    <p style={{ color: "#346CBC" }}>Servo</p>
-                    <Box content="0" />
-                    <Box content="0" />
-                    <Box content="0" />
-                    <Box content="0" />
-                    <Box content="0" />
-                    <Box content="0" />
-                    <Box content="0" />
-                    <Box content="0" />
-                    <Box content="0" />
-                    <Box content="0" />
-                </Column>
-                <Column gap="1rem" height="30rem" width="3rem">
-                    <p style={{ color: "#346CBC" }}>Function</p>
-                    <Button>Low</Button>
-                    <Button>Low</Button>
-                    <Button>Low</Button>
-                    <Button>Low</Button>
-                    <Button>Low</Button>
-                    <Button>Low</Button>
-                    <Button>Low</Button>
-                    <Button>Low</Button>
-                    <Button>Low</Button>
-                    <Button>Low</Button>
-                </Column>
-                <Column gap="1rem" height="30rem" width="3rem">
-                    <p style={{ color: "#346CBC" }}></p>
-                    <Button>Mid</Button>
-                    <Button>Mid</Button>
-                    <Button>Mid</Button>
-                    <Button>Mid</Button>
-                    <Button>Mid</Button>
-                    <Button>Mid</Button>
-                    <Button>Mid</Button>
-                    <Button>Mid</Button>
-                    <Button>Mid</Button>
-                    <Button>Mid</Button>
-                </Column>
-                <Column gap="1rem" height="30rem" width="3rem">
-                    <p style={{ color: "#346CBC" }}></p>
-                    <Button>High</Button>
-                    <Button>High</Button>
-                    <Button>High</Button>
-                    <Button>High</Button>
-                    <Button>High</Button>
-                    <Button>High</Button>
-                    <Button>High</Button>
-                    <Button>High</Button>
-                    <Button>High</Button>
-                    <Button>High</Button>
-                </Column>
-                <Column gap="1rem" height="30rem" width="3rem">
-                    <p style={{ color: "#346CBC" }}></p>
-                    <Button>Toggle</Button>
-                    <Button>Toggle</Button>
-                    <Button>Toggle</Button>
-                    <Button>Toggle</Button>
-                    <Button>Toggle</Button>
-                    <Button>Toggle</Button>
-                    <Button>Toggle</Button>
-                    <Button>Toggle</Button>
-                    <Button>Toggle</Button>
-                    <Button>Toggle</Button>
-                </Column>
-                <Column gap="1rem" height="30rem" width="1rem">
-                    <p style={{ color: "#346CBC" }}>Port(s)</p>
-                    <Box content="1110" />
-                    <Box content="1110" />
-                    <Box content="1110" />
-                    <Box content="1110" />
-                    <Box content="1110" />
-                    <Box content="1110" />
-                    <Box content="1110" />
-                    <Box content="1110" />
-                    <Box content="1110" />
-                    <Box content="1110" />
-                </Column>
-                <Column gap="1rem" height="30rem" width="1rem">
-                    <p style={{ color: "#346CBC" }}></p>
-                    <Box content="1900" />
-                    <Box content="1900" />
-                    <Box content="1900" />
-                    <Box content="1900" />
-                    <Box content="1900" />
-                    <Box content="1900" />
-                    <Box content="1900" />
-                    <Box content="1900" />
-                    <Box content="1900" />
-                    <Box content="1900" />
-                </Column>
-            </Row>
+            <Column>
+                {new Array(10).fill({}).map((_, index) => {
+                    return <ServoRow key={index} number={index} port1={1110} port2={1900} />
+                })}
+            </Column>
         </div>
     );
 }
