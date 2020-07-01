@@ -15,7 +15,7 @@ export const Button = ({ active, controlled, ...props }) => {
             }}
             onMouseUp={() => {
                 if (!controlled)
-                    setActive(false)
+                    setTimeout(() => { setActive(false) }, 100)
             }}
             {...props}
         />
@@ -58,7 +58,7 @@ export const Box = ({ content, label, editable, ...props }) => {
     return (
         <StyledBox {...props} style={{ flexGrow: 1, ...props.style }}>
             {label
-                ? <StyledBoxLabel className="paragraph" onInput={e => console.log(e)} {...props}>{label}</StyledBoxLabel>
+                ? <Label className="paragraph" style={{ height: "2rem" }} error={props.error}>{label}</Label>
                 : ""
             }
             <StyledBoxContent
@@ -76,17 +76,18 @@ const StyledBox = styled.div`
     display: flex;
     position: relative;
     flex-direction: column;
+    line-height: ${props => props.line ?? "300%"};
 `
 
 const StyledBoxContent = styled.textarea`
-    height: ${props => props.styles?.height ?? "3rem"};
+    height: ${props => props.style?.height ?? "3rem"};
+    cursor: ${props => props.readOnly ? "default" : "text"};
     border: 0;
     margin: 0;
     padding: 0;
     flex-grow: 1;
     resize: none;
     text-align: center;
-    line-height: 300%;
     overflow: hidden;
     background: ${dark};
 `
@@ -98,15 +99,6 @@ const StyledBoxLabel = styled.p`
     height: 2rem;
     color: ${props => props.error ? red : blue};
     position: relative;
-
-    ::after {
-        z-index: -1;
-        content: "";
-        height: 2rem;
-        position: absolute;
-        background: ${darker};
-        left: 0; right: 0; top: 0;
-    }
 `
 
 export const Label = ({ children, ...props }) => {
@@ -121,7 +113,8 @@ export const Label = ({ children, ...props }) => {
 }
 
 const StyledLabel = styled.p`
-    color: ${blue};
+    line-height: initial;
+    color: ${props => props.error ? red : blue};
     grid-row: ${props => props.rows ? `span ${props.rows}` : "initial"};
     grid-column: ${props => props.columns ? `span ${props.columns}` : "initial"};
 `

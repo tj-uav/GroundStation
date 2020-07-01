@@ -35,5 +35,5 @@ export const Column = styled.div`
     gap: ${props => props.gap ?? "1rem"};
     width: ${props => props.width ?? "100%"};
     height: ${props => props.height ?? "unset"};
-    grid-template-rows: repeat(auto-fit, minmax(0, ${props => props.height ?? "1fr"}));
+    grid-template-rows: repeat(auto-fit, minmax(0, ${props => props.height ?? "auto"}));
 `
