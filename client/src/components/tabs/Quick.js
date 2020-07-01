@@ -34,7 +34,7 @@ const Quick = props => {
         <div style={{
             display: "flex",
             flexDirection: "column",
-            height: "100%"
+            height: "calc(100vh - 9.5rem)"
         }}>
             <Column style={{ marginBottom: "1rem" }}>
                 <Row>
@@ -56,21 +56,6 @@ const Quick = props => {
             </Column>
             <Box label="Console + Error Messages" error />
         </div>
-
-        // <Row gap="1rem" height="3rem" width="40rem">
-        //     <Column gap="1rem" height="30rem" width="20rem">
-        //         <Box label="Altitude" content={altitude} />
-        //         <Box label="Ground Speed" content={groundSpeed} />
-        //         <Box label="Text" content={text} />
-        //         <Box label="Throttle" content={throttle} />
-        //     </Column>
-        //     <Column gap="1rem" height="30rem" width="20rem">
-        //         <Box label="Orientation" content={orientation} />
-        //         <Box label="Airspeed" content={airspeed} />
-        //         <Box label="Battery" content={battery} />
-        //         <Box label="Latitude / Longitude" content={latLong} />
-        //     </Column>
-        // </Row>
     )
 }
 
