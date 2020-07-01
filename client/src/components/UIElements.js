@@ -1,5 +1,5 @@
 import React, { useState } from "react"
-import { dark, darker, blue, red } from "../theme/Colors"
+import { dark, blue, red } from "../theme/Colors"
 import styled from "styled-components"
 
 export const Button = ({ active, controlled, ...props }) => {
@@ -101,15 +101,6 @@ const StyledBoxContent = styled.textarea`
 	text-align: center;
 	overflow: hidden;
 	background: ${dark};
-`
-
-const StyledBoxLabel = styled.p`
-	margin: 0;
-	padding: 0;
-	width: ${props => props.style?.width ?? "100%"};
-	height: 2rem;
-	color: ${props => (props.error ? red : blue)};
-	position: relative;
 `
 
 export const Label = ({ children, ...props }) => {
