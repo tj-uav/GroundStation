@@ -1,14 +1,23 @@
 import React, { useState, useEffect } from "react"
-import { Button, Box, Label } from "../UIElements"
+import { Button, Box, Label, Slider } from "../UIElements"
 import { Row, Column } from "../Containers"
 
-const LabelledSlider = ({ for: label, value, ...props }) => {
+const LabelledSlider = ({ for: label, hook, ...props }) => {
+	const [value, setValue] = hook
+
 	return (
 		<Column gap="0" style={{ display: "initial" }} {...props}>
 			<Label>{label}</Label>
 			<Row columns="repeat(4, minmax(0, 1fr))" gap="0.5rem">
-				<Box content={value} style={{ marginRight: "0.5rem" }} editable />
-				<Box style={{ gridColumn: "span 3" }} />
+				<Box content={value} style={{ marginRight: "0.5rem" }} />
+				<Slider
+					style={{ gridColumn: "span 3" }}
+					initial={value}
+					onChange={e => {
+						console.log(e.target.value)
+						setValue(e.target.value)
+					}}
+				/>
 			</Row>
 		</Column>
 	)
@@ -94,9 +103,9 @@ const Actions = props => {
 					]}
 				/>
 
-				<LabelledSlider for="Speed" value={speed} />
-				<LabelledSlider for="Altitude" value={altitude} />
-				<LabelledSlider for="Loiter Rate" value={loiterRate} />
+				<LabelledSlider for="Speed" hook={[speed, setSpeed]} />
+				<LabelledSlider for="Altitude" hook={[altitude, setAltitude]} />
+				<LabelledSlider for="Loiter Rate" hook={[loiterRate, setLoiterRate]} />
 			</Column>
 			<Box label="Console + Error Messages" error />
 		</div>
