@@ -47,17 +47,24 @@ const Servo = props => {
 	})
 
 	return (
-		<div>
+		<div
+			style={{
+				display: "flex",
+				flexDirection: "column",
+				height: "calc(100vh - 9.5rem)",
+			}}
+		>
 			<Row columns="minmax(0, 4fr) 22fr minmax(0, 4fr) minmax(0, 4fr)" height="2rem">
 				<Label>Servo</Label>
 				<Label>Function</Label>
 				<Label>Port(s)</Label>
 			</Row>
-			<Column>
+			<Column style={{ marginBottom: "1rem" }}>
 				{new Array(10).fill({}).map((_, index) => {
 					return <ServoRow key={index} number={index} port1={1110} port2={1900} />
 				})}
 			</Column>
+			<Box label="Console + Error Messages" error />
 		</div>
 	)
 }
