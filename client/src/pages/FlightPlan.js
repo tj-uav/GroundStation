@@ -1,7 +1,7 @@
-import React, { useState } from 'react'
-import FlightPlanMap from '../components/FlightPlanMap.js'
-import FlightPlanToolbar from '../components/FlightPlanToolbar.js'
-import SplitPane from 'react-split-pane'
+import React, { useState } from "react"
+import FlightPlanMap from "../components/FlightPlanMap.js"
+import FlightPlanToolbar from "../components/FlightPlanToolbar.js"
+import SplitPane from "react-split-pane"
 
 /*
 TODO: Home icon
@@ -17,54 +17,56 @@ T̶O̶D̶O̶:̶ P̶o̶l̶y̶l̶i̶n̶e̶ a̶r̶r̶o̶w̶s̶ s̶h̶o̶w̶i̶n̶g�
 TODO: Display list highlighting (and vice versa)
 */
 
+const FlightPlan = props => {
+	const [mode, setMode] = useState("waypoints")
+	const [waypoints, setWaypoints] = useState([])
+	const [commands, setCommands] = useState([])
+	const [polygons, setPolygons] = useState([[]])
+	const [fence, setFence] = useState([])
 
-const FlightPlan = (props) => {
+	const getters = {
+		commands: commands,
+		waypoints: waypoints,
+		polygons: polygons,
+		fence: fence,
+	}
 
-  const [mode, setMode] = useState("waypoints")
-  const [waypoints, setWaypoints] = useState([]);
-  const [commands, setCommands] = useState([]);
-  const [polygons, setPolygons] = useState([[]]);
-  const [fence, setFence] = useState([]);
+	const setters = {
+		commands: setCommands,
+		waypoints: setWaypoints,
+		polygons: setPolygons,
+		fence: setFence,
+	}
 
-  const getters = {
-    'commands': commands,
-    'waypoints': waypoints,
-    'polygons': polygons,
-    'fence': fence
-  }
+	const display = {
+		commands: "Command",
+		waypoints: "Waypoint",
+		polygons: "Polygon",
+		fence: "Geofence",
+	}
 
-  const setters = {
-    'commands': setCommands,
-    'waypoints': setWaypoints,
-    'polygons': setPolygons,
-    'fence': setFence
-  }
+	return (
+		<SplitPane split="vertical" minSize="80%" defaultSize="80%" overflow="auto">
+			<FlightPlanMap
+				display={display}
+				getters={getters}
+				setters={setters}
+				mode={mode}
+				setMode={setMode}
+			/>
+			<FlightPlanToolbar
+				display={display}
+				getters={getters}
+				setters={setters}
+				mode={mode}
+				setMode={setMode}
+			/>
+		</SplitPane>
+	)
 
-  const display = {
-    'commands': 'Command',
-    'waypoints': 'Waypoint',
-    'polygons': 'Polygon',
-    'fence': 'Geofence'
-  }
-
-  return (
-    <SplitPane split="vertical" minSize="80%" defaultSize="80%" overflow="auto">
-      <FlightPlanMap
-        display={display}
-        getters={getters} setters={setters}
-        mode={mode} setMode={setMode}
-      />
-      <FlightPlanToolbar
-        display={display}
-        getters={getters} setters={setters}
-        mode={mode} setMode={setMode}
-      />
-    </SplitPane>
-  )
-
-  //   return (
-  //       <InputPage></InputPage>
-  //   )
+	//   return (
+	//       <InputPage></InputPage>
+	//   )
 }
 
-export default FlightPlan;
+export default FlightPlan
