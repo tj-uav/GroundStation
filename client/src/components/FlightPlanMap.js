@@ -9,7 +9,7 @@ import PolylineDecorator from "./PolylineDecorator.js"
 
 const FlightPlanMap = props => {
 	const [state, setState] = useState({
-		latlng: { lat: 51.505, lng: -0.09 },
+		latlng: { lat: 38.285851, lng: -76.408620 },
 	})
 
 	let mapRef = createRef<Map>()
@@ -119,7 +119,7 @@ const FlightPlanMap = props => {
 				onClick={handleClick}
 				ref={mapRef}
 				zoom={13}
-				style={{ height: 600 }}
+				style={{ height: "100%" }}
 			>
 				<TileLayer
 					attribution='&amp;copy <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
