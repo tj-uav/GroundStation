@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react"
-import SubmissionsToolbar from "../components/SubmissionsToolbar.js"
+import SubmissionsToolbar from "../components/submissions/SubmissionsToolbar.js"
 import axios from "axios"
 
 const Submissions = () => {
