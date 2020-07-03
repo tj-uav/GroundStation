@@ -46,14 +46,17 @@ const FlightPlan = props => {
 	}
 
 	return (
-		<SplitPane split="vertical" minSize="80%" defaultSize="80%" overflow="auto">
-			<FlightPlanMap
-				display={display}
-				getters={getters}
-				setters={setters}
-				mode={mode}
-				setMode={setMode}
-			/>
+		<div
+			style={{
+				display: "grid",
+				padding: "1rem",
+				gridTemplateColumns: "37rem 100fr",
+				gap: "1rem",
+				width: "100%",
+				height: "auto",
+				overflowY: "hidden",
+			}}
+		>
 			<FlightPlanToolbar
 				display={display}
 				getters={getters}
@@ -61,12 +64,15 @@ const FlightPlan = props => {
 				mode={mode}
 				setMode={setMode}
 			/>
-		</SplitPane>
+			<FlightPlanMap
+				display={display}
+				getters={getters}
+				setters={setters}
+				mode={mode}
+				setMode={setMode}
+			/>
+		</div>
 	)
-
-	//   return (
-	//       <InputPage></InputPage>
-	//   )
 }
 
 export default FlightPlan
