@@ -12,7 +12,7 @@ const FlightPlanMap = props => {
 		latlng: { lat: 38.285851, lng: -76.408620 },
 	})
 
-	let mapRef = createRef<Map>()
+	let mapRef = createRef()
 	const [icons, setIcons] = useState({})
 	const [telem, setTelem] = useState([])
 

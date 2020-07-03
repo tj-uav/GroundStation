@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react"
+import SubmissionsToolbar from "../components/SubmissionsToolbar.js"
 import axios from "axios"
 
 const Submissions = () => {
@@ -23,7 +24,21 @@ const Submissions = () => {
 		return () => clearInterval(interval)
 	}, [])
 
-	return <div style={{ marginLeft: 20 }}>Submissions page</div>
+	return (
+		<div
+			style={{
+				display: "grid",
+				padding: "1rem",
+				gridTemplateColumns: "37rem 100fr",
+				gap: "1rem",
+				width: "100%",
+				height: "auto",
+				overflowY: "hidden",
+			}}
+		>
+			<SubmissionsToolbar/>
+		</div>
+	)
 }
 
 export default Submissions
