@@ -3,9 +3,9 @@
 import React, { createRef, useState, useEffect } from "react"
 // import 'leaflet/dist/leaflet.css';
 import { Map, TileLayer, Popup, Tooltip, Marker, Polyline } from "react-leaflet"
-import { httpget } from "../backend.js"
+import { httpget } from "../../backend.js"
 import L from "leaflet"
-import PolylineDecorator from "./PolylineDecorator.js"
+import PolylineDecorator from "../flight_plan/PolylineDecorator.js"
 
 const FlightPlanMap = props => {
 	const [state, setState] = useState({

@@ -5,7 +5,7 @@ import Form from "react-bootstrap/Form"
 import FormControl from "react-bootstrap/FormControl"
 import FormGroup from "react-bootstrap/FormGroup"
 import FormLabel from "react-bootstrap/FormLabel"
-import { save } from "../filehandler"
+import { save } from "../../filehandler"
 
 /*
 Param file format:

@@ -1,8 +1,24 @@
 import React, { useState, useEffect } from "react"
-import { Button, Box } from "../UIElements"
-import { Row, Column } from "../Containers"
+import { Button, Box, Label } from "../../UIElements"
+import { Row, Column } from "../../Containers"
 
-const Quick = props => {
+const ServoRow = ({ number, port1, port2, ...props }) => {
+	return (
+		<Row columns="minmax(0, 4fr) 22fr minmax(0, 4fr) minmax(0, 4fr)" height="2rem">
+			<Box content={number} line="200%" />
+			<Row gap="0.5rem">
+				<Button>Low</Button>
+				<Button>Mid</Button>
+				<Button>High</Button>
+				<Button>Toggle</Button>
+			</Row>
+			<Box content={port1} line="200%" />
+			<Box content={port2} line="200%" />
+		</Row>
+	)
+}
+
+const Servo = props => {
 	const [altitude, setAltitude] = useState(0)
 	const [orientation, setOrientation] = useState(0)
 	const [groundSpeed, setGroundSpeed] = useState(0)
@@ -38,27 +54,19 @@ const Quick = props => {
 				height: "calc(100vh - 9.5rem)",
 			}}
 		>
+			<Row columns="minmax(0, 4fr) 22fr minmax(0, 4fr) minmax(0, 4fr)" height="2rem">
+				<Label>Servo</Label>
+				<Label>Function</Label>
+				<Label>Port(s)</Label>
+			</Row>
 			<Column style={{ marginBottom: "1rem" }}>
-				<Row>
-					<Box label="Altitude" content={altitude} />
-					<Box label="Orientation" content={orientation} />
-				</Row>
-				<Row>
-					<Box label="Ground Speed" content={groundSpeed} />
-					<Box label="Airspeed" content={airspeed} />
-				</Row>
-				<Row>
-					<Box label="Text" content={text} />
-					<Box label="Battery" content={battery} />
-				</Row>
-				<Row>
-					<Box label="Throttle" content={throttle} />
-					<Box label="Latitude / Longitude" content={latLong} />
-				</Row>
+				{new Array(10).fill({}).map((_, index) => {
+					return <ServoRow key={index} number={index} port1={1110} port2={1900} />
+				})}
 			</Column>
 			<Box label="Console + Error Messages" error />
 		</div>
 	)
 }
 
-export default Quick
+export default Servo

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react"
-import { Button, Box, Label, Slider } from "../UIElements"
-import { Row, Column } from "../Containers"
+import { Button, Box, Label, Slider } from "../../UIElements"
+import { Row, Column } from "../../Containers"
 
 const LabelledSlider = ({ for: label, hook, ...props }) => {
 	const [value, setValue] = hook

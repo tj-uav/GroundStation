@@ -1,7 +1,6 @@
 import React, { useState } from "react"
-import FlightPlanMap from "../components/FlightPlanMap.js"
-import FlightPlanToolbar from "../components/FlightPlanToolbar.js"
-import SplitPane from "react-split-pane"
+import FlightPlanMap from "../components/flight_data/FlightPlanMap.js"
+import FlightPlanToolbar from "../components/flight_plan/FlightPlanToolbar.js"
 
 /*
 TODO: Home icon

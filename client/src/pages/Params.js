@@ -1,6 +1,6 @@
 import React, { useState } from "react"
 import Table from "react-bootstrap/Table"
-import ParamToolbar from "../components/ParamToolbar.js"
+import ParamToolbar from "../components/params/ParamToolbar.js"
 
 /*
 Current params functionality:
