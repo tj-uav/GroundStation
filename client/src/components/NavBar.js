@@ -13,10 +13,6 @@ const NavContainer = styled.div`
 `
 
 const Link = ({ href, children, ...props }) => {
-	const StyledLink = styled.a`
-		text-decoration: none !important;
-		color: black;
-	`
 	return (
 		<li {...props} style={{ listStyleType: "none" }}>
 			<StyledLink href={href} className="paragraph">
@@ -25,6 +21,11 @@ const Link = ({ href, children, ...props }) => {
 		</li>
 	)
 }
+
+const StyledLink = styled.a`
+	text-decoration: none !important;
+	color: black;
+`
 
 const NavBar = () => {
 	return (
