@@ -9,7 +9,7 @@ import PolylineDecorator from "../flight_plan/PolylineDecorator.js"
 
 const FlightPlanMap = props => {
 	const [state, setState] = useState({
-		latlng: { lat: 38.285851, lng: -76.408620 },
+		latlng: { lat: 38.285851, lng: -76.40862 },
 	})
 
 	let mapRef = createRef()
