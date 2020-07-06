@@ -127,13 +127,13 @@ export const Slider = ({ min = 0, max = 100, initial = 0, height, ...props }) =>
 
 	return (
 		<StyledSliderBox {...props}>
-			<Left value={value} />
-			<Right value={value} />
+			<Left value={scale(value, min, max, 0, 100)} />
+			<Right value={scale(value, min, max, 0, 100)} />
 			<StyledSlider
 				type="range"
 				min={min}
 				max={max}
-				value={scale(value, min, max, 0, 100)}
+				value={value}
 				onChange={e => {
 					setValue(e.target.value)
 				}}
