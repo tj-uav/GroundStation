@@ -6,14 +6,14 @@ const SubmittedRow = ({ shape, shapeColor, letter, letterColor, orientation, fie
 	return (
 		<Column gap="1rem">
 			<Row height="4rem">
-				<Box content={shape} label="Shape" line="200%" />
-				<Box content={letter} label="Letter" line="200%" />
-				<Box content={orientation} label="Orientation" line="200%" />
+				<Box content={shape} label="Shape" line="250%" />
+				<Box content={letter} label="Letter" line="250%" />
+				<Box content={orientation} label="Orientation" line="250%" />
 			</Row>
 			<Row height="4rem">
-				<Box content={shapeColor} label="Shape Color" line="200%" />
-				<Box content={letterColor} label="Letter Color" line="200%" />
-				<Box content={field} label="Field" line="200%" />
+				<Box content={shapeColor} label="Shape Color" line="250%" />
+				<Box content={letterColor} label="Letter Color" line="250%" />
+				<Box content={field} label="Field" line="250%" />
 			</Row>
 		</Column>
 	)
@@ -55,10 +55,31 @@ const Submitted = props => {
 				height: "calc(100vh - 9.5rem)",
 			}}
 		>
-			<Column gap="2rem" style={{overflowY: "auto"}}>
-				<SubmittedRow shape={"Square"} shapeColor={"Blue"} letter={"A"} letterColor={"Red"} orientation={420} field={"SUBMITTED: IDK wut this is"} />
-				<SubmittedRow shape={"Square"} shapeColor={"Blue"} letter={"A"} letterColor={"Red"} orientation={420} field={"SUBMITTED: IDK wut this is"} />
-				<SubmittedRow shape={"Square"} shapeColor={"Blue"} letter={"A"} letterColor={"Red"} orientation={420} field={"SUBMITTED: IDK wut this is"} />
+			<Column gap="2rem" style={{ overflowY: "auto" }}>
+				<SubmittedRow
+					shape={"Square"}
+					shapeColor={"Blue"}
+					letter={"A"}
+					letterColor={"Red"}
+					orientation={420}
+					field={"SUBMITTED: IDK wut this is"}
+				/>
+				<SubmittedRow
+					shape={"Square"}
+					shapeColor={"Blue"}
+					letter={"A"}
+					letterColor={"Red"}
+					orientation={420}
+					field={"SUBMITTED: IDK wut this is"}
+				/>
+				<SubmittedRow
+					shape={"Square"}
+					shapeColor={"Blue"}
+					letter={"A"}
+					letterColor={"Red"}
+					orientation={420}
+					field={"SUBMITTED: IDK wut this is"}
+				/>
 				{/* <SubmittedRow shape={"Square"} shapeColor={"Blue"} letter={"A"} letterColor={"Red"} orientation={420} field={"IDK wut this is"} />
 				<SubmittedRow shape={"Square"} shapeColor={"Blue"} letter={"A"} letterColor={"Red"} orientation={420} field={"IDK wut this is"} />
 				<SubmittedRow shape={"Square"} shapeColor={"Blue"} letter={"A"} letterColor={"Red"} orientation={420} field={"IDK wut this is"} />
