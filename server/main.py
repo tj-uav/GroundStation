@@ -1,6 +1,6 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS
-from interop_handler import InteropHandler
+# from interop_handler import InteropHandler
 import logging
 log = logging.getLogger('werkzeug')
 log.setLevel(logging.ERROR)
@@ -8,7 +8,7 @@ log.setLevel(logging.ERROR)
 app = Flask(__name__)
 CORS(app)
 
-interop = InteropHandler(1)
+# interop = InteropHandler(1)
 
 @app.route("/")
 def hello():
@@ -39,7 +39,10 @@ def odcl_get(id, dtype):
 @app.route("/mav/telem")
 def telem():
     import random
-    return jsonify([random.randint(0, 50), random.randint(0, 50), random.randint(0, 50)])
+    return jsonify([random.randint(0, 50), random.randint(0, 50), random.randint(0, 50), 
+        random.randint(0, 50), random.randint(0, 50), random.randint(0, 50), 
+        random.randint(0, 50), random.randint(0, 50),
+    ])
 
 
 if __name__ == "__main__":
