@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react"
 import { Button, Box, Label, Slider } from "../UIElements"
 import { Row, Column } from "../Containers"
+import styled from "styled-components"
 
-const LabelledSlider = ({ for: label, hook, ...props }) => {
+const OrientationSlider = ({ for: label, hook, ...props }) => {
 	const [value, setValue] = hook
 
 	return (
@@ -12,9 +13,10 @@ const LabelledSlider = ({ for: label, hook, ...props }) => {
 				<Box content={value} style={{ marginRight: "0.5rem" }} />
 				<Slider
 					style={{ gridColumn: "span 3" }}
+					min={0}
+					max={359}
 					initial={value}
 					onChange={e => {
-						console.log(e.target.value)
 						setValue(e.target.value)
 					}}
 				/>
@@ -23,24 +25,10 @@ const LabelledSlider = ({ for: label, hook, ...props }) => {
 	)
 }
 
-const DropdownRow = ({ with: buttons, ...props }) => {
-	const indent = index => (index === 0 ? { marginRight: "0.5rem" } : null)
-
-	return (
-		<Row height="2rem" gap="0.5rem" {...props}>
-			{buttons.map((button, index) => (
-				<Button key={index} style={indent(index)}>
-					{button.name}
-				</Button>
-			))}
-		</Row>
-	)
-}
-
 const SubmissionsToolbar = props => {
 	const [orientation, setOrientation] = useState(0)
 
-	const updateData = () => { }
+	const updateData = () => {}
 
 	useEffect(() => {
 		const tick = setInterval(() => {
@@ -50,68 +38,75 @@ const SubmissionsToolbar = props => {
 	})
 
 	return (
-		<div
-			style={{
-				display: "flex",
-				flexDirection: "column",
-				height: "calc(100vh - 9.5rem)",
-			}}
-		>
+		<Container>
+			<Box />
+			<ContentContainer>
+				<Column>
+					<Row height="2rem" gap="0.5rem">
+						<Label columns={1}>Shape</Label>
+						<Label columns={1}>Shape Color</Label>
+					</Row>
+				</Column>
 
-			<Column>
-				<Row id="labels" height="2rem" gap="0.5rem">
-					<Label columns={1}>Shape</Label>
-					<Label columns={1}>Shape Color</Label>
-				</Row>
-			</Column>
+				<Column style={{ marginBottom: "1rem" }}>
+					<Row height="3rem" gap="0.5rem">
+						<Button>Dropdown</Button>
+						<Button>Dropdown</Button>
+					</Row>
+				</Column>
 
-			<Column style={{ marginBottom: "1rem" }}>
-				<Row id="labels" height="3rem" gap="0.5rem">
-					<Button>Dropdown</Button>
-					<Button>Dropdown</Button>
-				</Row>
-			</Column>
+				<Column>
+					<Row height="2rem" gap="0.5rem">
+						<Label columns={1}>Letter</Label>
+						<Label columns={1}>Letter Color</Label>
+					</Row>
+				</Column>
 
-			<Column>
-				<Row id="labels" height="2rem" gap="0.5rem">
-					<Label columns={1}>Letter</Label>
-					<Label columns={1}>Letter Color</Label>
-				</Row>
-			</Column>
+				<Column style={{ marginBottom: "1rem" }}>
+					<Row height="3rem" gap="0.5rem">
+						<Box editable="True" content={"A"} />
+						<Button>Dropdown</Button>
+					</Row>
+				</Column>
 
-			<Column style={{ marginBottom: "1rem" }}>
-				<Row id="labels" height="3rem" gap="0.5rem">
-					<Box editable="True" content={"A"} />
-					<Button>Dropdown</Button>
-				</Row>
-			</Column>
+				<Column style={{ marginBottom: "1rem" }}>
+					<Row height="5rem" gap="0.5rem">
+						<OrientationSlider for="Orientation" hook={[orientation, setOrientation]} />
+					</Row>
+				</Column>
 
-			<Column style={{ marginBottom: "1rem" }}>
-				<Row id="labels" height="5rem" gap="0.5rem">
-					<LabelledSlider for="Orientation" hook={[orientation, setOrientation]} />
-				</Row>
-			</Column>
+				<Column style={{ marginBottom: "1rem" }}>
+					<Row height="5rem" gap="0.5rem">
+						<Box label="Latitude" editable="True" content={0} />
+						<Box label="Longitude" editable="True" content={0} />
+					</Row>
+				</Column>
 
-			<Column style={{ marginBottom: "1rem" }}>
-				<Row id="labels" height="5rem" gap="0.5rem">
-					<Box label="Latitude" editable="True" content={0} />
-					<Box label="Longitude" editable="True" content={0} />
-				</Row>
-			</Column>
-
-			<Column style={{ marginBottom: "1rem" }}>
-				<Row id="labels" height="5rem" gap="0.5rem">
-					<Box label="Description (emergent objects only)" editable="True" content={"Enter description"} />
-				</Row>
-			</Column>
-
-			{/* <LabelledSlider for="Speed" hook={[speed, setSpeed]} />
-				<LabelledSlider for="Altitude" hook={[altitude, setAltitude]} />
-				<LabelledSlider for="Loiter Rate" hook={[loiterRate, setLoiterRate]} /> */}
-
-			{/* <Box label="Console + Error Messages" error /> */}
-		</div>
+				<Column style={{ marginBottom: "1rem" }}>
+					<Row height="5rem" gap="0.5rem">
+						<Box
+							label="Description (emergent objects only)"
+							editable="True"
+							content={"Enter description"}
+						/>
+					</Row>
+				</Column>
+			</ContentContainer>
+		</Container>
 	)
 }
+
+const ContentContainer = styled.div`
+	display: flex;
+	flex-direction: column;
+	height: calc(100vh - 9.5rem);
+`
+
+const Container = styled.div`
+	display: grid;
+	gap: 1rem;
+	grid-template-columns: 29rem auto;
+	grid-template-rows: 29rem auto;
+`
 
 export default SubmissionsToolbar

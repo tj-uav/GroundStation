@@ -7,8 +7,9 @@ import Submissions from "./pages/Submissions.js"
 import AntennaTracker from "./pages/AntennaTracker.js"
 import "bootstrap/dist/css/bootstrap.min.css"
 import { darker } from "./theme/Colors"
-import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
-import NavBar from './components/NavBar.js'
+import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom"
+import NavBar from "./components/NavBar.js"
+import styled from "styled-components"
 
 const App = () => {
 	// const [telem, setTelem] = useState([])
@@ -27,7 +28,7 @@ const App = () => {
 					background: darker,
 					height: "100vh",
 					display: "grid",
-					gridTemplateRows: "3.5rem auto 1rem",
+					gridTemplateRows: "5rem auto 1rem",
 				}}
 			>
 				<NavBar />

@@ -86,7 +86,7 @@ const Submissions = () => {
 			}}
 		>
 			<Tabs />
-			<SubmissionsToolbar/>
+			<SubmissionsToolbar />
 		</div>
 	)
 }
