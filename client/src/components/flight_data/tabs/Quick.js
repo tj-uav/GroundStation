@@ -13,14 +13,19 @@ const Quick = props => {
 	const [latLong, setLatLong] = useState(0)
 
 	const updateData = () => {
-		setAltitude(Math.floor(Math.random() * 200) + 100)
-		setOrientation(Math.floor(Math.random() * 360))
-		setGroundSpeed(Math.floor(Math.random() * 50) + 25)
-		setAirspeed(Math.floor(Math.random() * 50) + 25)
-		setText("N/A")
-		setBattery(Math.floor(Math.random() * 100))
-		setThrottle(Math.floor(Math.random() * 100))
-		setLatLong([Math.floor(Math.random() * 360), Math.floor(Math.random() * 360)])
+		fetch('http://localhost:5000/mav/telem')
+			.then(response => response.json())
+			.then(data => {
+				console.log(data)
+				setAltitude(data[0])
+				setOrientation(data[1])
+				setGroundSpeed(data[2])
+				setAirspeed(data[3])
+				setText(data[4])
+				setBattery(data[5])
+				setThrottle(data[6])
+				setLatLong(data[7])
+			});
 	}
 
 	useEffect(() => {
