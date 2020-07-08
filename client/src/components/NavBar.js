@@ -1,27 +1,44 @@
-import React from 'react';
+import React from "react"
 import { Row, Column } from "./Containers"
+import { darker } from "../theme/Colors"
+import styled from "styled-components"
+
+const NavContainer = styled.div`
+	background: ${darker};
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	height: 5rem;
+	margin: 0 2rem;
+`
+
+const Link = ({ href, children, ...props }) => {
+	return (
+		<li {...props} style={{ listStyleType: "none" }}>
+			<StyledLink href={href} className="paragraph">
+				{children}
+			</StyledLink>
+		</li>
+	)
+}
+
+const StyledLink = styled.a`
+	text-decoration: none !important;
+	color: black;
+`
 
 const NavBar = () => {
 	return (
-		// <div>
-		// 	<ul id="nav" style={{ display: "inline" }}>
-		// 		<li><a href="/">Home</a></li>
-		// 		<li><a href="/flight-plan">About</a></li>
-		// 		<li><a href="/params">FAQ</a></li>
-		// 		<li><a href="/submissions">Contact</a></li>
-		// 		<li><a href="/antenna-tracker">Bruh</a></li>
-		// 	</ul>
-		// </div>
-
-		<Column>
-			<Row id="labels" height="2rem" gap="0.5rem">
-				<li><a href="/">Flight Data</a></li>
-				<li><a href="/flight-plan">Flight Plan</a></li>
-				<li><a href="/params">Params</a></li>
-				<li><a href="/submissions">Submissions</a></li>
-				<li><a href="/antenna-tracker">Antenna Tracker</a></li>
+		<NavContainer>
+			<h1 className="heading">TJUAV Ground Station</h1>
+			<Row width="50%">
+				<Link href="/">Flight Data</Link>
+				<Link href="/flight-plan">Flight Plan</Link>
+				<Link href="/params">Params</Link>
+				<Link href="/submissions">Submissions</Link>
+				<Link href="/antenna-tracker">Antenna Tracker</Link>
 			</Row>
-		</Column>
+		</NavContainer>
 	)
 }
 
