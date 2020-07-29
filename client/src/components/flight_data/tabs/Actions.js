@@ -1,6 +1,38 @@
 import React, { useState, useEffect } from "react"
-import { Button, Box, Label, Slider } from "../../UIElements"
+import { Button, Box, Label, Slider, Dropdown } from "../../UIElements"
 import { Row, Column } from "../../Containers"
+
+const actions = {
+	actions: ["actions"],
+	waypoint: ["waypoints"],
+	flight: [
+		"Manual",
+		"CIRCLE",
+		"STABILIZE",
+		"TRAINING",
+		"ACRO",
+		"FBWA",
+		"FBWB",
+		"CRUISE",
+		"AUTOTUNE",
+		"Auto",
+		"RTL",
+		"Loiter",
+		"AVOID_ADSB",
+		"Guided",
+		"QSTABILIZE",
+		"QHOVER",
+		"QLOITER",
+		"QLAND",
+		"QRTL",
+		"INITIALIZING",
+		"QStabilize",
+		"QHover",
+		"QLoiter",
+		"QLand",
+	],
+	mount: ["mount"],
+}
 
 const LabelledSlider = ({ for: label, hook, ...props }) => {
 	const [value, setValue] = hook
@@ -28,11 +60,20 @@ const DropdownRow = ({ with: buttons, ...props }) => {
 
 	return (
 		<Row height="2rem" gap="0.5rem" {...props}>
-			{buttons.map((button, index) => (
-				<Button key={index} style={indent(index)}>
-					{button.name}
-				</Button>
-			))}
+			{buttons.map((button, index) => {
+				return index === 0 ? (
+					<Dropdown
+						initial={button.name}
+						children={actions[button.name.toLowerCase()].map(o => (
+							<span>{o}</span>
+						))}
+					/>
+				) : (
+					<Button key={index} style={indent(index)}>
+						{button.name}
+					</Button>
+				)
+			})}
 		</Row>
 	)
 }
