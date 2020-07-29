@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react"
-import { Button, Box, Label, Slider } from "../UIElements"
+import { Button, Box, Label, Slider, Dropdown } from "../UIElements"
 import { Row, Column } from "../Containers"
 import styled from "styled-components"
 
@@ -50,8 +50,20 @@ const SubmissionsToolbar = props => {
 
 				<Column style={{ marginBottom: "1rem" }}>
 					<Row height="3rem" gap="0.5rem">
-						<Button>Dropdown</Button>
-						<Button>Dropdown</Button>
+						<Dropdown>
+							<span>Square</span>
+							<span>Circle</span>
+							<span>Star</span>
+							<span>Triangle</span>
+						</Dropdown>
+						<Dropdown>
+							<span>Red</span>
+							<span>Orange</span>
+							<span>Yellow</span>
+							<span>Green</span>
+							<span>Blue</span>
+							<span>Purple</span>
+						</Dropdown>
 					</Row>
 				</Column>
 
@@ -65,7 +77,15 @@ const SubmissionsToolbar = props => {
 				<Column style={{ marginBottom: "1rem" }}>
 					<Row height="3rem" gap="0.5rem">
 						<Box editable="True" content={"A"} />
-						<Button>Dropdown</Button>
+						<Dropdown>
+							<span>Red</span>
+							<span>Black</span>
+							<span>Orange</span>
+							<span>Yellow</span>
+							<span>Green</span>
+							<span>Blue</span>
+							<span>Purple</span>
+						</Dropdown>
 					</Row>
 				</Column>
 
