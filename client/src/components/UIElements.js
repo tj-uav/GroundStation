@@ -59,16 +59,23 @@ const StyledButton = styled.a`
 	}
 `
 
-export const Dropdown = ({ children, onOptionSet = undefined, ...props }) => {
+export const Dropdown = ({
+	children,
+	onOptionSet = undefined,
+	initial = undefined,
+	maxOptionsShownAtOnce = 10,
+	...props
+}) => {
 	const [active, setActive] = useState(false)
-	const [option, setOptionRaw] = useState(undefined)
+	const [option, setOptionRaw] = useState(initial)
 	const setOption = onOptionSet ?? setOptionRaw
-	let options = children.map(c => c.props.children)
+	let options = children.map(c => (React.isValidElement(c) ? c.props.children : c))
 	options.sort() // native is in-place, idk why
 
 	return (
 		<div style={{ position: "relative" }} onMouseLeave={() => setActive(false)}>
 			<StyledDropdown
+				style={{ height: "100%" }}
 				className="paragraph"
 				active={active}
 				onClick={() => setActive(!active)}
@@ -77,22 +84,24 @@ export const Dropdown = ({ children, onOptionSet = undefined, ...props }) => {
 				{option ?? "--"}
 				<StyledCaret width={16} active={active} />
 			</StyledDropdown>
-			{active ? (
-				options.map((option, i) => (
-					<DropdownContent
-						key={i}
-						number={i}
-						setOption={ID => {
-							setOption(ID)
-							setActive(false)
-						}}
-					>
-						{option}
-					</DropdownContent>
-				))
-			) : (
-				<></>
-			)}
+			<div style={{ maxHeight: `${maxOptionsShownAtOnce * 100}%`, overflow: "scroll" }}>
+				{active ? (
+					options.map((option, i) => (
+						<DropdownContent
+							key={i}
+							number={i}
+							setOption={ID => {
+								setOption(ID)
+								setActive(false)
+							}}
+						>
+							{option}
+						</DropdownContent>
+					))
+				) : (
+					<></>
+				)}
+			</div>
 		</div>
 	)
 }
@@ -118,10 +127,10 @@ const DropdownContent = ({ children, setOption, number, ...props }) => {
 }
 
 const StyledDropdownContent = styled(StyledButton)`
-	transform: translateY(${props => props.number * 100}%);
+	/* transform: translateY(${props => props.number * 100}%); */
 	justify-content: flex-start;
 	color: black !important;
-	position: absolute;
+	/* position: absolute; */
 	padding-left: 1rem;
 	cursor: pointer;
 	height: 2rem;
