@@ -48,7 +48,7 @@ const FlightPlan = props => {
 		<div
 			style={{
 				display: "grid",
-				padding: "1rem",
+				padding: "1rem 1rem 0 1rem",
 				gridTemplateColumns: "37rem 100fr",
 				gap: "1rem",
 				width: "100%",

@@ -13,7 +13,7 @@ const Quick = props => {
 	const [latLong, setLatLong] = useState(0)
 
 	const updateData = () => {
-		fetch('http://localhost:5000/mav/telem')
+		fetch("http://localhost:5000/mav/telem")
 			.then(response => response.json())
 			.then(data => {
 				console.log(data)
@@ -25,7 +25,7 @@ const Quick = props => {
 				setBattery(data[5])
 				setThrottle(data[6])
 				setLatLong(data[7])
-			});
+			})
 	}
 
 	useEffect(() => {
