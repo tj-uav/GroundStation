@@ -3,11 +3,12 @@ import { Switch, Route, Redirect, useRouteMatch, useLocation } from "react-route
 
 import { httpget } from "../backend.js"
 
-import FlightPlanMap from "../components/flight_data/FlightPlanMap.js"
+import FlightPlanMap from "../components/flight_data/FlightPlanMap"
 import TabBar from "../components/TabBar"
-import Quick from "../components/flight_data/tabs/Quick.js"
-import Actions from "../components/flight_data/tabs/Actions.js"
-import Servo from "../components/flight_data/tabs/Servo.js"
+import Quick from "../components/flight_data/tabs/Quick"
+import Actions from "../components/flight_data/tabs/Actions"
+import All from "../components/flight_data/tabs/All"
+import Servo from "../components/flight_data/tabs/Servo"
 import { Row } from "../components/Containers"
 import { Button } from "../components/UIElements"
 
@@ -66,6 +67,7 @@ const FlightData = () => {
 			<TabBar>
 				<Quick />
 				<Actions />
+				<All />
 				<Servo />
 			</TabBar>
 			<FlightPlanMap
