@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from "react"
-import { Button, Box, Label } from "../../UIElements"
+import React from "react"
+import { Box } from "../../UIElements"
 import { Row, Column } from "../../Containers"
 import styled from "styled-components"
 
-const ViewRow = ({ shape, shapeColor, letter, letterColor, orientation, field, ...props }) => {
+const ViewRow = ({ shape, shapeColor, letter, letterColor, orientation, field }) => {
 	return (
 		<ViewRowContainer>
 			<Box style={{ gridRow: "span 2" }} />
@@ -30,33 +30,6 @@ const ViewRowContainer = styled.div`
 `
 
 const View = props => {
-	// const [altitude, setAltitude] = useState(0)
-	// const [orientation, setOrientation] = useState(0)
-	// const [groundSpeed, setGroundSpeed] = useState(0)
-	// const [airspeed, setAirspeed] = useState(0)
-	// const [text, setText] = useState(0)
-	// const [battery, setBattery] = useState(0)
-	// const [throttle, setThrottle] = useState(0)
-	// const [latLong, setLatLong] = useState(0)
-
-	// const updateData = () => {
-	// 	setAltitude(Math.floor(Math.random() * 200) + 100)
-	// 	setOrientation(Math.floor(Math.random() * 360))
-	// 	setGroundSpeed(Math.floor(Math.random() * 50) + 25)
-	// 	setAirspeed(Math.floor(Math.random() * 50) + 25)
-	// 	setText("N/A")
-	// 	setBattery(Math.floor(Math.random() * 100))
-	// 	setThrottle(Math.floor(Math.random() * 100))
-	// 	setLatLong([Math.floor(Math.random() * 360), Math.floor(Math.random() * 360)])
-	// }
-
-	// useEffect(() => {
-	// 	const tick = setInterval(() => {
-	// 		updateData()
-	// 	}, 250)
-	// 	return () => clearInterval(tick)
-	// })
-
 	return (
 		<div
 			style={{
@@ -65,7 +38,7 @@ const View = props => {
 				height: "calc(100vh - 9.5rem)",
 			}}
 		>
-			<Column height="unset" gap="4rem" style={{ overflowY: "auto" }}>
+			<Container>
 				<ViewRow
 					shape={"Square"}
 					shapeColor={"Blue"}
@@ -106,14 +79,17 @@ const View = props => {
 					orientation={420}
 					field={"VIEW: IDK wut this is"}
 				/>
-				{/* <ViewRow shape={"Square"} shapeColor={"Blue"} letter={"A"} letterColor={"Red"} orientation={420} field={"IDK wut this is"} />
-				<ViewRow shape={"Square"} shapeColor={"Blue"} letter={"A"} letterColor={"Red"} orientation={420} field={"IDK wut this is"} />
-				<ViewRow shape={"Square"} shapeColor={"Blue"} letter={"A"} letterColor={"Red"} orientation={420} field={"IDK wut this is"} />
-				<ViewRow shape={"Square"} shapeColor={"Blue"} letter={"A"} letterColor={"Red"} orientation={420} field={"IDK wut this is"} />
-				<ViewRow shape={"Square"} shapeColor={"Blue"} letter={"A"} letterColor={"Red"} orientation={420} field={"IDK wut this is"} /> */}
-			</Column>
+			</Container>
 		</div>
 	)
 }
 
 export default View
+
+const Container = styled(Column).attrs({
+	height: "unset",
+	gap: "4rem",
+})`
+	overflow-y: auto;
+	margin-bottom: 2rem;
+`
