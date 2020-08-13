@@ -1,10 +1,11 @@
 import React, { useState } from "react"
-import { dark, darker, blue, red } from "../theme/Colors"
+import { Link as RouterLink } from "react-router-dom"
 import styled from "styled-components"
-/* eslint import/no-webpack-loader-syntax: off */
+
+import { dark, darker, blue, red } from "../theme/Colors"
 import { ReactComponent as Caret } from "../icons/caret.svg"
 
-export const Button = ({ active, controlled, ...props }) => {
+export const Button = ({ active, controlled, to, href, ...props }) => {
 	const [isActive, setActive] = useState(active ?? false)
 
 	return (
@@ -20,12 +21,36 @@ export const Button = ({ active, controlled, ...props }) => {
 						setActive(false)
 					}, 100)
 			}}
+			to={to}
+			href={href}
 			{...props}
 		/>
 	)
 }
 
-const StyledButton = styled.a`
+const Link = ({ to, href, children, ...props }) => {
+	if (to)
+		return (
+			<RouterLink to={to} {...props}>
+				{children}
+			</RouterLink>
+		)
+	else
+		return (
+			<a href={href} {...props}>
+				{children}
+			</a>
+		)
+}
+
+// prettier-ignore
+const StyledButton = styled(Link).attrs(props => ({
+		to: props.to,
+		href: props.href,
+	}))
+	.withConfig({
+		shouldForwardProp: (prop, fn) => !["active"].includes(prop),
+	})`
 	position: relative;
 	box-sizing: border-box;
 	background: ${props => (props.active ? blue : dark)};
@@ -64,7 +89,6 @@ export const Dropdown = ({
 	onOptionSet = undefined,
 	initial = undefined,
 	maxOptionsShownAtOnce = 10,
-	...props
 }) => {
 	const [active, setActive] = useState(false)
 	const [option, setOptionRaw] = useState(initial)
@@ -79,7 +103,6 @@ export const Dropdown = ({
 				className="paragraph"
 				active={active}
 				onClick={() => setActive(!active)}
-				{...props}
 			>
 				{option ?? "--"}
 				<StyledCaret width={16} active={active} />
@@ -106,7 +129,9 @@ export const Dropdown = ({
 	)
 }
 
-const StyledCaret = styled(Caret)`
+const StyledCaret = styled(Caret).withConfig({
+	shouldForwardProp: (prop, fn) => !["active"].includes(prop),
+})`
 	transform: ${props => (props.active ? "scaleY(-1)" : "scaleY(1)")};
 	transition: transform 0.1s ease;
 `
