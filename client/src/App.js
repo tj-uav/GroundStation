@@ -7,7 +7,7 @@ import Submissions from "./pages/Submissions.js"
 import AntennaTracker from "./pages/AntennaTracker.js"
 import "bootstrap/dist/css/bootstrap.min.css"
 import { darker } from "./theme/Colors"
-import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom"
+import { BrowserRouter as Router, Switch, Route, Redirect } from "react-router-dom"
 import NavBar from "./components/NavBar.js"
 import styled from "styled-components"
 
@@ -33,6 +33,10 @@ const App = () => {
 			>
 				<NavBar />
 				<Switch>
+					<Route path="/flight-data">
+						<FlightData />
+					</Route>
+
 					<Route path="/flight-plan">
 						<FlightPlan />
 					</Route>
@@ -50,7 +54,7 @@ const App = () => {
 					</Route>
 
 					<Route path="/">
-						<FlightData />
+						<Redirect to="/flight-data" />
 					</Route>
 				</Switch>
 			</div>
