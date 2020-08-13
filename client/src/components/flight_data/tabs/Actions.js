@@ -63,6 +63,7 @@ const DropdownRow = ({ with: buttons, ...props }) => {
 			{buttons.map((button, index) => {
 				return index === 0 ? (
 					<Dropdown
+						key={index}
 						initial={button.name}
 						children={actions[button.name.toLowerCase()].map(o => (
 							<span>{o}</span>
