@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react"
-import { Button, Box, Label, Slider, Dropdown } from "../UIElements"
+import { Button, Box, Label, Slider, Dropdown, Checkbox } from "../UIElements"
 import { Row, Column } from "../Containers"
 import styled from "styled-components"
 
@@ -42,6 +42,10 @@ const SubmissionsToolbar = props => {
 			<Box />
 			<ContentContainer>
 				<Column>
+					<Row height="3rem" gap="0.5rem">
+						<Checkbox type="accept" />
+						<Checkbox type="decline" />
+					</Row>
 					<Row height="2rem" gap="0.5rem">
 						<Label columns={1}>Shape</Label>
 						<Label columns={1}>Shape Color</Label>

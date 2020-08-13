@@ -1,9 +1,11 @@
 import React, { useState } from "react"
 import { Link as RouterLink } from "react-router-dom"
-import styled from "styled-components"
+import styled, { css } from "styled-components"
 
 import { dark, darker, blue, red } from "../theme/Colors"
 import { ReactComponent as Caret } from "../icons/caret.svg"
+import { ReactComponent as RawAccept } from "../icons/check.svg"
+import { ReactComponent as RawDecline } from "../icons/decline.svg"
 
 export const Button = ({ active, controlled, to, href, ...props }) => {
 	const [isActive, setActive] = useState(active ?? false)
@@ -317,4 +319,38 @@ const Right = styled.div`
 	border-bottom-right-radius: 0.25rem;
 	margin-left: ${props => props.value}%;
 	width: calc(100% - ${props => props.value}%);
+`
+
+// type: "accept" | "decline"
+export const Checkbox = ({ type, ...props }) => {
+	return (
+		<StyledCheckbox {...props} type={type}>
+			{type === "decline" ? <Decline /> : <Accept />}
+		</StyledCheckbox>
+	)
+}
+
+const CheckboxStylesSVG = css`
+	height: 40%;
+	max-width: 35%;
+	color: ${dark};
+`
+
+const Accept = styled(RawAccept)`
+	${props => CheckboxStylesSVG}
+`
+
+const Decline = styled(RawDecline)`
+	${props => CheckboxStylesSVG}
+`
+
+const StyledCheckbox = styled.div.withConfig({
+	shouldForwardProp: (prop, fn) => !["type"].includes(prop),
+})`
+	background-color: ${({ type }) => (type === "decline" ? red : blue)};
+	display: flex;
+	flex-shrink: 0;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
 `
