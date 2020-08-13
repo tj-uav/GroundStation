@@ -1,11 +1,14 @@
 import React from "react"
-import { Box } from "../../UIElements"
-import { Row, Column } from "../../Containers"
 import styled from "styled-components"
+
+import { Box, Checkbox } from "../../UIElements"
+import { Row, Column } from "../../Containers"
 
 const ViewRow = ({ shape, shapeColor, letter, letterColor, orientation, field }) => {
 	return (
 		<ViewRowContainer>
+			<Checkbox style={{ gridArea: "accept" }} type="accept" />
+			<Checkbox style={{ gridArea: "decline" }} type="decline" />
 			<Box style={{ gridRow: "span 2" }} />
 			<Row height="4rem">
 				<Box content={shape} label="Shape" line="250%" />
@@ -25,8 +28,11 @@ const ViewRowContainer = styled.div`
 	display: grid;
 	height: 9rem;
 	gap: 1rem;
-	grid-template-columns: 9rem auto;
+	grid-template-columns: 3rem 9rem auto;
 	grid-template-rows: 1fr 1fr;
+	grid-template-areas:
+		"accept image  upper"
+		"decline image lower";
 `
 
 const View = props => {
