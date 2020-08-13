@@ -1,70 +1,15 @@
 import React, { useState, useEffect } from "react"
+import { Switch, Route, Redirect, useRouteMatch, useLocation } from "react-router-dom"
+
+import { httpget } from "../backend.js"
+
 import FlightPlanMap from "../components/flight_data/FlightPlanMap.js"
+import TabBar from "../components/TabBar"
 import Quick from "../components/flight_data/tabs/Quick.js"
 import Actions from "../components/flight_data/tabs/Actions.js"
 import Servo from "../components/flight_data/tabs/Servo.js"
-import { httpget } from "../backend.js"
 import { Row } from "../components/Containers"
 import { Button } from "../components/UIElements"
-
-const Tabs = ({ ...props }) => {
-	const [tab, setTab] = useState(<Quick />)
-	const [active, setActive] = useState(tab.type.name)
-
-	const modifyActive = isActive => {
-		setActive(isActive)
-	}
-
-	const quickButton = (
-		<Button
-			onClick={() => {
-				setTab(<Quick />)
-				modifyActive(Quick.name)
-			}}
-			active={active === Quick.name}
-			controlled
-		>
-			{Quick.name}
-		</Button>
-	)
-
-	const actionsButton = (
-		<Button
-			onClick={() => {
-				setTab(<Actions />)
-				modifyActive(Actions.name)
-			}}
-			active={active === Actions.name}
-			controlled
-		>
-			{Actions.name}
-		</Button>
-	)
-
-	const servoButton = (
-		<Button
-			onClick={() => {
-				setTab(<Servo />)
-				modifyActive(Servo.name)
-			}}
-			active={active === Servo.name}
-			controlled
-		>
-			{Servo.name}
-		</Button>
-	)
-
-	return (
-		<section>
-			<Row id="tabs" gap="1rem" height="3rem" style={{ marginBottom: "1rem" }} {...props}>
-				{quickButton}
-				{actionsButton}
-				{servoButton}
-			</Row>
-			{tab}
-		</section>
-	)
-}
 
 const FlightData = () => {
 	const [telem, setTelem] = useState([])
@@ -118,7 +63,11 @@ const FlightData = () => {
 				overflowY: "hidden",
 			}}
 		>
-			<Tabs />
+			<TabBar>
+				<Quick />
+				<Actions />
+				<Servo />
+			</TabBar>
 			<FlightPlanMap
 				display={display}
 				getters={getters}
