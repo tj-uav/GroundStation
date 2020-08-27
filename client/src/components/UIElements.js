@@ -323,8 +323,19 @@ const Right = styled.div`
 
 // type: "accept" | "decline"
 export const Checkbox = ({ type, ...props }) => {
+	const [beingClicked, setBeingClicked] = useState(false)
 	return (
-		<StyledCheckbox {...props} type={type}>
+		<StyledCheckbox
+			{...props}
+			isClicked={beingClicked}
+			type={type}
+			onMouseDown={() => {
+				setBeingClicked(true)
+			}}
+			onMouseUp={() => {
+				setBeingClicked(false)
+			}}
+		>
 			{type === "decline" ? <Decline /> : <Accept />}
 		</StyledCheckbox>
 	)
@@ -345,9 +356,10 @@ const Decline = styled(RawDecline)`
 `
 
 const StyledCheckbox = styled.div.withConfig({
-	shouldForwardProp: (prop, fn) => !["type"].includes(prop),
+	shouldForwardProp: (prop, fn) => !["type", "isClicked"].includes(prop),
 })`
 	background-color: ${({ type }) => (type === "decline" ? red : blue)};
+	${({ isClicked }) => (isClicked ? "filter: brightness(80%);" : "")}
 	display: flex;
 	flex-shrink: 0;
 	align-items: center;
