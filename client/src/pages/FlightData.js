@@ -8,7 +8,6 @@ import TabBar from "../components/TabBar"
 import Quick from "../components/flight_data/tabs/Quick"
 import Actions from "../components/flight_data/tabs/Actions"
 import All from "../components/flight_data/tabs/All"
-import Scripts from "../components/flight_data/tabs/Scripts"
 import Servo from "../components/flight_data/tabs/Servo"
 import { Row } from "../components/Containers"
 import { Button } from "../components/UIElements"
@@ -69,7 +68,6 @@ const FlightData = () => {
 				<Quick />
 				<Actions />
 				<All />
-				<Scripts />
 				<Servo />
 			</TabBar>
 			<FlightPlanMap
