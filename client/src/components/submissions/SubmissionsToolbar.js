@@ -43,7 +43,7 @@ const SubmissionsToolbar = props => {
 			<ContentContainer>
 				<Column>
 					<Row height="3rem" gap="0.5rem">
-						<Checkbox type="accept" />
+						<Checkbox callback={e => console.log(e)} type="accept" />
 						<Checkbox type="decline" />
 					</Row>
 					<Row height="2rem" gap="0.5rem">
