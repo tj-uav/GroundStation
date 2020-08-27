@@ -322,7 +322,7 @@ const Right = styled.div`
 `
 
 // type: "accept" | "decline"
-export const Checkbox = ({ type, ...props }) => {
+export const Checkbox = ({ type, callback, ...props }) => {
 	const [beingClicked, setBeingClicked] = useState(false)
 	return (
 		<StyledCheckbox
@@ -332,7 +332,11 @@ export const Checkbox = ({ type, ...props }) => {
 			onMouseDown={() => {
 				setBeingClicked(true)
 			}}
-			onMouseUp={() => {
+			onMouseUp={e => {
+				if (beingClicked && callback) callback(e)
+				setBeingClicked(false)
+			}}
+			onMouseLeave={() => {
 				setBeingClicked(false)
 			}}
 		>
