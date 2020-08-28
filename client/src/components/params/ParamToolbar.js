@@ -62,7 +62,7 @@ const ParamToolbar = props => {
 	}
 
 	return (
-		<ButtonGroup vertical style={{ float: "right", paddingRight: 30 }}>
+		<ButtonGroup vertical>
 			<Button variant="primary">Read params</Button>
 			<Button variant="primary">Write params</Button>
 
@@ -70,7 +70,7 @@ const ParamToolbar = props => {
 				<FormLabel
 					htmlFor="loadUpload"
 					style={{ marginBottom: "0px", paddingBottom: "10px", width: "100%" }}
-					class="btn btn-primary"
+					className="btn btn-primary"
 				>
 					Load params
 					<FormControl
@@ -84,7 +84,7 @@ const ParamToolbar = props => {
 				<FormLabel
 					htmlFor="saveUpload"
 					style={{ marginBottom: "0px", paddingBottom: "10px", width: "100%" }}
-					class="btn btn-primary"
+					className="btn btn-primary"
 				>
 					Save params
 					<FormControl
