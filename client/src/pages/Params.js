@@ -96,7 +96,10 @@ const Params = () => {
 					}}
 				></ParamToolbar> */}
 			</div>
-			<Column height="100%" style={{ overflow: "auto", gridTemplateRows: "unset" }}>
+			<Column
+				height="100%"
+				style={{ overflow: "auto", display: "flex", flexDirection: "column" }}
+			>
 				<Row height="3rem" columns="auto 10rem">
 					<Box
 						onChange={e => {
@@ -118,9 +121,15 @@ const Params = () => {
 					></Box>
 					<Button onClick={() => setFilter(tempFilter)}>Search</Button>
 				</Row>
-				<Row style={{ marginBottom: "-1rem" }} columns="14rem 6rem 1fr 6rem" height="2rem">
-					<Label>Param Name</Label>
-					<Label>Value</Label>
+				<Row
+					style={{ marginBottom: "-1rem" }}
+					columns="min-content auto 6rem"
+					height="2rem"
+				>
+					<Row columns="14rem 6rem">
+						<Label>Param Name</Label>
+						<Label>Value</Label>
+					</Row>
 					<Label>Description</Label>
 				</Row>
 				<div style={{ overflow: "auto" }}>

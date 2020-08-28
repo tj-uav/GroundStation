@@ -10,7 +10,7 @@ export default ({ data, hook }) => {
 	const [active, setActive] = hook
 
 	return (
-		<Row height="2rem" columns="1fr 1fr 6rem">
+		<Row height="2rem" columns="min-content auto 6rem">
 			<Column height="2rem" style={{ overflow: "hidden" }}>
 				<Row columns="14rem 6rem">
 					<Content padded children={data.name} />
