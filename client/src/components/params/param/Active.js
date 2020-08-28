@@ -14,7 +14,7 @@ export default ({ data, hook }) => {
 
 	return (
 		<form onSubmit={e => handleSubmit(e, toggle, value)}>
-			<Row style={{ maxHeight: "7rem" }} columns="1fr 1fr 6rem">
+			<Row style={{ maxHeight: "7rem" }} columns="min-content auto 6rem">
 				<div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
 					<Row height="2rem" columns="14rem 6rem">
 						<Content padded children={data.name} />
