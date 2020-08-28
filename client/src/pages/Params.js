@@ -1,10 +1,13 @@
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect, useMemo } from "react"
 import { Row, Column } from "../components/Containers"
 import { Button, Box, Label } from "../components/UIElements"
 import Param from "components/params/param"
-import { dark } from "../theme/Colors"
+import { dark, red } from "../theme/Colors"
 import Table from "react-bootstrap/Table"
 import ParamToolbar from "../components/params/ParamToolbar.js"
+
+import regexParse from "regex-parser"
+// import * as RegexParser from "regex-parser"
 
 /*
 Current params functionality:
@@ -32,7 +35,8 @@ const Params = () => {
 	const [params, setParams] = useState([])
 	const [display, setDisplay] = useState(parameters)
 
-	const [filter, setFilter] = useState(/.*/g)
+	const [filter, setFilter] = useState(/.*/gi)
+	const [tempFilter, setTempFilter] = useState(filter)
 
 	useEffect(() => {
 		const getParams = async (regex = filter) => {
@@ -47,15 +51,21 @@ const Params = () => {
 								link: entry[1].link,
 								value: "0",
 							}))
-							.filter(str => regex.test(str))
+							.filter(
+								entry => regex.test(entry.name) || regex.test(entry.description)
+							)
 					)
 				}, 0)
 			})
-			// .filter((_, i) => i < 20)
 			setParams(await arr)
 		}
 		getParams()
 	}, [filter])
+
+	const precomputedParams = useMemo(
+		() => params.map((param, i) => <Param key={i} data={param} />),
+		[params]
+	)
 
 	return (
 		<div
@@ -89,11 +99,24 @@ const Params = () => {
 			<Column height="100%" style={{ overflow: "auto", gridTemplateRows: "unset" }}>
 				<Row height="3rem" columns="auto 10rem">
 					<Box
+						onChange={e => {
+							const value = e.target.value
+							const element = e.target
+							let regex
+							element.style.color = "unset"
+							try {
+								regex = regexParse(value)
+							} catch (e) {
+								regex = /.*/gi
+								if (value !== "") element.style.color = red
+							}
+							setTempFilter(regex)
+						}}
 						placeholder="Enter search term(s) or regular expression"
 						style={{ textAlign: "unset" }}
 						editable
 					></Box>
-					<Button>Search</Button>
+					<Button onClick={() => setFilter(tempFilter)}>Search</Button>
 				</Row>
 				<Row style={{ marginBottom: "-1rem" }} columns="14rem 6rem 1fr 6rem" height="2rem">
 					<Label>Param Name</Label>
@@ -109,9 +132,7 @@ const Params = () => {
 							gap: "1rem",
 						}}
 					>
-						{params.map((param, i) => (
-							<Param key={i} data={param} />
-						))}
+						{precomputedParams}
 					</div>
 				</div>
 			</Column>

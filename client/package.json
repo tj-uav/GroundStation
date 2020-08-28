@@ -21,8 +21,9 @@
 		"react-mapbox-gl": "^4.8.6",
 		"react-radio-buttons": "^1.2.2",
 		"react-router-dom": "^5.2.0",
-		"react-scripts": "3.4.1",
+		"react-scripts": "^3.4.3",
 		"react-split-pane": "^0.1.91",
+		"regex-parser": "^2.2.11",
 		"styled-components": "^5.1.1"
 	},
 	"scripts": {
