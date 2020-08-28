@@ -211,7 +211,7 @@ const StyledBoxContent = styled.textarea`
 	cursor: ${props => (props.readOnly ? "default" : "text")};
 	border: 0;
 	margin: 0;
-	padding: 0;
+	padding: 0 1rem;
 	flex-grow: 1;
 	resize: none;
 	text-align: center;
@@ -364,9 +364,10 @@ const StyledCheckbox = styled.div.withConfig({
 })`
 	background-color: ${({ type }) => (type === "decline" ? red : blue)};
 	${({ isClicked }) => (isClicked ? "filter: brightness(80%);" : "")}
-	display: flex;
-	flex-shrink: 0;
-	align-items: center;
 	justify-content: center;
+	align-items: center;
 	cursor: pointer;
+	flex-shrink: 0;
+	display: flex;
+	height: 100%;
 `
