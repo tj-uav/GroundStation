@@ -32,21 +32,30 @@ const Params = () => {
 	const [params, setParams] = useState([])
 	const [display, setDisplay] = useState(parameters)
 
+	const [filter, setFilter] = useState(/.*/g)
+
 	useEffect(() => {
-		const getParams = async () => {
+		const getParams = async (regex = filter) => {
 			const json = require("parameters.json")
-			const arr = Object.entries(json)
-				.map(entry => ({
-					name: entry[0],
-					description: entry[1].description,
-					link: entry[1].link,
-					value: "0",
-				}))
-				.filter((_, i) => i < 20)
-			setParams(arr)
+			const arr = new Promise((resolve, reject) => {
+				setTimeout(() => {
+					resolve(
+						Object.entries(json)
+							.map(entry => ({
+								name: entry[0],
+								description: entry[1].description,
+								link: entry[1].link,
+								value: "0",
+							}))
+							.filter(str => regex.test(str))
+					)
+				}, 0)
+			})
+			// .filter((_, i) => i < 20)
+			setParams(await arr)
 		}
 		getParams()
-	}, [])
+	}, [filter])
 
 	return (
 		<div
