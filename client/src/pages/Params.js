@@ -1,4 +1,8 @@
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
+import { Row, Column } from "../components/Containers"
+import { Button, Box, Label } from "../components/UIElements"
+import Param from "components/params/param"
+import { dark } from "../theme/Colors"
 import Table from "react-bootstrap/Table"
 import ParamToolbar from "../components/params/ParamToolbar.js"
 
@@ -15,58 +19,93 @@ TODO: Read params from mavlink
 TODO: Write params to mavlink
 */
 
-const parameters = require("../parameters.json")
-
-const paramDescriptions = {}
-const paramLinks = {}
-const initialParams = []
-
-for (const param in parameters) {
-	paramDescriptions[param] = parameters[param].description
-	paramLinks[param] = parameters[param].link
-}
-
-for (const param in parameters) initialParams.push([param, "0"])
+const parameters = Object.entries(require("../parameters.json"))
+	.map(entry => ({
+		name: entry[0],
+		description: entry[1].description,
+		link: entry[1].link,
+		value: "0",
+	}))
+	.filter((_, i) => i < 20)
 
 const Params = () => {
-	const [params, setParams] = useState(initialParams)
-	const [display, setDisplay] = useState(initialParams)
+	const [params, setParams] = useState([])
+	const [display, setDisplay] = useState(parameters)
+
+	useEffect(() => {
+		const getParams = async () => {
+			const json = require("parameters.json")
+			const arr = Object.entries(json)
+				.map(entry => ({
+					name: entry[0],
+					description: entry[1].description,
+					link: entry[1].link,
+					value: "0",
+				}))
+				.filter((_, i) => i < 20)
+			setParams(arr)
+		}
+		getParams()
+	}, [])
 
 	return (
-		<div>
-			<div style={{ float: "left", paddingLeft: 20, width: "65%" }}>
-				<Table striped bordered hover>
-					<thead>
-						<tr>
-							<th>Param Name</th>
-							<th>Current Value</th>
-							<th>Description</th>
-						</tr>
-					</thead>
-					<tbody>
-						{params.map((param, i) => (
-							<tr key={i}>
-								<td>
-									<a href={paramLinks[param[0]]} target="_blank" rel="noopener">
-										{param[0]}
-									</a>
-								</td>
-								<td>{param[1]}</td>
-								<td>{paramDescriptions[param[0]]}</td>
-							</tr>
-						))}
-					</tbody>
-				</Table>
+		<div
+			style={{
+				display: "grid",
+				padding: "1rem 1rem 0 1rem",
+				gridTemplateColumns: "37rem 100fr",
+				gap: "1rem",
+				width: "100%",
+				height: "auto",
+				overflowY: "auto",
+			}}
+		>
+			<div>
+				<Row height="3rem">
+					<Button>Read</Button>
+					<Button>Write</Button>
+					<Button>Load</Button>
+					<Button>Save</Button>
+				</Row>
+				{/* <ParamToolbar
+					paramDescriptions={params.map(obj => obj.description)}
+					setDisplay={setDisplay}
+					params={params}
+					setParams={data => {
+						setParams(data)
+						setDisplay(data)
+					}}
+				></ParamToolbar> */}
 			</div>
-			<ParamToolbar
-				paramDescriptions={paramDescriptions}
-				setDisplay={setDisplay}
-				params={params}
-				setParams={data => {
-					setParams(data)
-					setDisplay(data)
-				}}
-			></ParamToolbar>
+			<Column height="100%" style={{ overflow: "auto", gridTemplateRows: "unset" }}>
+				<Row height="3rem" columns="auto 10rem">
+					<Box
+						placeholder="Enter search term(s) or regular expression"
+						style={{ textAlign: "unset" }}
+						editable
+					></Box>
+					<Button>Search</Button>
+				</Row>
+				<Row style={{ marginBottom: "-1rem" }} columns="14rem 6rem 1fr 6rem" height="2rem">
+					<Label>Param Name</Label>
+					<Label>Value</Label>
+					<Label>Description</Label>
+				</Row>
+				<div style={{ overflow: "auto" }}>
+					<div
+						style={{
+							display: "flex",
+							flexDirection: "column",
+							height: "100%",
+							gap: "1rem",
+						}}
+					>
+						{params.map((param, i) => (
+							<Param key={i} data={param} />
+						))}
+					</div>
+				</div>
+			</Column>
 		</div>
 	)
 }
