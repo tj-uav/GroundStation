@@ -27,11 +27,6 @@ const Description = styled(Content).attrs(props => ({
 
 export default ({ data, hook, ...props }) => {
 	const [active, setActive] = hook
-	const ref = useRef(null)
-
-	useEffect(() => {
-		console.log(window.getComputedStyle(ref.current).padding)
-	})
 
 	return (
 		<Row {...props} height="2rem" columns="min-content auto 6rem">
@@ -41,7 +36,7 @@ export default ({ data, hook, ...props }) => {
 					<Value hook={[data.value, null]} />
 				</Row>
 			</Column>
-			<Column ref={ref} height="2rem">
+			<Column height="2rem">
 				<Description description={data.description.replace(/\s/g, "\u00A0")} />
 			</Column>
 			<Button onClick={() => setActive(!active)}>Modify</Button>
