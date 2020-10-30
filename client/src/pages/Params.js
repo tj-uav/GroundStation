@@ -1,10 +1,8 @@
-import React, { useState, useEffect, useMemo } from "react"
+import React, { useState, useEffect, useMemo, useRef } from "react"
 import { Row, Column } from "../components/Containers"
 import { Button, Box, Label } from "../components/UIElements"
 import Param from "components/params/param"
-import { dark, red } from "../theme/Colors"
-import Table from "react-bootstrap/Table"
-import ParamToolbar from "../components/params/ParamToolbar.js"
+import { red } from "../theme/Colors"
 
 import regexParse from "regex-parser"
 // import * as RegexParser from "regex-parser"
@@ -22,50 +20,89 @@ TODO: Read params from mavlink
 TODO: Write params to mavlink
 */
 
-const parameters = Object.entries(require("../parameters.json"))
-	.map(entry => ({
-		name: entry[0],
-		description: entry[1].description,
-		link: entry[1].link,
-		value: "0",
-	}))
-	.filter((_, i) => i < 20)
+const parameters = Object.entries(require("parameters.json")).map(entry => ({
+	name: entry[0],
+	description: entry[1].description,
+	link: entry[1].link,
+	value: "0",
+}))
+
+const increment = 25
 
 const Params = () => {
-	const [params, setParams] = useState([])
-	const [display, setDisplay] = useState(parameters)
+	const [range, setRange] = useState([0, increment])
+	const [count, setCount] = useState(0)
+
+	const incrementRange = () =>
+		setRange(([low, high]) => [
+			Math.min(low + increment, count),
+			Math.min(high + increment, count),
+		])
+	const decrementRange = () =>
+		setRange(([low, high]) => [Math.max(low - increment, 0), Math.max(high - increment, 0)])
 
 	const [filter, setFilter] = useState(/.*/gi)
-	const [tempFilter, setTempFilter] = useState(filter)
+	const [loading, setLoading] = useState(false)
+	const [small, setSmall] = useState(false)
+
+	const scrollView = useRef(null)
+	const buttonRefs = {
+		increment: useRef(null),
+		decrement: useRef(null),
+	}
+
+	const load = fn => {
+		setLoading(true)
+		// setTimeout(() => {
+		const height = scrollView.current.getBoundingClientRect().height
+		const old = scrollView.current.style.overflow
+		scrollView.current.style.overflow = "hidden"
+		if (fn === undefined) {
+		} else if (fn === incrementRange) {
+			scrollView.current.scrollTop = 16 + 32 + 1
+		} else if (fn === decrementRange) {
+			scrollView.current.scrollTop = 632
+		}
+		fn()
+		setLoading(false)
+		scrollView.current.style.overflow = old
+		// }, 1000)
+	}
 
 	useEffect(() => {
-		const getParams = async (regex = filter) => {
-			const json = require("parameters.json")
-			const arr = new Promise((resolve, reject) => {
-				setTimeout(() => {
-					resolve(
-						Object.entries(json)
-							.map(entry => ({
-								name: entry[0],
-								description: entry[1].description,
-								link: entry[1].link,
-								value: "0",
-							}))
-							.filter(
-								entry => regex.test(entry.name) || regex.test(entry.description)
-							)
-					)
-				}, 0)
-			})
-			setParams(await arr)
-		}
-		getParams()
-	}, [filter])
+		const el = buttonRefs.increment.current
+		const observer = new IntersectionObserver(entries => {
+			const visible = entries[0].intersectionRatio > 0
+			if (visible) load(incrementRange)
+		})
+		if (el) observer.observe(el)
+		return () => observer.disconnect()
+	}, [buttonRefs.increment.current])
 
-	const precomputedParams = useMemo(
-		() => params.map((param, i) => <Param key={i} data={param} />),
-		[params]
-	)
+	useEffect(() => {
+		const el = buttonRefs.decrement.current
+		const observer = new IntersectionObserver(entries => {
+			const visible = entries[0].intersectionRatio > 0
+			if (visible) load(decrementRange)
+		})
+		if (el) observer.observe(el)
+		return () => observer.disconnect()
+	}, [buttonRefs.decrement.current])
+
+	const precomputedParams = useMemo(() => {
+		const arr = parameters
+			.filter(p => filter.test(p.name) || filter.test(p.description))
+
+			.map((param, i) => <Param key={i} data={param} />)
+		setCount(arr.length)
+		if (arr.length <= increment * 2) {
+			setSmall(true)
+			return arr
+		} else {
+			setSmall(false)
+			return arr.slice(...range)
+		}
+	}, [range, filter])
 
 	return (
 		<div
@@ -86,22 +123,17 @@ const Params = () => {
 					<Button>Load</Button>
 					<Button>Save</Button>
 				</Row>
-				{/* <ParamToolbar
-					paramDescriptions={params.map(obj => obj.description)}
-					setDisplay={setDisplay}
-					params={params}
-					setParams={data => {
-						setParams(data)
-						setDisplay(data)
-					}}
-				></ParamToolbar> */}
 			</div>
 			<Column
 				height="100%"
 				style={{ overflow: "auto", display: "flex", flexDirection: "column" }}
 			>
-				<Row height="3rem" columns="auto 10rem">
+				<Row height="3rem" columns="auto">
 					<Box
+						onKeyDown={e => {
+							if (e.nativeEvent.key === "Enter") e.preventDefault()
+							e.stopPropagation()
+						}}
 						onChange={e => {
 							const value = e.target.value
 							const element = e.target
@@ -113,13 +145,14 @@ const Params = () => {
 								regex = /.*/gi
 								if (value !== "") element.style.color = red
 							}
-							setTempFilter(regex)
+							setFilter(regex)
+							setRange([0, increment])
+							// scrollView.current.scrollTop = 0
 						}}
 						placeholder="Enter search term(s) or regular expression"
 						style={{ textAlign: "unset" }}
 						editable
 					></Box>
-					<Button onClick={() => setFilter(tempFilter)}>Search</Button>
 				</Row>
 				<Row
 					style={{ marginBottom: "-1rem" }}
@@ -132,7 +165,7 @@ const Params = () => {
 					</Row>
 					<Label>Description</Label>
 				</Row>
-				<div style={{ overflow: "auto" }}>
+				<div ref={scrollView} style={{ overflow: "auto" }}>
 					<div
 						style={{
 							display: "flex",
@@ -141,7 +174,26 @@ const Params = () => {
 							gap: "1rem",
 						}}
 					>
+						{!small && count >= increment && range[0] > 0 && (
+							<Button
+								ref={buttonRefs.decrement}
+								style={{ minHeight: "2rem" }}
+								onClick={() => load(decrementRange)}
+							>
+								{loading ? "Loading..." : "Load More (Previous)"}
+							</Button>
+						)}
 						{precomputedParams}
+
+						{!small && count >= increment && range[1] <= count && (
+							<Button
+								ref={buttonRefs.increment}
+								style={{ minHeight: "2rem" }}
+								onClick={() => load(incrementRange)}
+							>
+								{loading ? "Loading..." : "Load More (Next)"}
+							</Button>
+						)}
 					</div>
 				</div>
 			</Column>

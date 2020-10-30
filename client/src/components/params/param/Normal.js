@@ -6,11 +6,11 @@ import { Button } from "components/UIElements"
 import Content from "./Content"
 import Value from "./Value"
 
-export default ({ data, hook }) => {
+export default ({ data, hook, ...props }) => {
 	const [active, setActive] = hook
 
 	return (
-		<Row height="2rem" columns="min-content auto 6rem">
+		<Row {...props} height="2rem" columns="min-content auto 6rem">
 			<Column height="2rem" style={{ overflow: "hidden" }}>
 				<Row columns="14rem 6rem">
 					<Content padded children={data.name} />

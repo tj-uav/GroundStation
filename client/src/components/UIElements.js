@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useState, forwardRef } from "react"
 import { Link as RouterLink } from "react-router-dom"
 import styled, { css } from "styled-components"
 
@@ -7,11 +7,12 @@ import { ReactComponent as Caret } from "../icons/caret.svg"
 import { ReactComponent as RawAccept } from "../icons/check.svg"
 import { ReactComponent as RawDecline } from "../icons/decline.svg"
 
-export const Button = ({ active, controlled, to, href, ...props }) => {
+export const Button = forwardRef(({ active, controlled, to, href, ...props }, ref) => {
 	const [isActive, setActive] = useState(active ?? false)
 
 	return (
 		<StyledButton
+			ref={ref}
 			className="paragraph"
 			active={controlled ? active : isActive}
 			onMouseDown={() => {
@@ -20,7 +21,7 @@ export const Button = ({ active, controlled, to, href, ...props }) => {
 			onMouseUp={() => {
 				if (!controlled)
 					setTimeout(() => {
-						setActive(false)
+						if (ref?.current) setActive(false)
 					}, 100)
 			}}
 			to={to}
@@ -28,22 +29,22 @@ export const Button = ({ active, controlled, to, href, ...props }) => {
 			{...props}
 		/>
 	)
-}
+})
 
-const Link = ({ to, href, children, ...props }) => {
+const Link = forwardRef(({ to, href, children, ...props }, ref) => {
 	if (to)
 		return (
-			<RouterLink to={to} {...props}>
+			<RouterLink ref={ref} to={to} {...props}>
 				{children}
 			</RouterLink>
 		)
 	else
 		return (
-			<a href={href} {...props}>
+			<a ref={ref} href={href} {...props}>
 				{children}
 			</a>
 		)
-}
+})
 
 // prettier-ignore
 const StyledButton = styled(Link).attrs(props => ({

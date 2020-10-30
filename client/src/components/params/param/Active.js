@@ -7,13 +7,13 @@ import Content from "./Content"
 import Value from "./Value"
 import Submit from "./Submit"
 
-export default ({ data, hook }) => {
+export default ({ data, hook, ...props }) => {
 	const [active, setActive] = hook
 	const [value, setValue] = useState(data.value)
 	const toggle = () => setActive(!active)
 
 	return (
-		<form onSubmit={e => handleSubmit(e, toggle, value)}>
+		<form {...props} onSubmit={e => handleSubmit(e, toggle, value)}>
 			<Row style={{ maxHeight: "7rem" }} columns="min-content auto 6rem">
 				<div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
 					<Row height="2rem" columns="14rem 6rem">
