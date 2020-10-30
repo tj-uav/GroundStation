@@ -51,7 +51,6 @@ const Params = () => {
 
 	const [filter, setFilter] = useState(/.*/gi)
 	const [loading, setLoading] = useState(false)
-	const [small, setSmall] = useState(false)
 
 	const scrollView = useRef(null)
 	const buttonRefs = {
@@ -99,16 +98,9 @@ const Params = () => {
 	const precomputedParams = useMemo(() => {
 		const arr = parameters
 			.filter(p => filter.test(p.name) || filter.test(p.description))
-
 			.map((param, i) => <Param key={i} data={param} />)
 		setCount(arr.length)
-		if (arr.length <= increment * 2) {
-			setSmall(true)
-			return arr
-		} else {
-			setSmall(false)
-			return arr.slice(...range)
-		}
+		return arr.length <= increment * 2 ? arr : arr.slice(...range)
 	}, [range, filter])
 
 	return (
@@ -181,7 +173,7 @@ const Params = () => {
 							gap: "1rem",
 						}}
 					>
-						{!small && count >= increment && range[0] > 0 && (
+						{count > increment * 2 && range[0] > 0 && (
 							<Button
 								ref={buttonRefs.decrement}
 								style={{ minHeight: "2rem" }}
@@ -190,9 +182,10 @@ const Params = () => {
 								{loading ? "Loading..." : "Load More (Previous)"}
 							</Button>
 						)}
+
 						{precomputedParams}
 
-						{!small && count >= increment && range[1] <= count && (
+						{count > increment * 2 && range[1] <= count && (
 							<Button
 								ref={buttonRefs.increment}
 								style={{ minHeight: "2rem" }}
