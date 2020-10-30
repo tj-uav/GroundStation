@@ -27,19 +27,25 @@ const parameters = Object.entries(require("parameters.json")).map(entry => ({
 	value: "0",
 }))
 
-const increment = 25
+const increment = 50
 
 const Params = () => {
 	const [range, setRange] = useState([0, increment])
 	const [count, setCount] = useState(0)
 
-	const incrementRange = () =>
-		setRange(([low, high]) => [
+	const incrementRange = () => {
+		return setRange(([low, high]) => [
 			Math.min(low + increment, count),
 			Math.min(high + increment, count),
 		])
-	const decrementRange = () =>
-		setRange(([low, high]) => [Math.max(low - increment, 0), Math.max(high - increment, 0)])
+	}
+
+	const decrementRange = () => {
+		return setRange(([low, high]) => [
+			Math.max(low - increment, 0),
+			Math.max(high - increment, 0),
+		])
+	}
 
 	const [filter, setFilter] = useState(/.*/gi)
 	const [loading, setLoading] = useState(false)
@@ -53,20 +59,19 @@ const Params = () => {
 
 	const load = fn => {
 		setLoading(true)
-		// setTimeout(() => {
-		const height = scrollView.current.getBoundingClientRect().height
 		const old = scrollView.current.style.overflow
 		scrollView.current.style.overflow = "hidden"
 		if (fn === undefined) {
 		} else if (fn === incrementRange) {
-			scrollView.current.scrollTop = 16 + 32 + 1
+			scrollView.current.scrollTop = 48
 		} else if (fn === decrementRange) {
-			scrollView.current.scrollTop = 632 // TODO: hardcoded, make dynamic
+			// hack to get scrollBottom equivalent
+			scrollView.current.scrollTop = Number.MAX_SAFE_INTEGER
+			scrollView.current.scrollTop -= 96
 		}
 		fn()
 		setLoading(false)
 		scrollView.current.style.overflow = old
-		// }, 1000)
 	}
 
 	useEffect(() => {
@@ -147,9 +152,9 @@ const Params = () => {
 							}
 							setFilter(regex)
 							setRange([0, increment])
-							// scrollView.current.scrollTop = 0
+							scrollView.current.scrollTop = 0
 						}}
-						placeholder="Enter search term(s) or regular expression"
+						placeholder="Enter search term or regular expression"
 						style={{ textAlign: "unset" }}
 						editable
 					></Box>
