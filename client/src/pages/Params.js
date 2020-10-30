@@ -20,12 +20,14 @@ TODO: Read params from mavlink
 TODO: Write params to mavlink
 */
 
-const parameters = Object.entries(require("parameters.json")).map(entry => ({
-	name: entry[0],
-	description: entry[1].description,
-	link: entry[1].link,
-	value: "0",
-}))
+const parameters = Object.entries(require("parameters.json")).map(
+	([name, { description, link }]) => ({
+		name,
+		description,
+		link,
+		value: "0",
+	})
+)
 
 const increment = 50
 
