@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useRef } from "react"
+import React, { useState, useEffect, useMemo, useRef, useCallback } from "react"
 import { Row, Column } from "../components/Containers"
 import { Button, Box, Label } from "../components/UIElements"
 import Param from "components/params/param"
@@ -35,65 +35,66 @@ const Params = () => {
 	const [range, setRange] = useState([0, increment])
 	const [count, setCount] = useState(0)
 
-	const incrementRange = () => {
+	const incrementRange = useCallback(() => {
 		return setRange(([low, high]) => [
 			Math.min(low + increment, count),
 			Math.min(high + increment, count),
 		])
-	}
+	}, [count])
 
-	const decrementRange = () => {
+	const decrementRange = useCallback(() => {
 		return setRange(([low, high]) => [
 			Math.max(low - increment, 0),
 			Math.max(high - increment, 0),
 		])
-	}
+	}, [])
 
 	const [filter, setFilter] = useState(/.*/gi)
 	const [loading, setLoading] = useState(false)
 
-	const scrollView = useRef(null)
-	const buttonRefs = {
-		increment: useRef(null),
-		decrement: useRef(null),
-	}
+	const scrollArea = useRef(null)
+	const [incrementButton, setIncrement] = useState(null)
+	const [decrementButton, setDecrement] = useState(null)
 
-	const load = fn => {
-		setLoading(true)
-		const old = scrollView.current.style.overflow
-		scrollView.current.style.overflow = "hidden"
-		if (fn === undefined) {
-		} else if (fn === incrementRange) {
-			scrollView.current.scrollTop = 48
-		} else if (fn === decrementRange) {
-			// hack to get scrollBottom equivalent
-			scrollView.current.scrollTop = Number.MAX_SAFE_INTEGER
-			scrollView.current.scrollTop -= 96
-		}
-		fn()
-		setLoading(false)
-		scrollView.current.style.overflow = old
-	}
+	const load = useCallback(
+		fn => {
+			setLoading(true)
+			const old = scrollArea.current.style.overflow
+			scrollArea.current.style.overflow = "hidden"
+			if (fn === undefined) {
+			} else if (fn === incrementRange) {
+				scrollArea.current.scrollTop = 48
+			} else if (fn === decrementRange) {
+				// hack to get scrollBottom equivalent
+				scrollArea.current.scrollTop = Number.MAX_SAFE_INTEGER
+				scrollArea.current.scrollTop -= 96
+			}
+			fn()
+			setLoading(false)
+			scrollArea.current.style.overflow = old
+		},
+		[incrementRange, decrementRange, scrollArea]
+	)
 
 	useEffect(() => {
-		const el = buttonRefs.increment.current
+		const el = incrementButton
 		const observer = new IntersectionObserver(entries => {
 			const visible = entries[0].intersectionRatio > 0
 			if (visible) load(incrementRange)
 		})
 		if (el) observer.observe(el)
 		return () => observer.disconnect()
-	}, [buttonRefs.increment.current])
+	}, [incrementButton, load, incrementRange])
 
 	useEffect(() => {
-		const el = buttonRefs.decrement.current
+		const el = decrementButton
 		const observer = new IntersectionObserver(entries => {
 			const visible = entries[0].intersectionRatio > 0
 			if (visible) load(decrementRange)
 		})
 		if (el) observer.observe(el)
 		return () => observer.disconnect()
-	}, [buttonRefs.decrement.current])
+	}, [decrementButton, load, decrementRange])
 
 	const precomputedParams = useMemo(() => {
 		const arr = parameters
@@ -146,7 +147,7 @@ const Params = () => {
 							}
 							setFilter(regex)
 							setRange([0, increment])
-							scrollView.current.scrollTop = 0
+							scrollArea.current.scrollTop = 0
 						}}
 						placeholder="Enter search term or regular expression"
 						style={{ textAlign: "unset" }}
@@ -164,7 +165,7 @@ const Params = () => {
 					</Row>
 					<Label>Description</Label>
 				</Row>
-				<div ref={scrollView} style={{ overflow: "auto" }}>
+				<div ref={scrollArea} style={{ overflow: "auto" }}>
 					<div
 						style={{
 							display: "flex",
@@ -175,7 +176,7 @@ const Params = () => {
 					>
 						{count > increment * 2 && range[0] > 0 && (
 							<Button
-								ref={buttonRefs.decrement}
+								ref={setDecrement}
 								style={{ minHeight: "2rem" }}
 								onClick={() => load(decrementRange)}
 							>
@@ -187,7 +188,7 @@ const Params = () => {
 
 						{count > increment * 2 && range[1] <= count && (
 							<Button
-								ref={buttonRefs.increment}
+								ref={setIncrement}
 								style={{ minHeight: "2rem" }}
 								onClick={() => load(incrementRange)}
 							>
