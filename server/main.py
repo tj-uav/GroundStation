@@ -3,11 +3,12 @@ from flask_cors import CORS
 # from interop_handler import InteropHandler
 from mav_handler import MavHandler
 import logging
+import json
 log = logging.getLogger('werkzeug')
 log.setLevel(logging.ERROR)
 
 app = Flask(__name__)
-mav = MavHandler(dummy=True)
+mav = MavHandler(dummy=False, port='tcp:127.0.0.1:5760', serial=False)
 CORS(app)
 
 # interop = InteropHandler(1)
@@ -44,4 +45,5 @@ def telem():
     return json.dumps(mav.telemetry())
 
 if __name__ == "__main__":
+    mav.connect()
     app.run(port=5000, debug=False)
