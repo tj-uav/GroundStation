@@ -18,7 +18,7 @@ class MavHandler:
         loc = self.vehicle.location.global_frame
         return [loc.lat, loc.lon, loc.alt]
     
-    def get_attitude(self)
+    def get_attitude(self):
         if self.dummy: return [15,20,25]
         attitude = self.vehicle.attitude
         return [attitude.pitch, attitude.yaw, attitude.roll]
