@@ -1,18 +1,20 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 # from interop_handler import InteropHandler
+from mav_handler import MavHandler
 import logging
 log = logging.getLogger('werkzeug')
 log.setLevel(logging.ERROR)
 
 app = Flask(__name__)
+mav = MavHandler(dummy=True)
 CORS(app)
 
 # interop = InteropHandler(1)
 
 @app.route("/")
 def hello():
-    return "Hello World!"
+    return "TJ UAV Ground Station Backend homepage"
 
 
 @app.route("/interop/login", methods=["GET", "POST"])
@@ -38,12 +40,8 @@ def odcl_get(id, dtype):
 
 @app.route("/mav/telem")
 def telem():
-    import random
-    return jsonify([random.randint(0, 50), random.randint(0, 50), random.randint(0, 50), 
-        random.randint(0, 50), random.randint(0, 50), random.randint(0, 50), 
-        random.randint(0, 50), random.randint(0, 50),
-    ])
-
+    global mav
+    return json.dumps(mav.telemetry())
 
 if __name__ == "__main__":
     app.run(port=5000, debug=False)
