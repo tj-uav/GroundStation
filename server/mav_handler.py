@@ -13,12 +13,9 @@ class MavHandler:
         if self.simulate: self.vehicle = connect('tcp:127.0.0.1:5760', wait_ready=True)
         else: self.vehicle = connect(SERIAL_PORT, wait_ready=True, baud=BAUDRATE)
 
-    def get_location(self):
-        if self.dummy: return [38.8170,-77.1679,100]
+    def telemetry(self):
+        if self.dummy: return {'lat':38.8170,'lon':-77.1679,'alt':100,'pitch':15,'roll':20,'yaw':25}
         loc = self.vehicle.location.global_frame
-        return [loc.lat, loc.lon, loc.alt]
-    
-    def get_attitude(self):
-        if self.dummy: return [15,20,25]
-        attitude = self.vehicle.attitude
-        return [attitude.pitch, attitude.yaw, attitude.roll]
+        angle = self.vehicle.attitude
+        return {'lat':loc.lat, 'lon':loc.lon, 'alt':loc.alt,
+                    'pitch':angle.pitch, 'roll':angle.roll, 'yaw':angle.yaw}
