@@ -1,7 +1,8 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 # from interop_handler import InteropHandler
-from mav_handler import MavHandler
+#from mav_handler import MavHandler
+from dummy_mav_handler import DummyMavHandler as MavHandler
 import logging
 import json
 log = logging.getLogger('werkzeug')
@@ -9,7 +10,7 @@ log.setLevel(logging.ERROR)
 
 app = Flask(__name__)
 #mav = MavHandler(dummy=False, port='tcp:127.0.0.1:5760', serial=False)
-mav = MavHandler(dummy=True, port='tcp:127.0.0.1:5760', serial=False)
+mav = MavHandler(port='tcp:127.0.0.1:5760', serial=False)
 CORS(app)
 
 # interop = InteropHandler(1)
@@ -38,11 +39,6 @@ def interop_get(key):
 @app.route("/interop/odlcs/<id>/<dtype>")
 def odcl_get(id, dtype):
     return jsonify(interop.get_odlcs(id, dtype))
-
-
-@app.route("/mav/telem")
-def telem():
-    return json.dumps(mav.telemetry())
 
 
 @app.route("/mav/quick")
