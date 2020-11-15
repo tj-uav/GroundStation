@@ -1,20 +1,33 @@
+import time
 import random
+import threading
 
 class DummyMavHandler:
     def __init__(self, port=None, serial=False):
         self.port = port
         self.serial = serial
 
+
     def connect(self):
         print("Created dummy mav handler")
+        self.update_thread = threading.Thread(target=self.constant_updating)
+        self.update_thread.daemon = True
+        self.update_thread.start()
+
+
+    def constant_updating(self):
+        while True:
+            self.update()
+            time.sleep(0.1)
+
 
     def update(self):
         self.altitude = random.random() * 100
         self.orientation = {
-            self.yaw: random.randint(0, 360),
-            self.roll: random.randint(0, 360),
-            self.pitch: random.randint(0, 360)
-        },
+            'yaw': random.randint(0, 360),
+            'roll': random.randint(0, 360),
+            'pitch': random.randint(0, 360)
+        }
         self.ground_speed = random.random() * 100
         self.air_speed = random.random() * 100
         self.dist_to_wp = random.random() * 100

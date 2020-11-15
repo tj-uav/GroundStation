@@ -24,9 +24,9 @@ class MavHandler:
         # TODO: Use actual dronekit commands for these
         self.altitude = loc.alt
         self.orientation = {
-            self.yaw: angle.yaw,
-            self.roll: angle.roll,
-            self.pitch: angle.pitch
+            'yaw': angle.yaw,
+            'roll': angle.roll,
+            'pitch': angle.pitch
         },
         self.ground_speed = self.vehicle.groundspeed
         self.air_speed = self.vehicle.airspeed
