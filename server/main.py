@@ -8,7 +8,8 @@ log = logging.getLogger('werkzeug')
 log.setLevel(logging.ERROR)
 
 app = Flask(__name__)
-mav = MavHandler(dummy=False, port='tcp:127.0.0.1:5760', serial=False)
+#mav = MavHandler(dummy=False, port='tcp:127.0.0.1:5760', serial=False)
+mav = MavHandler(dummy=True, port='tcp:127.0.0.1:5760', serial=False)
 CORS(app)
 
 # interop = InteropHandler(1)
@@ -41,8 +42,12 @@ def odcl_get(id, dtype):
 
 @app.route("/mav/telem")
 def telem():
-    global mav
     return json.dumps(mav.telemetry())
+
+
+@app.route("/mav/quick")
+def quick():
+    return json.dumps(mav.quick())
 
 if __name__ == "__main__":
     mav.connect()
