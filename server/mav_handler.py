@@ -1,4 +1,5 @@
-#from dronekit import connect
+from dronekit import connect
+import random
 
 SERIAL_PORT = '/dev/ttyACM0'
 BAUDRATE = 115200
@@ -18,6 +19,25 @@ class MavHandler:
                 self.vehicle = connect(self.port, wait_ready=True)
         print("Connected")
 
+    def quick(self):
+        print("Requesting quick data")
+        if self.dummy:
+            return {'altitude': random.random() * 100,
+                    'orientation': {
+                        'yaw': random.randint(0, 360),
+                        'roll': random.randint(0, 360),
+                        'pitch': random.randint(0, 360),
+                    },
+                    'ground_speed': random.random() * 100,
+                    'air_speed': random.random() * 100,
+                    'dist_to_wp': random.random() * 100,
+                    'voltage': random.random() * 16,
+                    'throttle': random.randint(0, 100),
+                    'lat': -random.random() * 100,
+                    'lon': -random.random() * 100
+            }        
+
+
     def telemetry(self):
         print("Requesting telemetry data")
         if self.dummy:
@@ -34,7 +54,7 @@ class MavHandler:
         self.vehicle.parameters[key] = value
 
     def getParam(self):
-        
+
 
     def setParams(self, **kwargs):
         newParams = {key:value for key, value in vehicle.parameters.items()}

@@ -4,27 +4,31 @@ import { Row, Column } from "../../Containers"
 
 const Quick = props => {
 	const [altitude, setAltitude] = useState(0)
-	const [orientation, setOrientation] = useState(0)
+	const [yaw, setYaw] = useState(0)
+	const [pitch, setPitch] = useState(0)
+	const [roll, setRoll] = useState(0)
 	const [groundSpeed, setGroundSpeed] = useState(0)
 	const [airspeed, setAirspeed] = useState(0)
-	const [text, setText] = useState(0)
-	const [battery, setBattery] = useState(0)
+	const [distToWP, setDistToWP] = useState(0)
+	const [voltage, setVoltage] = useState(0)
 	const [throttle, setThrottle] = useState(0)
 	const [latLong, setLatLong] = useState(0)
 
 	const updateData = () => {
-		fetch("http://localhost:5000/mav/telem")
+		fetch("http://localhost:5000/mav/quick")
 			.then(response => response.json())
 			.then(data => {
 				console.log(data)
-				setAltitude(data[0])
-				setOrientation(data[1])
-				setGroundSpeed(data[2])
-				setAirspeed(data[3])
-				setText(data[4])
-				setBattery(data[5])
-				setThrottle(data[6])
-				setLatLong(data[7])
+				setAltitude(data['altitude'])
+				setYaw(data['orientation']['yaw'])
+				setPitch(data['orientation']['pitch'])
+				setRoll(data['orientation']['roll'])
+				setGroundSpeed(data['ground_speed'])
+				setAirspeed(data['air_speed'])
+				setDistToWP(data['dist_to_wp'])
+				setVoltage(data['voltage'])
+				setThrottle(data['throttle'])
+				setLatLong(data['lat'] + "/" + data['lon'])
 			})
 	}
 
@@ -46,15 +50,19 @@ const Quick = props => {
 			<Column style={{ marginBottom: "1rem" }}>
 				<Row>
 					<Box label="Altitude" content={altitude} />
-					<Box label="Orientation" content={orientation} />
+					<Box label="Yaw" content={yaw} />
+				</Row>
+				<Row>
+					<Box label="Pitch" content={pitch} />
+					<Box label="Roll" content={roll} />
 				</Row>
 				<Row>
 					<Box label="Ground Speed" content={groundSpeed} />
 					<Box label="Airspeed" content={airspeed} />
 				</Row>
 				<Row>
-					<Box label="Text" content={text} />
-					<Box label="Battery" content={battery} />
+					<Box label="Dist To WP" content={distToWP} />
+					<Box label="Battery Voltage" content={voltage} />
 				</Row>
 				<Row>
 					<Box label="Throttle" content={throttle} />
