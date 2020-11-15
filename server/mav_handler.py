@@ -1,4 +1,4 @@
-from dronekit import connect
+#from dronekit import connect
 
 SERIAL_PORT = '/dev/ttyACM0'
 BAUDRATE = 115200
@@ -27,3 +27,20 @@ class MavHandler:
         return {'lat':loc.lat, 'lon':loc.lon, 'alt':loc.alt,
                     'pitch':angle.pitch, 'roll':angle.roll, 'yaw':angle.yaw}
 
+    def params(self):
+        paramsObj = vehicle.parameters
+
+    def setParam(self, key, value):
+        self.vehicle.parameters[key] = value
+
+    def getParam(self):
+        
+
+    def setParams(self, **kwargs):
+        newParams = {key:value for key, value in vehicle.parameters.items()}
+        for key, value in kwargs.items():
+            newParams[key] = value
+
+        vehicle.parameters = newParams
+
+    

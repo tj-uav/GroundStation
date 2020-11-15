@@ -8,7 +8,7 @@ log = logging.getLogger('werkzeug')
 log.setLevel(logging.ERROR)
 
 app = Flask(__name__)
-mav = MavHandler(dummy=False, port='tcp:127.0.0.1:5760', serial=False)
+mav = MavHandler(dummy=True)#MavHandler(dummy=False, port='tcp:127.0.0.1:5760', serial=False)
 CORS(app)
 
 # interop = InteropHandler(1)
