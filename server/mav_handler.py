@@ -49,3 +49,21 @@ class MavHandler:
                 'lon': self.lon
         }        
 
+    def params(self):
+        paramsObj = self.vehicle.parameters
+        return {k,v: for k,v in self.vehicle.parameters.items()}
+
+    def setParam(self, key, value):
+        self.vehicle.parameters[key] = value
+
+    def getParam(self):
+        return self.vehicle.parameters[key]
+
+    def setParams(self, **kwargs):
+        newParams = {key:value for key, value in vehicle.parameters.items()}
+        for key, value in kwargs.items():
+            newParams[key] = value
+
+        vehicle.parameters = newParams
+
+    
