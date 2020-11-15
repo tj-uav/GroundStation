@@ -48,13 +48,14 @@ class MavHandler:
                     'pitch':angle.pitch, 'roll':angle.roll, 'yaw':angle.yaw}
 
     def params(self):
-        paramsObj = vehicle.parameters
+        paramsObj = self.vehicle.parameters
+        return {k,v: for k,v in self.vehicle.parameters.items()}
 
     def setParam(self, key, value):
         self.vehicle.parameters[key] = value
 
     def getParam(self):
-
+        return self.vehicle.parameters[key]
 
     def setParams(self, **kwargs):
         newParams = {key:value for key, value in vehicle.parameters.items()}
