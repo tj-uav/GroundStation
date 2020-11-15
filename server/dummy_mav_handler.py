@@ -1,39 +1,27 @@
-from dronekit import connect
+import random
 
-SERIAL_PORT = '/dev/ttyACM0'
-BAUDRATE = 115200
-
-class MavHandler:
+class DummyMavHandler:
     def __init__(self, port=None, serial=False):
         self.port = port
         self.serial = serial
 
     def connect(self):
-        print("Connecting")
-        if self.serial:
-            self.vehicle = connect(self.port, wait_ready=True, baud=BAUDRATE)
-        else:
-            self.vehicle = connect(self.port, wait_ready=True)
-        print("Connected")
+        print("Created dummy mav handler")
 
     def update(self):
-        loc = self.vehicle.location.global_frame
-        angle = self.vehicle.attitude
-
-        # TODO: Use actual dronekit commands for these
-        self.altitude = loc.alt
+        self.altitude = random.random() * 100
         self.orientation = {
-            self.yaw: angle.yaw,
-            self.roll: angle.roll,
-            self.pitch: angle.pitch
+            self.yaw: random.randint(0, 360),
+            self.roll: random.randint(0, 360),
+            self.pitch: random.randint(0, 360)
         },
         self.ground_speed = random.random() * 100
         self.air_speed = random.random() * 100
         self.dist_to_wp = random.random() * 100
         self.voltage = random.random() * 16
         self.throttle = random.randint(0, 100)
-        self.lat = loc.lat
-        self.lon = loc.lon
+        self.lat = -random.random() * 100
+        self.lon = -random.random() * 100
 
 
     def quick(self):
@@ -48,4 +36,3 @@ class MavHandler:
                 'lat': self.lat,
                 'lon': self.lon
         }        
-
