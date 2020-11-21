@@ -19,6 +19,7 @@ class MavHandler:
     def update(self):
         loc = self.vehicle.location.global_frame
         angle = self.vehicle.attitude
+        battery = self.vehicle.battery
 
         # TODO: Use actual dronekit commands for these
         self.altitude = loc.alt
@@ -27,14 +28,19 @@ class MavHandler:
             'roll': angle.roll,
             'pitch': angle.pitch
         },
-        self.ground_speed = random.random() * 100
-        self.air_speed = random.random() * 100
+        self.ground_speed = self.vehicle.groundspeed
+        self.air_speed = self.vehicle.airspeed
         self.dist_to_wp = random.random() * 100
-        self.voltage = random.random() * 16
+        self.voltage = battery.voltage
+        self.battery_level = battery.level
         self.throttle = random.randint(0, 100)
         self.lat = loc.lat
         self.lon = loc.lon
 
+        self.mode = self.vehicle.mode
+        
+    def setFlightMode(self, flightmode):
+        self.vehicle.mode = flightmode
 
     def quick(self):
         print("Requesting quick data")
@@ -65,5 +71,12 @@ class MavHandler:
             newParams[key] = value
 
         vehicle.parameters = newParams
+    
+    def arm(self):
+        self.vehicle.armed = True
+
+    def disarm(self):
+        self.vehicle.armed = False
+
 
     
