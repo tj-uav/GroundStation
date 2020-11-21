@@ -35,7 +35,7 @@ const Quick = props => {
 	useEffect(() => {
 		const tick = setInterval(() => {
 			updateData()
-		}, 250)
+		}, 200)
 		return () => clearInterval(tick)
 	})
 

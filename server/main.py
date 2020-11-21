@@ -1,19 +1,24 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS
-# from interop_handler import InteropHandler
-#from mav_handler import MavHandler
-from dummy_mav_handler import DummyMavHandler as MavHandler
+from interop_handler import InteropHandler
+from mav_handler import MavHandler
+from dummy_mav_handler import DummyMavHandler
 import logging
 import json
+
 log = logging.getLogger('werkzeug')
 log.setLevel(logging.ERROR)
+config = json.load(open('config.json', 'r'))
 
 app = Flask(__name__)
-#mav = MavHandler(dummy=False, port='tcp:127.0.0.1:5760', serial=False)
-mav = MavHandler(port='tcp:127.0.0.1:5760', serial=False)
-CORS(app)
+if config['mav']['dummy']:
+    mav = DummyMavHandler(port=config['mav']['port'])
+else:
+    mav = MavHandler(port=config['mav']['port'], serial=config['mav']['serial'])
 
-# interop = InteropHandler(1)
+interop = InteropHandler(mission_id=config['interop']['mission_id'])
+interop.login(ip=config['interop']['ip'], username=config['interop']['username'], password=config['interop']['password'])
+CORS(app)
 
 @app.route("/")
 def hello():

@@ -3,10 +3,8 @@ import random
 import threading
 
 class DummyMavHandler:
-    def __init__(self, port=None, serial=False):
+    def __init__(self, port=None):
         self.port = port
-        self.serial = serial
-
 
     def connect(self):
         print("Created dummy mav handler")
