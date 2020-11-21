@@ -1,32 +1,47 @@
-import React, { useState, useEffect } from "react"
-import { Button, Box, Label, Slider, Dropdown, Checkbox } from "../UIElements"
-import { Row, Column } from "../Containers"
+import React, { useState, useEffect, useRef } from "react"
+import { Box } from "../UIElements"
 import styled from "styled-components"
 
-const OrientationSlider = ({ for: label, hook, ...props }) => {
-	const [value, setValue] = hook
+import {
+	Checkboxes,
+	Shape,
+	Letter,
+	Orientation,
+	Position,
+	EmergentDesc,
+} from "./components/toolbarForm"
 
-	return (
-		<Column gap="0" style={{ display: "initial" }} {...props}>
-			<Label>{label}</Label>
-			<Row columns="repeat(4, minmax(0, 1fr))" gap="0.5rem">
-				<Box content={value} style={{ marginRight: "0.5rem" }} />
-				<Slider
-					style={{ gridColumn: "span 3" }}
-					min={0}
-					max={359}
-					initial={value}
-					onChange={e => {
-						setValue(e.target.value)
-					}}
-				/>
-			</Row>
-		</Column>
-	)
+const initialFormData = {
+	shape: undefined,
+	shapeColor: undefined,
+	letter: "A",
+	letterColor: undefined,
+	orientation: 0,
+	latitude: 0,
+	longitude: 0,
+	description: "",
 }
 
 const SubmissionsToolbar = props => {
-	const [orientation, setOrientation] = useState(0)
+	const [formData, setFormDataRaw] = useState(initialFormData)
+
+	const setFormData = (...args) => {
+		setFormDataRaw(...args)
+	}
+
+	const form = useRef(null)
+
+	function onAccept() {
+		if (form.current === null) return
+		// any element within the form with a box shadow must be invalid.  Not the best, but will do
+		const invalid = form.current.querySelectorAll("[style*=box-shadow]").length > 0
+		if (invalid) alert("invalid data!")
+		else {
+			// handle accept into queue here
+			alert(JSON.stringify(formData).replace(/,/g, ",\n"))
+			setFormData(initialFormData)
+		}
+	}
 
 	const updateData = () => {}
 
@@ -40,81 +55,18 @@ const SubmissionsToolbar = props => {
 	return (
 		<Container>
 			<Box />
-			<ContentContainer>
-				<Column>
-					<Row height="3rem" gap="0.5rem">
-						<Checkbox callback={e => console.log(e)} type="accept" />
-						<Checkbox type="decline" />
-					</Row>
-					<Row height="2rem" gap="0.5rem">
-						<Label columns={1}>Shape</Label>
-						<Label columns={1}>Shape Color</Label>
-					</Row>
-				</Column>
+			<ContentContainer ref={form}>
+				<Checkboxes accept={onAccept} decline={() => setFormData(initialFormData)} />
 
-				<Column style={{ marginBottom: "1rem" }}>
-					<Row height="3rem" gap="0.5rem">
-						<Dropdown>
-							<span>Square</span>
-							<span>Circle</span>
-							<span>Star</span>
-							<span>Triangle</span>
-						</Dropdown>
-						<Dropdown>
-							<span>Red</span>
-							<span>Orange</span>
-							<span>Yellow</span>
-							<span>Green</span>
-							<span>Blue</span>
-							<span>Purple</span>
-						</Dropdown>
-					</Row>
-				</Column>
+				<Shape.Labels />
+				<Shape.Inputs hook={[formData, setFormData]} />
 
-				<Column>
-					<Row height="2rem" gap="0.5rem">
-						<Label columns={1}>Letter</Label>
-						<Label columns={1}>Letter Color</Label>
-					</Row>
-				</Column>
+				<Letter.Labels />
+				<Letter.Inputs hook={[formData, setFormData]} />
 
-				<Column style={{ marginBottom: "1rem" }}>
-					<Row height="3rem" gap="0.5rem">
-						<Box editable="True" content={"A"} />
-						<Dropdown>
-							<span>Red</span>
-							<span>Black</span>
-							<span>Orange</span>
-							<span>Yellow</span>
-							<span>Green</span>
-							<span>Blue</span>
-							<span>Purple</span>
-						</Dropdown>
-					</Row>
-				</Column>
-
-				<Column style={{ marginBottom: "1rem" }}>
-					<Row height="5rem" gap="0.5rem">
-						<OrientationSlider for="Orientation" hook={[orientation, setOrientation]} />
-					</Row>
-				</Column>
-
-				<Column style={{ marginBottom: "1rem" }}>
-					<Row height="5rem" gap="0.5rem">
-						<Box label="Latitude" editable="True" content={0} />
-						<Box label="Longitude" editable="True" content={0} />
-					</Row>
-				</Column>
-
-				<Column style={{ marginBottom: "1rem" }}>
-					<Row height="5rem" gap="0.5rem">
-						<Box
-							label="Description (emergent objects only)"
-							editable="True"
-							content={"Enter description"}
-						/>
-					</Row>
-				</Column>
+				<Orientation hook={[formData, setFormData]} />
+				<Position hook={[formData, setFormData]} />
+				<EmergentDesc hook={[formData, setFormData]} />
 			</ContentContainer>
 		</Container>
 	)

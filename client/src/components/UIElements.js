@@ -1,4 +1,4 @@
-import React, { useState, forwardRef } from "react"
+import React, { useState, forwardRef, useEffect } from "react"
 import { Link as RouterLink } from "react-router-dom"
 import styled, { css } from "styled-components"
 
@@ -87,50 +87,61 @@ const StyledButton = styled(Link).attrs(props => ({
 	}
 `
 
-export const Dropdown = ({
-	children,
-	onOptionSet = undefined,
-	initial = undefined,
-	maxOptionsShownAtOnce = 10,
-}) => {
-	const [active, setActive] = useState(false)
-	const [option, setOptionRaw] = useState(initial)
-	const setOption = onOptionSet ?? setOptionRaw
-	let options = children.map(c => (React.isValidElement(c) ? c.props.children : c))
-	options.sort() // native is in-place, idk why
+export const Dropdown = forwardRef(
+	(
+		{
+			children,
+			onChange = undefined,
+			initial = undefined,
+			blank = "--",
+			selected = undefined,
+			maxOptionsShownAtOnce = 10,
+		},
+		ref
+	) => {
+		const [active, setActive] = useState(false)
+		const [option, setOption] = useState(initial)
+		useEffect(() => {
+			setOption(selected)
+		}, [selected])
+		let options = children.map(c => (React.isValidElement(c) ? c.props.children : c))
+		options.sort() // native is in-place, idk why
 
-	return (
-		<div style={{ position: "relative" }} onMouseLeave={() => setActive(false)}>
-			<StyledDropdown
-				style={{ height: "100%" }}
-				className="paragraph"
-				active={active}
-				onClick={() => setActive(!active)}
-			>
-				{option ?? "--"}
-				<StyledCaret width={16} active={active} />
-			</StyledDropdown>
-			<div style={{ maxHeight: `${maxOptionsShownAtOnce * 100}%`, overflow: "scroll" }}>
-				{active ? (
-					options.map((option, i) => (
-						<DropdownContent
-							key={i}
-							number={i}
-							setOption={ID => {
-								setOption(ID)
-								setActive(false)
-							}}
-						>
-							{option}
-						</DropdownContent>
-					))
-				) : (
-					<></>
-				)}
+		return (
+			<div style={{ position: "relative" }} onMouseLeave={() => setActive(false)}>
+				<StyledDropdown
+					ref={ref}
+					style={{ height: "100%" }}
+					className="paragraph"
+					active={active}
+					onClick={() => setActive(!active)}
+				>
+					{option ?? blank}
+					<StyledCaret width={16} active={active} />
+				</StyledDropdown>
+				<div style={{ maxHeight: `${maxOptionsShownAtOnce * 100}%`, overflow: "scroll" }}>
+					{active ? (
+						options.map((option, i) => (
+							<DropdownContent
+								key={i}
+								number={i}
+								setOption={ID => {
+									if (onChange) onChange(ID)
+									setOption(ID)
+									setActive(false)
+								}}
+							>
+								{option}
+							</DropdownContent>
+						))
+					) : (
+						<></>
+					)}
+				</div>
 			</div>
-		</div>
-	)
-}
+		)
+	}
+)
 
 const StyledCaret = styled(Caret).withConfig({
 	shouldForwardProp: (prop, fn) => !["active"].includes(prop),
@@ -174,30 +185,36 @@ const StyledDropdownContent = styled(StyledButton)`
 	}
 `
 
-export const Box = ({ content, label, editable, ...props }) => {
-	const [value, setValue] = useState(content)
+export const Box = forwardRef(
+	({ content, label, editable, onChange = undefined, ...props }, ref) => {
+		const [value, setValue] = useState(content)
+		useEffect(() => {
+			setValue(content)
+		}, [content])
 
-	return (
-		<StyledBox {...props} style={{ flexGrow: 1, ...props.style }}>
-			{label ? (
-				<Label className="paragraph" style={{ height: "2rem" }} error={props.error}>
-					{label}
-				</Label>
-			) : (
-				""
-			)}
-			<StyledBoxContent
-				onChange={e => {
-					setValue(e.target.value)
-				}}
-				className="paragraph"
-				{...props}
-				readOnly={!editable ?? true}
-				value={editable ? value : content}
-			/>
-		</StyledBox>
-	)
-}
+		return (
+			<StyledBox {...props} style={{ flexGrow: 1, ...props.style }}>
+				{label ? (
+					<Label className="paragraph" style={{ height: "2rem" }} error={props.error}>
+						{label}
+					</Label>
+				) : (
+					""
+				)}
+				<StyledBoxContent
+					ref={ref}
+					onChange={e => {
+						if (onChange) onChange(e.target.value)
+						setValue(e.target.value)
+					}}
+					className="paragraph"
+					readOnly={!editable ?? true}
+					value={editable ? value : content}
+				/>
+			</StyledBox>
+		)
+	}
+)
 
 const StyledBox = styled.div`
 	width: 100%;
@@ -235,8 +252,17 @@ const StyledLabel = styled.p`
 	grid-column: ${props => (props.columns ? `span ${props.columns}` : "initial")};
 `
 
-export const Slider = ({ min = 0, max = 100, initial = 0, height, ...props }) => {
-	const [value, setValue] = useState(initial)
+export const Slider = ({
+	min = 0,
+	max = 100,
+	initial = 0,
+	height,
+	onChange,
+	value: value_g = undefined,
+	...props
+}) => {
+	const [value_l, setValue] = useState(initial)
+	const value = value_g ?? value_l
 
 	const scale = (num, in_min, in_max, out_min, out_max) => {
 		return ((num - in_min) * (out_max - out_min)) / (in_max - in_min) + out_min
@@ -253,6 +279,7 @@ export const Slider = ({ min = 0, max = 100, initial = 0, height, ...props }) =>
 				value={value}
 				onChange={e => {
 					setValue(e.target.value)
+					onChange(e.target.value)
 				}}
 			></StyledSlider>
 		</StyledSliderBox>
