@@ -8,8 +8,6 @@ class InteropHandler:
         self.mission_id = mission_id
         self.login_status = False
         self.client = None
-        # TODO: Remove this line
-        self.login(None, None, None)
 
 
     def initialize(self):
