@@ -1,4 +1,5 @@
 import json
+import time
 from auvsi_suas.client import client
 from auvsi_suas.proto import interop_api_pb2
 
@@ -28,15 +29,18 @@ class InteropHandler:
         self.obstacles = self.mission.stationary_obstacles
 
 
-    def login(self, ip, username, password):
+    def login(self, url, username, password):
         if self.login_status:
             # No need to relogin
             return
-        config = json.load(open("config.json"))
-        self.client = client.Client(url=config['interop_url'],
-                       username=config['interop_username'],
-                       password=config['interop_password'])
-        self.login_status = True
+        try:
+            self.client = client.Client(url=url,
+                        username=username,
+                        password=password)
+            self.login_status = True
+        except Exception as e:
+            print("Interop login failed: {}".format(str(e)))
+            self.login_status = False
         self.initialize()
 
     
@@ -55,6 +59,13 @@ class InteropHandler:
             return key_map[key]
         return None
     
+
+    def submit_telemetry(self, mav):
+        while True:
+            lat = mav.lat
+            lon = mav.lon
+            time.sleep(0.1)
+
 
     def get_odlc_data(id):
         # TODO: Implement this

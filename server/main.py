@@ -3,6 +3,7 @@ from flask_cors import CORS
 from interop_handler import InteropHandler
 from mav_handler import MavHandler
 from dummy_mav_handler import DummyMavHandler
+from threading import Thread
 import logging
 import json
 
@@ -17,22 +18,20 @@ else:
     mav = MavHandler(port=config['mav']['port'], serial=config['mav']['serial'])
 
 interop = InteropHandler(mission_id=config['interop']['mission_id'])
-interop.login(ip=config['interop']['ip'], username=config['interop']['username'], password=config['interop']['password'])
+interop_telem_thread = Thread(target=interop.submit_telemetry, args=(mav,))
+interop_telem_thread.daemon = True
+interop_telem_thread.start()
+
 CORS(app)
 
-@app.route("/")
+@app.route("/hello")
 def hello():
     return "TJ UAV Ground Station Backend homepage"
 
 
-@app.route("/interop/login", methods=["GET", "POST"])
+@app.route("/interop/login")
 def interop_login():
-    if request.method == "POST":
-        try:
-            data = request.get_json()
-            interop.login(data['ip'], data['username'], data['password'])
-        except:
-            return jsonify({"status": False})
+    interop.login(url=config['interop']['url'], username=config['interop']['username'], password=config['interop']['password'])
     return jsonify({"status": interop.login_status})
 
 
