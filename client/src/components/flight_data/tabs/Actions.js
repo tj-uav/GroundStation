@@ -45,9 +45,9 @@ const LabelledSlider = ({ for: label, hook, ...props }) => {
 				<Slider
 					style={{ gridColumn: "span 3" }}
 					initial={value}
-					onChange={e => {
-						console.log(e.target.value)
-						setValue(e.target.value)
+					onChange={v => {
+						console.log(v)
+						setValue(v)
 					}}
 				/>
 			</Row>
