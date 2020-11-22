@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from "react"
-import { Box } from "../UIElements"
+import { useHistory } from "react-router-dom"
 import styled from "styled-components"
+
+import { Box, Button } from "components/UIElements"
 
 import {
 	Checkboxes,
@@ -11,25 +13,15 @@ import {
 	EmergentDesc,
 } from "./components/toolbarForm"
 
-const initialFormData = {
-	shape: undefined,
-	shapeColor: undefined,
-	letter: "A",
-	letterColor: undefined,
-	orientation: 0,
-	latitude: 0,
-	longitude: 0,
-	description: "",
-}
-
-const SubmissionsToolbar = props => {
-	const [formData, setFormDataRaw] = useState(initialFormData)
-
-	const setFormData = (...args) => {
-		setFormDataRaw(...args)
-	}
-
+const SubmissionsToolbar = ({ data: [data, setData], active: [active, setActive] }) => {
+	const initialFormData = data.filter(v => !v.submitted)[active]
+	const [formData, setFormData] = useState(initialFormData)
 	const form = useRef(null)
+	const history = useHistory()
+
+	useEffect(() => {
+		if (active !== undefined) setFormData(data.filter(v => !v.submitted)[active])
+	}, [active])
 
 	function onAccept() {
 		if (form.current === null) return
@@ -37,20 +29,36 @@ const SubmissionsToolbar = props => {
 		const invalid = form.current.querySelectorAll("[style*=box-shadow]").length > 0
 		if (invalid) alert("invalid data!")
 		else {
-			// handle accept into queue here
-			alert(JSON.stringify(formData).replace(/,/g, ",\n"))
-			setFormData(initialFormData)
+			// if valid, replace the active submission with the form's data
+			setData(
+				data
+					.filter(v => !v.submitted)
+					.map((v, i) => (i == active ? formData : v))
+					.concat(data.filter(v => v.submitted))
+			)
 		}
 	}
 
-	const updateData = () => {}
-
-	useEffect(() => {
-		const tick = setInterval(() => {
-			updateData()
-		}, 250)
-		return () => clearInterval(tick)
-	})
+	if (active === undefined || formData === undefined) {
+		const centered = {
+			display: "flex",
+			alignItems: "center",
+			justifyContent: "center",
+			height: "calc(100vh - 9.5rem)",
+		}
+		const empty = data.filter(v => !v.submitted).length === 0
+		return (
+			<div style={centered}>
+				<Button
+					style={{ padding: "1rem 3rem" }}
+					onClick={() => (empty ? history.push("/submissions/submitted") : setActive(0))}
+					careful={!empty}
+				>
+					{empty ? "View submitted" : "Select first unsubmitted"}
+				</Button>
+			</div>
+		)
+	}
 
 	return (
 		<Container>
