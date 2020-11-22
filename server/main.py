@@ -55,12 +55,12 @@ def commands_get():
     return jsonify(mav.getCommands())
 
 @app.route("mav/commands/<command>/<lat>/<lon>/<alt>")
-def commands_append(command, lat, lon, alt):
+def command_append(command, lat, lon, alt):
     mav.setCommand(command, lat, lon, alt)
     return "Success"
 
 @app.route("mav/commands/<command>/<lat>/<lon>/<alt>/<ind>")
-def commands_insert(command, lat, lon, alt, ind):
+def command_insert(command, lat, lon, alt, ind):
     mav.setCommand(command, lat, lon, alt, ind)
     return "Success"
 
