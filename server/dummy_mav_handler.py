@@ -33,8 +33,8 @@ class DummyMavHandler:
         self.dist_to_wp = random.random() * 100
         self.voltage = random.random() * 16
         self.throttle = random.randint(0, 100)
-        self.lat = -random.random() * 100
-        self.lon = -random.random() * 100
+        self.lat = random.random() * 180 - 90
+        self.lon = random.random() * 180 - 90
 
 
     def quick(self):

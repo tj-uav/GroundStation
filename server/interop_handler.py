@@ -67,7 +67,9 @@ class InteropHandler:
     def submit_telemetry(self, mav):
         while True:
             if self.client is None:
+                self.login_status = False
                 print("Interop connection lost")
+                self.login()
             else:
                 telemetry = interop_api_pb2.Telemetry()
                 telemetry.latitude = mav.lat
@@ -75,7 +77,7 @@ class InteropHandler:
                 telemetry.altitude = mav.altitude
                 telemetry.heading = mav.orientation['yaw']
                 self.telemetry_json = json_format.MessageToJson(telemetry)
-                client.post_telemetry(telemetry)
+                self.client.post_telemetry(telemetry)
             time.sleep(0.1)
 
 
