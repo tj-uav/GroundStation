@@ -54,7 +54,7 @@ const SubmissionsToolbar = ({ data: [data, setData], active: [active, setActive]
 					onClick={() => (empty ? history.push("/submissions/submitted") : setActive(0))}
 					careful={!empty}
 				>
-					{empty ? "View submitted" : setActive(0)}
+					{empty && "View submitted"}
 				</Button>
 			</div>
 		)
