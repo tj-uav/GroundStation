@@ -27,15 +27,18 @@ const ViewRow = ({ info, number, active: [active, setActive], data: [data, setDa
 			<Checkbox
 				style={{ gridArea: "decline" }}
 				type="decline"
-				callback={() =>
-					setData(
-						data
-							.filter(v => !v.submitted)
-							// remove the one at index number
-							.filter((_, i) => i !== number)
-							.concat(...data.filter(v => v.submitted))
-					)
-				}
+				callback={() => {
+					const confirmMessage =
+						"are you sure you want to delete this item?  There's no way to get it back.  THIS IS NOT REVERSIBLE!"
+					if (window.confirm(confirmMessage))
+						setData(
+							data
+								.filter(v => !v.submitted)
+								// remove the one at index number
+								.filter((_, i) => i !== number)
+								.concat(...data.filter(v => v.submitted))
+						)
+				}}
 			/>
 			<Box style={{ gridRow: "span 2" }} />
 			<Row height="4rem">
