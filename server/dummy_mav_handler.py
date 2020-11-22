@@ -3,11 +3,13 @@ import random
 import threading
 
 class DummyMavHandler:
-    def __init__(self, port=None):
-        self.port = port
+    def __init__(self, config):
+        self.config = config
+        self.port = self.config['mav']['port']
 
     def connect(self):
         print("Created dummy mav handler")
+        self.update()
         self.update_thread = threading.Thread(target=self.constant_updating)
         self.update_thread.daemon = True
         self.update_thread.start()
