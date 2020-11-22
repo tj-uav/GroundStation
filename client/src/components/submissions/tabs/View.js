@@ -1,41 +1,54 @@
 import React from "react"
 import styled from "styled-components"
+import { darker } from "theme/Colors"
 
 import { Box, Checkbox } from "../../UIElements"
 import { Row, Column } from "../../Containers"
 
-const ViewRow = ({ shape, shapeColor, letter, letterColor, orientation, field }) => {
-	return (
-		<ViewRowContainer>
-			<Checkbox style={{ gridArea: "accept" }} type="accept" />
-			<Checkbox style={{ gridArea: "decline" }} type="decline" />
-			<Box style={{ gridRow: "span 2" }} />
-			<Row height="4rem">
-				<Box content={shape} label="Shape" line="250%" />
-				<Box content={letter} label="Letter" line="250%" />
-				<Box content={orientation} label="Orientation" line="250%" />
-			</Row>
-			<Row height="4rem">
-				<Box content={shapeColor} label="Shape Color" line="250%" />
-				<Box content={letterColor} label="Letter Color" line="250%" />
-				<Box content={field} label="Field" line="250%" />
-			</Row>
-		</ViewRowContainer>
-	)
-}
+const ViewRow = ({ info, number, active: [active, setActive], data: [data, setData] }) => (
+	<ViewRowContainer clicked={active === number} onClick={() => setActive(number)}>
+		<Checkbox
+			style={{ gridArea: "accept" }}
+			type="accept"
+			callback={() => {
+				setData(
+					data
+						.filter(v => !v.submitted)
+						.map((v, i) => (i === number ? { ...v, submitted: true } : v))
+						.concat(...data.filter(v => v.submitted))
+				)
+				setActive(undefined)
+			}}
+		/>
+		<Checkbox style={{ gridArea: "decline" }} type="decline" />
+		<Box style={{ gridRow: "span 2" }} />
+		<Row height="4rem">
+			<Box content={info.shape} label="Shape" line="250%" />
+			<Box content={info.letter} label="Letter" line="250%" />
+			<Box content={info.orientation} label="Orientation" line="250%" />
+		</Row>
+		<Row height="4rem">
+			<Box content={info.shapeColor} label="Shape Color" line="250%" />
+			<Box content={info.letterColor} label="Letter Color" line="250%" />
+			<Box content={`${info.latitude} / ${info.longitude}`} label="Position" line="250%" />
+		</Row>
+	</ViewRowContainer>
+)
 
 const ViewRowContainer = styled.div`
 	display: grid;
-	height: 9rem;
+	height: calc(9rem + 16px);
 	gap: 1rem;
 	grid-template-columns: 3rem 9rem auto;
 	grid-template-rows: 1fr 1fr;
 	grid-template-areas:
 		"accept image  upper"
 		"decline image lower";
+	background: ${({ clicked }) => (clicked ? "#00000015" : darker)};
+	padding: 8px ${({ clicked }) => (clicked ? 0 : 0)}px;
 `
 
-const View = props => {
+const View = ({ unsubmitted, data: [data, setData], active: [active, setActive] }) => {
 	return (
 		<div
 			style={{
@@ -45,46 +58,15 @@ const View = props => {
 			}}
 		>
 			<Container>
-				<ViewRow
-					shape={"Square"}
-					shapeColor={"Blue"}
-					letter={"A"}
-					letterColor={"Red"}
-					orientation={420}
-					field={"VIEW: IDK wut this is"}
-				/>
-				<ViewRow
-					shape={"Square"}
-					shapeColor={"Blue"}
-					letter={"A"}
-					letterColor={"Red"}
-					orientation={420}
-					field={"VIEW: IDK wut this is"}
-				/>
-				<ViewRow
-					shape={"Square"}
-					shapeColor={"Blue"}
-					letter={"A"}
-					letterColor={"Red"}
-					orientation={420}
-					field={"VIEW: IDK wut this is"}
-				/>
-				<ViewRow
-					shape={"Square"}
-					shapeColor={"Blue"}
-					letter={"A"}
-					letterColor={"Red"}
-					orientation={420}
-					field={"VIEW: IDK wut this is"}
-				/>
-				<ViewRow
-					shape={"Square"}
-					shapeColor={"Blue"}
-					letter={"A"}
-					letterColor={"Red"}
-					orientation={420}
-					field={"VIEW: IDK wut this is"}
-				/>
+				{unsubmitted.map((row, i) => (
+					<ViewRow
+						key={i}
+						number={i}
+						info={row}
+						active={[active, setActive]}
+						data={[data, setData]}
+					/>
+				))}
 			</Container>
 		</div>
 	)
