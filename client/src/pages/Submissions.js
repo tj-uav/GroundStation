@@ -22,31 +22,11 @@ const initialData = new Array(5).fill().map(() => ({
 
 const Submissions = () => {
 	const [data, setData] = useState(initialData)
-	// const [unsubmitted, setUnsubmitted] = useState(data.filter(v => !v.submitted))
-	// const [submitted, setSubmitted] = useState(data.filter(v => v.submitted))
 	const [active, setActive] = useState(undefined)
 
-	// useEffect(() => setUnsubmitted(data.filter(v => !v.submitted)), [data])
-	// useEffect(() => setSubmitted(data.filter(v => v.submitted)), [data])
-
-	// const get = async (endpoint, func) => {
-	// 	axios
-	// 		.get(endpoint, {
-	// 			headers: { "Content-Type": "application/json", Accept: "application/json" },
-	// 		})
-	// 		.then(function (response) {
-	// 			func(response)
-	// 		})
-	// }
-
-	// useEffect(() => {
-	// 	const interval = setInterval(() => {
-	// 		get("/odlcs/all/all", response => {
-	// 			console.log(response)
-	// 		})
-	// 	}, 1000)
-	// 	return () => clearInterval(interval)
-	// }, [])
+	useEffect(() => {
+		data.filter(v => !v.submitted).length === 0 && setActive(undefined)
+	}, [data])
 
 	return (
 		<div

@@ -10,17 +10,29 @@ const ViewRow = ({ info, number, active: [active, setActive], data: [data, setDa
 		<Checkbox
 			style={{ gridArea: "accept" }}
 			type="accept"
-			callback={() => {
+			callback={() =>
 				setData(
 					data
 						.filter(v => !v.submitted)
+						// mark the one at index number submitted
 						.map((v, i) => (i === number ? { ...v, submitted: true } : v))
 						.concat(...data.filter(v => v.submitted))
 				)
-				setActive(undefined)
-			}}
+			}
 		/>
-		<Checkbox style={{ gridArea: "decline" }} type="decline" />
+		<Checkbox
+			style={{ gridArea: "decline" }}
+			type="decline"
+			callback={() =>
+				setData(
+					data
+						.filter(v => !v.submitted)
+						// remove the one at index number
+						.filter((_, i) => i !== number)
+						.concat(...data.filter(v => v.submitted))
+				)
+			}
+		/>
 		<Box style={{ gridRow: "span 2" }} />
 		<Row height="4rem">
 			<Box content={info.shape} label="Shape" line="250%" />
@@ -36,8 +48,10 @@ const ViewRow = ({ info, number, active: [active, setActive], data: [data, setDa
 )
 
 const ViewRowContainer = styled.div`
+	--padding: 0.5rem;
+
 	display: grid;
-	height: calc(9rem + 16px);
+	height: calc(9rem + 2 * var(--padding));
 	gap: 1rem;
 	grid-template-columns: 3rem 9rem auto;
 	grid-template-rows: 1fr 1fr;
@@ -45,7 +59,8 @@ const ViewRowContainer = styled.div`
 		"accept image  upper"
 		"decline image lower";
 	background: ${({ clicked }) => (clicked ? "#00000015" : darker)};
-	padding: 8px ${({ clicked }) => (clicked ? 0 : 0)}px;
+	padding: ${({ clicked }) => (clicked ? "var(--padding)" : "0px")};
+	transition: padding 0.15s cubic-bezier(0.76, 0.05, 0.86, 0.06);
 `
 
 const View = ({ unsubmitted, data: [data, setData], active: [active, setActive] }) => {
@@ -76,7 +91,7 @@ export default View
 
 const Container = styled(Column).attrs({
 	height: "unset",
-	gap: "4rem",
+	gap: "2rem",
 })`
 	overflow-y: auto;
 	margin-bottom: 2rem;
