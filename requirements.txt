@@ -1,3 +1,6 @@
 flask
 flask-cors
 pymavlink
+matplotlib
+geopy
+requests
