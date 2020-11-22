@@ -7,29 +7,32 @@ import { ReactComponent as Caret } from "../icons/caret.svg"
 import { ReactComponent as RawAccept } from "../icons/check.svg"
 import { ReactComponent as RawDecline } from "../icons/decline.svg"
 
-export const Button = forwardRef(({ active, controlled, to, href, ...props }, ref) => {
-	const [isActive, setActive] = useState(active ?? false)
+export const Button = forwardRef(
+	({ active, controlled, to, href, careful = false, ...props }, ref) => {
+		const [isActive, setActive] = useState(active ?? false)
 
-	return (
-		<StyledButton
-			ref={ref}
-			className="paragraph"
-			active={controlled ? active : isActive}
-			onMouseDown={() => {
-				if (!controlled) setActive(true)
-			}}
-			onMouseUp={() => {
-				if (!controlled)
-					setTimeout(() => {
-						if (ref?.current) setActive(false)
-					}, 100)
-			}}
-			to={to}
-			href={href}
-			{...props}
-		/>
-	)
-})
+		return (
+			<StyledButton
+				ref={ref}
+				className="paragraph"
+				active={controlled ? active : isActive}
+				onMouseDown={() => {
+					if (!controlled) setActive(true)
+				}}
+				onMouseUp={() => {
+					if (!controlled)
+						setTimeout(() => {
+							if (!careful) setActive(false)
+							if (ref?.current) setActive(false)
+						}, 100)
+				}}
+				to={to}
+				href={href}
+				{...props}
+			/>
+		)
+	}
+)
 
 const Link = forwardRef(({ to, href, children, ...props }, ref) => {
 	if (to)
