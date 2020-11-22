@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useState, createContext } from "react"
 import axios from "axios"
 
 import SubmissionsToolbar from "../components/submissions/SubmissionsToolbar"
@@ -20,36 +20,46 @@ const initialData = new Array(5).fill().map(() => ({
 	description: "",
 }))
 
+function onSubmit(data) {
+	// TODO: shwoop up to server here
+	console.log("Submitted!", data)
+}
+
+export const SubmitContext = createContext()
+
 const Submissions = () => {
 	const [data, setData] = useState(initialData)
-	const [active, setActive] = useState(undefined)
+	const [active, setActive] = useState(0)
 
 	useEffect(() => {
 		data.filter(v => !v.submitted).length === 0 && setActive(undefined)
 	}, [data])
 
 	return (
-		<div
-			style={{
-				display: "grid",
-				padding: "1rem 1rem 0 1rem",
-				gridTemplateColumns: "37rem 100fr",
-				gap: "1rem",
-				width: "100%",
-				height: "auto",
-				overflowY: "hidden",
-			}}
-		>
-			<TabBar>
-				<View
-					unsubmitted={data.filter(v => !v.submitted)}
-					active={[active, setActive]}
-					data={[data, setData]}
-				/>
-				<Submitted submitted={data.filter(v => v.submitted)} />
-			</TabBar>
-			<SubmissionsToolbar data={[data, setData]} active={[active, setActive]} />
-		</div>
+		<SubmitContext.Provider value={onSubmit}>
+			<div
+				style={{
+					display: "grid",
+					padding: "1rem 1rem 0 1rem",
+					gridTemplateColumns: "37rem 100fr",
+					gap: "1rem",
+					width: "100%",
+					height: "auto",
+					overflowY: "hidden",
+				}}
+			>
+				<TabBar>
+					<View
+						unsubmitted={data.filter(v => !v.submitted)}
+						active={[active, setActive]}
+						data={[data, setData]}
+						onSubmit={onSubmit}
+					/>
+					<Submitted submitted={data.filter(v => v.submitted)} />
+				</TabBar>
+				<SubmissionsToolbar data={[data, setData]} active={[active, setActive]} />
+			</div>
+		</SubmitContext.Provider>
 	)
 }
 
