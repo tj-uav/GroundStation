@@ -3,6 +3,12 @@ from dronekit import connect
 SERIAL_PORT = '/dev/ttyACM0'
 BAUDRATE = 115200
 
+COMMANDS = {
+    "TAKEOFF": mavutil.mavlink.MAV_CMD_NAV_TAKEOFF,
+    "WAYPOINT": mavutil.mavlink.MAV_CMD_NAV_WAYPOINT
+    "LAND": mavutil.mavlink.MAV_CMD_NAV_LAND
+}
+
 class MavHandler:
     def __init__(self, port=None, serial=False):
         self.port = port
@@ -72,6 +78,25 @@ class MavHandler:
 
         vehicle.parameters = newParams
     
+    def clearMission(self):
+        self.vehicle.commands.clear()
+        self.vehicle.commands.upload()
+
+    def getCommands(self):
+        commands = self.vehicle.commands
+        commands.download()
+        return [cmd.to_dict() for cmd in commands]
+
+    def insertCommand(self, command, lat, lon, alt, ind=-1):
+        new_cmd = Command( 0, 0, 0, mavutil.mavlink.MAV_FRAME_GLOBAL_RELATIVE_ALT,
+            COMMANDS[command], 0, 0, 0, 0, 0, 0, 
+            cmd[lat], cmd[lon], cmd[alt])
+
+        cmds = self.vehicle.commands
+        cmds.download()
+        cmds.insert(ind, cmd)
+        cmds.upload()
+
     def arm(self):
         self.vehicle.armed = True
 
