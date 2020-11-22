@@ -16,13 +16,7 @@ if config['mav']['dummy']:
     mav = DummyMavHandler(config=config)
 else:
     mav = MavHandler(config=config)
-mav.connect()
-
 interop = InteropHandler(config=config)
-interop.login()
-interop_telem_thread = Thread(target=interop.submit_telemetry, args=(mav,))
-interop_telem_thread.daemon = True
-interop_telem_thread.start()
 
 CORS(app)
 
@@ -33,7 +27,7 @@ def hello():
 
 @app.route("/interop/login")
 def interop_login():
-    interop.login(url=config['interop']['url'], username=config['interop']['username'], password=config['interop']['password'])
+    interop.login()
     return jsonify({"status": interop.login_status})
 
 
@@ -62,13 +56,13 @@ def commands_get():
     return jsonify(mav.getCommands())
 
 
-@app.route("mav/commands/<command>/<lat>/<lon>/<alt>")
+@app.route("/mav/commands/<command>/<lat>/<lon>/<alt>")
 def command_append(command, lat, lon, alt):
     mav.setCommand(command, lat, lon, alt)
     return "Success"
 
 
-@app.route("mav/commands/<command>/<lat>/<lon>/<alt>/<ind>")
+@app.route("/mav/commands/<command>/<lat>/<lon>/<alt>/<ind>")
 def command_insert(command, lat, lon, alt, ind):
     mav.setCommand(command, lat, lon, alt, ind)
     return "Success"
@@ -76,4 +70,10 @@ def command_insert(command, lat, lon, alt, ind):
 
 if __name__ == "__main__":
     mav.connect()
+
+    interop.login()
+    interop_telem_thread = Thread(target=interop.submit_telemetry, args=(mav,))
+    interop_telem_thread.daemon = True
+    interop_telem_thread.start()
+
     app.run(port=5000, debug=False)
