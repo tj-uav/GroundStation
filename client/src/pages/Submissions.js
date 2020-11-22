@@ -22,7 +22,8 @@ const initialData = new Array(5).fill().map(() => ({
 
 function onSubmit(data) {
 	// TODO: shwoop up to server here
-	console.log("Submitted!", data)
+	const { submitted: _, ...rest } = data
+	console.log("Submitted!", rest)
 }
 
 export const SubmitContext = createContext()
