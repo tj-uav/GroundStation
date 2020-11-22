@@ -5,9 +5,10 @@ from auvsi_suas.proto import interop_api_pb2
 from google.protobuf import json_format
 
 class InteropHandler:
-    def __init__(self, mission_id):
+    def __init__(self, config):
         print("Created interop handler")
-        self.mission_id = mission_id
+        self.config = config
+        self.mission_id = self.config['interop']['mission_id']
         self.login_status = False
         self.client = None
         self.telemetry_json = {}
@@ -31,18 +32,19 @@ class InteropHandler:
         self.obstacles = self.mission.stationary_obstacles
 
 
-    def login(self, url, username, password):
+    def login(self):
         if self.login_status:
             # No need to relogin
             return
         try:
-            self.client = client.Client(url=url,
-                        username=username,
-                        password=password)
+            self.client = client.Client(url=self.config['interop']['url'],
+                        username=self.config['interop']['username'],
+                        password=self.config['interop']['password'])
             self.login_status = True
         except Exception as e:
             print("Interop login failed: {}".format(str(e)))
             self.login_status = False
+            return
         self.initialize()
 
     
@@ -63,16 +65,17 @@ class InteropHandler:
     
 
     def submit_telemetry(self, mav):
-        assert(self.client is not None)
         while True:
-            telemetry = interop_api_pb2.Telemetry()
-            telemetry.latitude = mav.lat
-            telemetry.longitude = mav.lon
-            telemetry.altitude = mav.altitude
-            telemetry.heading = mav.orientation['yaw']
-            self.telemetry_json = json_format.MessageToJson(telemetry)
-            client.post_telemetry(telemetry)
-
+            if self.client is None:
+                print("Interop connection lost")
+            else:
+                telemetry = interop_api_pb2.Telemetry()
+                telemetry.latitude = mav.lat
+                telemetry.longitude = mav.lon
+                telemetry.altitude = mav.altitude
+                telemetry.heading = mav.orientation['yaw']
+                self.telemetry_json = json_format.MessageToJson(telemetry)
+                client.post_telemetry(telemetry)
             time.sleep(0.1)
 
 

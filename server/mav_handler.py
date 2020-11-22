@@ -1,5 +1,5 @@
 from dronekit import connect
-import mavutil
+from pymavlink import mavutil
 
 SERIAL_PORT = '/dev/ttyACM0'
 BAUDRATE = 115200
@@ -8,13 +8,14 @@ COMMANDS = {
     "TAKEOFF": mavutil.mavlink.MAV_CMD_NAV_TAKEOFF,
     "WAYPOINT": mavutil.mavlink.MAV_CMD_NAV_WAYPOINT,
     "LAND": mavutil.mavlink.MAV_CMD_NAV_LAND,
-    "GEOFENCE": MAV_CMD_NAV_FENCE_POLYGON_VERTEX_INCLUSION
+    "GEOFENCE": mavutil.mavlink.MAV_CMD_NAV_FENCE_POLYGON_VERTEX_INCLUSION
 }
 
 class MavHandler:
-    def __init__(self, port=None, serial=False):
-        self.port = port
-        self.serial = serial
+    def __init__(self, config):
+        self.config = config
+        self.port = self.config['mav']['port']
+        self.serial = self.config['mav']['serial']
 
     def connect(self):
         print("Connecting")

@@ -13,11 +13,13 @@ config = json.load(open('config.json', 'r'))
 
 app = Flask(__name__)
 if config['mav']['dummy']:
-    mav = DummyMavHandler(port=config['mav']['port'])
+    mav = DummyMavHandler(config=config)
 else:
-    mav = MavHandler(port=config['mav']['port'], serial=config['mav']['serial'])
+    mav = MavHandler(config=config)
+mav.connect()
 
-interop = InteropHandler(mission_id=config['interop']['mission_id'])
+interop = InteropHandler(config=config)
+interop.login()
 interop_telem_thread = Thread(target=interop.submit_telemetry, args=(mav,))
 interop_telem_thread.daemon = True
 interop_telem_thread.start()
@@ -40,7 +42,7 @@ def interop_get(key):
     return jsonify(interop.get_data(key))
 
 
-@app.route("interop/telemetry/")
+@app.route("/interop/telemetry")
 def interop_telemetry():
     return jsonify(interop.telemetry_json)
 
