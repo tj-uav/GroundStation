@@ -5,8 +5,9 @@ BAUDRATE = 115200
 
 COMMANDS = {
     "TAKEOFF": mavutil.mavlink.MAV_CMD_NAV_TAKEOFF,
-    "WAYPOINT": mavutil.mavlink.MAV_CMD_NAV_WAYPOINT
-    "LAND": mavutil.mavlink.MAV_CMD_NAV_LAND
+    "WAYPOINT": mavutil.mavlink.MAV_CMD_NAV_WAYPOINT,
+    "LAND": mavutil.mavlink.MAV_CMD_NAV_LAND,
+    "GEOFENCE": MAV_CMD_NAV_FENCE_POLYGON_VERTEX_INCLUSION
 }
 
 class MavHandler:
