@@ -2,6 +2,7 @@ import json
 import time
 from auvsi_suas.client import client
 from auvsi_suas.proto import interop_api_pb2
+from google.protobuf import json_format
 
 class InteropHandler:
     def __init__(self, mission_id):
@@ -9,6 +10,7 @@ class InteropHandler:
         self.mission_id = mission_id
         self.login_status = False
         self.client = None
+        self.telemetry_json = {}
 
 
     def initialize(self):
@@ -61,9 +63,16 @@ class InteropHandler:
     
 
     def submit_telemetry(self, mav):
+        assert(self.client is not None)
         while True:
-            lat = mav.lat
-            lon = mav.lon
+            telemetry = interop_api_pb2.Telemetry()
+            telemetry.latitude = mav.lat
+            telemetry.longitude = mav.lon
+            telemetry.altitude = mav.altitude
+            telemetry.heading = mav.orientation['yaw']
+            self.telemetry_json = json_format.MessageToJson(telemetry)
+            client.post_telemetry(telemetry)
+
             time.sleep(0.1)
 
 

@@ -1,11 +1,12 @@
 from dronekit import connect
+import mavutil
 
 SERIAL_PORT = '/dev/ttyACM0'
 BAUDRATE = 115200
 
 COMMANDS = {
     "TAKEOFF": mavutil.mavlink.MAV_CMD_NAV_TAKEOFF,
-    "WAYPOINT": mavutil.mavlink.MAV_CMD_NAV_WAYPOINT
+    "WAYPOINT": mavutil.mavlink.MAV_CMD_NAV_WAYPOINT,
     "LAND": mavutil.mavlink.MAV_CMD_NAV_LAND
 }
 
@@ -63,7 +64,7 @@ class MavHandler:
 
     def params(self):
         paramsObj = self.vehicle.parameters
-        return {k,v: for k,v in self.vehicle.parameters.items()}
+        return {k: v for k,v in self.vehicle.parameters.items()}
 
     def setParam(self, key, value):
         self.vehicle.parameters[key] = value

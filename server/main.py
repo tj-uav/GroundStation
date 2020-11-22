@@ -40,6 +40,11 @@ def interop_get(key):
     return jsonify(interop.get_data(key))
 
 
+@app.route("interop/telemetry/")
+def interop_telemetry():
+    return jsonify(interop.telemetry_json)
+
+
 @app.route("/interop/odlcs/<id>/<dtype>")
 def odcl_get(id, dtype):
     return jsonify(interop.get_odlcs(id, dtype))
@@ -49,19 +54,23 @@ def odcl_get(id, dtype):
 def quick():
     return json.dumps(mav.quick())
 
+
 @app.route("/mav/commands")
 def commands_get():
     return jsonify(mav.getCommands())
+
 
 @app.route("mav/commands/<command>/<lat>/<lon>/<alt>")
 def commands_append(command, lat, lon, alt):
     mav.setCommand(command, lat, lon, alt)
     return "Success"
 
+
 @app.route("mav/commands/<command>/<lat>/<lon>/<alt>/<ind>")
 def commands_insert(command, lat, lon, alt, ind):
     mav.setCommand(command, lat, lon, alt, ind)
     return "Success"
+
 
 if __name__ == "__main__":
     mav.connect()
