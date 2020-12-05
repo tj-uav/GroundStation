@@ -1,8 +1,14 @@
 import React, { useState, useEffect } from "react"
 import { Button, Box } from "../../UIElements"
 import { Row, Column } from "../../Containers"
+import io from "socket.io-client";
+
 
 const Quick = props => {
+	const endpoint = "http://127.0.0.1:5000/";
+	let socket = io(endpoint);
+	console.log(socket.connected)
+
 	const [altitude, setAltitude] = useState(0)
 	const [orientation, setOrientation] = useState(0)
 	const [groundSpeed, setGroundSpeed] = useState(0)
@@ -12,20 +18,35 @@ const Quick = props => {
 	const [throttle, setThrottle] = useState(0)
 	const [latLong, setLatLong] = useState(0)
 
+	// const updateData = () => {
+	// 	fetch("http://localhost:5000/mav/telem")
+	// 		.then(response => response.json())
+	// 		.then(data => {
+	// 			console.log(data)
+	// 			setAltitude(data[0])
+	// 			setOrientation(data[1])
+	// 			setGroundSpeed(data[2])
+	// 			setAirspeed(data[3])
+	// 			setText(data[4])
+	// 			setBattery(data[5])
+	// 			setThrottle(data[6])
+	// 			setLatLong(data[7])
+	// 		})
+	// }
+
 	const updateData = () => {
-		fetch("http://localhost:5000/mav/telem")
-			.then(response => response.json())
-			.then(data => {
-				console.log(data)
-				setAltitude(data[0])
-				setOrientation(data[1])
-				setGroundSpeed(data[2])
-				setAirspeed(data[3])
-				setText(data[4])
-				setBattery(data[5])
-				setThrottle(data[6])
-				setLatLong(data[7])
-			})
+		socket.emit("message", "Awaiting data")
+		socket.on("responseMessage", data => {
+			console.log(data);
+			setAltitude(data[0]);
+			setOrientation(data[1]);
+			setGroundSpeed(data[2]);
+			setAirspeed(data[3]);
+			setText(data[4]);
+			setBattery(data[5]);
+			setThrottle(data[6]);
+			setLatLong(data[7]);
+		})
 	}
 
 	useEffect(() => {
