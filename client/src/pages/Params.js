@@ -179,6 +179,7 @@ const Params = () => {
 								ref={setDecrement}
 								style={{ minHeight: "2rem" }}
 								onClick={() => load(decrementRange)}
+								careful
 							>
 								{loading ? "Loading..." : "Load More (Previous)"}
 							</Button>
@@ -191,6 +192,7 @@ const Params = () => {
 								ref={setIncrement}
 								style={{ minHeight: "2rem" }}
 								onClick={() => load(incrementRange)}
+								careful
 							>
 								{loading ? "Loading..." : "Load More (Next)"}
 							</Button>
