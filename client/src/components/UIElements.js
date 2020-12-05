@@ -273,8 +273,8 @@ export const Slider = ({
 
 	return (
 		<StyledSliderBox {...props}>
-			<Left value={scale(value, min, max, 0, 100)} />
-			<Right value={scale(value, min, max, 0, 100)} />
+			<Left number={scale(value, min, max, 0, 100)} />
+			<Right number={scale(value, min, max, 0, 100)} />
 			<StyledSlider
 				type="range"
 				min={min}
@@ -329,27 +329,35 @@ const StyledSlider = styled.input`
 	}
 `
 
-const Left = styled.div`
+const Left = styled.div.attrs(props => ({
+	style: {
+		"--value": `${props.number}%`,
+	},
+}))`
 	opacity: 1;
 	height: 0.25rem;
 	position: relative;
 	background: ${blue};
+	width: var(--value);
 	transform: translateY(50%);
-	width: ${props => props.value}%;
 	border-top-left-radius: 0.25rem;
 	border-bottom-left-radius: 0.25rem;
 `
 
-const Right = styled.div`
+const Right = styled.div.attrs(props => ({
+	style: {
+		"--value": `${props.number}%`,
+	},
+}))`
 	opacity: 0.5;
 	height: 0.25rem;
 	position: relative;
 	background: ${blue};
+	margin-left: var(--value);
 	transform: translateY(-50%);
+	width: calc(100% - var(--value));
 	border-top-right-radius: 0.25rem;
 	border-bottom-right-radius: 0.25rem;
-	margin-left: ${props => props.value}%;
-	width: calc(100% - ${props => props.value}%);
 `
 
 // type: "accept" | "decline"
