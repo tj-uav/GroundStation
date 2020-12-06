@@ -75,28 +75,22 @@
     },
     "stationaryObstacles": [
         {
-            "latitude": 38.8360682,
-            "longitude": -77.5044841,
-            "radius": 50.0,
-            "height": 50.0
+            "latitude": 38.8361016,
+            "longitude": -77.5044411,
+            "radius": 20.0,
+            "height": 1000000.0
         },
         {
-            "latitude": 38.8367534,
-            "longitude": -77.5061202,
-            "radius": 50.0,
-            "height": 50.0
-        },
-        {
-            "latitude": 38.8376268,
-            "longitude": -77.5050688,
-            "radius": 50.0,
-            "height": 100.0
-        },
-        {
-            "latitude": 38.8372402,
-            "longitude": -77.5038457,
+            "latitude": 38.8373092,
+            "longitude": -77.5039101,
             "radius": 30.0,
-            "height": 70.0
+            "height": 1000000.0
+        },
+        {
+            "latitude": 38.8376142,
+            "longitude": -77.5050473,
+            "radius": 40.0,
+            "height": 120
         }
     ]
 }

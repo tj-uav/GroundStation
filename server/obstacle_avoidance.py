@@ -61,7 +61,7 @@ class Node():
       self.f = f
    def dist(self, n):
       if self.loc() == n.loc(): return 0
-      return  (great_circle_dist(self.lat, self.lon, n.lat, n.lon)**2 + (n.z-self.z)**2)**0.5
+      return great_circle_dist(self.lat, self.lon, n.lat, n.lon) # **2 + (n.z-self.z)**2)**0.5
    def loc(self):
       return [self.lat,self.lon,self.z]
    def __hash__(self):
@@ -200,22 +200,67 @@ def writeFile(filename, path):
 
 
 
-def plot_output(final_path):
+def plot_output(orig_path, final_path, obstacles):
     from mpl_toolkits.mplot3d import Axes3D
     import matplotlib.pyplot as plt
+    import matplotlib.cm as cm
+    import numpy as np
 
     fig = plt.figure()
-    axes = fig.add_subplot(111, projection="3d")
+    axes = fig.add_subplot(111)
 
     X = [i[0] for i in final_path]
     Y = [i[1] for i in final_path]
-    Z = [i[2] for i in final_path]
+    print(X)
+    print(Y)
+   #  Z = [i[2] for i in final_path]
 
-    axes.scatter(X,Y,Z, c="r", marker="o")
+    X_orig = [i[0] for i in orig_path]
+    Y_orig = [i[1] for i in orig_path]
+   #  Z_orig = [i[2] for i in orig_path]
+    waypoint_plot_sizes = [100 for i in orig_path]
 
+    X_obstacle = [i.lat for i in obstacles]
+    Y_obstacle = [i.lon for i in obstacles]
+    R_obstacle = [i.r for i in obstacles]
+
+    up = [i.lon + i.r/288200 for i in obstacles]
+    down = [i.lon - i.r/288200 for i in obstacles]
+    right = [i.lat + i.r/364000 for i in obstacles]
+    left = [i.lat - i.r/364000 for i in obstacles]
+
+
+    
+     
+    theta = np.linspace(0, 2*np.pi, 100)
+
+    for i in obstacles:
+
+      x_radius = i.r/364000
+      y_radius = i.r/288200
+
+      a = x_radius*np.cos(theta) + i.lat
+      b = y_radius*np.sin(theta) + i.lon
+
+      axes.plot(a, b, color="green")
+
+   #  Z_obstacle = [i.z for i in obstacles]
+
+    axes.scatter(X_obstacle, Y_obstacle, color="yellow", marker="o")
+    axes.scatter(X_obstacle, up, color="green", marker="o")
+    axes.scatter(X_obstacle, down, color="green", marker="o")
+    axes.scatter(left, Y_obstacle, color="green", marker="o")
+    axes.scatter(right, Y_obstacle, color="green", marker="o")
+   #  axes.scatter(X,Y, color="red", marker="x")
+    axes.scatter(X_orig, Y_orig, color="blue", marker="o", s=waypoint_plot_sizes)
+
+    for i in range(0, len(final_path)):
+       plt.plot(X[i:i+2], Y[i:i+2], 'ro-')
+    
     axes.set_xlabel("Latitude")
     axes.set_ylabel("Longitude")
-    axes.set_zlabel("Altitude")
+   #  axes.set_zlabel("Altitude")
+    axes.ticklabel_format(useOffset=False)
 
     plt.show()
 
@@ -228,10 +273,12 @@ def main():
    final_path = generate_final_path(waypoints)
    writeFile("optimized.waypoints",final_path)
    makeKmlFile("obstacles.kml", [obs.KMLFriendly() for obs in obstacle_list])
+   for wp in waypoints: print(wp)
+   print()
    for wp in final_path: print(wp)
    print(len(final_path), "waypoints")
    print(round(time.time()-t0, 3), "seconds")
-   plot_output(final_path)
+   plot_output(waypoints, final_path, obstacle_list)
 
 if __name__ == '__main__':
    main()
