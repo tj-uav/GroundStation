@@ -6,6 +6,7 @@ from dummy_mav_handler import DummyMavHandler
 from threading import Thread
 import logging
 import json
+import obstacle_avoidance
 
 log = logging.getLogger('werkzeug')
 log.setLevel(logging.ERROR)
@@ -61,6 +62,11 @@ def commands_append(command, lat, lon, alt):
 @app.route("mav/commands/<command>/<lat>/<lon>/<alt>/<ind>")
 def commands_insert(command, lat, lon, alt, ind):
     mav.setCommand(command, lat, lon, alt, ind)
+    return "Success"
+
+@app.route("/avoidance")
+def avoidance():
+    obstacle_avoidance.create_optimized_path()
     return "Success"
 
 if __name__ == "__main__":

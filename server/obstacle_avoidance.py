@@ -264,8 +264,12 @@ def plot_output(orig_path, final_path, obstacles):
 
     plt.show()
 
+# creates optimized path to go through waypoints and avoid obstacles without flying above or below them
+# outputs this path in optimized.waypoints
+# waypoints and obstacles are both located in mission.txt
+
 from mp_help import makeKmlFile
-def main():
+def create_optimized_path():
    global obstacle_list
    waypoints = read_mission()
    writeFile("original.waypoints",waypoints)
@@ -273,12 +277,12 @@ def main():
    final_path = generate_final_path(waypoints)
    writeFile("optimized.waypoints",final_path)
    makeKmlFile("obstacles.kml", [obs.KMLFriendly() for obs in obstacle_list])
-   for wp in waypoints: print(wp)
-   print()
-   for wp in final_path: print(wp)
-   print(len(final_path), "waypoints")
-   print(round(time.time()-t0, 3), "seconds")
-   plot_output(waypoints, final_path, obstacle_list)
 
-if __name__ == '__main__':
-   main()
+   # DEBUGGING/TESTING ONLY 
+
+   # for wp in waypoints: print(wp)
+   # print()
+   # for wp in final_path: print(wp)
+   # print(len(final_path), "waypoints")
+   # print(round(time.time()-t0, 3), "seconds")
+   # plot_output(waypoints, final_path, obstacle_list)
