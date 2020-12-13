@@ -61,7 +61,7 @@ class Node():
       self.f = f
    def dist(self, n):
       if self.loc() == n.loc(): return 0
-      return great_circle_dist(self.lat, self.lon, n.lat, n.lon) # **2 + (n.z-self.z)**2)**0.5
+      return (great_circle_dist(self.lat, self.lon, n.lat, n.lon) **2 + (n.z-self.z)**2)**0.5
    def loc(self):
       return [self.lat,self.lon,self.z]
    def __hash__(self):
@@ -131,9 +131,10 @@ def aStar(root, goal):
          nbr.setF(nbr.dist(goal) - node.dist(goal) + f)
          heapq.heappush(openSet, nbr)
 
-def read_mission():
+def read_mission(config):
    global obstacle_list, MAX_ALTITUDE, MIN_ALTITUDE
    forKML = []
+   waypoints = []
    import requests
    s = requests.Session()
    url = "http://192.168.1.43:8000/api/"
@@ -142,13 +143,13 @@ def read_mission():
 
    # r = s.post(url+"login", json=params)
    # r = s.get(url+"missions/"+str(id))  
-   r = open('mission.txt', 'r').read()
-   waypoints_file = open('obstacle_test.waypoints', 'r').read().splitlines()[1:]
-   mission_dict = json.loads(r)
+   # r = open('mission.txt', 'r').read()
+   # waypoints_file = open('obstacle_test.waypoints', 'r').read().splitlines()[1:]
+   # mission_dict = json.loads(r)
    #mission_dict = json.loads(r.text)
-   MIN_ALTITUDE = mission_dict["flyZones"][0]["altitudeMin"]
-   MAX_ALTITUDE = mission_dict["flyZones"][0]["altitudeMax"]
-   for obstacle in mission_dict["stationaryObstacles"]:
+   MIN_ALTITUDE = config["flyZones"][0]["altitudeMin"]
+   MAX_ALTITUDE = config["flyZones"][0]["altitudeMax"]
+   for obstacle in config["stationaryObstacles"]:
       lat = obstacle["latitude"]
       lon = obstacle["longitude"]
       height = obstacle["height"] #* 0.3048
@@ -156,14 +157,13 @@ def read_mission():
 
       obstacle_list += [Obstacle(lat, lon, height, rad)]
 
-   waypoints = []
-   for i in waypoints_file:
-        waypoint = i.split('\t')
+   for waypoint in config["waypoints"]:
+      #   waypoint = i.split('\t')
         #   lat = waypoint["latitude"]
         #   lon = waypoint["longitude"]
         #   alt = waypoint["altitude"]
 
-        waypoints.append([float(i) for i in waypoint[-4:-1]])
+        waypoints.append([waypoint["latitude"], waypoint["longitude"], waypoint["altitude"]])
    return waypoints
 
 def bearing(lat1, long1, lat2, long2):
@@ -203,22 +203,13 @@ def writeFile(filename, path):
 def plot_output(orig_path, final_path, obstacles):
     from mpl_toolkits.mplot3d import Axes3D
     import matplotlib.pyplot as plt
-    import matplotlib.cm as cm
-    import numpy as np
 
     fig = plt.figure()
-    axes = fig.add_subplot(111)
+    axes = fig.add_subplot(111, projection="3d")
 
     X = [i[0] for i in final_path]
     Y = [i[1] for i in final_path]
-    print(X)
-    print(Y)
-   #  Z = [i[2] for i in final_path]
-
-    X_orig = [i[0] for i in orig_path]
-    Y_orig = [i[1] for i in orig_path]
-   #  Z_orig = [i[2] for i in orig_path]
-    waypoint_plot_sizes = [100 for i in orig_path]
+    Z = [i[2] for i in final_path]
 
     X_obstacle = [i.lat for i in obstacles]
     Y_obstacle = [i.lon for i in obstacles]
@@ -228,6 +219,8 @@ def plot_output(orig_path, final_path, obstacles):
     down = [i.lon - i.r/288200 for i in obstacles]
     right = [i.lat + i.r/364000 for i in obstacles]
     left = [i.lat - i.r/364000 for i in obstacles]
+    top = [i.z + i.r for i in obstacles]
+    bottom = [i.z - i.r for i in obstacles]
 
 
     
@@ -242,41 +235,61 @@ def plot_output(orig_path, final_path, obstacles):
       a = x_radius*np.cos(theta) + i.lat
       b = y_radius*np.sin(theta) + i.lon
 
-      axes.plot(a, b, color="green")
+      axes.plot(a, b, i.z, color="green")
 
-   #  Z_obstacle = [i.z for i in obstacles]
+    Z_obstacle = [i.z for i in obstacles]
 
-    axes.scatter(X_obstacle, Y_obstacle, color="yellow", marker="o")
-    axes.scatter(X_obstacle, up, color="green", marker="o")
-    axes.scatter(X_obstacle, down, color="green", marker="o")
-    axes.scatter(left, Y_obstacle, color="green", marker="o")
-    axes.scatter(right, Y_obstacle, color="green", marker="o")
-   #  axes.scatter(X,Y, color="red", marker="x")
-    axes.scatter(X_orig, Y_orig, color="blue", marker="o", s=waypoint_plot_sizes)
+    axes.scatter(X_obstacle, Y_obstacle, Z_obstacle, color="yellow", marker="o")
+    axes.scatter(X_obstacle, up, Z_obstacle, color="green", marker="o")
+    axes.scatter(X_obstacle, down, Z_obstacle,color="green", marker="o")
+    axes.scatter(left, Y_obstacle, Z_obstacle, color="green", marker="o")
+    axes.scatter(right, Y_obstacle, Z_obstacle, color="green", marker="o")
+    axes.scatter(X_obstacle, Y_obstacle, top, color="green", marker="o")
+    axes.scatter(X_obstacle, Y_obstacle, bottom, color="green", marker="o")
+
+    X_orig = [i[0] for i in orig_path]
+    Y_orig = [i[1] for i in orig_path]
+    Z_orig = [i[2] for i in orig_path]
+    waypoint_plot_sizes = [100 for i in orig_path]
 
     for i in range(0, len(final_path)):
-       plt.plot(X[i:i+2], Y[i:i+2], 'ro-')
-    
+      plt.plot(X[i:i+2], Y[i:i+2], Z[i:i+2], 'ro-')
+
+    axes.scatter(X_obstacle,Y_obstacle,Z_obstacle, c="y", marker="o")
+    axes.scatter(X_orig, Y_orig, Z_orig, color="blue", marker="o", s=waypoint_plot_sizes)
+
     axes.set_xlabel("Latitude")
     axes.set_ylabel("Longitude")
-   #  axes.set_zlabel("Altitude")
-    axes.ticklabel_format(useOffset=False)
+    axes.set_zlabel("Altitude")
 
     plt.show()
 
 # creates optimized path to go through waypoints and avoid obstacles without flying above or below them
 # outputs this path in optimized.waypoints
-# waypoints and obstacles are both located in mission.txt
+# waypoints and obstacles are both passed in inside a config dict
+# see mission.txt for a sample config dict
 
 from mp_help import makeKmlFile
-def create_optimized_path():
+def create_optimized_path(config):
    global obstacle_list
-   waypoints = read_mission()
+   waypoints = read_mission(config)
    writeFile("original.waypoints",waypoints)
    t0 = time.time()
    final_path = generate_final_path(waypoints)
+
+   path_json = {"waypoints" : []}
+
+   for waypoint in final_path:
+      path_json["waypoints"].append({
+            "latitude": waypoint[0],
+            "longitude": waypoint[1],
+            "altitude": waypoint[2]
+        })
+
    writeFile("optimized.waypoints",final_path)
    makeKmlFile("obstacles.kml", [obs.KMLFriendly() for obs in obstacle_list])
+
+   return path_json
 
    # DEBUGGING/TESTING ONLY 
 
@@ -286,3 +299,5 @@ def create_optimized_path():
    # print(len(final_path), "waypoints")
    # print(round(time.time()-t0, 3), "seconds")
    # plot_output(waypoints, final_path, obstacle_list)
+
+# print(create_optimized_path(json.loads(open('mission.txt', 'r').read())))

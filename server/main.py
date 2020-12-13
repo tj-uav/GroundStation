@@ -64,10 +64,10 @@ def commands_insert(command, lat, lon, alt, ind):
     mav.setCommand(command, lat, lon, alt, ind)
     return "Success"
 
-@app.route("/avoidance")
-def avoidance():
-    obstacle_avoidance.create_optimized_path()
-    return "Success"
+# config is passed in as a dictionary, not a string
+@app.route("/avoidance/<config>")
+def avoidance(config):
+    return jsonify(obstacle_avoidance.create_optimized_path(config))
 
 if __name__ == "__main__":
     mav.connect()

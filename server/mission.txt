@@ -14,17 +14,17 @@
         {
             "latitude": 38.8355249,
             "longitude": -77.505455,
-            "altitude": 100.0
+            "altitude": 102.0
         },
         {
             "latitude": 38.8366323,
             "longitude": -77.5034809,
-            "altitude": 100.0
+            "altitude": 105.0
         },
         {
             "latitude": 38.8377688,
             "longitude": -77.5041568,
-            "altitude": 100.0
+            "altitude": 110.0
         },
         {
             "latitude": 38.8375098,
@@ -78,19 +78,19 @@
             "latitude": 38.8361016,
             "longitude": -77.5044411,
             "radius": 20.0,
-            "height": 1000000.0
+            "height": 100.0
         },
         {
             "latitude": 38.8373092,
             "longitude": -77.5039101,
             "radius": 30.0,
-            "height": 1000000.0
+            "height": 100.0
         },
         {
             "latitude": 38.8376142,
             "longitude": -77.5050473,
             "radius": 40.0,
-            "height": 120
+            "height": 100
         }
     ]
 }
