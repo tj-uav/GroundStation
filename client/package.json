@@ -24,6 +24,8 @@
 		"react-scripts": "^3.4.3",
 		"react-split-pane": "^0.1.91",
 		"regex-parser": "^2.2.11",
+		"socket.io": "^3.0.3",
+		"socket.io-client": "^3.0.3",
 		"styled-components": "^5.1.1"
 	},
 	"scripts": {

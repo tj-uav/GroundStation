@@ -1,7 +1,7 @@
 import random
 from flask import Flask, jsonify, request
 from flask_cors import CORS
-
+from flask_socketio import SocketIO, send, emit
 from interop_handler import InteropHandler
 from mav_handler import MavHandler
 from dummy_mav_handler import DummyMavHandler
@@ -14,13 +14,18 @@ log.setLevel(logging.ERROR)
 config = json.load(open('config.json', 'r'))
 
 app = Flask(__name__)
-if config['mav']['dummy']:
-    mav = DummyMavHandler(config=config)
+socketio = SocketIO(app, cors_allowed_origins="*")
+
+if config['mav_handler']['dummy']:
+    mav = DummyMavHandler(config=config, socketio=socketio)
 else:
     mav = MavHandler(config=config)
-interop = InteropHandler(config=config)
+#interop = InteropHandler(config=config)
 
-CORS(app)
+@socketio.on('connect')
+def test_connect():
+    print("HII")
+    emit('connect', {'data': 'Connected'})
 
 @app.route("/hello")
 def hello():
@@ -73,9 +78,9 @@ def command_insert(command, lat, lon, alt, ind):
 if __name__ == "__main__":
     mav.connect()
 
-    interop.login()
-    interop_telem_thread = Thread(target=interop.submit_telemetry, args=(mav,))
-    interop_telem_thread.daemon = True
-    interop_telem_thread.start()
+    # interop.login()
+    # interop_telem_thread = Thread(target=interop.submit_telemetry, args=(mav,))
+    # interop_telem_thread.daemon = True
+    # interop_telem_thread.start()
 
-    app.run(port=5000, debug=False)
+    socketio.run(app, port=5000)

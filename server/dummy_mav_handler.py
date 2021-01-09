@@ -3,9 +3,10 @@ import random
 import threading
 
 class DummyMavHandler:
-    def __init__(self, config):
+    def __init__(self, config, socketio):
         self.config = config
-        self.port = self.config['mav']['port']
+        self.port = self.config['mav_handler']['port']
+        self.socketio = socketio
 
     def connect(self):
         print("Created dummy mav handler")
@@ -18,6 +19,8 @@ class DummyMavHandler:
     def constant_updating(self):
         while True:
             self.update()
+            print("Emitting")
+            self.socketio.emit("get_data", {"HELLO": "HIII"})
             time.sleep(0.1)
 
 
