@@ -8,7 +8,7 @@ import AntennaTracker from "./pages/AntennaTracker.js"
 import "bootstrap/dist/css/bootstrap.min.css"
 import { darker } from "./theme/Colors"
 import { BrowserRouter as Router, Switch, Route, Redirect } from "react-router-dom"
-import NavBar from "./components/NavBar.js"
+import { Header } from "./components/Header.js"
 import styled from "styled-components"
 
 const App = () => {
@@ -31,7 +31,7 @@ const App = () => {
 					gridTemplateRows: "5rem auto 1rem",
 				}}
 			>
-				<NavBar />
+				<Header />
 				<Switch>
 					<Route path="/flight-data">
 						<FlightData />

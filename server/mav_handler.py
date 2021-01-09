@@ -14,8 +14,8 @@ COMMANDS = {
 class MavHandler:
     def __init__(self, config):
         self.config = config
-        self.port = self.config['mav']['port']
-        self.serial = self.config['mav']['serial']
+        self.port = self.config['mav_handler']['port']
+        self.serial = self.config['mav_handler']['serial']
 
     def connect(self):
         print("Connecting")

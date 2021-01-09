@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react"
 import { Button, Box } from "../../UIElements"
 import { Row, Column } from "../../Containers"
 import io from "socket.io-client";
-
+import { socket } from "../../Header"
 
 const Quick = props => {
 	const endpoint = "http://127.0.0.1:5000/";
@@ -35,28 +35,40 @@ const Quick = props => {
 	// 			setLatLong(data[7])
 	// 		})
 	// }
+	const getData = (data) => {
+		console.log("GOT DATA!");
+		console.log(data);
+	}
 
 	const updateData = () => {
 		socket.emit("message", "Awaiting data")
 		socket.on("responseMessage", data => {
 			console.log(data);
 			setAltitude(data[0]);
-			setOrientation(data[1]);
+			setYaw(data[1]);
 			setGroundSpeed(data[2]);
 			setAirspeed(data[3]);
-			setText(data[4]);
-			setBattery(data[5]);
+			setDistToWP(data[4]);
+			setVoltage(data[5]);
 			setThrottle(data[6]);
 			setLatLong(data[7]);
 		})
 	}
 
 	useEffect(() => {
-		const tick = setInterval(() => {
-			updateData()
-		}, 200)
-		return () => clearInterval(tick)
-	})
+		console.log("Constructor");
+		socket.on('connect', function(){ 
+			console.log("CONNECTED");
+		})
+		socket.on("get_data", getData);
+	}, []);
+
+	// useEffect(() => {
+	// 	const tick = setInterval(() => {
+	// 		updateData()
+	// 	}, 200)
+	// 	return () => clearInterval(tick)
+	// })
 
 	return (
 		<div
