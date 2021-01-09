@@ -1,91 +1,44 @@
-import React, { useState, useEffect } from "react"
-import { Button, Box, Label } from "../../UIElements"
+import React from "react"
+import { Box } from "../../UIElements"
 import { Row, Column } from "../../Containers"
 
-const SubmittedRow = ({ shape, shapeColor, letter, letterColor, orientation, field, ...props }) => {
+const SubmittedRow = ({ info }) => {
 	return (
 		<Column gap="1rem">
 			<Row height="4rem">
-				<Box content={shape} label="Shape" line="250%" />
-				<Box content={letter} label="Letter" line="250%" />
-				<Box content={orientation} label="Orientation" line="250%" />
+				<Box content={info.shape} label="Shape" line="250%" />
+				<Box content={info.letter} label="Letter" line="250%" />
+				<Box content={info.orientation} label="Orientation" line="250%" />
 			</Row>
 			<Row height="4rem">
-				<Box content={shapeColor} label="Shape Color" line="250%" />
-				<Box content={letterColor} label="Letter Color" line="250%" />
-				<Box content={field} label="Field" line="250%" />
+				<Box content={info.shapeColor} label="Shape Color" line="250%" />
+				<Box content={info.letterColor} label="Letter Color" line="250%" />
+				<Box
+					content={`${info.latitude} / ${info.longitude}`}
+					label="Position"
+					line="250%"
+				/>
 			</Row>
 		</Column>
 	)
 }
 
-const Submitted = props => {
-	// const [altitude, setAltitude] = useState(0)
-	// const [orientation, setOrientation] = useState(0)
-	// const [groundSpeed, setGroundSpeed] = useState(0)
-	// const [airspeed, setAirspeed] = useState(0)
-	// const [text, setText] = useState(0)
-	// const [battery, setBattery] = useState(0)
-	// const [throttle, setThrottle] = useState(0)
-	// const [latLong, setLatLong] = useState(0)
-
-	// const updateData = () => {
-	// 	setAltitude(Math.floor(Math.random() * 200) + 100)
-	// 	setOrientation(Math.floor(Math.random() * 360))
-	// 	setGroundSpeed(Math.floor(Math.random() * 50) + 25)
-	// 	setAirspeed(Math.floor(Math.random() * 50) + 25)
-	// 	setText("N/A")
-	// 	setBattery(Math.floor(Math.random() * 100))
-	// 	setThrottle(Math.floor(Math.random() * 100))
-	// 	setLatLong([Math.floor(Math.random() * 360), Math.floor(Math.random() * 360)])
-	// }
-
-	// useEffect(() => {
-	// 	const tick = setInterval(() => {
-	// 		updateData()
-	// 	}, 250)
-	// 	return () => clearInterval(tick)
-	// })
-
+const Submitted = ({ submitted }) => {
 	return (
 		<div
 			style={{
 				display: "flex",
 				flexDirection: "column",
-				height: "calc(100vh - 9.5rem)",
+				overflowY: "auto",
 			}}
 		>
-			<Column gap="2rem" style={{ overflowY: "auto" }}>
-				<SubmittedRow
-					shape={"Square"}
-					shapeColor={"Blue"}
-					letter={"A"}
-					letterColor={"Red"}
-					orientation={420}
-					field={"SUBMITTED: IDK wut this is"}
-				/>
-				<SubmittedRow
-					shape={"Square"}
-					shapeColor={"Blue"}
-					letter={"A"}
-					letterColor={"Red"}
-					orientation={420}
-					field={"SUBMITTED: IDK wut this is"}
-				/>
-				<SubmittedRow
-					shape={"Square"}
-					shapeColor={"Blue"}
-					letter={"A"}
-					letterColor={"Red"}
-					orientation={420}
-					field={"SUBMITTED: IDK wut this is"}
-				/>
-				{/* <SubmittedRow shape={"Square"} shapeColor={"Blue"} letter={"A"} letterColor={"Red"} orientation={420} field={"IDK wut this is"} />
-				<SubmittedRow shape={"Square"} shapeColor={"Blue"} letter={"A"} letterColor={"Red"} orientation={420} field={"IDK wut this is"} />
-				<SubmittedRow shape={"Square"} shapeColor={"Blue"} letter={"A"} letterColor={"Red"} orientation={420} field={"IDK wut this is"} />
-				<SubmittedRow shape={"Square"} shapeColor={"Blue"} letter={"A"} letterColor={"Red"} orientation={420} field={"IDK wut this is"} />
-				<SubmittedRow shape={"Square"} shapeColor={"Blue"} letter={"A"} letterColor={"Red"} orientation={420} field={"IDK wut this is"} /> */}
-			</Column>
+			<div style={{ height: "calc(100vh - 9.5rem)" }}>
+				<Column gap="2rem" style={{ overflowY: "auto", height: "unset" }}>
+					{submitted.map((v, i) => (
+						<SubmittedRow key={i} info={v} />
+					))}
+				</Column>
+			</div>
 		</div>
 	)
 }

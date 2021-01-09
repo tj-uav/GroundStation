@@ -1,5 +1,7 @@
+import random
 from flask import Flask, jsonify, request
 from flask_cors import CORS
+
 from interop_handler import InteropHandler
 from mav_handler import MavHandler
 from dummy_mav_handler import DummyMavHandler
