@@ -10,11 +10,13 @@ const Quick = props => {
 	console.log(socket.connected)
 
 	const [altitude, setAltitude] = useState(0)
-	const [orientation, setOrientation] = useState(0)
+	const [yaw, setYaw] = useState(0)
+	const [pitch, setPitch] = useState(0)
+	const [roll, setRoll] = useState(0)
 	const [groundSpeed, setGroundSpeed] = useState(0)
 	const [airspeed, setAirspeed] = useState(0)
-	const [text, setText] = useState(0)
-	const [battery, setBattery] = useState(0)
+	const [distToWP, setDistToWP] = useState(0)
+	const [voltage, setVoltage] = useState(0)
 	const [throttle, setThrottle] = useState(0)
 	const [latLong, setLatLong] = useState(0)
 
@@ -52,7 +54,7 @@ const Quick = props => {
 	useEffect(() => {
 		const tick = setInterval(() => {
 			updateData()
-		}, 250)
+		}, 200)
 		return () => clearInterval(tick)
 	})
 
@@ -67,15 +69,19 @@ const Quick = props => {
 			<Column style={{ marginBottom: "1rem" }}>
 				<Row>
 					<Box label="Altitude" content={altitude} />
-					<Box label="Orientation" content={orientation} />
+					<Box label="Yaw" content={yaw} />
+				</Row>
+				<Row>
+					<Box label="Pitch" content={pitch} />
+					<Box label="Roll" content={roll} />
 				</Row>
 				<Row>
 					<Box label="Ground Speed" content={groundSpeed} />
 					<Box label="Airspeed" content={airspeed} />
 				</Row>
 				<Row>
-					<Box label="Text" content={text} />
-					<Box label="Battery" content={battery} />
+					<Box label="Dist To WP" content={distToWP} />
+					<Box label="Battery Voltage" content={voltage} />
 				</Row>
 				<Row>
 					<Box label="Throttle" content={throttle} />
