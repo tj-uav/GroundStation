@@ -91,7 +91,7 @@ def main():
     screen.fill(black)
 
     nodes = []
-    goal = Node(0, 0)
+    goal = Node(100, 100)
 
     nodes.append(Node(YDIM / 2.0, XDIM / 2.0)) # Start in the center
 #    nodes.append((0.0,0.0)) # Start in the corner
