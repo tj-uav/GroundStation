@@ -1,6 +1,7 @@
 import random, math, pygame
 from pygame.locals import *
 from math import pi, sin, cos, acos, sqrt, atan2
+import functools
 
 #constants
 XDIM = 640
@@ -43,7 +44,9 @@ class Node():
     def setF(self, f):
         self.f = f
     def dist(self, n):
-        if self.loc() == n.loc(): return 0
+        # if self != None:
+        #     if self.loc() == n.loc():
+        #         return 0
         # return (great_circle_dist(self.lat, self.lon, n.lat, n.lon) **2 + (n.z-self.z)**2)**0.5
         return sqrt(((self.lon-n.lon)**2)+((self.lat-n.lat)**2))
     def loc(self):
@@ -63,9 +66,9 @@ class Node():
     #         nodes.append(newnode)
     #     #        print i, "    ", nodes
     #         i += 1
-    def __eq__(self, n):
-        global precision
-        return self.dist(n)<precision
+    # def __eq__(self, n):
+    #     global precision
+    #     return self.dist(n)<precision
     def __lt__(self, n):
         return self.f<n.f
 
@@ -73,7 +76,7 @@ def dist(p1, p2):
     return sqrt((p1[0]-p2[0])*(p1[0]-p2[0])+(p1[1]-p2[1])*(p1[1]-p2[1]))
 
 def step_from_to(p1,p2):
-    if p1.dist(p2)[1] < EPSILON:
+    if p1.dist(p2) < EPSILON:
         return p2
     else:
         theta = atan2(p2.lat-p1.lat,p2.lon-p1.lon)
@@ -83,7 +86,7 @@ def main():
     #initialize and prepare screen
     pygame.init()
     screen = pygame.display.set_mode(WINSIZE)
-    pygame.display.set_caption('RRT      S. LaValle    May 2011')
+    pygame.display.set_caption('RRT    TJUAV    January 2021')
     pygame
     white = 255, 240, 200
     black = 20, 20, 40
@@ -101,7 +104,7 @@ def main():
         rand = Node(random.random()*YDIM, random.random()*XDIM)
         nn = nodes[0]
         for p in nodes:
-            if rand.dist(p)[1] < rand.dist(nn)[1]:
+            if rand.dist(p) < rand.dist(nn):
                 nn = p
         newnode = step_from_to(nn,rand)
         nodes.append(newnode)
@@ -109,7 +112,7 @@ def main():
         pygame.draw.line(screen,white,(nn.lon, nn.lat),(newnode.lon, newnode.lat))
         pygame.display.update()
     #        print i, "    ", nodes
-        if goal.dist(newnode)[1] < 20.0:
+        if goal.dist(newnode) < 20.0:
             goal.parent = newnode
             break
         i += 1
@@ -119,7 +122,8 @@ def main():
     while curr.parent != None:
         par = curr.parent
         path.append((par.lon, par.lat))
-        pygame.draw.line(screen,red,(curr.lon, nn.lat),(par.lon, par.lat))
+        pygame.draw.line(screen,red,(curr.lon, curr.lat),(par.lon, par.lat))
+        pygame.display.update()
         curr = par
     print(path)
 
