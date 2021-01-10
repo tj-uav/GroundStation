@@ -7,7 +7,7 @@ XDIM = 640
 YDIM = 480
 WINSIZE = [XDIM, YDIM]
 EPSILON = 7.0
-NUMNODES = 15
+NUMNODES = 5000
 
 base_lat = 38.147250  # base coords from AUVSI rules
 base_long = -76.426444
@@ -87,9 +87,11 @@ def main():
     pygame
     white = 255, 240, 200
     black = 20, 20, 40
+    red = 255, 0, 0
     screen.fill(black)
 
     nodes = []
+    goal = Node(0, 0)
 
     nodes.append(Node(YDIM / 2.0, XDIM / 2.0)) # Start in the center
 #    nodes.append((0.0,0.0)) # Start in the corner
@@ -103,11 +105,24 @@ def main():
                 nn = p
         newnode = step_from_to(nn,rand)
         nodes.append(newnode)
+        newnode.parent = nn
         pygame.draw.line(screen,white,(nn.lon, nn.lat),(newnode.lon, newnode.lat))
         pygame.display.update()
     #        print i, "    ", nodes
+        if goal.dist(newnode)[1] < 20.0:
+            goal.parent = newnode
+            break
         i += 1
-   
+    
+    path = [(goal.lon, goal.lat)]
+    curr = goal
+    while curr.parent != None:
+        par = curr.parent
+        path.append((par.lon, par.lat))
+        pygame.draw.line(screen,red,(curr.lon, nn.lat),(par.lon, par.lat))
+        curr = par
+    print(path)
+
     done = 0
     while not done:
         for e in pygame.event.get():
