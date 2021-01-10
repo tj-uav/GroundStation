@@ -1,5 +1,6 @@
 from dronekit import connect
 from pymavlink import mavutil
+import random
 
 SERIAL_PORT = '/dev/ttyACM0'
 BAUDRATE = 115200
@@ -14,8 +15,8 @@ COMMANDS = {
 class MavHandler:
     def __init__(self, config):
         self.config = config
-        self.port = self.config['mav_handler']['port']
-        self.serial = self.config['mav_handler']['serial']
+        self.port = self.config['mav']['port']
+        self.serial = self.config['mav']['serial']
 
     def connect(self):
         print("Connecting")
@@ -52,6 +53,7 @@ class MavHandler:
         self.vehicle.mode = flightmode
 
     def quick(self):
+        self.update()
         print("Requesting quick data")
         return {'altitude': self.altitude,
                 'orientation': self.orientation,
