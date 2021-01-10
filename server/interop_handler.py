@@ -1,8 +1,8 @@
 import json
 import time
-from auvsi_suas.client import client
-from auvsi_suas.proto import interop_api_pb2
-from google.protobuf import json_format
+#from auvsi_suas.client import client
+#from auvsi_suas.proto import interop_api_pb2
+#from google.protobuf import json_format
 
 class InteropHandler:
     def __init__(self, config):

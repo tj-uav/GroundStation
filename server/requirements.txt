@@ -3,3 +3,5 @@ Flask-Cors
 protobuf
 dronekit
 pymavlink
+flask-socketio
+pySerial

@@ -16,7 +16,7 @@ config = json.load(open('config.json', 'r'))
 app = Flask(__name__)
 socketio = SocketIO(app, cors_allowed_origins="*")
 
-if config['mav_handler']['dummy']:
+if config['mav']['dummy']:
     mav = DummyMavHandler(config=config, socketio=socketio)
 else:
     mav = MavHandler(config=config)
@@ -57,6 +57,14 @@ def odcl_get(id, dtype):
 def quick():
     return json.dumps(mav.quick())
 
+@app.route("/mav/params")
+def getParams():
+    return json.dumps(mav.params())
+
+@app.route("/mav/params/<key>/<value>")
+def setParam(key, value):
+    mav.setParam(key, float(value))
+    return "Success"
 
 @app.route("/mav/commands")
 def commands_get():
