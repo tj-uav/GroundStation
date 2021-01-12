@@ -8,7 +8,7 @@ XDIM = 640
 YDIM = 480
 WINSIZE = [XDIM, YDIM]
 EPSILON = 7.0
-NUMNODES = 5000
+NUMNODES = 10000
 
 base_lat = 38.147250  # base coords from AUVSI rules
 base_long = -76.426444
@@ -26,7 +26,7 @@ rho = 10
 radius_tolerance = 0
 height_tolerance = 50
 
-MAX_RELATIVE_BANK = pi/12
+MAX_RELATIVE_BANK = pi/6
 MAX_RELATIVE_PITCH = pi/12
 
 dPhi = pi/12
@@ -51,6 +51,9 @@ class Node():
         return sqrt(((self.lon-n.lon)**2)+((self.lat-n.lat)**2))
     def loc(self):
         return [self.lat,self.lon,self.z]
+    def getHeading(self):
+        if self.parent != None:
+            return atan2(self.lat - self.parent.lat, self.lon - self.parent.lon)
     def __hash__(self):
         return int(self.lat*100000000)+int(self.lon)
     # def nbrs(self, goal):
@@ -71,16 +74,19 @@ class Node():
     #     return self.dist(n)<precision
     def __lt__(self, n):
         return self.f<n.f
+    def __str__(self):
+        return str(self.loc())
 
 def dist(p1, p2):
     return sqrt((p1[0]-p2[0])*(p1[0]-p2[0])+(p1[1]-p2[1])*(p1[1]-p2[1]))
 
 def step_from_to(p1,p2):
     if p1.dist(p2) < EPSILON:
+        p2.parent = p1
         return p2
     else:
         theta = atan2(p2.lat-p1.lat,p2.lon-p1.lon)
-        return Node(p1.lat + EPSILON*sin(theta), p1.lon + EPSILON*cos(theta))
+        return Node(p1.lat + EPSILON*sin(theta), p1.lon + EPSILON*cos(theta), parent=p1)
 
 def main():
     #initialize and prepare screen
@@ -104,17 +110,30 @@ def main():
         rand = Node(random.random()*YDIM, random.random()*XDIM)
         nn = nodes[0]
         for p in nodes:
-            if rand.dist(p) < rand.dist(nn):
-                nn = p
+            rand.parent = p
+            if p.parent != None:
+                if rand.getHeading() - p.getHeading() < MAX_RELATIVE_BANK:
+                    if rand.dist(p) < rand.dist(nn):
+                        nn = p
         newnode = step_from_to(nn,rand)
-        nodes.append(newnode)
-        newnode.parent = nn
-        pygame.draw.line(screen,white,(nn.lon, nn.lat),(newnode.lon, newnode.lat))
-        pygame.display.update()
-    #        print i, "    ", nodes
-        if goal.dist(newnode) < 20.0:
-            goal.parent = newnode
-            break
+        if nn.parent == None:
+            nodes.append(newnode)
+            newnode.parent = nn
+            pygame.draw.line(screen,white,(nn.lon, nn.lat),(newnode.lon, newnode.lat))
+            pygame.display.update()
+        #        print i, "    ", nodes
+            if goal.dist(newnode) < EPSILON:
+                goal.parent = newnode
+                break
+        elif abs(newnode.getHeading() - nn.getHeading()) < MAX_RELATIVE_BANK:
+            nodes.append(newnode)
+            newnode.parent = nn
+            pygame.draw.line(screen,white,(nn.lon, nn.lat),(newnode.lon, newnode.lat))
+            pygame.display.update()
+        #        print i, "    ", nodes
+            if goal.dist(newnode) < EPSILON:
+                goal.parent = newnode
+                break
         i += 1
     
     path = [(goal.lon, goal.lat)]
