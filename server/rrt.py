@@ -1,6 +1,7 @@
 import random, math, pygame
 from pygame.locals import *
 from math import pi, sin, cos, acos, sqrt, atan2
+from geopy import distance
 import functools
 
 #constants
@@ -80,6 +81,15 @@ class Node():
 def dist(p1, p2):
     return sqrt((p1[0]-p2[0])*(p1[0]-p2[0])+(p1[1]-p2[1])*(p1[1]-p2[1]))
 
+def great_circle_conv(lat, lon, dN, dE):
+   earth_r = 6378137
+   dLat = dN/earth_r
+   dLon = dE/(earth_r*cos(pi*lat/180))
+   return (lat+dLat*180/pi, lon + dLon * 180/pi)
+
+def great_circle_dist(lat1, lon1, lat2, lon2):
+   return distance.great_circle((lat1,lon1),(lat2,lon2)).meters
+
 def step_from_to(p1,p2):
     if p1.dist(p2) < EPSILON:
         p2.parent = p1
@@ -87,6 +97,20 @@ def step_from_to(p1,p2):
     else:
         theta = atan2(p2.lat-p1.lat,p2.lon-p1.lon)
         return Node(p1.lat + EPSILON*sin(theta), p1.lon + EPSILON*cos(theta), parent=p1)
+
+def writeFile(filename, path):
+    write = open(filename, "w+")
+    count = 0
+    write.write("QGC WPL 110\n")#0\t1\t0\t16\t0\t0\t0\t38.881657\t-77.260719\t118.669998\n")
+
+    for wp in path:
+        count += 1
+        write.write(str(count) + "\t0\t0\t16\t0.00000000\t0.00000000\t0.00000000\t0.00000000\t" + str(wp[0]) + "\t" + str(wp[1]) + "\t" + "100.0" + "\t1\n")
+
+    write.write(str(count+1)+"\t0\t3\t183\t2.000000\t988.000000\t0.000000\t0.000000\t0.000000\t0.000000\t0.000000\t1\n"+
+    str(count+2) + "\t0\t3\t183\t3.000000\t2006.000000\t0.000000\t0.000000\t0.000000\t0.000000\t0.000000\t1\n"+
+    str(count+3) + "\t0\t3\t183\t4.000000\t950.000000\t0.000000\t0.000000\t0.000000\t0.000000\t0.000000\t1\n")
+    write.close()
 
 def main():
     #initialize and prepare screen
@@ -100,7 +124,10 @@ def main():
     screen.fill(black)
 
     nodes = []
-    goal = Node(100, 100)
+    start = (38.147250, -76.426444)
+    end = great_circle_conv(start[0], start[1], 220, -140)
+    goalNode = Node(100, 100)
+    
 
     nodes.append(Node(YDIM / 2.0, XDIM / 2.0)) # Start in the center
 #    nodes.append((0.0,0.0)) # Start in the corner
@@ -122,8 +149,8 @@ def main():
             pygame.draw.line(screen,white,(nn.lon, nn.lat),(newnode.lon, newnode.lat))
             pygame.display.update()
         #        print i, "    ", nodes
-            if goal.dist(newnode) < EPSILON:
-                goal.parent = newnode
+            if goalNode.dist(newnode) < EPSILON:
+                goalNode.parent = newnode
                 break
         elif abs(newnode.getHeading() - nn.getHeading()) < MAX_RELATIVE_BANK:
             nodes.append(newnode)
@@ -131,20 +158,29 @@ def main():
             pygame.draw.line(screen,white,(nn.lon, nn.lat),(newnode.lon, newnode.lat))
             pygame.display.update()
         #        print i, "    ", nodes
-            if goal.dist(newnode) < EPSILON:
-                goal.parent = newnode
+            if goalNode.dist(newnode) < EPSILON:
+                goalNode.parent = newnode
                 break
         i += 1
     
-    path = [(goal.lon, goal.lat)]
-    curr = goal
+    path = [(goalNode.lat, goalNode.lon)]
+    curr = goalNode
     while curr.parent != None:
         par = curr.parent
-        path.append((par.lon, par.lat))
+        path.append((par.lat, par.lon))
         pygame.draw.line(screen,red,(curr.lon, curr.lat),(par.lon, par.lat))
         pygame.display.update()
         curr = par
-    print(path)
+    path = path[::-1]
+    geopath = [start]
+    for node in range(len(path) - 1):
+        dN = path[node][0] - path[node+1][0]
+        dE = path[node+1][1] - path[node][1]
+        curr = geopath[-1]
+        geopath.append(great_circle_conv(curr[0], curr[1], dN, dE))
+
+    print(geopath)
+    writeFile("rrt_points.waypoints", geopath)
 
     done = 0
     while not done:
