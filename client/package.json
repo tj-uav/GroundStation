@@ -9,6 +9,7 @@
 		"axios": "^0.19.2",
 		"bootstrap": "^4.5.0",
 		"esri": "0.0.1-security",
+		"fetch": "^1.1.0",
 		"leaflet": "^1.6.0",
 		"leaflet-polylinedecorator": "^1.6.0",
 		"mapbox-gl": "^1.11.0",
