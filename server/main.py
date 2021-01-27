@@ -14,6 +14,7 @@ log.setLevel(logging.ERROR)
 config = json.load(open('config.json', 'r'))
 
 app = Flask(__name__)
+CORS(app)
 socketio = SocketIO(app, cors_allowed_origins="*")
 
 if config['mav']['dummy']:
@@ -24,7 +25,6 @@ else:
 
 @socketio.on('connect')
 def test_connect():
-    print("HII")
     emit('connect', {'data': 'Connected'})
 
 @app.route("/hello")
@@ -73,13 +73,13 @@ def commands_get():
 
 @app.route("/mav/commands/<command>/<lat>/<lon>/<alt>")
 def command_append(command, lat, lon, alt):
-    mav.setCommand(command, lat, lon, alt)
+    mav.insertCommand(command, lat, lon, alt)
     return "Success"
 
 
 @app.route("/mav/commands/<command>/<lat>/<lon>/<alt>/<ind>")
 def command_insert(command, lat, lon, alt, ind):
-    mav.setCommand(command, lat, lon, alt, ind)
+    mav.insertCommand(command, lat, lon, alt, ind)
     return "Success"
 
 

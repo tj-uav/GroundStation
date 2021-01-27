@@ -3,8 +3,10 @@ import { Row, Column } from "../components/Containers"
 import { Button, Box, Label } from "../components/UIElements"
 import Param from "components/params/param"
 import { red } from "../theme/Colors"
+import { backend } from "../environment.js"
 
 import regexParse from "regex-parser"
+import param from "components/params/param"
 // import * as RegexParser from "regex-parser"
 
 /*
@@ -19,16 +21,27 @@ TODO: Put in all the param descriptions
 TODO: Read params from mavlink
 TODO: Write params to mavlink
 */
-
-const parameters = Object.entries(require("parameters.json")).map(
-	([name, { description, link }]) => ({
-		name,
-		description,
-		link,
-		value: "0",
+const descriptions = require("parameters.json");
+var parameters;
+function getParams(){
+	var xhr = new XMLHttpRequest()
+	xhr.addEventListener('load', () => {
 	})
-)
+	xhr.open('GET', backend+'/mav/params', false);
+	xhr.send();
+	parameters = JSON.parse(xhr.responseText);
 
+	let params2 = []
+	for (var key in parameters){
+		if(key in descriptions){
+			params2.push({"name": key, "description": descriptions[key]['description'], "link":descriptions[key]['link'], "value": parameters[key]});
+		} else{
+			params2.push({"name": key, "description": "MISSING", "link": "MISSING", "value": parameters[key]});
+		}
+	}
+	parameters = params2;
+}
+getParams();
 const increment = 50
 
 const Params = () => {
@@ -118,7 +131,7 @@ const Params = () => {
 		>
 			<div>
 				<Row height="3rem">
-					<Button>Read</Button>
+					<Button onclick="getParams()">Read</Button>
 					<Button>Write</Button>
 					<Button>Load</Button>
 					<Button>Save</Button>
@@ -135,15 +148,15 @@ const Params = () => {
 							e.stopPropagation()
 						}}
 						onChange={e => {
-							const value = e.target.value
-							const element = e.target
+							const value = e
+							// const element = e.target
 							let regex
-							element.style.color = "unset"
+							// element.style.color = "unset"
 							try {
 								regex = regexParse(value)
 							} catch (e) {
 								regex = /.*/gi
-								if (value !== "") element.style.color = red
+								// if (value !== "") element.style.color = red
 							}
 							setFilter(regex)
 							setRange([0, increment])

@@ -51,4 +51,18 @@ class DummyMavHandler:
                 'throttle': self.throttle,
                 'lat': self.lat,
                 'lon': self.lon
-        }        
+        }  
+
+    def params(self):
+        with open("params.json", "r") as f:
+            return json.load(f)
+
+    def setParam(self, key, value):
+        return
+    
+    def getCommands(self):
+        return []
+    
+    def insertCommand(self, command, lat, lon, alt, ind=-1):
+        return
+        
