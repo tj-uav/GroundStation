@@ -1,7 +1,7 @@
 import React, { useState } from "react"
 import styled from "styled-components"
 
-import { dark, darker, blue, red } from "theme/Colors"
+import { dark, darker, blue } from "theme/Colors"
 
 import { StyledBox } from "./Box"
 

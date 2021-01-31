@@ -1,7 +1,7 @@
 import React, { useState, useEffect, forwardRef } from "react"
 import styled from "styled-components"
 
-import { dark, blue, red } from "theme/Colors"
+import { dark } from "theme/Colors"
 
 import Label from "./Label"
 
@@ -56,13 +56,5 @@ const StyledBoxContent = styled.textarea`
 	overflow: hidden;
 	background: ${dark};
 `
-
-// export const Label = ({ children, ...props }) => {
-// 	return (
-// 		<StyledLabel {...props} className={`paragraph ${props.className}`}>
-// 			{children}
-// 		</StyledLabel>
-// 	)
-// }
 
 export default Box

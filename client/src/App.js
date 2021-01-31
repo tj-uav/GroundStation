@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React from "react"
 import "./App.css"
 import FlightData from "pages/FlightData"
 import FlightPlan from "pages/FlightPlan"
@@ -9,7 +9,6 @@ import "bootstrap/dist/css/bootstrap.min.css"
 import { darker } from "./theme/Colors"
 import { BrowserRouter as Router, Switch, Route, Redirect } from "react-router-dom"
 import NavBar from "./components/NavBar.js"
-import styled from "styled-components"
 
 const App = () => {
 	// const [telem, setTelem] = useState([])

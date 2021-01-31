@@ -85,10 +85,8 @@ const DropdownContent = ({ children, setOption, number, ...props }) => {
 }
 
 const StyledDropdownContent = styled(StyledButton)`
-	/* transform: translateY(${props => props.number * 100}%); */
 	justify-content: flex-start;
 	color: black !important;
-	/* position: absolute; */
 	padding-left: 1rem;
 	cursor: pointer;
 	height: 2rem;
