@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react"
+import React from "react"
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd"
 
 const grid = 5

@@ -79,7 +79,7 @@ const DropdownRow = ({ with: buttons, ...props }) => {
 	)
 }
 
-const Actions = props => {
+const Actions = () => {
 	const [speed, setSpeed] = useState(0)
 	const [altitude, setAltitude] = useState(0)
 	const [loiterRate, setLoiterRate] = useState(0)
