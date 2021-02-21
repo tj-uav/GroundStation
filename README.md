@@ -75,3 +75,13 @@ If you make any edits, you will need to end the program and restart the backend.
   - _FlightPlanToolbar.js_: Contains code for the toolbar used in the FlightPlan tab
 
 ### Backend
+
+TODO
+
+## Version Control
+
+Generally, check out to a new git branch before beginning to work on a new change.  When finished working, push all of these changes to that branch on the repo, then head over to the GitHub and create a new pull request.  Describe what changes are made, how they are implemented, or other notes, and add some other TJUAV programmers like [@Ganesh](https://github.com/gnanduru1), [@Jason Klein](https://github.com/Jklein64), or [@Srikar Gouru](https://github.com/srikarg89) to review it.
+
+### Note
+
+If working on the GroundStation frontend, you will want to set [#frontend-development](https://github.com/tj-uav/GroundStation/tree/frontend-development) as your base branch instead of [master](https://github.com/tj-uav/GroundStation/tree/master) until it gets merged.
