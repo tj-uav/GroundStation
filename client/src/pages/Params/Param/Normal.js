@@ -3,26 +3,37 @@ import styled from "styled-components"
 
 import { Row, Column } from "components/Containers"
 import { Button } from "components/UIElements"
-import { dark } from "theme/Colors"
+import { dark, blue } from "theme/Colors"
 
 import Content from "./Content"
 import Value from "./Value"
+import Submit from "./Submit"
 
-const Normal = ({ data, hook, ...props }) => {
-	const [active, setActive] = hook
-
+const Normal = ({ data, index, setActiveIndex, setModifiedIndexes, modified = false }) => {
 	return (
-		<Row {...props} height="2rem" columns="min-content auto 6rem">
+		<Row height="2rem" columns={`min-content auto ${modified ? "3rem" : "6rem"}`}>
 			<Column height="2rem" style={{ overflow: "hidden" }}>
 				<Row columns="14rem 6rem">
 					<Content padded children={data.name} />
-					<Value hook={[data.value, null]} />
+					<Value
+						style={{ color: modified ? blue : "inherit" }}
+						hook={[data.value, null]}
+					/>
 				</Row>
 			</Column>
 			<Column height="2rem">
 				<Description description={data.description.replace(/\s/g, "\u00A0")} />
 			</Column>
-			<Button onClick={() => setActive(!active)}>Modify</Button>
+			{modified ? (
+				<Submit
+					type="decline"
+					callback={() => setModifiedIndexes(prev => prev.filter(i => i !== index))}
+				/>
+			) : (
+				<Button careful onClick={() => setActiveIndex(index)}>
+					Modify
+				</Button>
+			)}
 		</Row>
 	)
 }

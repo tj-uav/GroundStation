@@ -12,6 +12,7 @@ const Submit = ({ type, callback }) => (
 			border: "none",
 			borderRadius: "unset",
 			outline: "none",
+      flexShrink: "1"
 		}}
 	></Checkbox>
 )

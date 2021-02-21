@@ -7,13 +7,15 @@ import Content from "./Content"
 import Value from "./Value"
 import Submit from "./Submit"
 
-const Active = ({ data, hook, ...props }) => {
-	const [active, setActive] = hook
+import { useParameters } from "../../Params"
+
+const Active = ({ data, index, setActiveIndex, setModifiedIndexes }) => {
 	const [value, setValue] = useState(data.value)
-	const toggle = () => setActive(!active)
+	const deactivate = () => setActiveIndex(-1)
+	const params = useParameters()
 
 	return (
-		<form {...props} onSubmit={e => handleSubmit(e, toggle, value)}>
+		<form onSubmit={e => handleSubmit(e, deactivate)}>
 			<Row style={{ maxHeight: "7rem" }} columns="min-content auto 6rem">
 				<div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
 					<Row height="2rem" columns="14rem 6rem">
@@ -30,28 +32,37 @@ const Active = ({ data, hook, ...props }) => {
 				<Column style={{ display: "flex", height: "100%", overflow: "scroll" }}>
 					<Content padded children={data.description} style={{ overflow: "scroll" }} />
 				</Column>
-				<Column>
-					<Submit type="accept" />
+				<aside
+					style={{
+						display: "flex",
+						flexDirection: "column",
+						rowGap: "1rem",
+						height: "100%",
+					}}
+				>
+					<Submit
+						type="accept"
+						callback={() => {
+							params[index] = {
+								...data,
+								value,
+							}
+							setModifiedIndexes(prev => {
+								if (!prev.includes(index)) return [...prev, index]
+								else return prev
+							})
+						}}
+					/>
 					<Submit type="decline" />
-				</Column>
+				</aside>
 			</Row>
 		</form>
 	)
 }
 
-function handleSubmit(e, toggle, value) {
+function handleSubmit(e, deactivate) {
 	e.preventDefault()
-
-	const action = e.nativeEvent.submitter.id
-	if (action === "accept") {
-		// TODO: apply changes, send over to left hand side
-		console.log(value)
-		toggle()
-	}
-
-	if (action === "decline") {
-		toggle()
-	}
+	deactivate()
 }
 
 export default Active
