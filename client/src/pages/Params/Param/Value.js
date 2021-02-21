@@ -2,7 +2,7 @@ import React from "react"
 
 import { dark } from "theme/Colors"
 
-const Value = ({ hook, editable }) => {
+const Value = ({ hook, editable, style }) => {
 	const [value, setValue] = hook
 
 	return (
@@ -12,6 +12,7 @@ const Value = ({ hook, editable }) => {
 			value={value}
 			onChange={e => setValue(e.target.value)}
 			style={{
+				...style,
 				background: dark,
 				border: "none",
 				outline: "none",

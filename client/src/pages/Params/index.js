@@ -19,7 +19,7 @@ TODO: Read params from mavlink
 TODO: Write params to mavlink
 */
 
-const parameters = Object.entries(require("parameters.json")).map(
+const INITIAL_PARAMS = Object.entries(require("parameters.json")).map(
 	([name, { description, link }]) => ({
 		name,
 		description,
@@ -27,6 +27,14 @@ const parameters = Object.entries(require("parameters.json")).map(
 		value: "0",
 	})
 )
+
+const ParametersContext = React.createContext(undefined)
+export function useParameters() {
+	const context = React.useContext(ParametersContext)
+	if (context === undefined)
+		throw new Error("Parameters context can only be called inside a child on `Params`.")
+	return context.current
+}
 
 const increment = 50
 
@@ -95,113 +103,170 @@ const Params = () => {
 		return () => observer.disconnect()
 	}, [decrementButton, load, decrementRange])
 
-	const precomputedParams = useMemo(() => {
-		const arr = parameters
-			.filter(p => filter.test(p.name) || filter.test(p.description))
-			.map((param, i) => <Param key={i} data={param} />)
+	const [activeParamIndex, setActiveIndex] = useState()
+	const [modifiedIndexes, setModifiedIndexes] = useState([])
+	const parameters = useRef(new Array(INITIAL_PARAMS))
+	const paramsElementList = useMemo(() => {
+		const arr = INITIAL_PARAMS.filter(
+			p => filter.test(p.name) || filter.test(p.description)
+		).map((param, i) => (
+			<Param
+				key={i}
+				index={i}
+				data={param}
+				active={i === activeParamIndex}
+				setActiveIndex={setActiveIndex}
+				setModifiedIndexes={setModifiedIndexes}
+			/>
+		))
 		setCount(arr.length)
 		return arr.length <= increment * 2 ? arr : arr.slice(...range)
-	}, [range, filter])
+	}, [range, filter, activeParamIndex])
 
 	const inputBox = useRef(null)
 
 	return (
-		<div
-			style={{
-				display: "grid",
-				padding: "1rem 1rem 0 1rem",
-				gridTemplateColumns: "37rem 100fr",
-				gap: "1rem",
-				width: "100%",
-				height: "auto",
-				overflowY: "auto",
-			}}
-		>
-			<div>
-				<Row height="3rem">
-					<Button>Read</Button>
-					<Button>Write</Button>
-					<Button>Load</Button>
-					<Button>Save</Button>
-				</Row>
-			</div>
-			<Column
-				height="100%"
-				style={{ overflow: "auto", display: "flex", flexDirection: "column" }}
+		<ParametersContext.Provider value={parameters}>
+			<div
+				style={{
+					display: "grid",
+					padding: "1rem 1rem 0 1rem",
+					gridTemplateColumns: "37rem 100fr",
+					gap: "1rem",
+					width: "100%",
+					height: "auto",
+					overflowY: "auto",
+				}}
 			>
-				<Row height="3rem" columns="auto">
-					<Box
-						ref={inputBox}
-						onKeyDown={e => {
-							if (e.nativeEvent.key === "Enter") e.preventDefault()
-							e.stopPropagation()
-						}}
-						onChange={value => {
-							let regex
-							const element = inputBox.current
-							element.style.color = "unset"
-							try {
-								regex = regexParse(value)
-							} catch (e) {
-								regex = /.*/gi
-								if (value !== "") element.style.color = red
-							}
-							setFilter(regex)
-							setRange([0, increment])
-							scrollArea.current.scrollTop = 0
-						}}
-						placeholder="Enter search term or regular expression"
-						style={{ textAlign: "left" }}
-						editable
-					></Box>
-				</Row>
-				<Row
-					style={{ marginBottom: "-1rem" }}
-					columns="min-content auto 6rem"
-					height="2rem"
-				>
-					<Row columns="14rem 6rem">
-						<Label>Param Name</Label>
-						<Label>Value</Label>
+				<div>
+					<Row height="3rem">
+						<Button>Read</Button>
+						<Button
+							onClick={() => {
+								// TODO send to the backend
+								console.log(
+									parameters.current.filter((_, i) => modifiedIndexes.includes(i))
+								)
+							}}
+						>
+							Write
+						</Button>
+						<Button>Load</Button>
+						<Button>Save</Button>
 					</Row>
-					<Label>Description</Label>
-				</Row>
-				<div ref={scrollArea} style={{ overflow: "auto" }}>
-					<div
+					{modifiedIndexes.length > 0 && (
+						<Row
+							style={{ marginTop: "1rem" }}
+							columns="min-content auto 6rem"
+							height="2rem"
+						>
+							<Row columns="14rem 6rem">
+								<Label>Param Name</Label>
+								<Label>Value</Label>
+							</Row>
+							<Label>Description</Label>
+						</Row>
+					)}
+					<section
 						style={{
 							display: "flex",
 							flexDirection: "column",
-							height: "100%",
-							gap: "1rem",
+							flexGrow: "1",
+							rowGap: "1rem",
+							overflow: "auto",
 						}}
 					>
-						{count > increment * 2 && range[0] > 0 && (
-							<Button
-								ref={setDecrement}
-								style={{ minHeight: "2rem" }}
-								onClick={() => load(decrementRange)}
-								careful
-							>
-								{loading ? "Loading..." : "Load More (Previous)"}
-							</Button>
-						)}
-
-						{precomputedParams}
-
-						{count > increment * 2 && range[1] <= count && (
-							<Button
-								ref={setIncrement}
-								style={{ minHeight: "2rem" }}
-								onClick={() => load(incrementRange)}
-								careful
-							>
-								{loading ? "Loading..." : "Load More (Next)"}
-							</Button>
-						)}
-					</div>
+						{modifiedIndexes.map((mIndex, index) => (
+							<Param
+								key={index}
+								index={mIndex}
+								data={parameters.current[mIndex]}
+								active={false}
+								setActiveIndex={setActiveIndex}
+								setModifiedIndexes={setModifiedIndexes}
+								modified={true}
+							/>
+						))}
+					</section>
 				</div>
-			</Column>
-		</div>
+				<Column
+					height="100%"
+					style={{ overflow: "auto", display: "flex", flexDirection: "column" }}
+				>
+					<Row height="3rem" columns="auto">
+						<Box
+							ref={inputBox}
+							onKeyDown={e => {
+								if (e.nativeEvent.key === "Enter") e.preventDefault()
+								e.stopPropagation()
+							}}
+							onChange={value => {
+								let regex
+								const element = inputBox.current
+								element.style.color = "unset"
+								try {
+									regex = regexParse(value)
+								} catch (e) {
+									regex = /.*/gi
+									if (value !== "") element.style.color = red
+								}
+								setFilter(regex)
+								setRange([0, increment])
+								scrollArea.current.scrollTop = 0
+							}}
+							placeholder="Enter search term or regular expression"
+							style={{ textAlign: "left" }}
+							editable
+						></Box>
+					</Row>
+					<Row
+						style={{ marginBottom: "-1rem" }}
+						columns="min-content auto 6rem"
+						height="2rem"
+					>
+						<Row columns="14rem 6rem">
+							<Label>Param Name</Label>
+							<Label>Value</Label>
+						</Row>
+						<Label>Description</Label>
+					</Row>
+					<div ref={scrollArea} style={{ overflow: "auto" }}>
+						<div
+							style={{
+								display: "flex",
+								flexDirection: "column",
+								height: "100%",
+								gap: "1rem",
+							}}
+						>
+							{count > increment * 2 && range[0] > 0 && (
+								<Button
+									ref={setDecrement}
+									style={{ minHeight: "2rem" }}
+									onClick={() => load(decrementRange)}
+									careful
+								>
+									{loading ? "Loading..." : "Load More (Previous)"}
+								</Button>
+							)}
+
+							{paramsElementList}
+
+							{count > increment * 2 && range[1] <= count && (
+								<Button
+									ref={setIncrement}
+									style={{ minHeight: "2rem" }}
+									onClick={() => load(incrementRange)}
+									careful
+								>
+									{loading ? "Loading..." : "Load More (Next)"}
+								</Button>
+							)}
+						</div>
+					</div>
+				</Column>
+			</div>
+		</ParametersContext.Provider>
 	)
 }
 
