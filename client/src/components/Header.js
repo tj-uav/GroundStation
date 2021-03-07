@@ -1,6 +1,6 @@
-import React, { useEffect } from "react"
-import { Row, Column } from "./Containers"
-import { darker } from "../theme/Colors"
+import React from "react"
+import { Row } from "components/Containers"
+import { darker } from "theme/Colors"
 import styled from "styled-components"
 import io from "socket.io-client";
 
