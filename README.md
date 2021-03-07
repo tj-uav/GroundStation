@@ -1,4 +1,5 @@
 # GroundStation
+Development Branch
 
 TJUAV's custom UI ground station
 
@@ -35,6 +36,8 @@ To exit the virtualenv, run:
 In the project directory, you can run:
 
 ### `npm i`
+
+*Note: if npm does not work, you have to install Node.js. To do so, use this link: https://nodejs.org/en/download/*
 
 Run the above command in client/.
 Installs all of the necessary packages (specified in package-lock.json).<br />

@@ -1,15 +1,17 @@
 import json
-from auvsi_suas.client import client
-from auvsi_suas.proto import interop_api_pb2
+import time
+#from auvsi_suas.client import client
+#from auvsi_suas.proto import interop_api_pb2
+#from google.protobuf import json_format
 
 class InteropHandler:
-    def __init__(self, mission_id):
+    def __init__(self, config):
         print("Created interop handler")
-        self.mission_id = mission_id
+        self.config = config
+        self.mission_id = self.config['interop']['mission_id']
         self.login_status = False
         self.client = None
-        # TODO: Remove this line
-        self.login(None, None, None)
+        self.telemetry_json = {}
 
 
     def initialize(self):
@@ -30,15 +32,19 @@ class InteropHandler:
         self.obstacles = self.mission.stationary_obstacles
 
 
-    def login(self, ip, username, password):
+    def login(self):
         if self.login_status:
             # No need to relogin
             return
-        config = json.load(open("config.json"))
-        self.client = client.Client(url=config['interop_url'],
-                       username=config['interop_username'],
-                       password=config['interop_password'])
-        self.login_status = True
+        try:
+            self.client = client.Client(url=self.config['interop']['url'],
+                        username=self.config['interop']['username'],
+                        password=self.config['interop']['password'])
+            self.login_status = True
+        except Exception as e:
+            print("Interop login failed: {}".format(str(e)))
+            self.login_status = False
+            return
         self.initialize()
 
     
@@ -57,6 +63,23 @@ class InteropHandler:
             return key_map[key]
         return None
     
+
+    def submit_telemetry(self, mav):
+        while True:
+            if self.client is None:
+                self.login_status = False
+                print("Interop connection lost")
+                self.login()
+            else:
+                telemetry = interop_api_pb2.Telemetry()
+                telemetry.latitude = mav.lat
+                telemetry.longitude = mav.lon
+                telemetry.altitude = mav.altitude
+                telemetry.heading = mav.orientation['yaw']
+                self.telemetry_json = json_format.MessageToJson(telemetry)
+                self.client.post_telemetry(telemetry)
+            time.sleep(0.1)
+
 
     def get_odlc_data(id):
         # TODO: Implement this
