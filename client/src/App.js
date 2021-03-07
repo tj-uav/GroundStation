@@ -8,18 +8,9 @@ import AntennaTracker from "pages/AntennaTracker.js"
 import "bootstrap/dist/css/bootstrap.min.css"
 import { darker } from "./theme/Colors"
 import { BrowserRouter as Router, Switch, Route, Redirect } from "react-router-dom"
-import NavBar from "./components/NavBar.js"
+import { Header } from "./components/Header.js"
 
 const App = () => {
-	// const [telem, setTelem] = useState([])
-
-	// let flightData = <FlightData telem={telem} setTelem={setTelem}></FlightData>
-	// let flightPlan = <FlightPlan telem={telem} setTelem={setTelem}></FlightPlan>
-	// let params = <Params></Params>
-	// let submissions = <Submissions></Submissions>
-	// let antennaTracker = <AntennaTracker></AntennaTracker>
-	// const [view, setView] = useState(flightData)
-
 	return (
 		<Router>
 			<div
@@ -30,7 +21,7 @@ const App = () => {
 					gridTemplateRows: "5rem auto 1rem",
 				}}
 			>
-				<NavBar />
+				<Header />
 				<Switch>
 					<Route path="/flight-data">
 						<FlightData />

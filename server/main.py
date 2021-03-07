@@ -1,28 +1,40 @@
+import random
 from flask import Flask, jsonify, request
 from flask_cors import CORS
-# from interop_handler import InteropHandler
+from flask_socketio import SocketIO, send, emit
+from interop_handler import InteropHandler
+from mav_handler import MavHandler
+from dummy_mav_handler import DummyMavHandler
+from threading import Thread
 import logging
+import json
+
 log = logging.getLogger('werkzeug')
 log.setLevel(logging.ERROR)
+config = json.load(open('config.json', 'r'))
 
 app = Flask(__name__)
 CORS(app)
+socketio = SocketIO(app, cors_allowed_origins="*")
 
-# interop = InteropHandler(1)
+if config['mav']['dummy']:
+    mav = DummyMavHandler(config=config, socketio=socketio)
+else:
+    mav = MavHandler(config=config)
+#interop = InteropHandler(config=config)
 
-@app.route("/")
+@socketio.on('connect')
+def test_connect():
+    emit('connect', {'data': 'Connected'})
+
+@app.route("/hello")
 def hello():
-    return "Hello World!"
+    return "TJ UAV Ground Station Backend homepage"
 
 
-@app.route("/interop/login", methods=["GET", "POST"])
+@app.route("/interop/login")
 def interop_login():
-    if request.method == "POST":
-        try:
-            data = request.get_json()
-            interop.login(data['ip'], data['username'], data['password'])
-        except:
-            return jsonify({"status": False})
+    interop.login()
     return jsonify({"status": interop.login_status})
 
 
@@ -31,19 +43,52 @@ def interop_get(key):
     return jsonify(interop.get_data(key))
 
 
+@app.route("/interop/telemetry")
+def interop_telemetry():
+    return jsonify(interop.telemetry_json)
+
+
 @app.route("/interop/odlcs/<id>/<dtype>")
 def odcl_get(id, dtype):
     return jsonify(interop.get_odlcs(id, dtype))
 
 
-@app.route("/mav/telem")
-def telem():
-    import random
-    return jsonify([random.randint(0, 50), random.randint(0, 50), random.randint(0, 50), 
-        random.randint(0, 50), random.randint(0, 50), random.randint(0, 50), 
-        random.randint(0, 50), random.randint(0, 50),
-    ])
+@app.route("/mav/quick")
+def quick():
+    return json.dumps(mav.quick())
+
+@app.route("/mav/params")
+def getParams():
+    return json.dumps(mav.params())
+
+@app.route("/mav/params/<key>/<value>")
+def setParam(key, value):
+    mav.setParam(key, float(value))
+    return "Success"
+
+@app.route("/mav/commands")
+def commands_get():
+    return jsonify(mav.getCommands())
+
+
+@app.route("/mav/commands/<command>/<lat>/<lon>/<alt>")
+def command_append(command, lat, lon, alt):
+    mav.insertCommand(command, lat, lon, alt)
+    return "Success"
+
+
+@app.route("/mav/commands/<command>/<lat>/<lon>/<alt>/<ind>")
+def command_insert(command, lat, lon, alt, ind):
+    mav.insertCommand(command, lat, lon, alt, ind)
+    return "Success"
 
 
 if __name__ == "__main__":
-    app.run(port=5000, debug=False)
+    mav.connect()
+
+    # interop.login()
+    # interop_telem_thread = Thread(target=interop.submit_telemetry, args=(mav,))
+    # interop_telem_thread.daemon = True
+    # interop_telem_thread.start()
+
+    socketio.run(app, port=5000)

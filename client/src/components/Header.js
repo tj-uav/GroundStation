@@ -2,6 +2,7 @@ import React from "react"
 import { Row } from "components/Containers"
 import { darker } from "theme/Colors"
 import styled from "styled-components"
+import io from "socket.io-client";
 
 const NavContainer = styled.div`
 	background: ${darker};
@@ -27,7 +28,12 @@ const StyledLink = styled.a`
 	color: black;
 `
 
-const NavBar = () => {
+const endpoint = 'http://127.0.0.1:5000';
+//const socket = io(endpoint, {transports: ['websocket', 'polling', 'flashsocket']});
+const socket = io(endpoint);
+
+const Header = () => {
+
 	return (
 		<NavContainer>
 			<h1 className="heading">TJUAV Ground Station</h1>
@@ -42,4 +48,4 @@ const NavBar = () => {
 	)
 }
 
-export default NavBar
+export { Header, socket };
