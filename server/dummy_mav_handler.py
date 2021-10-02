@@ -3,9 +3,10 @@ import random
 import threading
 
 class DummyMavHandler:
-    def __init__(self, config):
+    def __init__(self, config, socketio):
         self.config = config
-        self.port = self.config['mav']['port']
+        self.port = self.config['mav_handler']['port']
+        self.socketio = socketio
 
     def connect(self):
         print("Created dummy mav handler")
@@ -18,6 +19,8 @@ class DummyMavHandler:
     def constant_updating(self):
         while True:
             self.update()
+            print("Emitting")
+            self.socketio.emit("get_data", {"HELLO": "HIII"})
             time.sleep(0.1)
 
 
@@ -48,4 +51,18 @@ class DummyMavHandler:
                 'throttle': self.throttle,
                 'lat': self.lat,
                 'lon': self.lon
-        }        
+        }  
+
+    def params(self):
+        with open("params.json", "r") as f:
+            return json.load(f)
+
+    def setParam(self, key, value):
+        return
+    
+    def getCommands(self):
+        return []
+    
+    def insertCommand(self, command, lat, lon, alt, ind=-1):
+        return
+        
