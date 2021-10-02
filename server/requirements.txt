@@ -3,3 +3,4 @@ Flask-Cors
 protobuf
 dronekit
 pymavlink
+requests
