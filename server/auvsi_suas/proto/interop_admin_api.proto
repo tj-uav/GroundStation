@@ -1,0 +1,269 @@
+// Descriptors for Interop Admin API.
+
+syntax = "proto2";
+package auvsi_suas.proto;
+import "auvsi_suas/proto/interop_api.proto";
+
+// Review details for an ODLC.
+message OdlcReview {
+    // The ODLC being reviewed.
+    optional Odlc odlc = 1;
+
+    // When the ODLC was last modified as ISO string.
+    optional string last_modified_timestamp = 2;
+
+    // Whether the thumbnail was approved.
+    optional bool thumbnail_approved = 3;
+
+    // Whether the description was approved.
+    optional bool description_approved = 4;
+}
+
+// Multi-user mission evaluation.
+message MultiUserMissionEvaluation {
+    repeated MissionEvaluation teams = 1;
+}
+
+// Evaluation data for a mission.
+message MissionEvaluation {
+    // The mission which this evaluation describes.
+    optional int32 mission = 1;
+
+    // The team which this evaluation describes.
+    optional TeamId team = 2;
+
+    // Warnings generated during the evaluation process.
+    repeated string warnings = 3;
+
+    // Feedback provided to the team.
+    optional MissionFeedback feedback = 4;
+
+    // Scoring data.
+    optional MissionScore score = 5;
+}
+
+// Data which was basis for score, provided as feedback for the team.
+message MissionFeedback {
+    // Max time between telemetry uploads (seconds).
+    optional double uas_telemetry_time_max_sec = 1;
+    // Avg time between telemetry uploads (seconds).
+    optional double uas_telemetry_time_avg_sec = 2;
+
+    // Waypoint evaluation data.
+    repeated WaypointEvaluation waypoints = 3;
+
+    // Obstacle evaluation data.
+    repeated ObstacleEvaluation stationary_obstacles = 4;
+
+    // Object detection evaluation data.
+    optional MultiOdlcEvaluation odlc = 6;
+
+    // Map evaluation data.
+    optional MapEvaluation map = 7;
+
+    // Feedback from judges.
+    optional MissionJudgeFeedback judge = 8;
+}
+
+// Evaluation data for multiple odlcs.
+message MultiOdlcEvaluation {
+    // Total ratio of points for objects.
+    optional double score_ratio = 1;
+    // Ratio of points from matched odlcs.
+    optional double matched_score_ratio = 2;
+    // Ratio of penalty points from unmatched odlcs.
+    optional double extra_object_penalty_ratio = 3;
+
+    // Number of odlcs which weren't matched.
+    optional int32 unmatched_odlc_count = 4;
+
+    // Individual odlc evaluation data.
+    repeated OdlcEvaluation odlcs = 5;
+}
+
+// Evaluation data for a single odlc.
+message OdlcEvaluation {
+    // reserved 8, 15;
+
+    // Identifier for the real odlc.
+    optional int64 real_odlc = 1;
+    // Identifier for the submitted odlc.
+    optional int64 submitted_odlc = 2;
+
+    // Ratio of points for the odlc [0, 1].
+    optional double score_ratio = 3;
+    // Ratio of points for similar characteristics.
+    optional double classifications_score_ratio = 4;
+    // Ratio of points for geolocation accuracy.
+    optional double geolocation_score_ratio = 5;
+    // Ratio of points for actionable.
+    optional double actionable_score_ratio = 6;
+    // Ratio of points for autonomy.
+    optional double autonomous_score_ratio = 7;
+
+    // Whether the image was approved by judge.
+    optional bool image_approved = 9;
+    // Whether the emergent description was approved by judge.
+    optional bool description_approved = 10;
+    // Ratio of classifications which matched.
+    optional double classifications_ratio = 11;
+    // Distance of real and submitted odlc positions (feet).
+    optional double geolocation_accuracy_ft = 12;
+    // Whether the submission is actionable.
+    optional bool actionable_submission = 13;
+    // Whether the submission was autonomous.
+    optional bool autonomous_submission = 14;
+}
+
+// Evaluation data for uploaded map.
+message MapEvaluation {
+    // Quality of the uploaded map as evaluated by judge.
+    enum MapQuality {
+        INSUFFICIENT = 0;
+        MEDIUM = 1;
+        HIGH = 2;
+    }
+    optional MapQuality quality = 1;
+}
+
+// Data provided manually by the judges.
+message MissionJudgeFeedback {
+    // Time spent on the flight clock.
+    optional double flight_time_sec = 1;
+    // Time spent on the post-processing clock.
+    optional double post_process_time_sec = 2;
+    // Whether a timeout was used.
+    optional bool used_timeout = 3;
+
+    // Time spent in manual flight.
+    optional bool min_auto_flight_time = 4;
+    // Number of safety pilot manual takeovers.
+    optional int32 safety_pilot_takeovers = 5;
+    // Number of waypoints captured.
+    optional int32 waypoints_captured = 6;
+    // Number of times gone out of bounds.
+    optional int32 out_of_bounds = 7;
+    // Number of times gone out of bounds where it compromised safety.
+    optional int32 unsafe_out_of_bounds = 8;
+    // Whether things fell off UAS.
+    optional bool things_fell_off_uas = 9;
+    // Whether the UAS crashed.
+    optional bool crashed = 10;
+
+    // Air drop accuracy.
+    enum AirDropAccuracy {
+        NO_POINTS = 0;
+        WITHIN_05_FT = 1;
+        WITHIN_15_FT = 2;
+        WITHIN_40_FT = 3;
+    }
+    optional AirDropAccuracy air_drop_accuracy = 11;
+    // Whether the UGV drove to the specified location.
+    optional bool ugv_drove_to_location = 12;
+
+    // Operational excellence score.
+    optional double operational_excellence_percent = 13;
+}
+
+// Evaluation data for waypoints.
+message WaypointEvaluation {
+    // ID of the waypoint.
+    optional int64 id = 1;
+    // Ratio of points for the waypoint [0, 1].
+    optional double score_ratio = 2;
+    // Closest distance for scored approach (feet).
+    optional double closest_for_scored_approach_ft = 3;
+    // Closest distance during mission (feet).
+    optional double closest_for_mission_ft = 4;
+}
+
+// Evaluation data for obstacles.
+message ObstacleEvaluation {
+    // ID of the obstacle.
+    optional int64 id = 1;
+    // Whether it was hit.
+    optional bool hit = 2;
+}
+
+// Scoring data for entire mission. All scores are ratios [0, 1].
+message MissionScore {
+    // Total score for the mission.
+    optional double score_ratio = 1;
+
+    // The subcomponent scores.
+    optional TimelineScore timeline = 2;
+    optional AutonomousFlightScore autonomous_flight = 3;
+    optional ObstacleAvoidanceScore obstacle_avoidance = 4;
+    optional ObjectScore object = 5;
+    optional MapScore map = 8;
+    optional AirDropScore air_drop = 6;
+    optional OperationalExcellenceScore operational_excellence = 7;
+}
+
+// Scoring data for timeline.
+message TimelineScore {
+    optional double score_ratio = 1;
+    optional double mission_time = 2;
+    optional double mission_penalty = 3;
+    optional double timeout = 4;
+}
+
+// Scoring data for autonomous flight.
+message AutonomousFlightScore {
+    optional double score_ratio = 1;
+    optional bool telemetry_prerequisite = 2;
+    optional double waypoint_accuracy = 5;
+    optional double safety_pilot_takeover_penalty = 6;
+    optional double out_of_bounds_penalty = 7;
+    optional double things_fell_off_penalty = 8;
+    optional double crashed_penalty = 9;
+}
+
+// Scoring data for obstacle avoidance.
+message ObstacleAvoidanceScore {
+    optional double score_ratio = 1;
+    optional bool telemetry_prerequisite = 2;
+}
+
+// Scoring data for objects.
+message ObjectScore {
+    // reserved 6;
+    optional double score_ratio = 1;
+    optional double characteristics = 2;
+    optional double geolocation = 3;
+    optional double actionable = 4;
+    optional double autonomy = 5;
+    optional double extra_object_penalty = 7;
+}
+
+// Scoring data for map.
+message MapScore {
+    optional double score_ratio = 1;
+}
+
+// Scoring data for air drop.
+message AirDropScore {
+    optional double score_ratio = 1;
+    optional double drop_accuracy = 2;
+    optional double drive_to_location = 3;
+}
+
+// Scoring data for operational excellence.
+message OperationalExcellenceScore {
+    optional double score_ratio = 1;
+}
+
+// GPS conversion request.
+// Used to convert GPS positions in string format into decimal format.
+message GpsConversionRequest {
+    // Example: N38-08-46.57
+    optional string latitude = 1;
+    // Example: W076-25-41.39
+    optional string longitude = 2;
+}
+
+// GPS conversion response.
+message GpsConversionResponse {
+    optional double latitude = 1;
+    optional double longitude = 2;
+}

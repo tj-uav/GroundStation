@@ -1,11 +1,11 @@
 {
-    "mav_handler": {
+    "mav": {
         "dummy": true,
         "port": "tcp:127.0.0.1:5760",
         "serial": false
     },
     "interop": {
-        "ip": "127.0.0.1",
+        "url": "http://127.0.0.1:8000",
         "username": "testuser",
         "password": "testpass",
         "mission_id": 1
