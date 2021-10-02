@@ -25,9 +25,6 @@ Inside the venv:
 install necessary packages into the venv run:
 'pip3 install -r requirements.txt --user'
 
-Import the auvsi interop server, instructions at:
-https://tjuav.gitbook.io/tjuav/software/python/package-installation-w-pip/interop-library
-
 To exit the virtualenv, run:
 `deactivate`
 
@@ -78,3 +75,22 @@ If you make any edits, you will need to end the program and restart the backend.
   - _FlightPlanToolbar.js_: Contains code for the toolbar used in the FlightPlan tab
 
 ### Backend
+
+- Main code
+  - _main.py_: Contains the main code for the backend, which runs everything necessary.
+- Interop
+  - _interop_handler.py_: Manages Mission data, ODLCs, and Telemetry reports with the official interop server.
+  - _sample.config.json_: Provides a sample configuration for the Interop server - use this to create a `config.json` for Interop connection.
+- MAV
+  - _mav_handler.py_: Manages communication with the UAV and provides ODLC/Telemetry data.
+  - _dummy_mav_handler.py_: Simulates MAV data using random numbers.
+  - _params.py_/_params.json_: Manage flight parameters that can be edited using the Client.
+
+
+## Version Control
+
+Generally, check out to a new git branch before beginning to work on a new change. Then, push all of these changes to that branch on the repo, and head over to the GitHub to create a new pull request. You can also fork the repository and merge it back in using a pull request after the changes are complete. When an entire feature is complete, create a pull request into the `master` branch, describe what changes are made, how they are implemented, or other notes, and add some other TJUAV programmers like [@Ganesh](https://github.com/gnanduru1), [@Jason Klein](https://github.com/Jklein64), or [@Srikar Gouru](https://github.com/srikarg89) to review it.
+
+### Note
+
+If working on the GroundStation frontend, you will want to set [#frontend-development](https://github.com/tj-uav/GroundStation/tree/frontend-development) as your base branch instead of [master](https://github.com/tj-uav/GroundStation/tree/master) until it gets merged. If working on the GroundStation backend, you will want to set [#backend-development](https://github.com/tj-uav/GroundStation/tree/backend-development) as your base branch.

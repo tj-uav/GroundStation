@@ -1,0 +1,247 @@
+// Descriptors for Interop API.
+
+syntax = "proto2";
+package auvsi_suas.proto;
+
+// Credentials used to login to interop.
+message Credentials {
+    // Username for login.
+    // Required.
+    optional string username = 1;
+    // Password for login.
+    // Required.
+    optional string password = 2;
+}
+
+// Identifier for a team.
+message TeamId {
+    // The ID of the team.
+    optional int32 id = 1;
+
+    // Interop username for the team.
+    optional string username = 2;
+
+    // Name of the team.
+    optional string name = 3;
+
+    // University the team represents.
+    optional string university = 4;
+}
+
+// Status of a team.
+message TeamStatus {
+    // The team this status describes.
+    optional TeamId team = 1;
+
+    // Whether the team is marked in air by admin.
+    optional bool in_air = 2;
+
+    // Most recent telemetry position, if it exists.
+    optional Telemetry telemetry = 3;
+
+    // ID of the telemetry.
+    optional int64 telemetry_id = 4;
+
+    // Age of the telemetry (time since uploaded to interop).
+    optional double telemetry_age_sec = 5;
+
+    // Timestamp of the telemetry as an ISO string.
+    optional string telemetry_timestamp = 6;
+}
+
+// Details for a mission.
+message Mission {
+    // Unique identifier for the mission.
+    // Required.
+    optional int32 id = 1;
+    // Lost comms position for RTH/RTL and flight termination.
+    // Required.
+    optional Position lost_comms_pos = 2;
+    // Valid areas to fly. A team is out of bounds if not contained within.
+    // Required. At least one FlyZone must be provided.
+    repeated FlyZone fly_zones = 3;
+    // Sequence of waypoints teams must fly.
+    // Required. At least on Waypoint must be provided.
+    repeated Position waypoints = 4;
+    // Search grid containing ODLCs. Positions define a closed polygon.
+    // Required. Will form a polygon, so at least 3 points must be provided.
+    repeated Position search_grid_points = 5;
+    // Position of the off-axis ODLC.
+    // Required.
+    optional Position off_axis_odlc_pos = 6;
+    // Desired position of the generated map.
+    // Required.
+    optional Position map_center_pos = 12;
+    // Desired height of the generated map in feet.
+    // Required.
+    optional double map_height = 13;
+    // Last known position of the emergent ODLC.
+    // Required.
+    optional Position emergent_last_known_pos = 7;
+    // Boundary for the air drop and UGV drive.
+    // Required.
+    repeated Position air_drop_boundary_points = 8;
+    // Position of the air drop location.
+    // Required.
+    optional Position air_drop_pos = 9;
+    // Position the UGV must drive to.
+    // Required.
+    optional Position ugv_drive_pos = 10;
+    // Stationary obstacles.
+    // Required.
+    repeated StationaryObstacle stationary_obstacles = 11;
+}
+
+// Valid area to fly. Defined by a polygon and two altitude bounds. A position
+// is within the FlyZone if the position is within the polygon and within the
+// altitude bounds. Teams must be within a FlyZone at all times.
+message FlyZone {
+    // Minimum altitude above mean sea level (MSL) in feet.
+    // Required. [-1500, 330000]
+    optional double altitude_min = 1;
+    // Maximum altitude above mean sea level (MSL) in feet.
+    // Required. [-1500, 330000]
+    optional double altitude_max = 2;
+
+    // Boundary points which define a closed polygon.
+    // Required. Will form a polygon, so at least 3 points must be provided.
+    repeated Position boundary_points = 3;
+}
+
+// Position of an entity.
+message Position {
+    // Latitude of GPS position in degrees.
+    // Required. [-90, 90]
+    optional double latitude = 1;
+    // Longitude of GPS position in degrees.
+    // Required. [-180, 180]
+    optional double longitude = 2;
+    // Altitude above mean sea level (MSL) in feet.
+    // Optional. [-1500, 330000]
+    optional double altitude = 3;
+}
+
+// UAS telemetry teams must upload.
+message Telemetry {
+    // Latitude of GPS position in degrees.
+    // Required. [-90, 90]
+    optional double latitude = 1;
+    // Longitude of GPS position in degrees.
+    // Required. [-180, 180]
+    optional double longitude = 2;
+    // Altitude above mean sea level (MSL) in feet.
+    // Required. [-1500, 330000]
+    optional double altitude = 3;
+    // Heading relative to true north in degrees.
+    // Required. [0, 360]
+    optional double heading = 4;
+}
+
+// Stationary obstacle modeled as a cylinder.
+message StationaryObstacle {
+    // Latitude of GPS position in degrees.
+    // Required. [-90, 90]
+    optional double latitude = 1;
+    // Longitude of GPS position in degrees.
+    // Required. [-180, 180]
+    optional double longitude = 2;
+
+    // Radius of the obstacle cylinder in feet.
+    // Required. [30, 300]
+    optional double radius = 3;
+    // Height of the obstacle cylinder above mean sea level (MSL) in feet.
+    // Required. [-1500, 330000]
+    optional double height = 4;
+}
+
+// Object detection, localization, and classification (ODLC).
+message Odlc {
+    // ID of the ODLC.
+    // Set by the server on responses. Use to update ODLC after upload.
+    optional int32 id = 1;
+
+    // Mission the ODLC submitted for.
+    // Required.
+    optional int32 mission = 2;
+
+    // Type of the ODLC.
+    // Required.
+    enum Type {
+        // Standard ODLCs take latitude, longitude, orientation, shape and
+        // color, alphanumeric and color, and if processed autonomously.
+        STANDARD = 1;
+        // Emergent takes latitude, longitude, description, and if process
+        // autonomously.
+        EMERGENT = 4;
+    }
+    optional Type type = 3;
+
+    // Latitude of GPS position in degrees.
+    // Optional. [-90, 90]
+    optional double latitude = 4;
+    // Longitude of GPS position in degrees.
+    // Optional. [-180, 180]
+    optional double longitude = 5;
+
+    // Orientation of the ODLC, for normal and off axis.
+    // Optional.
+    enum Orientation {
+        N = 1;
+        NE = 2;
+        E = 3;
+        SE = 4;
+        S = 5;
+        SW = 6;
+        W = 7;
+        NW = 8;
+    }
+    optional Orientation orientation = 6;
+
+    // Shape of the ODLC, for normal and off axis.
+    // Optional.
+    enum Shape {
+        CIRCLE = 1;
+        SEMICIRCLE = 2;
+        QUARTER_CIRCLE = 3;
+        TRIANGLE = 4;
+        SQUARE = 5;
+        RECTANGLE = 6;
+        TRAPEZOID = 7;
+        PENTAGON = 8;
+        HEXAGON = 9;
+        HEPTAGON = 10;
+        OCTAGON = 11;
+        STAR = 12;
+        CROSS = 13;
+    }
+    optional Shape shape = 7;
+
+    // Alphanumeric of the ODLC, for normal and off axis.
+    // Optional. [A-Z, 0-9]
+    optional string alphanumeric = 8;
+
+    // Colors of the ODLC, for normal and off axis.
+    // Optional.
+    enum Color {
+        WHITE = 1;
+        BLACK = 2;
+        GRAY = 3;
+        RED = 4;
+        BLUE = 5;
+        GREEN = 6;
+        YELLOW = 7;
+        PURPLE = 8;
+        BROWN = 9;
+        ORANGE = 10;
+    }
+    optional Color shape_color = 9;
+    optional Color alphanumeric_color = 10;
+
+    // Description for emergent ODLCs.
+    // Optional.
+    optional string description = 11;
+
+    // Whether the ODLC was detected, localized, and classified autonomously.
+    // Optional. Defaults to false.
+    optional bool autonomous = 12;
+}
