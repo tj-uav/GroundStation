@@ -5,7 +5,7 @@ import threading
 class DummyMavHandler:
     def __init__(self, config, socketio):
         self.config = config
-        self.port = self.config['mav_handler']['port']
+        self.port = self.config['mav']['port']
         self.socketio = socketio
 
     def connect(self):
