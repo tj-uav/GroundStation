@@ -21,7 +21,7 @@ if config['mav']['dummy']:
     mav = DummyMavHandler(config=config, socketio=socketio)
 else:
     mav = MavHandler(config=config)
-#interop = InteropHandler(config=config)
+interop = InteropHandler(config=config)
 
 @socketio.on('connect')
 def test_connect():
@@ -86,9 +86,9 @@ def command_insert(command, lat, lon, alt, ind):
 if __name__ == "__main__":
     mav.connect()
 
-    # interop.login()
-    # interop_telem_thread = Thread(target=interop.submit_telemetry, args=(mav,))
-    # interop_telem_thread.daemon = True
-    # interop_telem_thread.start()
+    interop.login()
+    interop_telem_thread = Thread(target=interop.submit_telemetry, args=(mav,))
+    interop_telem_thread.daemon = True
+    interop_telem_thread.start()
 
     socketio.run(app, port=5000)
