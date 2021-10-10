@@ -9,7 +9,7 @@ import PolylineDecorator from "../pages/FlightPlan/PolylineDecorator.js"
 
 const FlightPlanMap = props => {
 	const [state, setState] = useState({
-		latlng: { lat: 38.285851, lng: -76.40862 },
+		latlng: { lat: 38.1458611, lng: -76.4265257 },
 	})
 
 	let mapRef = createRef()
@@ -118,7 +118,7 @@ const FlightPlanMap = props => {
 				length={4}
 				onClick={handleClick}
 				ref={mapRef}
-				zoom={13}
+				zoom={15}
 				style={{ height: "100%" }}
 			>
 				<TileLayer
