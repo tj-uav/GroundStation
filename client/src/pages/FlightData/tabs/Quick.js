@@ -4,27 +4,26 @@ import { Row, Column } from "components/Containers"
 
 const Quick = () => {
 	const [altitude, setAltitude] = useState(0)
-	const [orientation, setOrientation] = useState(0)
+	const [orientation, setOrientation] = useState({ "yaw": 0, "pitch": 0, "roll": 0 })
 	const [groundSpeed, setGroundSpeed] = useState(0)
 	const [airspeed, setAirspeed] = useState(0)
-	const [text, setText] = useState(0)
+	const [distToWaypoint, setDistToWaypoint] = useState(0)
 	const [battery, setBattery] = useState(0)
 	const [throttle, setThrottle] = useState(0)
-	const [latLong, setLatLong] = useState(0)
+	const [latLong, setLatLong] = useState({ "lat": 0, "lon": 0 })
 
 	const updateData = () => {
-		fetch("http://localhost:5000/mav/telem")
+		fetch("http://localhost:5000/mav/quick")
 			.then(response => response.json())
 			.then(data => {
-				console.log(data)
-				setAltitude(data[0])
-				setOrientation(data[1])
-				setGroundSpeed(data[2])
-				setAirspeed(data[3])
-				setText(data[4])
-				setBattery(data[5])
-				setThrottle(data[6])
-				setLatLong(data[7])
+				setAltitude(data.altitude)
+				setOrientation({"yaw": data.orientation.yaw, "roll": data.orientation.roll, "pitch": data.orientation.pitch })
+				setGroundSpeed(data.ground_speed)
+				setAirspeed(data.air_speed)
+				setDistToWaypoint(data.dist_to_wp)
+				setBattery(data.voltage)
+				setThrottle(data.throttle)
+				setLatLong({"lat": data.lat, "lon": data.lon})
 			})
 	}
 
@@ -46,19 +45,26 @@ const Quick = () => {
 			<Column style={{ marginBottom: "1rem" }}>
 				<Row>
 					<Box label="Altitude" content={altitude} />
-					<Box label="Orientation" content={orientation} />
+					<Row>
+						<Box label="Yaw" content={orientation.yaw} />
+						<Box label="Roll" content={orientation.roll} />
+						<Box label="Pitch" content={orientation.pitch} />
+					</Row>
 				</Row>
 				<Row>
 					<Box label="Ground Speed" content={groundSpeed} />
 					<Box label="Airspeed" content={airspeed} />
 				</Row>
 				<Row>
-					<Box label="Text" content={text} />
+					<Box label="Distance to Waypoint" content={distToWaypoint} />
 					<Box label="Battery" content={battery} />
 				</Row>
 				<Row>
 					<Box label="Throttle" content={throttle} />
-					<Box label="Latitude / Longitude" content={latLong} />
+					<Row>
+						<Box label="Latitude" content={latLong.lat} />
+						<Box label="Longitude" content={latLong.lon} />
+					</Row>
 				</Row>
 			</Column>
 			<Box label="Console + Error Messages" error />
