@@ -2,6 +2,7 @@ import React, { useEffect } from "react"
 import Button from "react-bootstrap/Button"
 import Dropdown from "react-bootstrap/Dropdown"
 import DropdownButton from "react-bootstrap/DropdownButton"
+import { RadioList } from "components/UIElements"
 
 import { load, save } from "filehandler"
 
@@ -55,20 +56,11 @@ const FlightPlanToolbar = props => {
 
 	return (
 		<div style={{ marginLeft: 10 }}>
-			<div id="mode-div" onChange={event => props.setMode(event.target.value)}>
-				<div>
-					<input type="radio" id="waypoints" value="waypoints" name="mode" />
-					Waypoint Mode
-				</div>
-				<div>
-					<input type="radio" id="polygons" value="polygons" name="mode" />
-					Polygon Mode
-				</div>
-				<div>
-					<input type="radio" id="fence" value="fence" name="mode" />
-					Geofence Mode
-				</div>
-			</div>
+			<RadioList onChange={event => props.setMode(event.target.value)} name="pointMode">
+				<RadioList.Option value="waypoints">Waypoint Mode</RadioList.Option>
+				<RadioList.Option value="polygons">Polygon Mode</RadioList.Option>
+				<RadioList.Option value="fence">Geofence Mode</RadioList.Option>
+			</RadioList>
 			<DropdownButton id="waypoint-dropdown" title="Waypoint" style={{ marginTop: 20 }}>
 				<Dropdown.Item id="load-waypoints" onClick={handleClick}>
 					Load waypoints from file
