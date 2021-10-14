@@ -1,5 +1,5 @@
 import random
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, redirect, url_for
 from flask_cors import CORS
 from flask_socketio import SocketIO, send, emit
 from interop_handler import InteropHandler
@@ -26,6 +26,10 @@ interop = InteropHandler(config=config)
 @socketio.on('connect')
 def test_connect():
     emit('connect', {'data': 'Connected'})
+
+@app.route("/")
+def index():
+    return redirect(url_for("hello"))
 
 @app.route("/hello")
 def hello():
@@ -90,5 +94,5 @@ if __name__ == "__main__":
     interop_telem_thread = Thread(target=interop.submit_telemetry, args=(mav,))
     interop_telem_thread.daemon = True
     interop_telem_thread.start()
-
-    socketio.run(app, port=5000)
+    app.run(port=5000)
+    # socketio.run(app, port=5000)
