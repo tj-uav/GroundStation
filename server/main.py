@@ -29,11 +29,11 @@ def test_connect():
 
 @app.route("/")
 def index():
-    return redirect(url_for("hello"))
+    return "TJ UAV Ground Station Backend homepage"
 
 @app.route("/hello")
 def hello():
-    return "TJ UAV Ground Station Backend homepage"
+    return redirect(url_for("hello"))
 
 
 @app.route("/interop/login")
