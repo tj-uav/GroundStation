@@ -38,7 +38,7 @@ const Dropdown = forwardRef(
 					{option ?? blank}
 					<StyledCaret width={16} active={active} />
 				</StyledDropdown>
-				<div style={{ maxHeight: `${maxOptionsShownAtOnce * 100}%`, overflow: "scroll" }}>
+				<div style={{ maxHeight: `${maxOptionsShownAtOnce * 100}%`, overflow: "auto" }}>
 					{active ? (
 						options.map((option, i) => (
 							<DropdownContent
