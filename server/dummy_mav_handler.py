@@ -19,7 +19,7 @@ class DummyMavHandler:
     def constant_updating(self):
         while True:
             self.update()
-            print("Emitting")
+            # print("Emitting")
             self.socketio.emit("get_data", {"HELLO": "HIII"})
             time.sleep(0.1)
 

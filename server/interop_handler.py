@@ -1,8 +1,8 @@
 import json
 import time
-#from auvsi_suas.client import client
-#from auvsi_suas.proto import interop_api_pb2
-#from google.protobuf import json_format
+from auvsi_suas.client import client
+from auvsi_suas.proto import interop_api_pb2
+from google.protobuf import json_format
 
 class InteropHandler:
     def __init__(self, config):
@@ -30,6 +30,13 @@ class InteropHandler:
             "drive": self.mission.ugv_drive_pos
         }
         self.obstacles = self.mission.stationary_obstacles
+        # print("Teams:\n", self.teams, "\nEND TEAMS")
+        # print("Waypoints:\n", self.waypoints, "\nEND WAYPOINTS")
+        # print("Search Grid:\n", self.search_grid, "\nEND SEARCH GRID")
+        # print("Lost Comms Pos:\n", self.lost_comms_pos, "\nEND LOST COMMS POS")
+        # print("ODLC Points:\n", self.odlc_points, "\nEND ODLC POINTS")
+        # print("UGV Points:\n", self.ugv_points, "\nEND UGV POINTS")
+        # print("Obstacles:\n", self.mission, "\nEND OBSTACLES")
 
 
     def login(self):
@@ -78,6 +85,7 @@ class InteropHandler:
                 telemetry.heading = mav.orientation['yaw']
                 self.telemetry_json = json_format.MessageToJson(telemetry)
                 self.client.post_telemetry(telemetry)
+                # print("Posted telemetry" + self.telemetry_json)
             time.sleep(0.1)
 
 
