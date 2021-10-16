@@ -1,6 +1,7 @@
-from dronekit import connect
-from pymavlink import mavutil
 import random
+
+from dronekit import connect, Command
+from pymavlink import mavutil
 
 SERIAL_PORT = '/dev/ttyACM0'
 BAUDRATE = 115200
@@ -12,11 +13,16 @@ COMMANDS = {
     "GEOFENCE": mavutil.mavlink.MAV_CMD_NAV_FENCE_POLYGON_VERTEX_INCLUSION
 }
 
+
 class MavHandler:
     def __init__(self, config):
         self.config = config
         self.port = self.config['mav']['port']
         self.serial = self.config['mav']['serial']
+        self.vehicle = None
+        self.altitude = self.orientation = self.ground_speed = self.air_speed = self.dist_to_wp = \
+            self.voltage = self.battery_level = self.throttle = self.lat = self.lon = \
+            self.mode = None
 
     def connect(self):
         print("Connecting")
@@ -34,10 +40,10 @@ class MavHandler:
         # TODO: Use actual dronekit commands for these
         self.altitude = loc.alt
         self.orientation = {
-            'yaw': angle.yaw,
-            'roll': angle.roll,
-            'pitch': angle.pitch
-        },
+                               'yaw': angle.yaw,
+                               'roll': angle.roll,
+                               'pitch': angle.pitch
+                           },
         self.ground_speed = self.vehicle.groundspeed
         self.air_speed = self.vehicle.airspeed
         self.dist_to_wp = random.random() * 100
@@ -48,8 +54,8 @@ class MavHandler:
         self.lon = loc.lon
 
         self.mode = self.vehicle.mode
-        
-    def setFlightMode(self, flightmode):
+
+    def set_flight_mode(self, flightmode):
         self.vehicle.mode = flightmode
 
     def quick(self):
@@ -64,42 +70,41 @@ class MavHandler:
                 'throttle': self.throttle,
                 'lat': self.lat,
                 'lon': self.lon
-        }        
+                }
 
     def params(self):
-        paramsObj = self.vehicle.parameters
-        return {k: v for k,v in self.vehicle.parameters.items()}
+        # params_obj = self.vehicle.parameters
+        return dict(self.vehicle.parameters.items())
 
-    def setParam(self, key, value):
+    def set_param(self, key, value):
         self.vehicle.parameters[key] = value
 
-    def getParam(self):
+    def get_param(self, key):
         return self.vehicle.parameters[key]
 
-    def setParams(self, **kwargs):
-        newParams = {key:value for key, value in vehicle.parameters.items()}
+    def set_params(self, **kwargs):
+        new_params = dict(self.vehicle.parameters.items())
         for key, value in kwargs.items():
-            newParams[key] = value
+            new_params[key] = value
 
-        vehicle.parameters = newParams
-    
-    def clearMission(self):
+        self.vehicle.parameters = new_params
+
+    def clear_mission(self):
         self.vehicle.commands.clear()
         self.vehicle.commands.upload()
 
-    def getCommands(self):
+    def get_commands(self):
         commands = self.vehicle.commands
         commands.download()
         return [cmd.to_dict() for cmd in commands]
 
-    def insertCommand(self, command, lat, lon, alt, ind=-1):
-        new_cmd = Command( 0, 0, 0, mavutil.mavlink.MAV_FRAME_GLOBAL_RELATIVE_ALT,
-            COMMANDS[command], 0, 0, 0, 0, 0, 0, 
-            cmd[lat], cmd[lon], cmd[alt])
+    def insert_command(self, command, lat, lon, alt):
+        new_cmd = Command(0, 0, 0, mavutil.mavlink.MAV_FRAME_GLOBAL_RELATIVE_ALT,
+                          COMMANDS[command], 0, 0, 0, 0, 0, 0, lat, lon, alt)
 
         cmds = self.vehicle.commands
         cmds.download()
-        cmds.insert(ind, cmd)
+        cmds.add(new_cmd)
         cmds.upload()
 
     def arm(self):
@@ -107,6 +112,3 @@ class MavHandler:
 
     def disarm(self):
         self.vehicle.armed = False
-
-
-    
