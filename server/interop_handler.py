@@ -1,9 +1,53 @@
 import time
+import datetime
 
 from google.protobuf import json_format
 
 from auvsi_suas.client import client
-from auvsi_suas.proto import interop_api_pb2
+from auvsi_suas.proto import interop_api_pb2 as interop
+
+ODLC_KEY = {
+    "type": {
+        "standard": interop.Odlc.STANDARD,
+        "emergent": interop.Odlc.EMERGENT
+    },
+    "orientation": {
+        0: interop.Odlc.N,
+        45: interop.Odlc.NE,
+        90: interop.Odlc.E,
+        135: interop.Odlc.SE,
+        180: interop.Odlc.S,
+        225: interop.Odlc.SW,
+        270: interop.Odlc.W,
+        315: interop.Odlc.NW,
+    },
+    "shape": {
+        "circle": interop.Odlc.CIRCLE,
+        "semicircle": interop.Odlc.SEMICIRCLE,
+        "quarter_circle": interop.Odlc.QUARTER_CIRCLE,
+        "triangle": interop.Odlc.TRIANGLE,
+        "square": interop.Odlc.SQUARE,
+        "rectangle": interop.Odlc.RECTANGLE,
+        "trapezoid": interop.Odlc.TRAPEZOID,
+        "pentagon": interop.Odlc.PENTAGON,
+        "hexagon": interop.Odlc.HEXAGON,
+        "heptagon": interop.Odlc.HEPTAGON,
+        "octagon": interop.Odlc.OCTAGON,
+        "star": interop.Odlc.STAR,
+        "cross": interop.Odlc.CROSS
+    },
+    "color": {
+        "white": interop.Odlc.WHITE,
+        "gray": interop.Odlc.GRAY,
+        "red": interop.Odlc.RED,
+        "blue": interop.Odlc.BLUE,
+        "green": interop.Odlc.GREEN,
+        "yellow": interop.Odlc.YELLOW,
+        "purple": interop.Odlc.PURPLE,
+        "brown": interop.Odlc.BROWN,
+        "orange": interop.Odlc.ORANGE,
+    }
+}
 
 
 class InteropHandler:
@@ -16,6 +60,7 @@ class InteropHandler:
         self.mission = self.teams = self.waypoints = self.search_grid = self.lost_comms_pos = \
             self.odlc_points = self.ugv_points = self.obstacles = None
         self.telemetry_json = {}
+        self.odlc_queued_data = []
         self.odlc_submission_ids = []
 
     def initialize(self):
@@ -79,7 +124,7 @@ class InteropHandler:
                 print("Interop connection lost")
                 self.login()
             else:
-                telemetry = interop_api_pb2.Telemetry()
+                telemetry = interop.Telemetry()
                 telemetry.latitude = mav.lat
                 telemetry.longitude = mav.lon
                 telemetry.altitude = mav.altitude
@@ -89,25 +134,60 @@ class InteropHandler:
                 # print("Posted telemetry" + self.telemetry_json)
             time.sleep(0.1)
 
-    def get_odlc_data(self, id_):
-        # TODO: Implement this
-        return None
+    def odlc_get_queue(self, filter_val=3):
+        if filter_val == 0:
+            return [o for o in self.odlc_queued_data if o["status"] is None]
+        if filter_val == 1:
+            return [o for o in self.odlc_queued_data if o["status"]]
+        if filter_val == 2:
+            return [o for o in self.odlc_queued_data if o["status"] is False]
+        return self.odlc_queued_data
 
-    def get_odlc_image(self, id_):
-        # TODO: Implement this
-        return None
+    def odlc_add_to_queue(self, type_: str, lat: float, lon: float, orientation: int, shape: str,
+                          shape_color: str, alpha: str, alpha_color: str):
+        data_obj = {
+            "created": datetime.datetime.now(),
+            "auto_submit": datetime.datetime.now() + datetime.timedelta(minutes=5),
+            "status": None,
+            "type": ODLC_KEY["type"][type_],
+            "latitude": lat,
+            "longitude": lon,
+            "orientation": ODLC_KEY["orientation"][orientation] if orientation in ODLC_KEY[
+                "orientation"] else ODLC_KEY["orientation"][
+                min(ODLC_KEY["orientation"].keys(), key=lambda k: abs(k - orientation))],
+            "shape": ODLC_KEY["shape"][shape],
+            "shape_color": ODLC_KEY["color"][shape_color],
+            "alphanumeric": alpha,
+            "alphanumeric_color": ODLC_KEY["color"][alpha_color]
+        }
+        self.odlc_queued_data.append(data_obj)
+        return self.odlc_get_queue()
 
-    def get_odlcs(self, odlc_id, dtype):
-        ids = [odlc_id]
-        if odlc_id == "all":
-            ids = self.odlc_submission_ids
-        else:
-            assert odlc_id in self.odlc_submission_ids
-        assert (dtype in ["data", "image", "all"])
-        ret = {}
-        for id_ in ids:
-            if dtype in ["data", "all"]:
-                ret[id_]["data"] = self.get_odlc_data(id_)
-            if dtype in ["image", "all"]:
-                ret[id_]["image"] = self.get_odlc_image(id_)
-        return ret
+    def odlc_reject(self, id_):
+        if len(self.odlc_queued_data) <= id_:
+            return {"result": "failed: invalid id"}
+        if self.odlc_queued_data[id_]["status"] is False:
+            return {"result": "already rejected"}
+        self.odlc_queued_data[id_]["status"] = False
+        return {"result": "success"}
+
+    def odlc_submit(self, id_):
+        if len(self.odlc_queued_data) <= id_:
+            return {"result": "failed: invalid id"}
+        obj_data = self.odlc_queued_data[id_]
+        with open(f"assets/odlc_images/{id_}.jpg", "rb") as image:
+            image_data = image.read()
+        submission = interop.Odlc()
+        submission.mission = self.mission_id
+        submission.type = obj_data["type"]
+        submission.latitude = obj_data["latitude"]
+        submission.longitude = obj_data["longitude"]
+        submission.orientation = obj_data["orientation"]
+        submission.shape = obj_data["shape"]
+        submission.shape_color = obj_data["shape_color"]
+        submission.alphanumeric = obj_data["alphanumeric"]
+        submission.alphanumeric_color = obj_data["alphanumeric_color"]
+        odlc = self.client.post_odlc(submission)
+        self.client.put_odlc_image(odlc.id, image_data)
+        self.odlc_queued_data[id_]["status"] = True
+        return {"result": "success"}

@@ -2,7 +2,7 @@ import json
 import logging
 from threading import Thread
 
-from flask import Flask, jsonify, redirect, url_for
+from flask import Flask, jsonify, redirect, url_for, request
 from flask_cors import CORS
 from flask_socketio import SocketIO, emit
 
@@ -57,9 +57,33 @@ def interop_telemetry():
     return jsonify(interop.telemetry_json)
 
 
-@app.route("/interop/odlcs/<id_>/<dtype>")
-def odcl_get(id_, dtype):
-    return jsonify(interop.get_odlcs(id_, dtype))
+@app.route("/interop/odlc/list")
+def odlc_list():
+    return jsonify(interop.odlc_get_queue())
+
+
+@app.route("/interop/odlc/filter/<int:status>")  # 0: Not Reviewed, 1: Submitted, 2: Rejected
+def odlc_filter(status):
+    return jsonify(interop.odlc_get_queue(status))
+
+
+@app.route("/interop/odlc/add", methods=["POST"])
+def odlc_add():
+    f = request.form
+    return jsonify(
+        interop.odlc_add_to_queue(f.get("type"), float(f.get("lat")), float(f.get("lon")),
+                                  int(f.get("orientation")), f.get("shape"), f.get("shape_color"),
+                                  f.get("alpha"), f.get("alpha_color")))
+
+
+@app.route("/interop/odlc/reject/<int:id_>", methods=["POST"])
+def odlc_reject(id_):
+    return jsonify(interop.odlc_reject(id_))
+
+
+@app.route("/interop/odlc/submit/<int:id_>", methods=["POST"])
+def odlc_submit(id_):
+    return jsonify(interop.odlc_submit(id_))
 
 
 @app.route("/mav/quick")
