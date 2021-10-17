@@ -33,12 +33,24 @@ const FlightData = () => {
 	const [commands, setCommands] = useState([])
 	const [polygons, setPolygons] = useState([[]])
 	const [fence, setFence] = useState([])
+	const [ugvFence, setUgvFence] = useState([])
+	const [ugvDrop, setUgvDrop] = useState({})
+	const [ugvDrive, setUgvDrive] = useState({})
+	const [obstacles, setObstacles] = useState([])
+	const [offAxis, setOffAxis] = useState({})
+	const [searchGrid, setSearchGrid] = useState([])
 
 	const getters = {
 		commands: commands,
 		waypoints: waypoints,
 		polygons: polygons,
 		fence: fence,
+		ugvFence: ugvFence,
+		ugvDrop: ugvDrop,
+		ugvDrive: ugvDrive,
+		obstacles: obstacles,
+		offAxis: offAxis,
+		searchGrid: searchGrid
 	}
 
 	const setters = {
@@ -46,6 +58,12 @@ const FlightData = () => {
 		waypoints: setWaypoints,
 		polygons: setPolygons,
 		fence: setFence,
+		ugvFence: setUgvFence,
+		ugvDrop: setUgvDrop,
+		ugvDrive: setUgvDrive,
+		obstacles: setObstacles,
+		offAxis: setOffAxis,
+		searchGrid: setSearchGrid
 	}
 
 	const display = {
@@ -53,6 +71,12 @@ const FlightData = () => {
 		waypoints: "Waypoint",
 		polygons: "Polygon",
 		fence: "Geofence",
+		ugvFence: "UGV Fence",
+		ugvDrop: "UGV Drop",
+		ugvDrive: "UGV Drive",
+		obstacles: "Obstacles",
+		offAxis: "Off Axis ODLC",
+		searchGrid: "ODLC Search Grid"
 	}
 
 	useEffect(() => {

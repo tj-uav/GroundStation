@@ -60,6 +60,11 @@ const FlightPlanToolbar = props => {
 				<RadioList.Option value="waypoints">Waypoint Mode</RadioList.Option>
 				<RadioList.Option value="polygons">Polygon Mode</RadioList.Option>
 				<RadioList.Option value="fence">Geofence Mode</RadioList.Option>
+				<RadioList.Option value="ugvDrop">UGV Drop Mode</RadioList.Option>
+				<RadioList.Option value="ugvDrive">UGV Drive Mode</RadioList.Option>
+				<RadioList.Option value="ugvFence">UGV Fence Mode</RadioList.Option>
+				<RadioList.Option value="offAxis">Off Axis Mode</RadioList.Option>
+				<RadioList.Option value="searchGrid">Search Grid Mode</RadioList.Option>
 			</RadioList>
 			<DropdownButton id="waypoint-dropdown" title="Waypoint" style={{ marginTop: 20 }}>
 				<Dropdown.Item id="load-waypoints" onClick={handleClick}>
