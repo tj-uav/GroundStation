@@ -1,7 +1,6 @@
 import React from "react"
 import "./App.css"
 import FlightData from "pages/FlightData"
-import FlightPlan from "pages/FlightPlan"
 import Params from "pages/Params"
 import Submissions from "pages/Submissions"
 import AntennaTracker from "pages/AntennaTracker.js"
@@ -25,10 +24,6 @@ const App = () => {
 				<Switch>
 					<Route path="/flight-data">
 						<FlightData />
-					</Route>
-
-					<Route path="/flight-plan">
-						<FlightPlan />
 					</Route>
 
 					<Route path="/params">
