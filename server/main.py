@@ -42,9 +42,14 @@ def interop_login():
     return jsonify({"status": interop.login_status})
 
 
+@app.route("/interop/mission")
+def interop_mission():
+    return interop.get_mission()
+
+
 @app.route("/interop/get/<key>")
 def interop_get(key):
-    return jsonify(interop.get_data(key))
+    return interop.get_data(key)
 
 
 @app.route("/interop/telemetry")
