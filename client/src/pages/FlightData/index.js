@@ -86,6 +86,10 @@ const FlightData = () => {
 		//        return () => clearInterval(interval);
 	}, [])
 
+	const setTelem = () => {
+
+	}
+
 	return (
 		<div
 			style={{
