@@ -58,7 +58,6 @@ const FlightPlanMap = props => {
 		})
 		setIcons({
 			waypoints: new LeafIcon({ iconUrl: "../assets/icon-waypoints.png" }),
-			polygons: new LeafIcon({ iconUrl: "../assets/icon-polygons.png" }),
 			fence: new LeafIcon({ iconUrl: "../assets/icon-fence.png" }),
 			ugvFence: new LeafIcon({ iconUrl: "../assets/icon-ugvFence.png" }),
 			ugvDrop: new LeafIcon({ iconUrl: "../assets/icon-ugvDrop.png" }),
@@ -80,11 +79,7 @@ const FlightPlanMap = props => {
 				let get = props.getters[datatype]
 				let set = props.setters[datatype]
 				let temp = get.slice()
-				if (datatype === "polygons") {
-					temp[idx[0]].splice(idx[1], 1)
-				} else {
-					temp.splice(idx, 1)
-				}
+				temp.splice(idx, 1)
 				set(temp)
 		}
 	}
@@ -94,11 +89,7 @@ const FlightPlanMap = props => {
 		let set = props.setters[datatype]
 		let temp = get.slice()
 		let loc = [event.target.getLatLng().lat, event.target.getLatLng().lng]
-		if (datatype === "polygons") {
-			temp[idx[0]][idx[1]] = loc
-		} else {
-			temp[idx] = loc
-		}
+		temp[idx] = loc
 		set(temp)
 	}
 
@@ -113,9 +104,7 @@ const FlightPlanMap = props => {
 			datatype={datatype}
 		>
 			<Tooltip>
-				{datatype === "polygons"
-					? "Polygon " + (key[0] + 1) + ", Marker " + (key[1] + 1)
-					: props.display[datatype] + " " + (key + 1)}
+				{props.display[datatype] + " " + (key + 1)}
 			</Tooltip>
 		</Marker>
 	)
@@ -134,11 +123,7 @@ const FlightPlanMap = props => {
 		let set = props.setters[props.mode]
 		if (get.constructor.name == "Array") {
 			let temp = get.slice()
-			if (props.mode === "polygons") {
-				temp[temp.length - 1].push([event.latlng.lat, event.latlng.lng])
-			} else {
-				temp.push([event.latlng.lat, event.latlng.lng])
-			}
+			temp.push([event.latlng.lat, event.latlng.lng])
 			set(temp)
 		} else { // object {}
 			set({ lat: event.latlng.lat, lng: event.latlng.lng })
@@ -168,22 +153,14 @@ const FlightPlanMap = props => {
 				/>
 
 				<PolylineDecorator positions={props.getters.waypoints} color="#00AA00" />
-				{props.getters.polygons.map(arr => {
-					return <Polyline positions={circle(arr)} color="#ee7313"></Polyline>
-				})}
 				<Polyline positions={circle(props.getters.fence)} color="#0000FF"></Polyline>
 				<Polyline positions={circle(props.getters.ugvFence)} color="#6e0d9a"></Polyline>
-				<Polyline positions={circle(props.getters.searchGrid)} color="#ff93dd"></Polyline>
+				<Polyline positions={circle(props.getters.searchGrid)} color="#ee7313"></Polyline>
 				
 				{ /* Need for Auvsi Suas: waypoints, obstacles, geofence, ugv drop 
 				     ugv drive, ugv fence, odlc search grid, off axis odlc */ }
 				{props.getters.waypoints.map((marker, index) => {
 					return popup(marker, index, "waypoints")
-				})}
-				{props.getters.polygons.map((arr, index1) => {
-					return arr.map((marker, index2) => {
-						return popup(marker, [index1, index2], "polygons")
-					})
 				})}
 				{props.getters.fence.map((marker, index) => {
 					return popup(marker, index, "fence")
