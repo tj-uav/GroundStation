@@ -20,7 +20,31 @@ const FlightPlanMap = props => {
 	}
 
 	useEffect(() => {
-		console.log(mapRef.current)
+		httpget("/interop/mission", response => {
+			setState(response.data.mapCenterPos)
+
+			let waypoints = []
+			response.data.waypoints.forEach(p => waypoints.push({ lat: p.latitude, lng: p.longitude }))
+			props.setters.waypoints(waypoints)
+
+			let fence = []
+			response.data.flyZones[0].boundaryPoints.forEach(p => fence.push({ lat: p.latitude, lng: p.longitude }))
+			props.setters.fence(fence)
+
+			let ugvFence = []
+			response.data.airDropBoundaryPoints.forEach(p => ugvFence.push({ lat: p.latitude, lng: p.longitude }))
+			props.setters.ugvFence(ugvFence)
+
+			let searchGrid = []
+			response.data.searchGridPoints.forEach(p => searchGrid.push({ lat: p.latitude, lng: p.longitude }))
+			props.setters.searchGrid(searchGrid)
+
+			props.setters.ugvDrive({ lat: response.data.ugvDrivePos.latitude, lng: response.data.ugvDrivePos.longitude })
+			props.setters.ugvDrop({ lat: response.data.airDropPos.latitude, lng: response.data.airDropPos.longitude })
+			props.setters.offAxis({ lat: response.data.offAxisOdlcPos.latitude, lng: response.data.offAxisOdlcPos.longitude })
+			props.setters.obstacles(response.data.stationaryObstacles)
+		})
+
 		var LeafIcon = L.Icon.extend({
 			options: {
 				iconSize: [25, 41],
