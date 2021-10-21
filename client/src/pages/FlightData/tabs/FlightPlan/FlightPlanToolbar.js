@@ -58,7 +58,6 @@ const FlightPlanToolbar = props => {
 		<div style={{ marginLeft: 10 }}>
 			<RadioList onChange={event => props.setMode(event.target.value)} name="pointMode">
 				<RadioList.Option value="waypoints">Waypoint Mode</RadioList.Option>
-				<RadioList.Option value="polygons">Polygon Mode</RadioList.Option>
 				<RadioList.Option value="fence">Geofence Mode</RadioList.Option>
 				<RadioList.Option value="ugvDrop">UGV Drop Mode</RadioList.Option>
 				<RadioList.Option value="ugvDrive">UGV Drive Mode</RadioList.Option>
@@ -78,14 +77,6 @@ const FlightPlanToolbar = props => {
 				</Dropdown.Item>
 				<Dropdown.Item id="write-waypoints" onClick={handleClick}>
 					Write waypoints to Pixhawk
-				</Dropdown.Item>
-			</DropdownButton>
-			<DropdownButton id="polygon-dropdown" title="Polygon" style={{ marginTop: 20 }}>
-				<Dropdown.Item id="load-polygons" onClick={handleClick}>
-					Load polygons from file
-				</Dropdown.Item>
-				<Dropdown.Item id="save-polygons" onClick={handleClick}>
-					Save polygons to file
 				</Dropdown.Item>
 			</DropdownButton>
 			<DropdownButton id="fence-dropdown" title="Geofence" style={{ marginTop: 20 }}>
@@ -111,13 +102,6 @@ const FlightPlanToolbar = props => {
 					Actuate servo
 				</Dropdown.Item>
 			</DropdownButton>
-			<Button
-				id="new-polygon"
-				style={{ marginTop: 20, display: props.mode === "polygons" ? "block" : "none" }}
-				onClick={newPolygon}
-			>
-				New Polygon
-			</Button>
 			<div style={{ marginTop: 20 }}>
 				<ToolbarList
 					mode={props.mode}

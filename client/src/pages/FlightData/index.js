@@ -43,7 +43,6 @@ const FlightData = () => {
 	const getters = {
 		commands: commands,
 		waypoints: waypoints,
-		polygons: polygons,
 		fence: fence,
 		ugvFence: ugvFence,
 		ugvDrop: ugvDrop,
@@ -56,7 +55,6 @@ const FlightData = () => {
 	const setters = {
 		commands: setCommands,
 		waypoints: setWaypoints,
-		polygons: setPolygons,
 		fence: setFence,
 		ugvFence: setUgvFence,
 		ugvDrop: setUgvDrop,
@@ -69,7 +67,6 @@ const FlightData = () => {
 	const display = {
 		commands: "Command",
 		waypoints: "Waypoint",
-		polygons: "Polygon",
 		fence: "Geofence",
 		ugvFence: "UGV Fence",
 		ugvDrop: "UGV Drop",
