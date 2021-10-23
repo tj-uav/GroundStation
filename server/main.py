@@ -86,6 +86,18 @@ def odlc_submit(id_):
     return jsonify(interop.odlc_submit(id_))
 
 
+@app.route("/interop/odlc/load")
+def odlc_load():
+    interop.odlc_load_queue()
+    return jsonify(interop.odlc_get_queue())
+
+
+@app.route("/interop/odlc/save")
+def odlc_save():
+    interop.odlc_save_queue()
+    return jsonify(interop.odlc_get_queue())
+
+
 @app.route("/mav/quick")
 def quick():
     return json.dumps(mav.quick())

@@ -1,5 +1,6 @@
+import json
 import time
-import datetime
+from datetime import datetime, timedelta, date
 
 from google.protobuf import json_format
 
@@ -48,6 +49,12 @@ ODLC_KEY = {
         "orange": interop.Odlc.ORANGE,
     }
 }
+
+
+def json_serial(obj):
+    if isinstance(obj, (datetime, date)):
+        return obj.isoformat()
+    raise obj
 
 
 class InteropHandler:
@@ -146,8 +153,8 @@ class InteropHandler:
     def odlc_add_to_queue(self, type_: str, lat: float, lon: float, orientation: int, shape: str,
                           shape_color: str, alpha: str, alpha_color: str):
         data_obj = {
-            "created": datetime.datetime.now(),
-            "auto_submit": datetime.datetime.now() + datetime.timedelta(minutes=5),
+            "created": datetime.now(),
+            "auto_submit": datetime.now() + timedelta(minutes=5),
             "status": None,
             "type": ODLC_KEY["type"][type_],
             "latitude": lat,
@@ -191,3 +198,15 @@ class InteropHandler:
         self.client.put_odlc_image(odlc.id, image_data)
         self.odlc_queued_data[id_]["status"] = True
         return {"result": "success"}
+
+    def odlc_save_queue(self, filename="odlc.json"):
+        with open(filename, "w") as file:
+            json.dump(self.odlc_queued_data, file, default=json_serial)
+
+    def odlc_load_queue(self, filename="odlc.json"):
+        with open(filename, "r") as file:
+            self.odlc_queued_data = json.load(file)
+            for x, obj in enumerate(self.odlc_queued_data):
+                obj["created"] = datetime.fromisoformat(obj["created"])
+                obj["auto_submit"] = datetime.fromisoformat(obj["auto_submit"])
+                self.odlc_queued_data[x] = obj
