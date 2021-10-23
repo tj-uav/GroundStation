@@ -104,7 +104,7 @@ const FlightPlanMap = props => {
 			datatype={datatype}
 		>
 			<Tooltip>
-				{props.display[datatype] + " " + (key + 1)}
+				{props.display[datatype] + " " + (key + 1)} ({ latlng.lat.toFixed(5) }, { latlng.lng.toFixed(5) })
 			</Tooltip>
 		</Marker>
 	)
@@ -113,7 +113,7 @@ const FlightPlanMap = props => {
 		return (
 			<Marker icon={icons[type]} position={props.getters[type]} draggable={true}>
 				<Tooltip>
-					{props.display[type]}
+					{props.display[type]} ({ props.getters[type].lat.toFixed(5) }, { props.getters[type].lng.toFixed(5) })
 				</Tooltip>
 			</Marker>)
 	}
@@ -167,7 +167,11 @@ const FlightPlanMap = props => {
 				})}
 				{props.getters.obstacles.map((obstacle) => {
 					return (
-						<Circle center={[obstacle.latitude, obstacle.longitude]} color="#FF0000" radius={obstacle.radius/3.281} />
+						<Circle center={[obstacle.latitude, obstacle.longitude]} color="#FF0000" radius={obstacle.radius/3.281}>
+							<Tooltip>
+								Obstacle ({ obstacle.latitude.toFixed(5) }, { obstacle.longitude.toFixed(5) })
+							</Tooltip>
+						</Circle>
 					)
 				})}
 				{props.getters.ugvDrop.lat == null ? null : singlePopup("ugvDrop")}
