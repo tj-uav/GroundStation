@@ -151,7 +151,7 @@ class InteropHandler:
         return self.odlc_queued_data
 
     def odlc_add_to_queue(self, type_: str, lat: float, lon: float, orientation: int, shape: str,
-                          shape_color: str, alpha: str, alpha_color: str):
+                          shape_color: str, alpha: str, alpha_color: str, description=None):
         data_obj = {
             "created": datetime.now(),
             "auto_submit": datetime.now() + timedelta(minutes=5),
@@ -165,16 +165,36 @@ class InteropHandler:
             "shape": ODLC_KEY["shape"][shape],
             "shape_color": ODLC_KEY["color"][shape_color],
             "alphanumeric": alpha,
-            "alphanumeric_color": ODLC_KEY["color"][alpha_color]
+            "alphanumeric_color": ODLC_KEY["color"][alpha_color],
+            "description": description
         }
         self.odlc_queued_data.append(data_obj)
         return self.odlc_get_queue()
+
+    def odlc_edit(self, id_, type_=None, lat=None, lon=None, orientation=None, shape=None, shape_color=None, alpha=None, alpha_color=None, description=None):
+        fields = {
+            "type": ODLC_KEY["type"][type_] if type_ else None,
+            "latitude": lat,
+            "longitude": lon,
+            "orientation": None if orientation is None else (ODLC_KEY["orientation"][orientation] if orientation in ODLC_KEY[
+                "orientation"] else ODLC_KEY["orientation"][
+                min(ODLC_KEY["orientation"].keys(), key=lambda k: abs(k - orientation))]),
+            "shape": ODLC_KEY["shape"][shape] if shape else None,
+            "shape_color": ODLC_KEY["color"][shape_color] if shape_color else None,
+            "alphanumeric": alpha,
+            "alphanumeric_color": ODLC_KEY["color"][alpha_color] if alpha_color else None,
+            "description": description
+        }
+        for name, var in fields.items():
+            if var is not None:
+                self.odlc_queued_data[id_][name] = var
+        return {"result": "success"}
 
     def odlc_reject(self, id_):
         if len(self.odlc_queued_data) <= id_:
             return {"result": "failed: invalid id"}
         if self.odlc_queued_data[id_]["status"] is False:
-            return {"result": "already rejected"}
+            return {"result": "failed: already rejected"}
         self.odlc_queued_data[id_]["status"] = False
         return {"result": "success"}
 
@@ -202,6 +222,7 @@ class InteropHandler:
     def odlc_save_queue(self, filename="odlc.json"):
         with open(filename, "w") as file:
             json.dump(self.odlc_queued_data, file, default=json_serial)
+            return {"result": "success"}
 
     def odlc_load_queue(self, filename="odlc.json"):
         with open(filename, "r") as file:
@@ -210,3 +231,4 @@ class InteropHandler:
                 obj["created"] = datetime.fromisoformat(obj["created"])
                 obj["auto_submit"] = datetime.fromisoformat(obj["auto_submit"])
                 self.odlc_queued_data[x] = obj
+            return {"result": "success"}
