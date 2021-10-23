@@ -39,7 +39,6 @@ const Header = () => {
 			<h1 className="heading">TJUAV Ground Station</h1>
 			<Row width="50%">
 				<Link href="/">Flight Data</Link>
-				<Link href="/flight-plan">Flight Plan</Link>
 				<Link href="/params">Params</Link>
 				<Link href="/submissions">Submissions</Link>
 				<Link href="/antenna-tracker">Antenna Tracker</Link>
