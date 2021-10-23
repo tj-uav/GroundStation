@@ -143,3 +143,4 @@ server/config.json
 venv/
 .vscode/
 .idea/
+odlc.json
