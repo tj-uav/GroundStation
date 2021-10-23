@@ -57,13 +57,13 @@ const FlightPlanToolbar = props => {
 	return (
 		<div style={{ marginLeft: 10 }}>
 			<RadioList onChange={event => props.setMode(event.target.value)} name="pointMode">
-				<RadioList.Option value="waypoints">Waypoint Mode</RadioList.Option>
-				<RadioList.Option value="fence">Geofence Mode</RadioList.Option>
-				<RadioList.Option value="ugvDrop">UGV Drop Mode</RadioList.Option>
-				<RadioList.Option value="ugvDrive">UGV Drive Mode</RadioList.Option>
-				<RadioList.Option value="ugvFence">UGV Fence Mode</RadioList.Option>
-				<RadioList.Option value="offAxis">Off Axis Mode</RadioList.Option>
-				<RadioList.Option value="searchGrid">Search Grid Mode</RadioList.Option>
+				<RadioList.Option color="#23ce68" value="waypoints">Waypoint Mode</RadioList.Option>
+				<RadioList.Option color="#4A91D1" value="fence">Geofence Mode</RadioList.Option>
+				<RadioList.Option color="red" value="ugvDrop">UGV Drop Mode</RadioList.Option>
+				<RadioList.Option color="#FFF004" value="ugvDrive">UGV Drive Mode</RadioList.Option>
+				<RadioList.Option color="#AF28E2" value="ugvFence">UGV Fence Mode</RadioList.Option>
+				<RadioList.Option color="black" value="offAxis">Off Axis Mode</RadioList.Option>
+				<RadioList.Option color="orange" value="searchGrid">Search Grid Mode</RadioList.Option>
 			</RadioList>
 			<DropdownButton id="waypoint-dropdown" title="Waypoint" style={{ marginTop: 20 }}>
 				<Dropdown.Item id="load-waypoints" onClick={handleClick}>
