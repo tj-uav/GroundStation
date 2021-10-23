@@ -73,7 +73,16 @@ def odlc_add():
     return jsonify(
         interop.odlc_add_to_queue(f.get("type"), float(f.get("lat")), float(f.get("lon")),
                                   int(f.get("orientation")), f.get("shape"), f.get("shape_color"),
-                                  f.get("alpha"), f.get("alpha_color")))
+                                  f.get("alpha"), f.get("alpha_color"), f.get("description")))
+
+
+@app.route("/interop/odlc/edit/<int:id_>", methods=["POST"])
+def odlc_edit(id_):
+    f = request.form
+    return jsonify(interop.odlc_edit(id_, f.get("type"), float(f.get("lat")), float(f.get("lon")),
+                                     int(f.get("orientation")), f.get("shape"),
+                                     f.get("shape_color"), f.get("alpha"), f.get("alpha_color"),
+                                     f.get("description")))
 
 
 @app.route("/interop/odlc/reject/<int:id_>", methods=["POST"])
@@ -88,14 +97,12 @@ def odlc_submit(id_):
 
 @app.route("/interop/odlc/load")
 def odlc_load():
-    interop.odlc_load_queue()
-    return jsonify(interop.odlc_get_queue())
+    return jsonify(interop.odlc_load_queue())
 
 
 @app.route("/interop/odlc/save")
 def odlc_save():
-    interop.odlc_save_queue()
-    return jsonify(interop.odlc_get_queue())
+    return jsonify(interop.odlc_save_queue())
 
 
 @app.route("/mav/quick")
