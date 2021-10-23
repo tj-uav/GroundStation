@@ -1,3 +1,4 @@
+import base64
 import json
 import logging
 from threading import Thread
@@ -65,6 +66,13 @@ def odlc_list():
 @app.route("/interop/odlc/filter/<int:status>")  # 0: Not Reviewed, 1: Submitted, 2: Rejected
 def odlc_filter(status):
     return jsonify(interop.odlc_get_queue(status))
+
+
+@app.route("/interop/odlc/image/<int:id_>")
+def odlc_get_image(id_):
+    with open(f"assets/odlc_images/{id_}.jpg", "rb") as image_file:
+        encoded_string = base64.b64encode(image_file.read())
+    return jsonify({"image": encoded_string.decode('utf-8')})
 
 
 @app.route("/interop/odlc/add", methods=["POST"])
