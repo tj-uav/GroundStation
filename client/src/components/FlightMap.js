@@ -88,7 +88,7 @@ const FlightPlanMap = props => {
 		let get = props.getters[datatype]
 		let set = props.setters[datatype]
 		let temp = get.slice()
-		let loc = [event.target.getLatLng().lat, event.target.getLatLng().lng]
+		let loc = { lat: event.target.getLatLng().lat, lng: event.target.getLatLng().lng }
 		temp[idx] = loc
 		set(temp)
 	}
@@ -123,7 +123,7 @@ const FlightPlanMap = props => {
 		let set = props.setters[props.mode]
 		if (get.constructor.name == "Array") {
 			let temp = get.slice()
-			temp.push([event.latlng.lat, event.latlng.lng])
+			temp.push({ lat: event.latlng.lat, lng: event.latlng.lng })
 			set(temp)
 		} else { // object {}
 			set({ lat: event.latlng.lat, lng: event.latlng.lng })
