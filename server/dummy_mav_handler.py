@@ -56,6 +56,13 @@ class DummyMavHandler:
                 'lon': self.lon
                 }
 
+    def get_telemetry(self):
+        return {
+            "latitude": self.lat,
+            "longitude": self.lon,
+            "heading": self.orientation["yaw"]
+        }
+
     def params(self):
         with open("params.json", "r") as file:
             self.params = json.load(file)

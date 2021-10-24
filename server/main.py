@@ -59,12 +59,17 @@ def interop_get(key):
 
 @app.route("/interop/telemetry")
 def interop_telemetry():
-    return jsonify(interop.telemetry_json)
+    return json.dumps(interop.telemetry_json)
 
 
 @app.route("/interop/odlcs/<id_>/<dtype>")
 def odcl_get(id_, dtype):
     return jsonify(interop.get_odlcs(id_, dtype))
+
+
+@app.route("/mav/telemetry")
+def mav_telemetry():
+    return json.dumps(mav.get_telemetry())
 
 
 @app.route("/mav/quick")
