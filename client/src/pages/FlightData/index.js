@@ -31,7 +31,6 @@ const FlightData = () => {
 	const [mode, setMode] = useState("waypoints")
 	const [waypoints, setWaypoints] = useState([])
 	const [commands, setCommands] = useState([])
-	const [polygons, setPolygons] = useState([[]])
 	const [fence, setFence] = useState([])
 	const [ugvFence, setUgvFence] = useState([])
 	const [ugvDrop, setUgvDrop] = useState({})

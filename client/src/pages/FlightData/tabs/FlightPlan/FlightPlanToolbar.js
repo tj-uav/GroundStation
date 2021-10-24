@@ -43,12 +43,6 @@ const FlightPlanToolbar = props => {
 		alert("You tried to add an " + command)
 	}
 
-	const newPolygon = () => {
-		let temp = props.getters.polygons
-		temp.push([])
-		props.setters.polygons(temp)
-	}
-
 	useEffect(() => {
 		let radio = document.getElementById(props.mode)
 		radio.checked = true
