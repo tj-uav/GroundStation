@@ -107,11 +107,12 @@ def command_append(command, lat, lon, alt):
 
 
 if __name__ == "__main__":
-    mav.connect()
-
     interop.login()
+    mav.connect(interop.waypoints)
+
     interop_telem_thread = Thread(target=interop.submit_telemetry, args=(mav,))
     interop_telem_thread.daemon = True
     interop_telem_thread.start()
+
     app.run(port=5000)
     # socketio.run(app, port=5000)

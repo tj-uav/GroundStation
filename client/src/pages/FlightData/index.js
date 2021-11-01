@@ -24,8 +24,14 @@ TODO: Display list highlighting (and vice versa)
 */
 
 const FlightData = () => {
-	const queryValues = () => {
-		httpget("/mav/telem", response => setTelem(response.data))
+	const queryTelemetry = () => {
+		httpget("/mav/telemetry", response => setPlane({
+			latlng: {
+				lat: response.data.latitude,
+				lng: response.data.longitude
+			},
+			heading: response.data.heading,
+		}))
 	}
 
 	const [mode, setMode] = useState("waypoints")
@@ -38,6 +44,7 @@ const FlightData = () => {
 	const [obstacles, setObstacles] = useState([])
 	const [offAxis, setOffAxis] = useState({})
 	const [searchGrid, setSearchGrid] = useState([])
+	const [plane, setPlane] = useState({})
 
 	const getters = {
 		commands: commands,
@@ -48,7 +55,8 @@ const FlightData = () => {
 		ugvDrive: ugvDrive,
 		obstacles: obstacles,
 		offAxis: offAxis,
-		searchGrid: searchGrid
+		searchGrid: searchGrid,
+		plane: plane
 	}
 
 	const setters = {
@@ -60,7 +68,8 @@ const FlightData = () => {
 		ugvDrive: setUgvDrive,
 		obstacles: setObstacles,
 		offAxis: setOffAxis,
-		searchGrid: setSearchGrid
+		searchGrid: setSearchGrid,
+		plane: plane,
 	}
 
 	const display = {
@@ -72,19 +81,16 @@ const FlightData = () => {
 		ugvDrive: "UGV Drive",
 		obstacles: "Obstacles",
 		offAxis: "Off Axis ODLC",
-		searchGrid: "ODLC Search Grid"
+		searchGrid: "ODLC Search Grid",
+		plane: "Plane"
 	}
 
 	useEffect(() => {
-		//        const interval = setInterval(() => {
-		//            queryValues();
-		//        }, 1000);
-		//        return () => clearInterval(interval);
+		const interval = setInterval(() => {
+			queryTelemetry();
+		}, 500);
+		return () => clearInterval(interval);
 	}, [])
-
-	const setTelem = () => {
-
-	}
 
 	return (
 		<div
