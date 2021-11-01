@@ -1,8 +1,8 @@
 import random
 import threading
 import time
+import math
 import json
-
 
 class DummyMavHandler:
     def __init__(self, config, socketio):
@@ -14,8 +14,12 @@ class DummyMavHandler:
             self.voltage = self.throttle = self.lat = self.lon = None
         self.params = None
 
-    def connect(self):
+    def connect(self, waypoints):
         print("Created dummy mav handler")
+        self.waypoints = waypoints
+        self.waypoint_index = 1 % len(waypoints)
+        self.lat = waypoints[0].latitude
+        self.lon = waypoints[0].longitude
         self.update()
         self.update_thread = threading.Thread(target=self.constant_updating)
         self.update_thread.daemon = True
@@ -30,18 +34,29 @@ class DummyMavHandler:
 
     def update(self):
         self.altitude = random.random() * 100
-        self.orientation = {
-            'yaw': random.randint(0, 360),
-            'roll': random.randint(0, 360),
-            'pitch': random.randint(0, 360)
-        }
         self.ground_speed = random.random() * 100
         self.air_speed = random.random() * 100
         self.dist_to_wp = random.random() * 100
         self.voltage = random.random() * 16
         self.throttle = random.randint(0, 100)
-        self.lat = random.random() * 180 - 90
-        self.lon = random.random() * 180 - 90
+        # simulates the plane flying over the waypoints
+        speed = 0.0001
+        x_dist = self.waypoints[self.waypoint_index].latitude-self.lat
+        y_dist = self.waypoints[self.waypoint_index].longitude-self.lon
+        dist = math.sqrt((x_dist) ** 2 + (y_dist) ** 2)
+        angle = math.atan2(y_dist, x_dist)
+        if dist <= 0.0001:
+            self.lat = self.waypoints[self.waypoint_index].latitude
+            self.lon = self.waypoints[self.waypoint_index].longitude
+            self.waypoint_index = (self.waypoint_index+1) % len(self.waypoints)
+        else:
+            self.lat = (self.lat + math.cos(angle) * speed)
+            self.lon = (self.lon + math.sin(angle) * speed)
+        self.orientation = {
+            'yaw': int((angle/(2*math.pi) * 360) if angle >= 0 else (angle/(2*math.pi)*360 + 360)),
+            'roll': random.randint(0, 360),
+            'pitch': random.randint(0, 360)
+        }
 
     def quick(self):
         print("Requesting quick data")

@@ -5,6 +5,7 @@ import { Map, TileLayer, Tooltip, Marker, Polyline, Circle } from "react-leaflet
 import { httpget } from "../backend.js"
 import L from "leaflet"
 import PolylineDecorator from "../pages/FlightData/tabs/FlightPlan/PolylineDecorator.js"
+import RotatedMarker from "./RotatedMarker.js"
 
 const FlightPlanMap = props => {
 	const [state, setState] = useState({
@@ -13,11 +14,6 @@ const FlightPlanMap = props => {
 
 	let mapRef = createRef()
 	const [icons, setIcons] = useState({})
-	const [telem, setTelem] = useState([])
-
-	const queryValues = () => {
-		httpget("/mav/telem", response => setTelem(response.data))
-	}
 
 	useEffect(() => {
 		httpget("/interop/mission", response => {
@@ -45,7 +41,7 @@ const FlightPlanMap = props => {
 			props.setters.obstacles(response.data.stationaryObstacles)
 		})
 
-		var LeafIcon = L.Icon.extend({
+		var MarkerIcon = L.Icon.extend({
 			options: {
 				iconSize: [25, 41],
 				iconAnchor: [12, 41],
@@ -56,19 +52,33 @@ const FlightPlanMap = props => {
 				shadowAnchor: [12, 41],
 			},
 		})
-		setIcons({
-			waypoints: new LeafIcon({ iconUrl: "../assets/icon-waypoints.png" }),
-			fence: new LeafIcon({ iconUrl: "../assets/icon-fence.png" }),
-			ugvFence: new LeafIcon({ iconUrl: "../assets/icon-ugvFence.png" }),
-			ugvDrop: new LeafIcon({ iconUrl: "../assets/icon-ugvDrop.png" }),
-			ugvDrive: new LeafIcon({ iconUrl: "../assets/icon-ugvDrive.png" }),
-			offAxis: new LeafIcon({ iconUrl: "../assets/icon-offAxis.png" }),
-			searchGrid: new LeafIcon({ iconUrl: "../assets/icon-searchGrid.png" }),
+		var VehicleIcon = L.Icon.extend({
+			options: {
+				iconSize: [50, 82],
+				iconAnchor: [25, 82],
+				shadowUrl: "../assets/marker-shadow.png",
+				shadowSize: [82, 82],
+				shadowAnchor: [25, 82]
+			}
 		})
-		//    const interval = setInterval(() => {
-		//      queryValues();
-		//    }, 1000);
-		//    return () => clearInterval(interval);
+		var DirectionPointerIcon = L.Icon.extend({
+			options: {
+				iconSize: [20, 40],
+				iconAnchor: [10, 40]
+			}
+		})
+		setIcons({
+			waypoints: new MarkerIcon({ iconUrl: "../assets/icon-waypoints.png" }),
+			fence: new MarkerIcon({ iconUrl: "../assets/icon-fence.png" }),
+			ugvFence: new MarkerIcon({ iconUrl: "../assets/icon-ugvFence.png" }),
+			ugvDrop: new MarkerIcon({ iconUrl: "../assets/icon-ugvDrop.png" }),
+			ugvDrive: new MarkerIcon({ iconUrl: "../assets/icon-ugvDrive.png" }),
+			offAxis: new MarkerIcon({ iconUrl: "../assets/icon-offAxis.png" }),
+			searchGrid: new MarkerIcon({ iconUrl: "../assets/icon-searchGrid.png" }),
+			plane: new VehicleIcon({ iconUrl: "../assets/plane.svg" }),
+			planeDirection: new DirectionPointerIcon({ iconUrl: "../assets/pointer.svg" }),
+			planeDirectionOutline: new DirectionPointerIcon({ iconUrl: "../assets/pointer-outline.svg" }),
+		})
 	}, [])
 
 	const handleKeyPress = (event, idx) => {
@@ -183,6 +193,19 @@ const FlightPlanMap = props => {
 					return popup(marker, index, "searchGrid")
 				})}
 				{props.getters.offAxis.lat == null ? null : singlePopup("offAxis")}
+				{props.getters.plane.heading == null ? null : (
+					<RotatedMarker icon={icons.planeDirection} position={props.getters.plane.latlng} rotationAngle={props.getters.plane.heading} rotationOrigin={"50% 100%"} />
+				)}
+				{props.getters.plane.heading == null ? null : (
+					<Marker icon={icons.plane} position={props.getters.plane.latlng}>
+						<Tooltip>
+							UAV ({ props.getters.plane.latlng.lat.toFixed(5) }, { props.getters.plane.latlng.lng.toFixed(5) })
+						</Tooltip>
+					</Marker>
+				)}
+				{props.getters.plane.heading == null ? null : (
+					<RotatedMarker icon={icons.planeDirectionOutline} position={props.getters.plane.latlng} rotationAngle={props.getters.plane.heading} rotationOrigin={"50% 100%"} />
+				)}
 			</Map>
 		</div>
 	)
