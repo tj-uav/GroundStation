@@ -45,7 +45,7 @@ class DummyMavHandler:
         self.lon = random.random() * 180 - 90
 
     def quick(self):
-        print("Requesting quick data")
+        # print("Requesting quick data")
         return {'altitude': self.altitude,
                 'orientation': self.orientation,
                 'ground_speed': self.ground_speed,
