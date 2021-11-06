@@ -79,7 +79,7 @@ def odlc_get_image(id_):
 def odlc_add():
     f = request.form
     return jsonify(
-        interop.odlc_add_to_queue(f.get("type"), float(f.get("lat")), float(f.get("lon")),
+        interop.odlc_add_to_queue(f.get("image"), f.get("type"), float(f.get("lat")), float(f.get("lon")),
                                   int(f.get("orientation")), f.get("shape"), f.get("shape_color"),
                                   f.get("alpha"), f.get("alpha_color"), f.get("description")))
 
@@ -87,7 +87,7 @@ def odlc_add():
 @app.route("/interop/odlc/edit/<int:id_>", methods=["POST"])
 def odlc_edit(id_):
     f = request.form
-    return jsonify(interop.odlc_edit(id_, f.get("type"), float(f.get("lat")), float(f.get("lon")),
+    return jsonify(interop.odlc_edit(id_, f.get("image"), f.get("type"), float(f.get("lat")), float(f.get("lon")),
                                      int(f.get("orientation")), f.get("shape"),
                                      f.get("shape_color"), f.get("alpha"), f.get("alpha_color"),
                                      f.get("description")))
@@ -103,14 +103,30 @@ def odlc_submit(id_):
     return jsonify(interop.odlc_submit(id_))
 
 
-@app.route("/interop/odlc/load")
+@app.route("/interop/odlc/load", methods=["POST"])
 def odlc_load():
     return jsonify(interop.odlc_load_queue())
 
 
-@app.route("/interop/odlc/save")
+@app.route("/interop/odlc/save", methods=["POST"])
 def odlc_save():
     return jsonify(interop.odlc_save_queue())
+
+
+@app.route("/interop/map/add/<string:name>", methods=["POST"])
+def map_add(name):
+    f = request.form
+    return jsonify(
+        interop.map_add(name, f.get("image"))  # Name is a unique identifier for this map
+    )
+
+
+@app.route("/interop/map/submit", defaults={"name": None}, methods=["POST"])
+@app.route("/interop/map/submit/<string:name>", methods=["POST"])
+def map_submit(name):
+    return jsonify(  # When name is specified, a specific uploaded map image will be submitted
+        interop.map_submit(name)  # If it isn't, the most recent one will be submitted
+    )
 
 
 @app.route("/mav/quick")
@@ -138,13 +154,6 @@ def commands_get():
 def command_append(command, lat, lon, alt):
     mav.insert_command(command, lat, lon, alt)
     return "Success"
-
-
-# Below method is not possible due to dronekit limitations
-# @app.route("/mav/commands/<command>/<lat>/<lon>/<alt>/<ind>")
-# def command_insert(command, lat, lon, alt, ind):
-#     mav.insert_command(command, lat, lon, alt, ind)
-#     return "Success"
 
 
 if __name__ == "__main__":
