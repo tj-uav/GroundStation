@@ -149,6 +149,7 @@ class Client(object):
         r = self.get('/api/missions/%d' % mission_id)
         mission = interop_api_pb2.Mission()
         json_format.Parse(r.text, mission)
+        self.mission_json = json.loads(r.text)
         return mission
 
     def post_telemetry(self, telem):

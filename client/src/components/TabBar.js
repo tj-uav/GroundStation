@@ -4,8 +4,8 @@ import { Switch, Route, Redirect, useRouteMatch, useLocation } from "react-route
 import { Button } from "./UIElements"
 import { Row } from "./Containers"
 
-const TabButton = ({ current, children }) => {
-	const name = children.toLowerCase()
+const TabButton = ({ url, current, children }) => {
+	const name = url == undefined ? children.toLowerCase() : url.toLowerCase()
 	const isActive = name === current.replace("/", "")
 	return (
 		<Button to={name} active={isActive} controlled>
@@ -32,8 +32,8 @@ const TabBar = ({ children, ...props }) => {
 		<section>
 			<Row id="tabs" gap="1rem" height="3rem" style={{ marginBottom: "1rem" }} {...props}>
 				{children.map(component => (
-					<TabButton key={component.type.name} current={currentTab}>
-						{component.type.name}
+					<TabButton key={component.type.name} url={component.type.name} current={currentTab}>
+						{component.props.tabName ?? component.type.name}
 					</TabButton>
 				))}
 			</Row>
