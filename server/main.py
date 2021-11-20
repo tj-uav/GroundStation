@@ -145,12 +145,14 @@ def odlc_submit(id_):
 
 @app.route("/interop/odlc/load", methods=["POST"])
 def odlc_load():
-    return jsonify(interop.odlc_load_queue())
+    f = request.form
+    return jsonify(interop.odlc_load_queue(f.get("filename")))
 
 
 @app.route("/interop/odlc/save", methods=["POST"])
 def odlc_save():
-    return jsonify(interop.odlc_save_queue())
+    f = request.form
+    return jsonify(interop.odlc_save_queue(f.get("filename")))
 
 
 @app.route("/interop/map/add/<string:name>", methods=["POST"])

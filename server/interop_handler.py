@@ -225,7 +225,7 @@ class InteropHandler:
         with open(filename, "w") as file:
             json.dump(self.odlc_queued_data, file, default=json_serial)
             return {"result": "success"}
-          
+
     def odlc_load_queue(self, filename="odlc.json"):
         with open(filename, "r") as file:
             self.odlc_queued_data = json.load(file)
