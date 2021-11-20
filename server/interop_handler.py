@@ -113,19 +113,12 @@ class InteropHandler:
             return
         self.initialize()
 
+    def get_mission(self):
+        return json.dumps(self.client.mission_json)
+
     def get_data(self, key):
-        key_map = {
-            "mission": self.mission,
-            "waypoints": self.waypoints,
-            "obstacles": self.obstacles,
-            "teams": self.teams,
-            "search": self.search_grid,
-            "ugv": self.ugv_points,
-            "odlc": self.odlc_points,
-            "lost_comms": self.lost_comms_pos
-        }
-        if key in key_map:
-            return key_map[key]
+        if key in self.client.mission_json:
+            return json.dumps(self.client.mission_json[key])
         return None
 
     def submit_telemetry(self, mav):
@@ -232,7 +225,7 @@ class InteropHandler:
         with open(filename, "w") as file:
             json.dump(self.odlc_queued_data, file, default=json_serial)
             return {"result": "success"}
-
+          
     def odlc_load_queue(self, filename="odlc.json"):
         with open(filename, "r") as file:
             self.odlc_queued_data = json.load(file)
