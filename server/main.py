@@ -48,14 +48,54 @@ def interop_login():
     return jsonify({"status": interop.login_status})
 
 
+@app.route("/interop/mission")
+def interop_mission():
+    return interop.get_mission()
+
+
 @app.route("/interop/get/<key>")
 def interop_get(key):
-    return jsonify(interop.get_data(key))
+    return interop.get_data(key)
 
 
 @app.route("/interop/telemetry")
 def interop_telemetry():
-    return jsonify(interop.telemetry_json)
+    return json.dumps(interop.telemetry_json)
+
+
+@app.route("/interop/odlc/list")
+def odlc_list():
+    return jsonify(interop.odlc_get_queue())
+
+
+@app.route("/interop/odlc/filter/<int:status>")  # 0: Not Reviewed, 1: Submitted, 2: Rejected
+def odlc_filter(status):
+    return jsonify(interop.odlc_get_queue(status))
+
+
+@app.route("/interop/odlc/image/<int:id_>")
+def odlc_get_image(id_):
+    with open(f"assets/odlc_images/{id_}.jpg", "rb") as image_file:
+        encoded_string = base64.b64encode(image_file.read())
+    return jsonify({"image": encoded_string.decode('utf-8')})
+
+
+@app.route("/interop/odlc/add", methods=["POST"])
+def odlc_add():
+    f = request.form
+    return jsonify(
+        interop.odlc_add_to_queue(f.get("type"), float(f.get("lat")), float(f.get("lon")),
+                                  int(f.get("orientation")), f.get("shape"), f.get("shape_color"),
+                                  f.get("alpha"), f.get("alpha_color"), f.get("description")))
+
+
+@app.route("/interop/odlc/edit/<int:id_>", methods=["POST"])
+def odlc_edit(id_):
+    f = request.form
+    return jsonify(interop.odlc_edit(id_, f.get("type"), float(f.get("lat")), float(f.get("lon")),
+                                     int(f.get("orientation")), f.get("shape"),
+                                     f.get("shape_color"), f.get("alpha"), f.get("alpha_color"),
+                                     f.get("description")))
 
 
 @app.route("/interop/odlc/list")
@@ -92,7 +132,7 @@ def odlc_edit(id_):
                                      f.get("shape_color"), f.get("alpha"), f.get("alpha_color"),
                                      f.get("description")))
 
-
+  
 @app.route("/interop/odlc/reject/<int:id_>", methods=["POST"])
 def odlc_reject(id_):
     return jsonify(interop.odlc_reject(id_))
@@ -129,6 +169,11 @@ def map_submit(name):
     )
 
 
+@app.route("/mav/telemetry")
+def mav_telemetry():
+    return json.dumps(mav.get_telemetry())
+
+
 @app.route("/mav/quick")
 def quick():
     return json.dumps(mav.quick())
@@ -157,11 +202,12 @@ def command_append(command, lat, lon, alt):
 
 
 if __name__ == "__main__":
-    mav.connect()
-
     interop.login()
+    mav.connect(interop.waypoints)
+
     interop_telem_thread = Thread(target=interop.submit_telemetry, args=(mav,))
     interop_telem_thread.daemon = True
     interop_telem_thread.start()
+
     app.run(port=5000)
     # socketio.run(app, port=5000)

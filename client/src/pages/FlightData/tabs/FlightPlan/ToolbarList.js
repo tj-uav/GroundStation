@@ -118,7 +118,6 @@ const ToolbarList = props => {
 								width: 250,
 							}}
 						>
-							{getDisplayList(props.mode, props.data, props.display)}
 							{provided.placeholder}
 						</div>
 					)}
