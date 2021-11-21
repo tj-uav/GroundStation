@@ -98,6 +98,41 @@ def odlc_edit(id_):
                                      f.get("description")))
 
 
+@app.route("/interop/odlc/list")
+def odlc_list():
+    return jsonify(interop.odlc_get_queue())
+
+
+@app.route("/interop/odlc/filter/<int:status>")  # 0: Not Reviewed, 1: Submitted, 2: Rejected
+def odlc_filter(status):
+    return jsonify(interop.odlc_get_queue(status))
+
+
+@app.route("/interop/odlc/image/<int:id_>")
+def odlc_get_image(id_):
+    with open(f"assets/odlc_images/{id_}.jpg", "rb") as image_file:
+        encoded_string = base64.b64encode(image_file.read())
+    return jsonify({"image": encoded_string.decode('utf-8')})
+
+
+@app.route("/interop/odlc/add", methods=["POST"])
+def odlc_add():
+    f = request.form
+    return jsonify(
+        interop.odlc_add_to_queue(f.get("image"), f.get("type"), float(f.get("lat")), float(f.get("lon")),
+                                  int(f.get("orientation")), f.get("shape"), f.get("shape_color"),
+                                  f.get("alpha"), f.get("alpha_color"), f.get("description")))
+
+
+@app.route("/interop/odlc/edit/<int:id_>", methods=["POST"])
+def odlc_edit(id_):
+    f = request.form
+    return jsonify(interop.odlc_edit(id_, f.get("image"), f.get("type"), float(f.get("lat")), float(f.get("lon")),
+                                     int(f.get("orientation")), f.get("shape"),
+                                     f.get("shape_color"), f.get("alpha"), f.get("alpha_color"),
+                                     f.get("description")))
+
+  
 @app.route("/interop/odlc/reject/<int:id_>", methods=["POST"])
 def odlc_reject(id_):
     return jsonify(interop.odlc_reject(id_))
@@ -108,14 +143,32 @@ def odlc_submit(id_):
     return jsonify(interop.odlc_submit(id_))
 
 
-@app.route("/interop/odlc/load")
+@app.route("/interop/odlc/load", methods=["POST"])
 def odlc_load():
-    return jsonify(interop.odlc_load_queue())
+    f = request.form
+    return jsonify(interop.odlc_load_queue(f.get("filename")))
 
 
-@app.route("/interop/odlc/save")
+@app.route("/interop/odlc/save", methods=["POST"])
 def odlc_save():
-    return jsonify(interop.odlc_save_queue())
+    f = request.form
+    return jsonify(interop.odlc_save_queue(f.get("filename")))
+
+
+@app.route("/interop/map/add/<string:name>", methods=["POST"])
+def map_add(name):
+    f = request.form
+    return jsonify(
+        interop.map_add(name, f.get("image"))  # Name is a unique identifier for this map
+    )
+
+
+@app.route("/interop/map/submit", defaults={"name": None}, methods=["POST"])
+@app.route("/interop/map/submit/<string:name>", methods=["POST"])
+def map_submit(name):
+    return jsonify(  # When name is specified, a specific uploaded map image will be submitted
+        interop.map_submit(name)  # If it isn't, the most recent one will be submitted
+    )
 
 
 @app.route("/mav/telemetry")
@@ -148,13 +201,6 @@ def commands_get():
 def command_append(command, lat, lon, alt):
     mav.insert_command(command, lat, lon, alt)
     return "Success"
-
-
-# Below method is not possible due to dronekit limitations
-# @app.route("/mav/commands/<command>/<lat>/<lon>/<alt>/<ind>")
-# def command_insert(command, lat, lon, alt, ind):
-#     mav.insert_command(command, lat, lon, alt, ind)
-#     return "Success"
 
 
 if __name__ == "__main__":
