@@ -1,5 +1,5 @@
 {
-    "mav": {
+    "uav": {
         "dummy": true,
         "port": "tcp:127.0.0.1:5760",
         "serial": false

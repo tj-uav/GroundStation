@@ -16,29 +16,29 @@ const FlightPlanMap = props => {
 	const [icons, setIcons] = useState({})
 
 	useEffect(() => {
-		httpget("/interop/mission", response => {
-			setState(response.data.mapCenterPos)
+		httpget("http://localhost:5000/interop/mission", response => {
+			setState(response.data.result.mapCenterPos)
 
 			let waypoints = []
-			response.data.waypoints.forEach(p => waypoints.push({ lat: p.latitude, lng: p.longitude }))
+			response.data.result.waypoints.forEach(p => waypoints.push({ lat: p.latitude, lng: p.longitude }))
 			props.setters.waypoints(waypoints)
 
 			let fence = []
-			response.data.flyZones[0].boundaryPoints.forEach(p => fence.push({ lat: p.latitude, lng: p.longitude }))
+			response.data.result.flyZones[0].boundaryPoints.forEach(p => fence.push({ lat: p.latitude, lng: p.longitude }))
 			props.setters.fence(fence)
 
 			let ugvFence = []
-			response.data.airDropBoundaryPoints.forEach(p => ugvFence.push({ lat: p.latitude, lng: p.longitude }))
+			response.data.result.airDropBoundaryPoints.forEach(p => ugvFence.push({ lat: p.latitude, lng: p.longitude }))
 			props.setters.ugvFence(ugvFence)
 
 			let searchGrid = []
-			response.data.searchGridPoints.forEach(p => searchGrid.push({ lat: p.latitude, lng: p.longitude }))
+			response.data.result.searchGridPoints.forEach(p => searchGrid.push({ lat: p.latitude, lng: p.longitude }))
 			props.setters.searchGrid(searchGrid)
 
-			props.setters.ugvDrive({ lat: response.data.ugvDrivePos.latitude, lng: response.data.ugvDrivePos.longitude })
-			props.setters.ugvDrop({ lat: response.data.airDropPos.latitude, lng: response.data.airDropPos.longitude })
-			props.setters.offAxis({ lat: response.data.offAxisOdlcPos.latitude, lng: response.data.offAxisOdlcPos.longitude })
-			props.setters.obstacles(response.data.stationaryObstacles)
+			props.setters.ugvDrive({ lat: response.data.result.ugvDrivePos.latitude, lng: response.data.result.ugvDrivePos.longitude })
+			props.setters.ugvDrop({ lat: response.data.result.airDropPos.latitude, lng: response.data.result.airDropPos.longitude })
+			props.setters.offAxis({ lat: response.data.result.offAxisOdlcPos.latitude, lng: response.data.result.offAxisOdlcPos.longitude })
+			props.setters.obstacles(response.data.result.stationaryObstacles)
 		})
 
 		var MarkerIcon = L.Icon.extend({

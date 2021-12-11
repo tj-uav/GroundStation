@@ -25,12 +25,12 @@ TODO: Display list highlighting (and vice versa)
 
 const FlightData = () => {
 	const queryTelemetry = () => {
-		httpget("/mav/telemetry", response => setPlane({
+		httpget("http://localhost:5000/interop/telemetry", response => setPlane({
 			latlng: {
-				lat: response.data.latitude,
-				lng: response.data.longitude
+				lat: response.data.result.latitude,
+				lng: response.data.result.longitude
 			},
-			heading: response.data.heading,
+			heading: response.data.result.heading,
 		}))
 	}
 
@@ -89,6 +89,7 @@ const FlightData = () => {
 		const interval = setInterval(() => {
 			queryTelemetry();
 		}, 500);
+		console.log(plane);
 		return () => clearInterval(interval);
 	}, [])
 

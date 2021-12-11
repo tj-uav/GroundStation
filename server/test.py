@@ -3,7 +3,7 @@ import logging
 from flask import Flask
 from flask_socketio import SocketIO
 
-log = logging.getLogger('werkzeug')
+log = logging.getLogger("werkzeug")
 log.setLevel(logging.ERROR)
 
 app = Flask(__name__)

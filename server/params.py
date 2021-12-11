@@ -1,17 +1,16 @@
 # import os
 import sys
 import time
-from pymavlink import mavutil
-from pymavlink import mavparm
+from pymavlink import mavutil, mavparm
 
 # https://github.com/ArduPilot/pymavlink/blob/master/mavparm.py
 # https://www.ardusub.com/developers/pymavlink.html
 
-LAST_PARAM_ID = 'TKOFF_DIST'
+LAST_PARAM_ID = "TKOFF_DIST"
 
 """
 Read in all params from target system (Pixhawk)
-Params list gets saved to master.params, a dictionary containing {'param_name': param_value}
+Params list gets saved to master.params, a dictionary containing {"param_name": param_value}
 """
 
 
@@ -20,7 +19,7 @@ def read_all_params(master: mavutil.mavfile):
     while True:
         time.sleep(0.01)
         try:
-            message = master.recv_match(type='PARAM_VALUE', blocking=True, timeout=1)
+            message = master.recv_match(type="PARAM_VALUE", blocking=True, timeout=1)
             if message is None:
                 break
             param_name = message.param_id
@@ -33,14 +32,14 @@ def read_all_params(master: mavutil.mavfile):
 
 """
 Read in a single param from target system (Pixhawk)
-Returns None if param not found else {'param_name': param_value}
+Returns None if param not found else {"param_name": param_value}
 """
 
 
-def read_single_param(master: mavutil.mavfile, name: 'str') -> dict:
+def read_single_param(master: mavutil.mavfile, name: "str") -> dict:
     master.param_fetch_one(name)
     # TODO: Check if this automatically updates master.params
-    message = master.recv_match(type='PARAM_VALUE', blocking=True, timeout=1)
+    message = master.recv_match(type="PARAM_VALUE", blocking=True, timeout=1)
     if message is None:
         return None
     return {message.param_id: message.param_value}
@@ -48,7 +47,7 @@ def read_single_param(master: mavutil.mavfile, name: 'str') -> dict:
 
 """
 Load params from a file into a dictionary
-Returns None if filepath doesn't exist, otherwise returns dictionary
+Returns None if filepath doesn"t exist, otherwise returns dictionary
 """
 
 
