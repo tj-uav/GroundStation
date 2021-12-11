@@ -13,17 +13,17 @@ const Quick = () => {
 	const [latLong, setLatLong] = useState({ "lat": 0, "lon": 0 })
 
 	const updateData = () => {
-		fetch("http://localhost:5000/mav/quick")
+		fetch("http://localhost:5000/uav/quick")
 			.then(response => response.json())
 			.then(data => {
-				setAltitude(data.altitude)
-				setOrientation({"yaw": data.orientation.yaw, "roll": data.orientation.roll, "pitch": data.orientation.pitch })
-				setGroundSpeed(data.ground_speed)
-				setAirspeed(data.air_speed)
-				setDistToWaypoint(data.dist_to_wp)
-				setBattery(data.voltage)
-				setThrottle(data.throttle)
-				setLatLong({"lat": data.lat, "lon": data.lon})
+				setAltitude(data.result.altitude)
+				setOrientation({"yaw": data.result.orientation.yaw, "roll": data.result.orientation.roll, "pitch": data.result.orientation.pitch })
+				setGroundSpeed(data.result.ground_speed)
+				setAirspeed(data.result.air_speed)
+				setDistToWaypoint(data.result.dist_to_wp)
+				setBattery(data.result.voltage)
+				setThrottle(data.result.throttle)
+				setLatLong({"lat": data.result.lat, "lon": data.result.lon})
 			})
 	}
 
