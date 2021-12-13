@@ -5,6 +5,8 @@ import random
 from dronekit import Command
 from pymavlink import mavutil
 
+from errors import GeneralError, ServiceUnavailableError, InvalidRequestError
+
 COMMANDS = {
     "TAKEOFF": mavutil.mavlink.MAV_CMD_NAV_TAKEOFF,
     "WAYPOINT": mavutil.mavlink.MAV_CMD_NAV_WAYPOINT,
@@ -32,18 +34,19 @@ class DummyUAVHandler:
 
     def connect(self):
         print("CREATED DUMMY UAV HANDLER")
-        return {}, 201
+        self.update()
+        return {}
 
     def update(self):
         try:
-            self.altitude = random.random() * 100
+            self.altitude = random.random() * 650 + 100
             self.orientation = {
                 "yaw": random.randint(0, 360),
                 "roll": random.randint(0, 360),
                 "pitch": random.randint(0, 360)
             }
-            self.ground_speed = random.random() * 100
-            self.air_speed = random.random() * 100
+            self.ground_speed = random.random() * 50 + 25
+            self.air_speed = random.random() * 50 + 25
             self.dist_to_wp = random.random() * 100
             self.voltage = random.random() * 16
             self.battery_level = random.randint(0, 100)
@@ -51,16 +54,14 @@ class DummyUAVHandler:
             # simulates the plane flying over waypoints
             if not self.waypoints:
                 self.waypoints = self.gs.call("i_data", "waypoints")
-                if self.waypoints[1] >= 400:
-                    return {"result": "Could not retreive data from Interop"}, 503
-                self.waypoints = self.waypoints[0]["result"]
+                self.waypoints = self.waypoints["result"]
                 self.waypoint_index = 1 % len(self.waypoints)
-                self.lat = self.waypoints[0]["latitude"]
-                self.lon = self.waypoints[0]["longitude"]
+                self.lat = self.waypoints[self.waypoint_index]["latitude"]
+                self.lon = self.waypoints[self.waypoint_index]["longitude"]
             speed = 0.0001
             x_dist = self.waypoints[self.waypoint_index]["latitude"]-self.lat
             y_dist = self.waypoints[self.waypoint_index]["longitude"]-self.lon
-            dist = math.sqrt((x_dist) ** 2 + (y_dist) ** 2)
+            dist = math.sqrt(x_dist ** 2 + y_dist ** 2)
             angle = math.atan2(y_dist, x_dist)
             if dist <= 0.0001:
                 self.lat = self.waypoints[self.waypoint_index]["latitude"]
@@ -74,9 +75,11 @@ class DummyUAVHandler:
                 'roll': random.randint(0, 360),
                 'pitch': random.randint(0, 360)
             }
-            return {}, 201
+            return {}
+        except KeyError as e:
+            raise ServiceUnavailableError("Interop Connection Lost") from e
         except Exception as e:
-            return {"result": str(e)}, 500
+            raise GeneralError(str(e)) from e
 
     def quick(self):
         return {"result": {
@@ -89,7 +92,7 @@ class DummyUAVHandler:
             "throttle": self.throttle,
             "lat": self.lat,
             "lon": self.lon
-        }}, 200
+        }}
 
     def stats(self):
         return {"result": {
@@ -97,37 +100,31 @@ class DummyUAVHandler:
             "flightmode": self.mode,
             "commands": [cmd.to_dict() for cmd in self.commands],
             "armed": self.armed
-        }}, 200
+        }}
 
     def set_flight_mode(self, flightmode):
         self.mode = flightmode
-        return {}, 201
+        return {}
 
     def get_flight_mode(self):
-        return {"result": self.mode}, 200
+        return {"result": self.mode}
 
     def get_param(self, key):
-        return {"result": self.params[key]}, 200
+        return {"result": self.params[key]}
 
     def get_params(self):
-        return {"result": self.params}, 200
+        return {"result": self.params}
 
     def set_param(self, key, value):
         try:
             print(float(value))
-        except ValueError:
-            return {"result": "Invalid parameter value"}, 400
+        except ValueError as e:
+            raise InvalidRequestError("Parameter Value cannot be converted to float") from e
         try:
-            with open("params.json", "r") as file:
-                params = json.load(file)
-            params[key] = value
-            with open("params.json", "w") as file:
-                json.dump(self.params, file)
-            self.load_params()
             self.params[key] = value
-            return {}, 201
+            return {}
         except Exception as e:
-            return {"result": str(e)}, 500
+            raise GeneralError(str(e)) from e
 
     def set_params(self, **kwargs):
         try:
@@ -135,59 +132,59 @@ class DummyUAVHandler:
             for key, value in kwargs.items():
                 try:
                     float(value)
-                except ValueError:
-                    return {"result": "Invalid parameter value"}, 400
-                new_params[key] = value
+                except ValueError as e:
+                    raise InvalidRequestError("Parameter Value cannot be converted to float") from e
+                new_params[key] = float(value)
             self.params = new_params
-            return {}, 201
+            return {}
         except Exception as e:
-            return {"result": str(e)}, 500
+            raise GeneralError(str(e)) from e
 
     def save_params(self):
         try:
             with open("params.json", "w") as file:
                 json.dump(self.params, file)
-            return {}, 201
+            return {}
         except Exception as e:
-            return {"result": str(e)}, 500
+            raise GeneralError(str(e)) from e
 
     def load_params(self):
         try:
             with open("params.json", "r") as file:
                 self.params = json.load(file)
-            return {}, 201
+            return {}
         except Exception as e:
-            return {"result": str(e)}, 500
+            raise GeneralError(str(e)) from e
 
     def get_commands(self):
         try:
             commands = self.commands
-            return {"result": [cmd.to_dict() for cmd in commands]}, 201
+            return {"result": [cmd.to_dict() for cmd in commands]}
         except Exception as e:
-            return {"result": str(e)}, 500
+            raise GeneralError(str(e)) from e
 
     def insert_command(self, command, lat, lon, alt):
+        if command not in COMMANDS.keys():
+            raise InvalidRequestError("Invalid Command Name")
         try:
-            if command not in COMMANDS:
-                return {"result": "Command not found"}
             new_cmd = Command(0, 0, 0, mavutil.mavlink.MAV_FRAME_GLOBAL_RELATIVE_ALT,
                               COMMANDS[command], 0, 0, 0, 0, 0, 0, lat, lon, alt)
             self.commands.append(new_cmd)
-            return {}, 201
+            return {}
         except Exception as e:
-            return {"result": str(e)}, 500
+            raise GeneralError(str(e)) from e
 
     def clear_mission(self):
         self.commands = []
-        return {}, 201
+        return {}
 
     def get_armed(self):
-        return {"result": self.armed}, 200
+        return {"result": self.armed}
 
     def arm(self):
         self.armed = True  # Motors can be started
-        return {}, 201
+        return {}
 
     def disarm(self):
         self.armed = False
-        return {}, 201
+        return {}

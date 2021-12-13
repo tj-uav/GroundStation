@@ -89,7 +89,6 @@ const FlightData = () => {
 		const interval = setInterval(() => {
 			queryTelemetry();
 		}, 500);
-		console.log(plane);
 		return () => clearInterval(interval);
 	}, [])
 
