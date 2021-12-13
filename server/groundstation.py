@@ -2,26 +2,27 @@ import json
 import time
 from threading import Thread
 
-from interop_handler import InteropHandler
-from uav_handler import UAVHandler
-from dummy_uav_handler import DummyUAVHandler
+from handlers.dummy_uav_handler import DummyUAVHandler
+from handlers.image_handler import ImageHandler
+from handlers.interop_handler import InteropHandler
+from handlers.uav_handler import UAVHandler
 
 
 class GroundStation:
-
     def __init__(self, socket):
         with open("config.json", "r") as file:
             self.config = json.load(file)
 
+        self.interop_telem_thread = self.uav_update_thread = self.retreive_image_thread = None
+
         self.interop = InteropHandler(self, config=self.config)
-        self.interop_telem_thread = self.update_thread = None
 
-        dummy_uav = self.config["uav"]["dummy"]
-
-        if dummy_uav:
+        if self.config["uav"]["dummy"]:
             self.uav = DummyUAVHandler(self, self.config, socket)
         else:
             self.uav = UAVHandler(self, self.config, socket)
+
+        self.image = ImageHandler(self)
 
         self.interop.login()
 
@@ -74,23 +75,33 @@ class GroundStation:
             # print("Telemetry:", run)
             time.sleep(0.1)
 
-    def mav_thread(self):
+    def uav_thread(self):
         while True:
             run = self.uav.update()
             # print("MAV:", run)
+            time.sleep(0.1)
+
+    def image_thread(self):
+        while True:
+            run = self.image.retreive_images()
+            # print("Image:", run)
             time.sleep(0.1)
 
     def async_calls(self):
         self.interop_telem_thread = Thread(target=self.telemetry_thread)
         self.interop_telem_thread.daemon = True
 
-        self.update_thread = Thread(target=self.mav_thread)
-        self.update_thread.daemon = True
+        self.uav_update_thread = Thread(target=self.uav_thread)
+        self.uav_update_thread.daemon = True
+
+        self.retreive_image_thread = Thread(target=self.image_thread)
+        self.retreive_image_thread.daemon = True
 
         time.sleep(5)
-        print("STARTED ASYNC THREADS")
         self.interop_telem_thread.start()
-        self.update_thread.start()
+        self.uav_update_thread.start()
+        self.retreive_image_thread.start()
+        print("STARTED ASYNC THREADS")
 
     # Calls a function from self.func_map, with the provided parameters
     def call(self, func, *args):

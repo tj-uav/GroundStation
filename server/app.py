@@ -1,11 +1,13 @@
 import base64
 import json
 import logging
+import traceback
 
-from flask import Flask, redirect, url_for, request
+from flask import Flask, redirect, url_for, request, jsonify
 from flask_cors import CORS
 from flask_socketio import SocketIO, emit
 
+from errors import InvalidRequestError, InvalidStateError, GeneralError, ServiceUnavailableError
 from groundstation import GroundStation
 
 log = logging.getLogger("werkzeug")
@@ -18,6 +20,56 @@ CORS(app)
 socketio = SocketIO(app, cors_allowed_origins="*")
 
 gs = GroundStation(socketio)
+
+
+@app.errorhandler(Exception)
+def handle_error(e):
+    return jsonify({
+        "title": "Unhandled Server Error",
+        "message": str(e),
+        "exception": type(e).__name__,
+        "traceback": traceback.format_tb(e.__traceback__)
+    }), 500
+
+
+@app.errorhandler(InvalidRequestError)
+def handle_400(e):
+    return jsonify({
+        "title": "Invalid Request",
+        "message": str(e),
+        "exception": type(e).__name__,
+        "traceback": traceback.format_tb(e.__traceback__)
+    }), 400
+
+
+@app.errorhandler(InvalidStateError)
+def handle_409(e):
+    return jsonify({
+        "title": "Invalid State",
+        "message": str(e),
+        "exception": type(e).__name__,
+        "traceback": traceback.format_tb(e.__traceback__)
+    }), 409
+
+
+@app.errorhandler(GeneralError)
+def handle_500(e):
+    return jsonify({
+        "title": "Server Error",
+        "message": str(e),
+        "exception": type(e).__name__,
+        "traceback": traceback.format_tb(e.__traceback__)
+    }), 500
+
+
+@app.errorhandler(ServiceUnavailableError)
+def handle_503(e):
+    return jsonify({
+        "title": "Service Unavailable",
+        "message": str(e),
+        "exception": type(e).__name__,
+        "traceback": traceback.format_tb(e.__traceback__)
+    }), 503
 
 
 @socketio.on("connect")
@@ -75,7 +127,16 @@ def odlc_get_image(id_):
 @app.route("/interop/odlc/add", methods=["POST"])
 def odlc_add():
     f = request.form
+    if not all(field in f for field in ["image", "type", "lat", "lon"]):
+        raise InvalidRequestError("Missing required fields in request")
+    if f.get("type") == "standard":
+        if not all(field in f for field in ["orientation", "shape", "shape_color", "alpha", "alpha_color"]):
+            raise InvalidRequestError("Missing required fields for specific ODLC type")
+    else:
+        if not all(field in f for field in ["description"]):
+            raise InvalidRequestError("Missing required fields for specific ODLC type")
     return gs.call("i_odlcadd",
+                   f.get("image"),
                    f.get("type"),
                    float(f.get("lat")),
                    float(f.get("lon")),
@@ -91,6 +152,8 @@ def odlc_add():
 @app.route("/interop/odlc/edit/<int:id_>", methods=["POST"])
 def odlc_edit(id_):
     f = request.form
+    if not all(field in f for field in ["type"]):
+        raise InvalidRequestError("Missing required fields in request")
     return gs.call("i_odlcedit",
                    id_,
                    f.get("type"),
@@ -128,12 +191,16 @@ def odlc_load():
 @app.route("/interop/map/add", methods=["POST"])
 def map_add():
     f = request.form
+    if not all(field in f for field in ["name", "image"]):
+        raise InvalidRequestError("Missing required fields in request")
     return gs.call("i_mapadd", f.get("name"), f.get("image"))
 
 
 @app.route("/interop/map/submit", methods=["POST"])
 def map_submit():
     f = request.form
+    if not all(field in f for field in ["name"]):
+        raise InvalidRequestError("Missing required fields in request")
     return gs.call("i_mapsubmit", f.get("name"))
 
 
@@ -165,6 +232,8 @@ def get_mode():
 @app.route("/uav/mode/set", methods=["POST"])
 def set_mode():
     f = request.form
+    if not all(field in f for field in ["mode"]):
+        raise InvalidRequestError("Missing required fields in request")
     return gs.call("m_setflightmode", f.get("mode"))
 
 
@@ -186,6 +255,8 @@ def set_param(key, value):
 @app.route("/uav/params/setmultiple", methods=["POST"])
 def set_params():
     f = request.form
+    if not all(field in f for field in ["params"]):
+        raise InvalidRequestError("Missing required fields in request")
     return gs.call("m_setparams", f.get("params"))  # {"param": "newvalue"}
 
 
@@ -207,6 +278,8 @@ def get_commands():
 @app.route("/uav/commands/insert", methods=["POST"])
 def insert_command():
     f = request.form
+    if not all(field in f for field in ["command", "lat", "lon", "alt"]):
+        raise InvalidRequestError("Missing required fields in request")
     return gs.call("m_insertcommand",
                    f.get("command"),
                    f.get("lat"),
@@ -233,13 +306,6 @@ def arm():
 @app.route("/uav/disarm", methods=["POST"])
 def disarm():
     return gs.call("m_disarm")
-
-
-# Below method is not possible due to dronekit limitations
-# @app.route("/mav/commands/<command>/<lat>/<lon>/<alt>/<ind>")
-# def command_insert(command, lat, lon, alt, ind):
-#     mav.insert_command(command, lat, lon, alt, ind)
-#     return "Success"
 
 
 if __name__ == "__main__":

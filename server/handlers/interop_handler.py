@@ -1,14 +1,14 @@
 import base64
 import json
 import os
-import sys
 from datetime import datetime, timedelta, date
 
 from google.protobuf import json_format
 from requests.exceptions import ConnectionError as RequestsCE
-
 from auvsi_suas.client import client
 from auvsi_suas.proto import interop_api_pb2 as interop
+
+from errors import InvalidRequestError, InvalidStateError, GeneralError, ServiceUnavailableError
 
 
 def json_serial(obj):
@@ -62,7 +62,7 @@ class InteropHandler:
     }
 
     def __init__(self, gs, config):
-        print("Created interop handler")
+        print("CREATED INTEROP HANDLER")
         self.gs = gs
         self.config = config
         self.mission_id = self.config["interop"]["mission_id"]
@@ -96,36 +96,37 @@ class InteropHandler:
             }
             self.ugv_points = {
                 "drop": json_format.MessageToDict(self.mission.air_drop_pos),
-                "drop_boundary": [json_format.MessageToDict(a) for a in self.mission.air_drop_boundary_points],
+                "drop_boundary": [json_format.MessageToDict(a) for a in
+                                  self.mission.air_drop_boundary_points],
                 "drive": json_format.MessageToDict(self.mission.ugv_drive_pos)
             }
             self.obstacles = self.mission.stationary_obstacles
             self.obstacles_dict = [json_format.MessageToDict(o) for o in self.obstacles]
             print("INITIALIZED INTEROP HANDLER")
-            return {}, 201
-        except RequestsCE:
+            return {}
+        except RequestsCE as e:
             self.login_status = False
             self.login()
-            return {"result": "Interop connection lost, attempted to re-initiate"}, 503
+            raise ServiceUnavailableError(
+                "Interop connection lost, attempted to re-initiate") from e
         except Exception as e:
-            print(e)
-            return {"result": str(e)}, 500
+            raise GeneralError(str(e)) from e
 
     def login(self):
         if self.login_status and self.client:
-            return {"result": "Already logged in"}, 409
+            raise InvalidStateError("Already Logged In")
         try:
             self.client = client.Client(url=self.config["interop"]["url"],
                                         username=self.config["interop"]["username"],
                                         password=self.config["interop"]["password"])
             self.login_status = True
             self.initialize()
-            return {}, 201
-        except RequestsCE:
+            return {}
+        except RequestsCE as e:
             self.login_status = False
-            return {"result": "Could not establish connection to Interop"}, 503
+            raise ServiceUnavailableError("Could not establish connection to Interop") from e
         except Exception as e:
-            return {"result": str(sys.exc_info()[2].tb_lineno) + ": " + str(e)}, 500
+            raise GeneralError(str(e)) from e
 
     def get_data(self, key="mission"):
         try:
@@ -140,131 +141,138 @@ class InteropHandler:
                 "lost_comms": self.lost_comms_pos_dict
             }
             if key and key in key_map:
-                return {"result": key_map[key]}, 200
-            return {"result": key_map["mission"]}, 200
-        except RequestsCE:
+                return {"result": key_map[key]}
+            return {"result": key_map["mission"]}
+        except RequestsCE as e:
             self.login_status = False
             self.login()
-            return {"result": "Interop connection lost, attempted to re-initiate"}, 503
+            raise ServiceUnavailableError(
+                "Interop connection lost, attempted to re-initiate") from e
         except Exception as e:
-            return {"result": str(e)}, 500
+            raise GeneralError(str(e)) from e
 
     def get_telemetry(self):
         try:
-            return {"result": self.telemetry_json}, 200
+            return {"result": self.telemetry_json}
         except Exception as e:
-            return {"result": str(e)}, 500
+            raise GeneralError(str(e)) from e
 
     def submit_telemetry(self):
         if self.client is None:
             self.login_status = False
             self.login()
-            return {"result": "Interop connection lost, attempted to re-initiate"}, 503
-        else:
-            try:
-                telemetry = interop.Telemetry()
-                uav_quick = self.gs.call("m_quick")
-                if uav_quick[1] >= 400:
-                    return {"result": "Could not retreive data from Interop"}, 503
-                uav_quick = uav_quick[0]["result"]
-                telemetry.latitude = uav_quick["lat"]
-                telemetry.longitude = uav_quick["lon"]
-                telemetry.altitude = uav_quick["altitude"]
-                telemetry.heading = uav_quick["orientation"]["yaw"]
-                self.telemetry_json = json_format.MessageToDict(telemetry)
-                self.client.post_telemetry(telemetry)
-                return {}, 201
-            except RequestsCE:
-                self.login_status = False
-                self.login()
-                return {"result": "Interop connection lost, attempted to re-initiate"}, 503
-            except KeyError:
-                return {"result": "UAV connection lost"}, 503
-            except Exception as e:
-                return {"result": "Line " + str(sys.exc_info()[2].tb_lineno) + ": " + str(e)}, 500
+            raise ServiceUnavailableError("Interop connection lost, attempted to re-initiate")
+        try:
+            telemetry = interop.Telemetry()
+            uav_quick = self.gs.call("m_quick")
+            uav_quick = uav_quick["result"]
+            telemetry.latitude = uav_quick["lat"]
+            telemetry.longitude = uav_quick["lon"]
+            telemetry.altitude = uav_quick["altitude"]
+            telemetry.heading = uav_quick["orientation"]["yaw"]
+            self.telemetry_json = json_format.MessageToDict(telemetry)
+            self.client.post_telemetry(telemetry)
+            return {}
+        except RequestsCE as e:
+            self.login_status = False
+            self.login()
+            raise ServiceUnavailableError(
+                "Interop connection lost, attempted to re-initiate") from e
+        except KeyError as e:
+            raise ServiceUnavailableError("UAV Connection Lost") from e
+        except Exception as e:
+            raise GeneralError(str(e)) from e
 
     def odlc_get_queue(self, filter_val=3):
         try:
             if filter_val == 0:
-                return {"result": [o for o in self.odlc_queued_data if o["status"] is None]}, 200
+                return {"result": [o for o in self.odlc_queued_data if o["status"] is None]}
             if filter_val == 1:
-                return {"result": [o for o in self.odlc_queued_data if o["status"]]}, 200
+                return {"result": [o for o in self.odlc_queued_data if o["status"]]}
             if filter_val == 2:
-                return {"result": [o for o in self.odlc_queued_data if o["status"] is False]}, 200
-            return {"result": self.odlc_queued_data}, 200
+                return {"result": [o for o in self.odlc_queued_data if o["status"] is False]}
+            return {"result": self.odlc_queued_data}
         except Exception as e:
-            return {"result": str(e)}, 500
+            raise GeneralError(str(e)) from e
 
-    def odlc_add_to_queue(self, image: str, type_: str, lat: float, lon: float, orientation: int, shape: str,
-                          shape_color: str, alpha: str, alpha_color: str, description=None):
+    def odlc_add_to_queue(self, image: str = None, type_: str = None, lat: float = None,
+                          lon: float = None, orientation: int = None, shape: str = None,
+                          shape_color: str = None, alpha: str = None, alpha_color: str = None,
+                          description: str = None):
         try:
-            with open(f"assets/odlc_images/{len(self.odlc_queued_data)}.jpg", "wb") as file:
+            with open(f"assets/odlc_images/{len(self.odlc_queued_data)}.png", "wb") as file:
                 file.write(base64.decodebytes(bytes(image, 'utf-8')))
-            data_obj = {
+            base_obj = {
                 "created": datetime.now(),
                 "auto_submit": datetime.now() + timedelta(minutes=5),
                 "status": None,
+                "autonomous": True,
                 "type": self.ODLC_KEY["type"][type_],
                 "latitude": lat,
-                "longitude": lon,
-                "orientation": self.ODLC_KEY["orientation"][orientation] if orientation in self.ODLC_KEY[
-                    "orientation"] else self.ODLC_KEY["orientation"][
-                    min(self.ODLC_KEY["orientation"].keys(), key=lambda k: abs(k - orientation))],
-                "shape": self.ODLC_KEY["shape"][shape],
-                "shape_color": self.ODLC_KEY["color"][shape_color],
-                "alphanumeric": alpha,
-                "alphanumeric_color": self.ODLC_KEY["color"][alpha_color],
-                "description": description
+                "longitude": lon
             }
-            self.odlc_queued_data.append(data_obj)
-            return {}, 201
+            if type_ == "emergent":
+                data_obj = {"description": description}
+            else:
+                data_obj = {
+                    "orientation": self.ODLC_KEY["orientation"][orientation] \
+                        if orientation in self.ODLC_KEY["orientation"] else \
+                        self.ODLC_KEY["orientation"][min(
+                            self.ODLC_KEY["orientation"].keys(), key=lambda k: abs(k - orientation)
+                        )],
+                    "shape": self.ODLC_KEY["shape"][shape],
+                    "shape_color": self.ODLC_KEY["color"][shape_color],
+                    "alphanumeric": alpha,
+                    "alphanumeric_color": self.ODLC_KEY["color"][alpha_color]
+                }
+            self.odlc_queued_data.append(
+                {**base_obj, **data_obj})  # Merges base data with type-specific data
+            return {}
         except Exception as e:
-            return {"result": str(e)}, 500
+            raise GeneralError(str(e)) from e
 
-    def odlc_edit(self, id_, image=None, type_=None, lat=None, lon=None, orientation=None, shape=None, shape_color=None, alpha=None, alpha_color=None, description=None):
+    def odlc_edit(self, id_, image=None, type_=None, lat=None, lon=None, orientation=None,
+                  shape=None, shape_color=None, alpha=None, alpha_color=None, description=None):
         if len(self.odlc_queued_data) <= id_:
-            return {"result": "Invalid ID"}, 409
+            raise InvalidStateError("Invalid ODLC ID")
+        if not type_:
+            raise InvalidRequestError("Missing required fields in request")
         try:
             if image:
                 with open(f"assets/odlc_images/{id_}.jpg", "wb") as file:
                     file.write(base64.decodebytes(bytes(image, 'utf-8')))
-            fields = {
-                "type": self.ODLC_KEY["type"][type_] if type_ else None,
-                "latitude": lat,
-                "longitude": lon,
-                "orientation": None if orientation is None else (self.ODLC_KEY["orientation"][orientation] if orientation in self.ODLC_KEY[
-                    "orientation"] else self.ODLC_KEY["orientation"][
-                    min(self.ODLC_KEY["orientation"].keys(), key=lambda k: abs(k - orientation))]),
-                "shape": self.ODLC_KEY["shape"][shape] if shape else None,
-                "shape_color": self.ODLC_KEY["color"][shape_color] if shape_color else None,
-                "alphanumeric": alpha,
-                "alphanumeric_color": self.ODLC_KEY["color"][alpha_color] if alpha_color else None,
-                "description": description
-            }
-            for name, var in fields.items():
-                if var is not None:
-                    self.odlc_queued_data[id_][name] = var
-            return {}, 201
+            old_obj = self.odlc_queued_data[id_]
+            if type_ == "emergent":
+                old_obj["description"] = description if description else old_obj["description"]
+            else:
+                keymap = {"lat": lat, "lon": lon, "orientation": orientation, "shape": shape,
+                          "shape_color": shape_color, "alphanumeric": alpha,
+                          "alphanumeric_color": alpha_color}
+                for name, newval in keymap.items():
+                    if newval:
+                        old_obj[name] = newval
+            self.odlc_queued_data[id_] = old_obj
+            return {}
         except Exception as e:
-            return {"result": str(e)}, 500
+            raise GeneralError(str(e)) from e
 
     def odlc_reject(self, id_):
         try:
             if len(self.odlc_queued_data) <= id_:
-                return {"result": "Invalid ID"}, 409
+                raise InvalidStateError("Invalid ODLC ID")
             if self.odlc_queued_data[id_]["status"] is False:
-                return {"result": "Already Rejected"}, 409
+                raise InvalidStateError("ODLC Already Rejected")
             self.odlc_queued_data[id_]["status"] = False
-            return {}, 201
+            return {}
         except Exception as e:
-            return {"result": str(e)}, 500
+            raise GeneralError(str(e)) from e
 
     def odlc_submit(self, id_):
         try:
             if len(self.odlc_queued_data) <= id_:
-                return {"result": "Invalid ID"}, 409
+                raise InvalidStateError("Invalid ODLC ID")
             if self.odlc_queued_data[id_]["status"] is True:
-                return {"result": "Already Submitted"}, 409
+                raise InvalidStateError("ODLC Already Submitted")
             obj_data = self.odlc_queued_data[id_]
             with open(f"assets/odlc_images/{id_}.jpg", "rb") as image:
                 image_data = image.read()
@@ -281,17 +289,17 @@ class InteropHandler:
             odlc = self.client.post_odlc(submission)
             self.client.put_odlc_image(odlc.id, image_data)
             self.odlc_queued_data[id_]["status"] = True
-            return {}, 201
+            return {}
         except Exception as e:
-            return {"result": str(e)}, 500
+            raise GeneralError(str(e)) from e
 
     def odlc_save_queue(self, filename="odlc"):
         try:
             with open(filename + ".json", "w") as file:
                 json.dump(self.odlc_queued_data, file, default=json_serial)
-                return {}, 201
+                return {}
         except Exception as e:
-            return {"result": str(e)}, 500
+            raise GeneralError(str(e)) from e
 
     def odlc_load_queue(self, filename="odlc"):
         try:
@@ -301,34 +309,34 @@ class InteropHandler:
                     obj["created"] = datetime.fromisoformat(obj["created"])
                     obj["auto_submit"] = datetime.fromisoformat(obj["auto_submit"])
                     self.odlc_queued_data[x] = obj
-                return {}, 201
-        except FileNotFoundError:
-            return {"result": "File does not exist"}, 409
+                return {}
+        except FileNotFoundError as e:
+            raise InvalidStateError("ODLC File Does Not Exist") from e
         except Exception as e:
-            return {"result": str(e)}, 500
+            raise GeneralError(str(e)) from e
 
     def map_add(self, name: str, image: str):
         try:
             if os.path.isfile(f"assets/map_images/{name}.jpg"):
-                return {"result": "Map with this name already exists"}, 409
+                raise InvalidStateError("Map with this name already exists")
             with open(f"assets/map_images/{name}.jpg", "wb") as file:
                 file.write(base64.decodebytes(bytes(image, 'utf-8')))
             self.map_image = image
-            return {}, 201
+            return {}
         except Exception as e:
-            return {"result": str(e)}, 500
+            raise GeneralError(str(e)) from e
 
     def map_submit(self, name=None):
         try:
-            if not os.path.isfile(f"assets/map_images/{name}.jpg"):
-                return {"result": "Map not found"}, 409
             if not name:
                 self.submitted_map = base64.decodebytes(bytes(self.map_image, 'utf-8'))
                 self.client.put_map_image(self.mission_id, self.submitted_map)
             else:
+                if not os.path.isfile(f"assets/map_images/{name}.jpg"):
+                    raise InvalidStateError("Map not found")
                 with open(f"assets/map_images/{name}.jpg", "rb") as file:
                     self.submitted_map = file.read()
                     self.client.put_map_image(self.mission_id, self.submitted_map)
-            return {}, 201
+            return {}
         except Exception as e:
-            return {"result": str(e)}, 500
+            raise GeneralError(str(e)) from e
