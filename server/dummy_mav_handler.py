@@ -1,3 +1,4 @@
+import time
 import random
 import threading
 import time
@@ -59,7 +60,7 @@ class DummyMavHandler:
         }
 
     def quick(self):
-        print("Requesting quick data")
+        # print("Requesting quick data")
         return {'altitude': self.altitude,
                 'orientation': self.orientation,
                 'ground_speed': self.ground_speed,
@@ -71,6 +72,7 @@ class DummyMavHandler:
                 'lon': self.lon
                 }
 
+
     def get_telemetry(self):
         return {
             "latitude": self.lat,
@@ -78,12 +80,20 @@ class DummyMavHandler:
             "heading": self.orientation["yaw"]
         }
 
-    def params(self):
+    def load_params(self):
         with open("params.json", "r") as file:
             self.params = json.load(file)
 
+    def get_params(self):
+        return self.params
+
     def set_param(self, key, value):
-        pass
+        with open("params.json", "r") as file:
+            params = json.load(file)
+        params[key] = value
+        with open("params.json", "w") as file:
+            json.dump(self.params, file)
+        self.load_params()
 
     def get_commands(self):
         return []

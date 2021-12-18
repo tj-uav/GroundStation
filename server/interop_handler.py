@@ -1,5 +1,7 @@
 import json
 import time
+import os
+import base64
 from datetime import datetime, timedelta, date
 
 from google.protobuf import json_format
@@ -69,6 +71,8 @@ class InteropHandler:
         self.telemetry_json = {}
         self.odlc_queued_data = []
         self.odlc_submission_ids = []
+        self.map_image = None
+        self.submitted_map = None
 
     def initialize(self):
         self.mission = self.client.get_mission(self.mission_id)
@@ -143,8 +147,10 @@ class InteropHandler:
             return [o for o in self.odlc_queued_data if o["status"] is False]
         return self.odlc_queued_data
 
-    def odlc_add_to_queue(self, type_: str, lat: float, lon: float, orientation: int, shape: str,
+    def odlc_add_to_queue(self, image: str, type_: str, lat: float, lon: float, orientation: int, shape: str,
                           shape_color: str, alpha: str, alpha_color: str, description=None):
+        with open(f"assets/odlc_images/{len(self.odlc_queued_data)}.jpg", "wb") as file:
+            file.write(base64.decodebytes(bytes(image, 'utf-8')))
         data_obj = {
             "created": datetime.now(),
             "auto_submit": datetime.now() + timedelta(minutes=5),
@@ -162,9 +168,12 @@ class InteropHandler:
             "description": description
         }
         self.odlc_queued_data.append(data_obj)
-        return self.odlc_get_queue()
+        return {"result": "success", "id": len(self.odlc_queued_data) - 1}
 
-    def odlc_edit(self, id_, type_=None, lat=None, lon=None, orientation=None, shape=None, shape_color=None, alpha=None, alpha_color=None, description=None):
+    def odlc_edit(self, id_, image=None, type_=None, lat=None, lon=None, orientation=None, shape=None, shape_color=None, alpha=None, alpha_color=None, description=None):
+        if image:
+            with open(f"assets/odlc_images/{id_}.jpg", "wb") as file:
+                file.write(base64.decodebytes(bytes(image, 'utf-8')))
         fields = {
             "type": ODLC_KEY["type"][type_] if type_ else None,
             "latitude": lat,
@@ -225,3 +234,21 @@ class InteropHandler:
                 obj["auto_submit"] = datetime.fromisoformat(obj["auto_submit"])
                 self.odlc_queued_data[x] = obj
             return {"result": "success"}
+
+    def map_add(self, name: str, image: str):
+        if os.path.isfile(f"assets/map_images/{name}.jpg"):
+            return {"result": "failed: map with this name already exists"}
+        with open(f"assets/map_images/{name}.jpg", "wb") as file:
+            file.write(base64.decodebytes(bytes(image, 'utf-8')))
+        self.map_image = image
+        return {"result": "success"}
+
+    def map_submit(self, name=None):
+        if not name:
+            self.submitted_map = base64.decodebytes(bytes(self.map_image, 'utf-8'))
+            self.client.put_map_image(self.mission_id, self.submitted_map)
+        else:
+            with open(f"assets/map_images/{name}.jpg", "rb") as file:
+                self.submitted_map = file.read()
+                self.client.put_map_image(self.mission_id, self.submitted_map)
+        return {"result": "success"}
