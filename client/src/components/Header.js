@@ -9,8 +9,8 @@ const NavContainer = styled.div`
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	height: 5rem;
-	margin: 0 2rem;
+	height: 4rem;
+	margin: 0 1rem;
 `
 
 const Link = ({ href, children, ...props }) => {

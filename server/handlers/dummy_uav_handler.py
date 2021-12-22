@@ -39,18 +39,18 @@ class DummyUAVHandler:
 
     def update(self):
         try:
-            self.altitude = random.random() * 650 + 100
+            self.altitude = random.random() * 250 + 150
             self.orientation = {
                 "yaw": random.randint(0, 360),
-                "roll": random.randint(0, 360),
-                "pitch": random.randint(0, 360)
+                "roll": random.randint(-30, 30),
+                "pitch": random.randint(-20, 20)
             }
-            self.ground_speed = random.random() * 50 + 25
-            self.air_speed = random.random() * 50 + 25
+            self.ground_speed = random.random() * 30 + 45
+            self.air_speed = random.random() * 30 + 45
             self.dist_to_wp = random.random() * 100
-            self.voltage = random.random() * 16
+            self.voltage = random.random() * 2 + 14
             self.battery_level = random.randint(0, 100)
-            self.throttle = random.randint(0, 100)
+            self.throttle = random.randint(60, 80)
             # simulates the plane flying over waypoints
             if not self.waypoints:
                 self.waypoints = self.gs.call("i_data", "waypoints")
@@ -72,8 +72,8 @@ class DummyUAVHandler:
                 self.lon = (self.lon + math.sin(angle) * speed)
             self.orientation = {
                 'yaw': int((angle/(2*math.pi) * 360) if angle >= 0 else (angle/(2*math.pi)*360 + 360)),
-                'roll': random.randint(0, 360),
-                'pitch': random.randint(0, 360)
+                'roll': random.randint(-30, 30),
+                'pitch': random.randint(-20, 20)
             }
             return {}
         except KeyError as e:
