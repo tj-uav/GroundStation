@@ -92,11 +92,10 @@ def odlc_add():
 @app.route("/interop/odlc/edit/<int:id_>", methods=["POST"])
 def odlc_edit(id_):
     f = request.form
-    return jsonify(interop.odlc_edit(id_, f.get("type"), float(f.get("lat")), float(f.get("lon")),
-                                     int(f.get("orientation")), f.get("shape"),
-                                     f.get("shape_color"), f.get("alpha"), f.get("alpha_color"),
+    return jsonify(interop.odlc_edit(id_, int(f.get("type")), float(f.get("latitude")), float(f.get("longitude")),
+                                     int(f.get("orientation")), int(f.get("shape")),
+                                     int(f.get("shape_color")), f.get("alphanumeric"), int(f.get("alphanumeric_color")),
                                      f.get("description")))
-
 
 @app.route("/interop/odlc/reject/<int:id_>", methods=["POST"])
 def odlc_reject(id_):
@@ -105,7 +104,8 @@ def odlc_reject(id_):
 
 @app.route("/interop/odlc/submit/<int:id_>", methods=["POST"])
 def odlc_submit(id_):
-    return jsonify(interop.odlc_submit(id_))
+    status = request.form.get("status")
+    return jsonify(interop.odlc_submit(id_, status))
 
 
 @app.route("/interop/odlc/load")

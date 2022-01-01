@@ -1,23 +1,11 @@
-import React, { useEffect, useState, createContext } from "react"
+import React, { useEffect, useState, useRef, createContext } from "react"
 
-import SubmissionsToolbar from "pages/Submissions/SubmissionsToolbar"
+import SubmissionEditor from "pages/Submissions/SubmissionEditor"
 import TabBar from "components/TabBar"
-import View from "pages/Submissions/tabs/View"
-import Submitted from "pages/Submissions/tabs/Submitted"
+import { View, Submitted, Rejected } from "pages/Submissions/Tabs"
+import { httpget, httppost } from "backend"
 
-// generating random data for now
-const choice = list => list[Math.floor(Math.random() * list.length)]
-const initialData = new Array(5).fill().map(() => ({
-	submitted: false,
-	shape: choice(["Square", "Circle", "Star", "Triangle"]),
-	shapeColor: choice(["Red", "Orange", "Yellow", "Green", "Blue", "Purple"]),
-	letter: choice("ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("")),
-	letterColor: choice(["Red", "Orange", "Yellow", "Green", "Blue", "Purple"]),
-	orientation: Math.floor(Math.random() * 360 + 1),
-	latitude: Math.floor(Math.random() * 100),
-	longitude: Math.floor(Math.random() * 100),
-	description: "",
-}))
+export const SubmitContext = createContext()
 
 function onSubmit(data) {
 	// TODO: shwoop up to server here
@@ -25,15 +13,123 @@ function onSubmit(data) {
 	console.log("Submitted!", rest)
 }
 
-export const SubmitContext = createContext()
-
 const Submissions = () => {
-	const [data, setData] = useState(initialData)
+	const [data, setData] = useState([])
+	const [images, setImages] = useState([])
 	const [active, setActive] = useState(0)
+	const dataRef = useRef()
+	const imagesRef = useRef()
+	const activeRef = useRef()
+	dataRef.current = data
+	activeRef.current = active
+	imagesRef.current = images
+
+	const newActive = (d) => {
+		for (let i = 0; i < d.length; i++) {
+			if (d[i].status === null) {
+				return i
+			}
+		}
+		return undefined
+	}
+
+	const queryData = () => {
+		httpget("/interop/odlc/list", async (response) => {
+			const odlcsEqual = (a, b) => {
+				if (a.alphanumeric === b.alphnumeric ||
+					a.alphanumeric_color === b.alphanumeric_color ||
+					a.auto_submit === b.auto_submit ||
+					a.created === b.created ||
+					a.description === b.description ||
+					a.latitude === b.latitude ||
+					a.longitude === b.longitude ||
+					a.orientation === b.orientation ||
+					a.shape === b.shape ||
+					a.shape_color === b.shape_color ||
+					a.status === b.status ||
+					a.type === b.type) {
+						return true
+					}
+				return false
+			}
+
+			let resData = response.data.map((odlc) => {
+				return { ...odlc, orientation: (odlc.orientation-1)*45 }
+			})
+
+			let changed = false
+			if (resData.length !== dataRef.current.length) {
+				changed = true
+			} else {
+				for (let i = 0; i < dataRef.current.length; i++) {
+					if (!odlcsEqual(dataRef.current[i], resData[i])) {
+						changed = true
+					}
+				}
+			}
+
+			if (changed) {
+				setData(resData)
+
+				let imagesData = []
+				for (let i = 0; i < resData.length; i++) {
+					await httpget("/interop/odlc/image/"+i, (res) => {
+						imagesData.push(res.data.image)
+					})
+				}
+
+				setImages(imagesData)
+			}
+		})
+	}
 
 	useEffect(() => {
-		data.filter(v => !v.submitted).length === 0 && setActive(undefined)
-	}, [data])
+		queryData()
+		const tick = setInterval(() => {
+			queryData()
+		}, 1000)
+		return () => clearInterval(tick)
+	}, [])
+
+	const convertOdlc = (o) => {
+		return { ...o, orientation: o.orientation/45 }
+	}
+
+	const accept = async (i, formData) => {
+		let d = data
+		if (formData) {
+			d[i] = formData
+			let submit = convertOdlc(d[i])
+			await httppost("/interop/odlc/edit/"+i, submit)
+		}
+		d[i].status = "submitted"
+		setData(d)
+		await httppost("/interop/odlc/submit/"+i, { status: "submitted" })
+		setActive(newActive(data))
+	}
+
+	const edit = async (i, formData) => {
+		let d = data
+		let odlc = d[i]
+		if (formData) {
+			d[i] = formData
+			odlc = convertOdlc(d[i])
+		}
+		await httppost("/interop/odlc/edit/"+i, odlc)
+	}
+
+	const reject = async (i, formData) => {
+		let d = data
+		if (formData) {
+			d[i] = formData
+			let reject = convertOdlc(d[i])
+			await httppost("/interop/odlc/edit/"+i, reject)
+		}
+		d[i].status = false
+		setData(d)
+		await httppost("/interop/odlc/reject/"+i, { status: "rejected" })
+		setActive(newActive(data))
+	}
 
 	return (
 		<SubmitContext.Provider value={onSubmit}>
@@ -50,14 +146,31 @@ const Submissions = () => {
 			>
 				<TabBar>
 					<View
-						unsubmitted={data.filter(v => !v.submitted)}
 						active={[active, setActive]}
 						data={[data, setData]}
 						onSubmit={onSubmit}
+						images={[images, setImages]}
+						accept={accept}
+						edit={edit}
+						reject={reject}
 					/>
-					<Submitted submitted={data.filter(v => v.submitted)} />
+					<Submitted
+						active={[active, setActive]}
+						data={[data, setData]}
+						onSubmit={onSubmit}
+						images={[images, setImages]}
+					/>
+					<Rejected
+						active={[active, setActive]}
+						data={[data, setData]}
+						onSubmit={onSubmit}
+						images={[images, setImages]}
+						accept={accept}
+						edit={edit}
+						reject={reject}
+					/>
 				</TabBar>
-				<SubmissionsToolbar data={[data, setData]} active={[active, setActive]} />
+				<SubmissionEditor data={[data, setData]} active={[active, setActive]} images={[images, setImages]} accept={accept} edit={edit} reject={reject} />
 			</div>
 		</SubmitContext.Provider>
 	)

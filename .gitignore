@@ -144,3 +144,9 @@ venv/
 .vscode/
 .idea/
 odlc.json
+
+# interop
+/interop
+
+# todo
+TODO

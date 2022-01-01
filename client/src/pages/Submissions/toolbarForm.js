@@ -2,12 +2,23 @@ import React, { useEffect, useRef } from "react"
 import { Row, Column } from "components/Containers"
 import { Checkbox, Dropdown, Label, Box, Slider } from "components/UIElements"
 
-export const Checkboxes = ({ accept, decline }) => (
+import { shapes, colors } from "./constants"
+
+export const Checkboxes = ({ accept, save, decline, vertical, disabled }) => (
 	<Row style={{ marginBottom: "1rem" }}>
-		<Row height="3rem" gap="0.5rem">
-			<Checkbox type="accept" callback={accept} />
-			<Checkbox type="decline" callback={decline} />
-		</Row>
+		{vertical ?
+				<Column width="4rem" gap="0.5rem">
+					<Checkbox type="accept" callback={accept} disabled={disabled} />
+					<Checkbox type="save" callback={save} disabled={disabled} />
+					<Checkbox type="decline" callback={decline} disabled={disabled} />
+				</Column>
+			:
+				<Row height="3rem" gap="0.5rem">
+					<Checkbox type="accept" callback={accept} disabled={disabled} />
+					<Checkbox type="save" callback={save} disabled={disabled} />
+					<Checkbox type="decline" callback={decline} disabled={disabled} />
+				</Row>
+		}
 	</Row>
 )
 
@@ -22,34 +33,29 @@ export const Shape = {
 		const shape = useRef(null)
 		const color = useRef(null)
 
-		useEffect(() => {
-			colorize(shape, data.shape === undefined)
-			colorize(color, data.shapeColor === undefined)
-		}, [shape, color, data])
-
 		return (
 			<Row style={{ marginBottom: "1rem" }} height="3rem" gap="0.5rem">
 				<Dropdown
 					ref={shape}
-					selected={data.shape}
+					initial={shapes[data.shape-1]}
 					onChange={v => setData({ ...data, shape: v })}
 				>
-					<span>Square</span>
-					<span>Circle</span>
-					<span>Star</span>
-					<span>Triangle</span>
+					{shapes.map((c, i) => {
+						return (
+							<span value={i+1}>{c}</span>
+						)
+					})}
 				</Dropdown>
 				<Dropdown
 					ref={color}
-					selected={data.shapeColor}
-					onChange={v => setData({ ...data, shapeColor: v })}
+					initial={colors[data.shape_color-1]}
+					onChange={v => setData({ ...data, shape_color: v })}
 				>
-					<span>Red</span>
-					<span>Orange</span>
-					<span>Yellow</span>
-					<span>Green</span>
-					<span>Blue</span>
-					<span>Purple</span>
+					{colors.map((c, i) => {
+						return (
+							<span value={i+1}>{c}</span>
+						)
+					})}
 				</Dropdown>
 			</Row>
 		)
@@ -67,31 +73,38 @@ export const Letter = {
 		const letter = useRef(null)
 		const color = useRef(null)
 
-		useEffect(() => {
-			colorize(letter, !/^[a-z]$/i.test(data.letter))
-			colorize(color, data.letterColor === undefined)
-		}, [letter, color, data])
-
 		return (
 			<Row style={{ marginBottom: "1rem" }} height="3rem" gap="0.5rem">
 				<Box
 					ref={letter}
 					editable="True"
-					content={data.letter}
-					onChange={v => setData({ ...data, letter: v })}
+					content={data.alphanumeric}
+					onChange={v => {
+						let value = v
+						if (v.length >= 1) {
+							value = v[v.length-1].toUpperCase()
+							let ascii = value.charCodeAt()
+							if (ascii < 65 || ascii > 90) {
+								value = data.alphanumeric
+							}
+						} else if (v.length === 0) {
+							value = data.alphanumeric
+						}
+
+						setData({ ...data, alphanumeric: value })
+						return value
+					}}
 				/>
 				<Dropdown
 					ref={color}
-					selected={data.letterColor}
-					onChange={v => setData({ ...data, letterColor: v })}
+					initial={colors[data.alphanumeric_color-1]}
+					onChange={v => setData({ ...data, alphanumeric_color: v })}
 				>
-					<span>Red</span>
-					<span>Black</span>
-					<span>Orange</span>
-					<span>Yellow</span>
-					<span>Green</span>
-					<span>Blue</span>
-					<span>Purple</span>
+					{colors.map((c, i) => {
+						return (
+							<span value={i+1}>{c}</span>
+						)
+					})}
 				</Dropdown>
 			</Row>
 		)
@@ -109,12 +122,6 @@ export const Orientation = ({ hook: [data, setData] }) => (
 export const Position = ({ hook: [data, setData] }) => {
 	const latitude = useRef(null)
 	const longitude = useRef(null)
-	const parse = v => (!Number.isNaN(parseFloat(v)) ? parseFloat(v) : "")
-
-	useEffect(() => {
-		colorize(latitude, !/^-?[0-9.]+$/.test(data.latitude))
-		colorize(longitude, !/^-?[0-9.]+$/.test(data.longitude))
-	}, [latitude, longitude, data])
 
 	return (
 		<Row style={{ marginBottom: "1rem" }} height="5rem" gap="0.5rem">
@@ -123,26 +130,83 @@ export const Position = ({ hook: [data, setData] }) => {
 				label="Latitude"
 				editable="True"
 				content={data.latitude}
-				onChange={v => setData({ ...data, latitude: parse(v) })}
+				onChange={v => {
+					if (!Number.isNaN(Number(v)) && v.length > 0) {
+						if (v.endsWith(".")) {
+							errorShadow(latitude, true)
+							setData({ ...data, latitude: null })
+						} else {
+							errorShadow(latitude, false)
+							setData({ ...data, latitude: Number(v) })
+						}
+						return v
+					} else if (v.substring(0, v.length-1).endsWith(".")) {
+						errorShadow(latitude, true)
+						return v.substring(0, v.length-1)
+					} else if (v.length ===0) {
+						errorShadow(latitude, true)
+						setData({ ...data, latitude: null })
+						return v
+					} else if (v.substring(0, Math.max(v.length-1, 1)) === "-") {
+						errorShadow(latitude, true)
+						setData({ ...data, latitude: null })
+						return v.substring(0, Math.max(v.length-1, 1))
+					} else if (Number.isNaN(parseFloat(v))) {
+						errorShadow(latitude, true)
+						return ""
+					}
+
+					errorShadow(latitude, false)
+					return data.latitude
+				}}
 			/>
 			<Box
 				ref={longitude}
 				label="Longitude"
 				editable="True"
 				content={data.longitude}
-				onChange={v => setData({ ...data, longitude: parse(v) })}
+				onChange={v => {
+					if (!Number.isNaN(Number(v)) && v.length > 0) {
+						if (v.endsWith(".")) {
+							errorShadow(longitude, true)
+							setData({ ...data, longitude: null })
+						} else {
+							errorShadow(longitude, false)
+							setData({ ...data, longitude: Number(v) })
+						}
+						return v
+					} else if (v.substring(0, v.length-1).endsWith(".")) {
+						errorShadow(longitude, true)
+						return v.substring(0, v.length-1)
+					} else if (v.length == 0) {
+						errorShadow(longitude, true)
+						setData({ ...data, longitude: null })
+						return v
+					} else if (v.substring(0, Math.max(v.length-1, 1)) === "-") {
+						errorShadow(longitude, true)
+						setData({ ...data, longitude: null })
+						return v.substring(0, Math.max(v.length-1, 1))
+					} else if (Number.isNaN(parseFloat(v))) {
+						errorShadow(longitude, true)
+						return ""
+					}
+
+					errorShadow(longitude, false)
+					return data.longitude
+				}}
 			/>
 		</Row>
 	)
 }
 
 export const EmergentDesc = ({ hook: [data, setData] }) => (
-	<Row height="5rem" gap="0.5rem">
+	<Row height="10rem" gap="0.5rem">
 		<Box
-			label="Description (emergent objects only)"
+			label="Description"
 			editable="True"
+			line="150%"
 			placeholder={"Enter description"}
-			style={{ textAlign: "left" }}
+			style={{ textAlign: "left", "padding-top": "1em", "padding-bottom": "1em" }}
 			onChange={v => setData({ ...data, description: v })}
 		/>
 	</Row>
@@ -157,11 +221,12 @@ function OrientationSlider({ hook: [value, setValue], ...props }) {
 				<Slider
 					style={{ gridColumn: "span 3" }}
 					min={0}
-					max={359}
+					max={315}
 					initial={value}
 					onChange={v => {
 						setValue(v)
 					}}
+					step={45}
 					value={value}
 				/>
 			</Row>
@@ -169,6 +234,6 @@ function OrientationSlider({ hook: [value, setValue], ...props }) {
 	)
 }
 
-function colorize(ref, error) {
+const errorShadow = (ref, error) => {
 	ref.current.style["box-shadow"] = error ? "0 0 2.5px 2.5px red" : ""
 }

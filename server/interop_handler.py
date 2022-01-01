@@ -1,6 +1,7 @@
 import json
 import time
 from datetime import datetime, timedelta, date
+from random import choice, randint, random
 
 from google.protobuf import json_format
 
@@ -94,6 +95,12 @@ class InteropHandler:
         # print("UGV Points:\n", self.ugv_points, "\nEND UGV POINTS")
         # print("Obstacles:\n", self.mission, "\nEND OBSTACLES")
 
+        if self.config['mav']['dummy']:
+            for i in range(5):
+                self.odlc_add_to_queue("standard" if i != 3 else "emergent", random()*160-80, random()*160-80, randint(0, 7)*45, choice(list(ODLC_KEY['shape'].keys())), choice(list(ODLC_KEY['color'].keys())), choice("ABCDEFGHIJKLMNOPQRSTUVWXYZ"), choice(list(ODLC_KEY['color'].keys())))
+            self.odlc_reject(2)
+            self.odlc_submit(3, "submitted")
+
     def login(self):
         if self.login_status:
             # No need to relogin
@@ -152,9 +159,7 @@ class InteropHandler:
             "type": ODLC_KEY["type"][type_],
             "latitude": lat,
             "longitude": lon,
-            "orientation": ODLC_KEY["orientation"][orientation] if orientation in ODLC_KEY[
-                "orientation"] else ODLC_KEY["orientation"][
-                min(ODLC_KEY["orientation"].keys(), key=lambda k: abs(k - orientation))],
+            "orientation": int(orientation/45)+1,
             "shape": ODLC_KEY["shape"][shape],
             "shape_color": ODLC_KEY["color"][shape_color],
             "alphanumeric": alpha,
@@ -166,16 +171,14 @@ class InteropHandler:
 
     def odlc_edit(self, id_, type_=None, lat=None, lon=None, orientation=None, shape=None, shape_color=None, alpha=None, alpha_color=None, description=None):
         fields = {
-            "type": ODLC_KEY["type"][type_] if type_ else None,
+            "type": type_,
             "latitude": lat,
             "longitude": lon,
-            "orientation": None if orientation is None else (ODLC_KEY["orientation"][orientation] if orientation in ODLC_KEY[
-                "orientation"] else ODLC_KEY["orientation"][
-                min(ODLC_KEY["orientation"].keys(), key=lambda k: abs(k - orientation))]),
-            "shape": ODLC_KEY["shape"][shape] if shape else None,
-            "shape_color": ODLC_KEY["color"][shape_color] if shape_color else None,
+            "orientation": orientation,
+            "shape": shape,
+            "shape_color": shape_color,
             "alphanumeric": alpha,
-            "alphanumeric_color": ODLC_KEY["color"][alpha_color] if alpha_color else None,
+            "alphanumeric_color": alpha_color,
             "description": description
         }
         for name, var in fields.items():
@@ -191,7 +194,7 @@ class InteropHandler:
         self.odlc_queued_data[id_]["status"] = False
         return {"result": "success"}
 
-    def odlc_submit(self, id_):
+    def odlc_submit(self, id_, status):
         if len(self.odlc_queued_data) <= id_:
             return {"result": "failed: invalid id"}
         obj_data = self.odlc_queued_data[id_]
@@ -209,7 +212,7 @@ class InteropHandler:
         submission.alphanumeric_color = obj_data["alphanumeric_color"]
         odlc = self.client.post_odlc(submission)
         self.client.put_odlc_image(odlc.id, image_data)
-        self.odlc_queued_data[id_]["status"] = True
+        self.odlc_queued_data[id_]["status"] = status
         return {"result": "success"}
 
     def odlc_save_queue(self, filename="odlc.json"):
