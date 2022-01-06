@@ -1,6 +1,7 @@
 import json
 import time
 from threading import Thread
+import logging
 
 from handlers.dummy_uav_handler import DummyUAVHandler
 from handlers.image_handler import ImageHandler
@@ -10,12 +11,15 @@ from handlers.uav_handler import UAVHandler
 
 class GroundStation:
     def __init__(self, socket):
+        self.logger = logging.getLogger("main")
+
         with open("config.json", "r") as file:
             self.config = json.load(file)
 
         self.interop_telem_thread = self.uav_update_thread = self.retreive_image_thread = None
 
         self.interop = InteropHandler(self, config=self.config)
+        self.interop_telem_thread = self.plane_thread = None
 
         if self.config["uav"]["dummy"]:
             self.uav = DummyUAVHandler(self, self.config, socket)
@@ -65,44 +69,55 @@ class GroundStation:
             "m_arm": self.uav.arm,
             "m_disarm": self.uav.disarm
         }
-        self.uav.connect()
 
+        time.sleep(5)
+
+        self.uav.connect()
         self.async_calls()
 
     def telemetry_thread(self):
         while True:
             run = self.interop.submit_telemetry()
-            # print("Telemetry:", run)
+            if run != {}:
+                self.logger.debug("[Telemetry] %s", run)
             time.sleep(0.1)
 
     def uav_thread(self):
         while True:
             run = self.uav.update()
-            # print("MAV:", run)
+            if run != {}:
+                self.logger.debug("[Plane] %s", run)
             time.sleep(0.1)
 
     def image_thread(self):
         while True:
             run = self.image.retreive_images()
-            # print("Image:", run)
+            if run:
+                self.logger.debug("[Image] %s", run)
             time.sleep(0.1)
 
     def async_calls(self):
         self.interop_telem_thread = Thread(target=self.telemetry_thread)
+        self.interop_telem_thread.name = "InteropThread"
         self.interop_telem_thread.daemon = True
 
-        self.uav_update_thread = Thread(target=self.uav_thread)
-        self.uav_update_thread.daemon = True
+        self.plane_thread = Thread(target=self.uav_thread)
+        self.plane_thread.name = "UAVThread"
+        self.plane_thread.daemon = True
 
         self.retreive_image_thread = Thread(target=self.image_thread)
+        self.retreive_image_thread.name = "ImageThread"
         self.retreive_image_thread.daemon = True
 
-        time.sleep(5)
         self.interop_telem_thread.start()
-        self.uav_update_thread.start()
+        self.plane_thread.start()
         self.retreive_image_thread.start()
         print("STARTED ASYNC THREADS")
+        self.logger.info("STARTED ASYNC THREADS")
 
     # Calls a function from self.func_map, with the provided parameters
-    def call(self, func, *args):
-        return self.func_map[func](*args)
+    def call(self, func, *args, log=True):
+        result = self.func_map[func](*args)
+        if log:
+            self.logger.log(logging.DEBUG, func + ": " + json.dumps(result))
+        return result

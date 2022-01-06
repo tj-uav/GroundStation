@@ -10,7 +10,7 @@ class ImageHandler:
         # Retreives Image from UAV
         if random() < 0.05:  # Average of 2 seconds
             img = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVQYV2NgYAAAAAMAAWgmWQ0AAAAASUVORK5CYII="
-            self.process_image(img)  # Dummy Image
+            return self.process_image(img)  # Dummy Image
 
     def process_image(self, image):
         if random() < 0.05:
@@ -24,5 +24,7 @@ class ImageHandler:
                          choice(['circle', 'semicircle', 'quarter_circle', 'triangle', 'square', 'rectangle', 'trapezoid', 'pentagon', 'hexagon', 'heptagon', 'octagon', 'star', 'cross']),
                          choice(['white', 'gray', 'red', 'blue', 'green', 'yellow', 'purple', 'brown', 'orange']),
                          choice(string.ascii_uppercase + string.digits),
-                         choice(['white', 'gray', 'red', 'blue', 'green', 'yellow', 'purple', 'brown', 'orange'])
+                         choice(['white', 'gray', 'red', 'blue', 'green', 'yellow', 'purple', 'brown', 'orange']),
+                         log=False
                          )
+            return "New ODLC Detected"
