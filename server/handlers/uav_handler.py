@@ -1,4 +1,5 @@
 import json
+import logging
 import random
 
 from dronekit import connect, Command, VehicleMode
@@ -19,6 +20,7 @@ COMMANDS = {
 
 class UAVHandler:
     def __init__(self, gs, config, socketio):
+        self.logger = logging.getLogger("main")
         self.gs = gs
         self.config = config
         self.port = self.config["uav"]["port"]
@@ -33,6 +35,7 @@ class UAVHandler:
         self.armed = False
 
     def connect(self):
+        self.logger.info("ATTEMPTED UAV CONNECTION")
         try:
             if self.serial:
                 self.vehicle = connect(self.port, wait_ready=True, baud=BAUDRATE)
@@ -40,6 +43,7 @@ class UAVHandler:
                 self.vehicle = connect(self.port, wait_ready=True)
             self.update()
             print("CONNECTED TO UAV")
+            self.logger.info("CONNECTED TO UAV")
             return {}
         except Exception as e:
             raise GeneralError(str(e)) from e

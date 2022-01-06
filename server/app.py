@@ -21,9 +21,34 @@ socketio = SocketIO(app, cors_allowed_origins="*")
 
 gs = GroundStation(socketio)
 
+logger = logging.getLogger("main")
+logger.setLevel(logging.DEBUG)
+formatter = logging.Formatter("%(asctime)s [%(levelname)-8s]  %(message)s")
+
+console_handler = logging.StreamHandler()
+console_handler.setLevel(logging.WARNING)
+console_handler.setFormatter(formatter)
+
+file_handler = logging.FileHandler("log.txt", mode="w")
+file_handler.setLevel(logging.INFO)
+file_handler.setFormatter(formatter)
+
+debug_file_handler = logging.FileHandler("debug_log.txt", mode="w")
+debug_file_handler.setLevel(logging.DEBUG)
+debug_file_handler.setFormatter(formatter)
+
+logger.addHandler(console_handler)
+logger.addHandler(file_handler)
+logger.addHandler(debug_file_handler)
+
+print("LOGGING STARTED")
+logger.info("LOGGING STARTED")
+
 
 @app.errorhandler(Exception)
 def handle_error(e):
+    logger.error(type(e).__name__)
+    logger.info("Traceback of %s : ", type(e).__name__, exc_info=e)
     return jsonify({
         "title": "Unhandled Server Error",
         "message": str(e),
@@ -34,6 +59,8 @@ def handle_error(e):
 
 @app.errorhandler(InvalidRequestError)
 def handle_400(e):
+    logger.error(type(e).__name__)
+    logger.info("Traceback of %s : ", type(e).__name__, exc_info=e)
     return jsonify({
         "title": "Invalid Request",
         "message": str(e),
@@ -44,8 +71,10 @@ def handle_400(e):
 
 @app.errorhandler(InvalidStateError)
 def handle_409(e):
+    logger.error(type(e).__name__)
+    logger.info("Traceback of %s : ", type(e).__name__, exc_info=e)
     return jsonify({
-        "title": "Invalid State",
+        "title": "Invalid State Error",
         "message": str(e),
         "exception": type(e).__name__,
         "traceback": traceback.format_tb(e.__traceback__)
@@ -54,6 +83,8 @@ def handle_409(e):
 
 @app.errorhandler(GeneralError)
 def handle_500(e):
+    logger.error(type(e).__name__)
+    logger.info("Traceback of %s : ", type(e).__name__, exc_info=e)
     return jsonify({
         "title": "Server Error",
         "message": str(e),
@@ -64,8 +95,10 @@ def handle_500(e):
 
 @app.errorhandler(ServiceUnavailableError)
 def handle_503(e):
+    logger.error(type(e).__name__)
+    logger.info("Traceback of %s : ", type(e).__name__, exc_info=e)
     return jsonify({
-        "title": "Service Unavailable",
+        "title": "Service Unavailable Error",
         "message": str(e),
         "exception": type(e).__name__,
         "traceback": traceback.format_tb(e.__traceback__)
