@@ -3,6 +3,8 @@ import json
 import logging
 import traceback
 
+from io import StringIO
+
 from flask import Flask, redirect, url_for, request, jsonify
 from flask_cors import CORS
 from flask_socketio import SocketIO, emit
@@ -37,9 +39,15 @@ debug_file_handler = logging.FileHandler("debug_log.txt", mode="w")
 debug_file_handler.setLevel(logging.DEBUG)
 debug_file_handler.setFormatter(formatter)
 
+LOG_STREAM = StringIO()
+string_handler = logging.StreamHandler(LOG_STREAM)
+string_handler.setLevel(logging.INFO)
+string_handler.setFormatter(formatter)
+
 logger.addHandler(console_handler)
 logger.addHandler(file_handler)
 logger.addHandler(debug_file_handler)
+logger.addHandler(string_handler)
 
 print("LOGGING STARTED")
 logger.info("LOGGING STARTED")
@@ -48,7 +56,7 @@ logger.info("LOGGING STARTED")
 @app.errorhandler(Exception)
 def handle_error(e):
     logger.error(type(e).__name__)
-    logger.info("Traceback of %s : ", type(e).__name__, exc_info=e)
+    logger.debug("Traceback of %s : ", type(e).__name__, exc_info=e)
     return jsonify({
         "title": "Unhandled Server Error",
         "message": str(e),
@@ -60,7 +68,7 @@ def handle_error(e):
 @app.errorhandler(InvalidRequestError)
 def handle_400(e):
     logger.error(type(e).__name__)
-    logger.info("Traceback of %s : ", type(e).__name__, exc_info=e)
+    logger.debug("Traceback of %s : ", type(e).__name__, exc_info=e)
     return jsonify({
         "title": "Invalid Request",
         "message": str(e),
@@ -72,7 +80,7 @@ def handle_400(e):
 @app.errorhandler(InvalidStateError)
 def handle_409(e):
     logger.error(type(e).__name__)
-    logger.info("Traceback of %s : ", type(e).__name__, exc_info=e)
+    logger.debug("Traceback of %s : ", type(e).__name__, exc_info=e)
     return jsonify({
         "title": "Invalid State Error",
         "message": str(e),
@@ -84,7 +92,7 @@ def handle_409(e):
 @app.errorhandler(GeneralError)
 def handle_500(e):
     logger.error(type(e).__name__)
-    logger.info("Traceback of %s : ", type(e).__name__, exc_info=e)
+    logger.debug("Traceback of %s : ", type(e).__name__, exc_info=e)
     return jsonify({
         "title": "Server Error",
         "message": str(e),
@@ -96,7 +104,7 @@ def handle_500(e):
 @app.errorhandler(ServiceUnavailableError)
 def handle_503(e):
     logger.error(type(e).__name__)
-    logger.info("Traceback of %s : ", type(e).__name__, exc_info=e)
+    logger.debug("Traceback of %s : ", type(e).__name__, exc_info=e)
     return jsonify({
         "title": "Service Unavailable Error",
         "message": str(e),
@@ -118,6 +126,11 @@ def index():
 @app.route("/hello")
 def hello():
     return redirect(url_for("index"))
+
+
+@app.route("/logs")
+def logs():
+    return {"result": LOG_STREAM.getvalue().split("\n")}
 
 
 @app.route("/interop/login", methods=["POST"])
