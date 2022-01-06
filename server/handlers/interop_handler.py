@@ -106,6 +106,7 @@ class InteropHandler:
             self.obstacles = self.mission.stationary_obstacles
             self.obstacles_dict = [json_format.MessageToDict(o) for o in self.obstacles]
             print("INITIALIZED INTEROP HANDLER")
+            self.logger.info("INITIALIZED INTEROP HANDLER")
             return {}
         except RequestsCE as e:
             self.login_status = False
