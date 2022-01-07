@@ -53,7 +53,7 @@ const Submissions = () => {
 				return false
 			}
 
-			let resData = response.data.map((odlc) => {
+			let resData = response.data.result.map((odlc) => {
 				return { ...odlc, orientation: (odlc.orientation-1)*45 }
 			})
 

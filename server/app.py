@@ -152,7 +152,7 @@ def odlc_filter(status):
 
 @app.route("/interop/odlc/image/<int:id_>")
 def odlc_get_image(id_):
-    with open(f"assets/odlc_images/{id_}.jpg", "rb") as image_file:
+    with open(f"assets/odlc_images/{id_}.png", "rb") as image_file:
         encoded_string = base64.b64encode(image_file.read())
     return {"image": encoded_string.decode("utf-8")}
 
@@ -163,7 +163,8 @@ def odlc_add():
     if not all(field in f for field in ["image", "type", "lat", "lon"]):
         raise InvalidRequestError("Missing required fields in request")
     if f.get("type") == "standard":
-        if not all(field in f for field in ["orientation", "shape", "shape_color", "alpha", "alpha_color"]):
+        if not all(field in f for field in
+                   ["orientation", "shape", "shape_color", "alpha", "alpha_color"]):
             raise InvalidRequestError("Missing required fields for specific ODLC type")
     else:
         if not all(field in f for field in ["description"]):
@@ -171,13 +172,13 @@ def odlc_add():
     return gs.call("i_odlcadd",
                    f.get("image"),
                    f.get("type"),
-                   float(f.get("lat")),
-                   float(f.get("lon")),
-                   int(f.get("orientation")),
+                   f.get("latitude"),
+                   f.get("longitude"),
+                   f.get("orientation"),
                    f.get("shape"),
                    f.get("shape_color"),
-                   f.get("alpha"),
-                   f.get("alpha_color"),
+                   f.get("alphanumeric"),
+                   f.get("alphanumeric_color"),
                    f.get("description")
                    )
 
@@ -185,18 +186,20 @@ def odlc_add():
 @app.route("/interop/odlc/edit/<int:id_>", methods=["POST"])
 def odlc_edit(id_):
     f = request.form
+    print(f.to_dict())
     if not all(field in f for field in ["type"]):
         raise InvalidRequestError("Missing required fields in request")
     return gs.call("i_odlcedit",
                    id_,
+                   f.get("image"),
                    f.get("type"),
-                   float(f.get("lat")),
-                   float(f.get("lon")),
-                   int(f.get("orientation")),
+                   f.get("latitude"),
+                   f.get("longitude"),
+                   f.get("orientation"),
                    f.get("shape"),
                    f.get("shape_color"),
-                   f.get("alpha"),
-                   f.get("alpha_color"),
+                   f.get("alphanumeric"),
+                   f.get("alphanumeric_color"),
                    f.get("description")
                    )
 
@@ -208,7 +211,8 @@ def odlc_reject(id_):
 
 @app.route("/interop/odlc/submit/<int:id_>", methods=["POST"])
 def odlc_submit(id_):
-    return gs.call("i_odlcsubmit", id_)
+    f = request.form
+    return gs.call("i_odlcsubmit", id_, f.get("status"))
 
 
 @app.route("/interop/odlc/save", methods=["POST"])
