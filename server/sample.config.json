@@ -1,11 +1,18 @@
 {
     "uav": {
-        "dummy": true,
-        "port": "tcp:127.0.0.1:5760",
-        "serial": false
+        "telemetry": {
+            "dummy": true,
+            "port": "tcp:127.0.0.1:5760",
+            "serial": false
+        },
+        "images": {
+            "dummy": true,
+            "host": "127.0.0.1",
+            "port": 4000
+        }
     },
     "interop": {
-        "url": "http://127.0.0.1:8000",
+        "url": "http://localhost:8000",
         "username": "testuser",
         "password": "testpass",
         "mission_id": 1

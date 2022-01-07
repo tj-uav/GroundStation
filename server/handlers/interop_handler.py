@@ -1,5 +1,6 @@
 import base64
 import json
+import logging
 import os
 from datetime import datetime, timedelta, date
 
@@ -62,7 +63,9 @@ class InteropHandler:
     }
 
     def __init__(self, gs, config):
+        self.logger = logging.getLogger("main")
         print("CREATED INTEROP HANDLER")
+        self.logger.info("CREATED INTEROP ERROR")
         self.gs = gs
         self.config = config
         self.mission_id = self.config["interop"]["mission_id"]
@@ -103,6 +106,7 @@ class InteropHandler:
             self.obstacles = self.mission.stationary_obstacles
             self.obstacles_dict = [json_format.MessageToDict(o) for o in self.obstacles]
             print("INITIALIZED INTEROP HANDLER")
+            self.logger.info("INITIALIZED INTEROP HANDLER")
             return {}
         except RequestsCE as e:
             self.login_status = False
@@ -122,6 +126,8 @@ class InteropHandler:
             self.login_status = True
             self.initialize()
             return {}
+        except InvalidStateError as e:
+            raise InvalidStateError(str(e)) from e
         except RequestsCE as e:
             self.login_status = False
             raise ServiceUnavailableError("Could not establish connection to Interop") from e
@@ -164,7 +170,7 @@ class InteropHandler:
             raise ServiceUnavailableError("Interop connection lost, attempted to re-initiate")
         try:
             telemetry = interop.Telemetry()
-            uav_quick = self.gs.call("m_quick")
+            uav_quick = self.gs.call("m_quick", log=False)
             uav_quick = uav_quick["result"]
             telemetry.latitude = uav_quick["lat"]
             telemetry.longitude = uav_quick["lon"]
@@ -239,7 +245,7 @@ class InteropHandler:
             raise InvalidRequestError("Missing required fields in request")
         try:
             if image:
-                with open(f"assets/odlc_images/{id_}.jpg", "wb") as file:
+                with open(f"assets/odlc_images/{id_}.png", "wb") as file:
                     file.write(base64.decodebytes(bytes(image, 'utf-8')))
             old_obj = self.odlc_queued_data[id_]
             if type_ == "emergent":
@@ -253,6 +259,8 @@ class InteropHandler:
                         old_obj[name] = newval
             self.odlc_queued_data[id_] = old_obj
             return {}
+        except InvalidStateError as e:
+            raise InvalidStateError(str(e)) from e
         except Exception as e:
             raise GeneralError(str(e)) from e
 
@@ -264,6 +272,8 @@ class InteropHandler:
                 raise InvalidStateError("ODLC Already Rejected")
             self.odlc_queued_data[id_]["status"] = False
             return {}
+        except InvalidStateError as e:
+            raise InvalidStateError(str(e)) from e
         except Exception as e:
             raise GeneralError(str(e)) from e
 
@@ -274,7 +284,7 @@ class InteropHandler:
             if self.odlc_queued_data[id_]["status"] is True:
                 raise InvalidStateError("ODLC Already Submitted")
             obj_data = self.odlc_queued_data[id_]
-            with open(f"assets/odlc_images/{id_}.jpg", "rb") as image:
+            with open(f"assets/odlc_images/{id_}.png", "rb") as image:
                 image_data = image.read()
             submission = interop.Odlc()
             submission.mission = self.mission_id
@@ -290,6 +300,8 @@ class InteropHandler:
             self.client.put_odlc_image(odlc.id, image_data)
             self.odlc_queued_data[id_]["status"] = True
             return {}
+        except InvalidStateError as e:
+            raise InvalidStateError(str(e)) from e
         except Exception as e:
             raise GeneralError(str(e)) from e
 
@@ -317,12 +329,14 @@ class InteropHandler:
 
     def map_add(self, name: str, image: str):
         try:
-            if os.path.isfile(f"assets/map_images/{name}.jpg"):
+            if os.path.isfile(f"assets/map_images/{name}.png"):
                 raise InvalidStateError("Map with this name already exists")
-            with open(f"assets/map_images/{name}.jpg", "wb") as file:
+            with open(f"assets/map_images/{name}.png", "wb") as file:
                 file.write(base64.decodebytes(bytes(image, 'utf-8')))
             self.map_image = image
             return {}
+        except InvalidStateError as e:
+            raise InvalidStateError(str(e)) from e
         except Exception as e:
             raise GeneralError(str(e)) from e
 
@@ -332,11 +346,13 @@ class InteropHandler:
                 self.submitted_map = base64.decodebytes(bytes(self.map_image, 'utf-8'))
                 self.client.put_map_image(self.mission_id, self.submitted_map)
             else:
-                if not os.path.isfile(f"assets/map_images/{name}.jpg"):
+                if not os.path.isfile(f"assets/map_images/{name}.png"):
                     raise InvalidStateError("Map not found")
-                with open(f"assets/map_images/{name}.jpg", "rb") as file:
+                with open(f"assets/map_images/{name}.png", "rb") as file:
                     self.submitted_map = file.read()
                     self.client.put_map_image(self.mission_id, self.submitted_map)
             return {}
+        except InvalidStateError as e:
+            raise InvalidStateError(str(e)) from e
         except Exception as e:
             raise GeneralError(str(e)) from e

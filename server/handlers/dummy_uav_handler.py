@@ -1,4 +1,5 @@
 import json
+import logging
 import math
 import random
 
@@ -17,10 +18,11 @@ COMMANDS = {
 
 class DummyUAVHandler:
     def __init__(self, gs, config, socketio):
+        self.logger = logging.getLogger("main")
         self.gs = gs
         self.config = config
-        self.port = self.config["uav"]["port"]
-        self.serial = self.config["uav"]["serial"]
+        self.port = self.config["uav"]["telemetry"]["port"]
+        self.serial = self.config["uav"]["telemetry"]["serial"]
         self.socketio = socketio
         self.update_thread = None
         self.altitude = self.orientation = self.ground_speed = self.air_speed = self.dist_to_wp = \
@@ -34,6 +36,7 @@ class DummyUAVHandler:
 
     def connect(self):
         print("CREATED DUMMY UAV HANDLER")
+        self.logger.info("CREATED DUMMY UAV HANDLER")
         self.update()
         return {}
 
