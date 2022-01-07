@@ -1,6 +1,7 @@
 import base64
 import json
 import logging
+import sys
 import traceback
 
 from flask import Flask, redirect, url_for, request, jsonify
@@ -12,20 +13,20 @@ from groundstation import GroundStation
 
 log = logging.getLogger("werkzeug")
 log.setLevel(logging.ERROR)
+
 with open("config.json", "r") as file:
     config = json.load(file)
 
 app = Flask(__name__)
 CORS(app)
-socketio = SocketIO(app, cors_allowed_origins="*")
 
-gs = GroundStation(socketio)
+gs = GroundStation()
 
 logger = logging.getLogger("main")
 logger.setLevel(logging.DEBUG)
-formatter = logging.Formatter("%(asctime)s [%(levelname)-8s]  %(message)s")
+formatter = logging.Formatter("[%(levelname)-8s] %(asctime)s  %(message)s")
 
-console_handler = logging.StreamHandler()
+console_handler = logging.StreamHandler(sys.stdout)
 console_handler.setLevel(logging.WARNING)
 console_handler.setFormatter(formatter)
 
@@ -41,8 +42,8 @@ logger.addHandler(console_handler)
 logger.addHandler(file_handler)
 logger.addHandler(debug_file_handler)
 
-print("LOGGING STARTED")
-logger.info("LOGGING STARTED")
+print("STARTED LOGGING")
+logger.info("STARTED LOGGING")
 
 
 @app.errorhandler(Exception)
@@ -105,11 +106,6 @@ def handle_503(e):
     }), 503
 
 
-@socketio.on("connect")
-def test_connect():
-    emit("connect", {"data": "Connected"})
-
-
 @app.route("/")
 def index():
     return "TJ UAV Ground Station Backend homepage"
@@ -118,6 +114,11 @@ def index():
 @app.route("/hello")
 def hello():
     return redirect(url_for("index"))
+
+
+@app.route("/favicon.ico")
+def favicon():
+    return ""
 
 
 @app.route("/interop/login", methods=["POST"])
@@ -343,4 +344,3 @@ def disarm():
 
 if __name__ == "__main__":
     app.run(port=5000)
-    # socketio.run(app, port=5000)

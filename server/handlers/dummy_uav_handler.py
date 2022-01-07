@@ -17,13 +17,12 @@ COMMANDS = {
 
 
 class DummyUAVHandler:
-    def __init__(self, gs, config, socketio):
+    def __init__(self, gs, config):
         self.logger = logging.getLogger("main")
         self.gs = gs
         self.config = config
         self.port = self.config["uav"]["telemetry"]["port"]
         self.serial = self.config["uav"]["telemetry"]["serial"]
-        self.socketio = socketio
         self.update_thread = None
         self.altitude = self.orientation = self.ground_speed = self.air_speed = self.dist_to_wp = \
             self.voltage = self.battery_level = self.throttle = self.lat = self.lon = \
@@ -33,10 +32,12 @@ class DummyUAVHandler:
         self.mode = "AUTO"
         self.commands = []
         self.armed = False
+        print("╠ CREATED DUMMY UAV HANDLER")
+        self.logger.info("╠ CREATED DUMMY UAV HANDLER")
 
     def connect(self):
-        print("CREATED DUMMY UAV HANDLER")
-        self.logger.info("CREATED DUMMY UAV HANDLER")
+        print("╠ INITIALIZED DUMMY UAV HANDLER")
+        self.logger.info("╠ INITIALIZED DUMMY UAV HANDLER")
         self.update()
         return {}
 

@@ -19,13 +19,12 @@ COMMANDS = {
 
 
 class UAVHandler:
-    def __init__(self, gs, config, socketio):
+    def __init__(self, gs, config):
         self.logger = logging.getLogger("main")
         self.gs = gs
         self.config = config
         self.port = self.config["uav"]["telemetry"]["port"]
         self.serial = self.config["uav"]["telemetry"]["serial"]
-        self.socketio = socketio
         self.update_thread = None
         self.vehicle = None
         self.altitude = self.orientation = self.ground_speed = self.air_speed = self.dist_to_wp = \

@@ -64,8 +64,8 @@ class InteropHandler:
 
     def __init__(self, gs, config):
         self.logger = logging.getLogger("main")
-        print("CREATED INTEROP HANDLER")
-        self.logger.info("CREATED INTEROP ERROR")
+        print("╠ CREATED INTEROP HANDLER")
+        self.logger.info("╠ CREATED INTEROP ERROR")
         self.gs = gs
         self.config = config
         self.mission_id = self.config["interop"]["mission_id"]
@@ -105,8 +105,8 @@ class InteropHandler:
             }
             self.obstacles = self.mission.stationary_obstacles
             self.obstacles_dict = [json_format.MessageToDict(o) for o in self.obstacles]
-            print("INITIALIZED INTEROP HANDLER")
-            self.logger.info("INITIALIZED INTEROP HANDLER")
+            print("╠ INITIALIZED INTEROP HANDLER")
+            self.logger.info("╠ INITIALIZED INTEROP HANDLER")
             return {}
         except RequestsCE as e:
             self.login_status = False
