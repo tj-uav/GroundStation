@@ -13,11 +13,7 @@ const httpget = async (endpoint, func) => {
 }
 
 const httppost = async (endpoint, data, func) => {
-    let d = new FormData()
-    for (let key in data) {
-        d.append(key, data[key])
-    }
-    const response = await axios.post(url + endpoint, d)
+    const response = await axios.post(url + endpoint, data)
     if (func) func(response)
     return response
 }

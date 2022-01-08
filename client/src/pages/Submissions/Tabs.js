@@ -1,6 +1,6 @@
 import React from "react"
 import styled from "styled-components"
-import { dark, darker, darkest, darkdark } from "theme/Colors"
+import { darker, darkest, darkdark } from "theme/Colors"
 
 import { Box, Checkbox } from "components/UIElements"
 import { Row, Column } from "components/Containers"
@@ -24,21 +24,27 @@ const ViewRow = ({ checkboxes, info, number, active: [active, setActive], data: 
 					/>
 				</>
 			) : null}
-			<img src={"data:image/jpeg;base64," + images[active]} width="100%" height="100%" style={{ gridRow: "span 2", "object-fit": "cover" }} />
-			<Row height="4rem">
-				<Box content={shapes[info.shape-1]} label="Shape" line="250%" />
-				<Box content={info.alphanumeric} label="Letter" line="250%" />
-				<Box content={info.orientation} label="Orientation" line="250%" />
-			</Row>
-			<Row height="4rem">
-				<Box content={colors[info.shape_color-1]} label="Shape Color" line="250%" />
-				<Box content={colors[info.alphanumeric_color-1]} label="Letter Color" line="250%" />
-				<Box
-					content={`${Math.round(info.latitude)} / ${Math.round(info.longitude)}`}
-					label="Position"
-					line="250%"
-				/>
-			</Row>
+			<img src={"data:image/jpeg;base64," + images[number]} width="100%" height="100%" style={{ gridRow: "span 2", "object-fit": "cover" }} />
+			{info.type === standard ? 
+			    <>
+					<Row height="4rem">
+						<Box content={shapes[info.shape-1]} label="Shape" line="250%" />
+						<Box content={info.alphanumeric} label="Letter" line="250%" />
+						<Box content={info.orientation} label="Orientation" line="250%" />
+					</Row>
+					<Row height="4rem">
+						<Box content={colors[info.shape_color-1]} label="Shape Color" line="250%" />
+						<Box content={colors[info.alphanumeric_color-1]} label="Letter Color" line="250%" />
+						<Box
+							content={`${Math.round(info.latitude)} / ${Math.round(info.longitude)}`}
+							label="Position"
+							line="250%"
+						/>
+					</Row> 
+				</>
+			:
+				<Box style={{ "grid-row": "1 / 3" }} content={info.description} label="Description" line="250%" />
+			}
 		</ViewRowContainer>
 	)
 }

@@ -73,16 +73,19 @@ def odlc_filter(status):
     return jsonify(interop.odlc_get_queue(status))
 
 
-@app.route("/interop/odlc/image/<int:id_>")
+@app.route("/interop/odlc/image/<int:id_>", methods=["GET", "POST"])
 def odlc_get_image(id_):
-    with open(f"assets/odlc_images/{id_}.jpg", "rb") as image_file:
-        encoded_string = base64.b64encode(image_file.read())
-    return jsonify({"image": encoded_string.decode('utf-8')})
+    if request.method == "GET":
+        with open(f"assets/odlc_images/{id_}.jpg", "rb") as image_file:
+            encoded_string = base64.b64encode(image_file.read())
+        return jsonify({"image": encoded_string.decode('utf-8')})
+    else:
+        return {}
 
 
 @app.route("/interop/odlc/add", methods=["POST"])
 def odlc_add():
-    f = request.form
+    f = request.json
     return jsonify(
         interop.odlc_add_to_queue(f.get("type"), float(f.get("lat")), float(f.get("lon")),
                                   int(f.get("orientation")), f.get("shape"), f.get("shape_color"),
@@ -91,7 +94,7 @@ def odlc_add():
 
 @app.route("/interop/odlc/edit/<int:id_>", methods=["POST"])
 def odlc_edit(id_):
-    f = request.form
+    f = request.json
     return jsonify(interop.odlc_edit(id_, int(f.get("type")), float(f.get("latitude")), float(f.get("longitude")),
                                      int(f.get("orientation")), int(f.get("shape")),
                                      int(f.get("shape_color")), f.get("alphanumeric"), int(f.get("alphanumeric_color")),
@@ -104,7 +107,7 @@ def odlc_reject(id_):
 
 @app.route("/interop/odlc/submit/<int:id_>", methods=["POST"])
 def odlc_submit(id_):
-    status = request.form.get("status")
+    status = request.json.get("status")
     return jsonify(interop.odlc_submit(id_, status))
 
 

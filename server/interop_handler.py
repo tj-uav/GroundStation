@@ -99,7 +99,7 @@ class InteropHandler:
             for i in range(5):
                 self.odlc_add_to_queue("standard" if i != 3 else "emergent", random()*160-80, random()*160-80, randint(0, 7)*45, choice(list(ODLC_KEY['shape'].keys())), choice(list(ODLC_KEY['color'].keys())), choice("ABCDEFGHIJKLMNOPQRSTUVWXYZ"), choice(list(ODLC_KEY['color'].keys())))
             self.odlc_reject(2)
-            self.odlc_submit(3, "submitted")
+            self.odlc_submit(4, "submitted")
 
     def login(self):
         if self.login_status:
@@ -159,7 +159,7 @@ class InteropHandler:
             "type": ODLC_KEY["type"][type_],
             "latitude": lat,
             "longitude": lon,
-            "orientation": int(orientation/45)+1,
+            "orientation": int(orientation / 45)+1,
             "shape": ODLC_KEY["shape"][shape],
             "shape_color": ODLC_KEY["color"][shape_color],
             "alphanumeric": alpha,

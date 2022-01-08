@@ -1,7 +1,7 @@
 import json
 import random
 
-from dronekit import connect, Command
+#from dronekit import connect, Command
 from pymavlink import mavutil
 
 SERIAL_PORT = '/dev/ttyACM0'
