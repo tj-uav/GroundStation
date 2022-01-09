@@ -92,7 +92,7 @@ const Submissions = () => {
 	}, [])
 
 	const convertOdlc = (o) => {
-		return { ...o, orientation: o.orientation/45 }
+		return { ...o, orientation: o.orientation/45+1 }
 	}
 
 	const accept = async (i, formData) => {
@@ -105,17 +105,18 @@ const Submissions = () => {
 		d[i].status = "submitted"
 		setData(d)
 		await httppost("/interop/odlc/submit/"+i, { status: "submitted" })
+		await httppost("/interop/odlc/image/"+i, images[i])
 		setActive(newActive(data))
 	}
 
 	const edit = async (i, formData) => {
 		let d = data
 		let odlc = d[i]
-		if (formData) {
-			d[i] = formData
-			odlc = convertOdlc(d[i])
-		}
-		await httppost("/interop/odlc/edit/"+i, odlc)
+		d[i] = formData
+		odlc = convertOdlc(d[i])
+		setData(d)
+		console.log(formData)
+		await httppost("/interop/odlc/edit/"+i, { ...odlc, image: images[i] })
 	}
 
 	const reject = async (i, formData) => {

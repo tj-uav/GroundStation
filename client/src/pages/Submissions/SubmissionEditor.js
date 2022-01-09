@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react"
 import styled from "styled-components"
 import { dark } from "theme/Colors"
 
-import { Checkboxes, Shape, Letter, Orientation, Position, EmergentDesc } from "./toolbarForm"
+import { Checkboxes, Shape, Letter, Orientation, Position, EmergentDesc, Toolbar } from "./toolbarForm"
 
 import { standard } from "./constants"
 
@@ -23,9 +23,9 @@ const SubmissionEditor = ({ data: [data, setData], active: [active, setActive], 
 		setFormData(data[active])
 	}, [data, active])
 
-	function onAccept() {
+	const accept = () => {
 		if (form.current === null) return
-		// any element within the form with a box shadow must be invalid.  Not the best, but will do
+		// any element within the form with a box shadow must be invalid. Not the best, but will do
 		const invalid = form.current.querySelectorAll("[style*=box-shadow]").length > 0
 		if (invalid) {
 			alert("invalid data!")
@@ -57,36 +57,51 @@ const SubmissionEditor = ({ data: [data, setData], active: [active, setActive], 
 		)
 	}
 
+	const odlcUpload = (d) => {
+		let i = images
+		i[active] = d
+		setImages(i)
+	}
+
 	const _break = [1330, 1120]
 	return (
 		<Container break={_break} width={width}>
-			<img styles={"object-fit: cover;"} width="100%" height="100%" src={"data:image/jpeg;base64," + images[active]} />
+			<img styles={{ "object-fit": "cover", "width": "100%", "height": "100%" }} width="100%" height="100%" src={"data:image/jpeg;base64," + images[active]} />
 			{(width <= _break[0] && width > _break[1]) ?
-				<Checkboxes vertical={true} accept={onAccept} decline={reject} disabled={data[active].status === "submitted"} />
+				<div>
+					<Checkboxes vertical={true} accept={accept} decline={reject} disabled={data[active].status === "submitted"} />
+					<Toolbar formData={[formData, setFormData]} image={images[active]} i={active} />
+				</div>
 				: null
 			}
 			<ContentContainer ref={form}>
 				{(formData ? formData.type : null) == standard ? (
 					<>
-					{(width <= _break[1]) ?
-						<Checkboxes accept={onAccept} save={edit} decline={reject} disabled={data[active].status === "submitted"} />
-						: null
-					}
-					<Shape.Labels />
-					<Shape.Inputs hook={[formData, setFormData]} />
+						{(width <= _break[1]) ?
+							<div>
+								<Checkboxes accept={accept} save={edit} decline={reject} disabled={data[active].status === "submitted"} />
+								<Toolbar formData={[formData, setFormData]} image={images[active]} i={active} />
+							</div>
+							: null
+						}
+						<Shape.Labels />
+						<Shape.Inputs hook={[formData, setFormData]} />
 
-					<Letter.Labels />
-					<Letter.Inputs hook={[formData, setFormData]} />
+						<Letter.Labels />
+						<Letter.Inputs hook={[formData, setFormData]} />
 
-					<Orientation hook={[formData, setFormData]} />
-					<Position hook={[formData, setFormData]} />
+						<Orientation hook={[formData, setFormData]} />
+						<Position hook={[formData, setFormData]} />
 					</>
 				) : (
 					<EmergentDesc hook={[formData, setFormData]} />
 					)}
 			</ContentContainer>
 			{(width > _break[0]) ?
-				<Checkboxes accept={onAccept} save={edit} decline={reject} disabled={data[active].status === "submitted"} />
+				<div>
+					<Checkboxes accept={accept} save={edit} decline={reject} disabled={data[active].status === "submitted"} />
+					<Toolbar styles={{ "margin-bottom": "1em" }} formData={[formData, setFormData]} image={images[active]} setImage={odlcUpload} i={active} />
+				</div>
 				: null
 			}
 		</Container>

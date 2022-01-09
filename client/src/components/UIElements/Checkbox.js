@@ -19,10 +19,10 @@ const Checkbox = ({ type, callback, disabled, ...props }) => {
 				if (!disabled) setBeingClicked(true)
 			}}
 			onMouseUp={e => {
-				if (beingClicked && callback && !disabled) {
+				if (callback && !disabled) {
 					callback(e)
-					setBeingClicked(false)
 				}
+				setBeingClicked(false)
 			}}
 			onMouseLeave={() => {
 				if (!disabled) setBeingClicked(false)
@@ -34,21 +34,21 @@ const Checkbox = ({ type, callback, disabled, ...props }) => {
 }
 
 const Accept = styled(RawAccept)`
-	height: 40%;
-	max-width: 35%;
-	color: ${dark};
+	height: 50%;
+	max-width: 45%;
+	color: white;
 `
 
 const Decline = styled(RawDecline)`
-	height: 40%;
-	max-width: 35%;
-	color: ${dark};
+	height: 55%;
+	max-width: 40%;
+	color: white;
 `
 
 const Save = styled(RawSave)`
-	height: 35%;
-	max-width: 35%;
-	fill: ${dark};
+	height: 40%;
+	max-width: 40%;
+	fill: white;
 `
 
 const Colors = {
@@ -58,7 +58,7 @@ const Colors = {
 }
 
 const StyledCheckbox = styled.div.withConfig({
-	shouldForwardProp: (prop) => !["type", "isClicked"].includes(prop),
+	shouldForwardProp: (prop) => !["isClicked"].includes(prop),
 })`
 	background-color: ${(props) => props.disabled ? grey : Colors[props.type]};
 	${({ isClicked }) => (isClicked ? "filter: brightness(80%);" : "")}
