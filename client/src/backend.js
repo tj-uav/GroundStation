@@ -4,12 +4,16 @@ import axios from "axios"
 // for now it stays constant
 var url = "http://localhost:5000"
 
-const httpget = async (endpoint, func) => {
-	const response = await axios.get(url + endpoint, {
-        headers: { "Content-Type": "application/json", Accept: "application/json" },
-    })
-    if (func) func(response)
-    return response
+const httpget = async (endpoint, func, error) => {
+    try {
+        const response = await axios.get(url + endpoint, {
+            headers: { "Content-Type": "application/json", Accept: "application/json" },
+        })
+        if (func) func(response)
+        return response
+    } catch (e) {
+        error(e)
+    }
 }
 
 const httppost = async (endpoint, data, func) => {

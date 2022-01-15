@@ -80,6 +80,8 @@ const Submissions = () => {
 
 				setImages(imagesData)
 			}
+		}, async (exception) => {
+			console.log(exception)
 		})
 	}
 
@@ -100,12 +102,11 @@ const Submissions = () => {
 		if (formData) {
 			d[i] = formData
 			let submit = convertOdlc(d[i])
-			await httppost("/interop/odlc/edit/"+i, submit)
+			await httppost("/interop/odlc/edit/"+i, { ...submit, image: images[i] })
 		}
 		d[i].status = "submitted"
 		setData(d)
 		await httppost("/interop/odlc/submit/"+i, { status: "submitted" })
-		await httppost("/interop/odlc/image/"+i, images[i])
 		setActive(newActive(data))
 	}
 
@@ -115,7 +116,6 @@ const Submissions = () => {
 		d[i] = formData
 		odlc = convertOdlc(d[i])
 		setData(d)
-		console.log(formData)
 		await httppost("/interop/odlc/edit/"+i, { ...odlc, image: images[i] })
 	}
 

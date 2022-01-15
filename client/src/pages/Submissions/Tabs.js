@@ -7,24 +7,24 @@ import { Row, Column } from "components/Containers"
 
 import { shapes, colors, standard } from "./constants"
 
-const ViewRow = ({ checkboxes, info, number, active: [active, setActive], data: [data, setData], images: [images, setImages], accept, reject }) => {
+const ViewRow = ({ checkboxes, info, i, active: [active, setActive], data: [data, setData], images: [images, setImages], accept, reject }) => {
 	return (
-		<ViewRowContainer checkboxes={checkboxes} clicked={active === number} onClick={() => setActive(number)}>
+		<ViewRowContainer checkboxes={checkboxes} clicked={active === i} onClick={() => setActive(i)}>
 			{checkboxes ? (
 				<>
 					<Checkbox
 						style={{ gridArea: "accept" }}
 						type="accept"
-						callback={() => { accept(number) }}
+						callback={() => { accept(i) }}
 					/>
 					<Checkbox
 						style={{ gridArea: "decline" }}
 						type="decline"
-                        callback={() => { reject(number) }}
+                        callback={() => { reject(i) }}
 					/>
 				</>
 			) : null}
-			<img src={"data:image/jpeg;base64," + images[number]} width="100%" height="100%" style={{ gridRow: "span 2", "object-fit": "cover" }} />
+			<img src={"data:image/jpeg;base64," + images[i]} width="100%" height="100%" style={{ gridRow: "span 2", "object-fit": "cover" }} />
 			{info.type === standard ? 
 			    <>
 					<Row height="4rem">
@@ -88,7 +88,7 @@ const View = ({ data: [data, setData], active: [active, setActive], images: [ima
 						<ViewRow
                             checkboxes={true}
 							key={i}
-							number={i}
+							i={i}
 							info={row}
 							active={[active, setActive]}
 							data={[data, setData]}
@@ -124,7 +124,7 @@ const Submitted = ({ data: [data, setData], active: [active, setActive], images:
 					row.status === "submitted" ? (
 						<ViewRow
 							key={i}
-							number={i}
+							i={i}
 							info={row}
 							active={[active, setActive]}
 							data={[data, setData]}
@@ -159,7 +159,7 @@ const Rejected = ({ data: [data, setData], active: [active, setActive], images: 
 						<ViewRow
                             checkboxes={true}
 							key={i}
-							number={i}
+							i={i}
 							info={row}
 							active={[active, setActive]}
 							data={[data, setData]}

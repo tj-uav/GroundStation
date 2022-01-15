@@ -58,7 +58,7 @@ const SubmissionEditor = ({ data: [data, setData], active: [active, setActive], 
 	}
 
 	const odlcUpload = (d) => {
-		let i = images
+		let i = [...images]
 		i[active] = d
 		setImages(i)
 	}
@@ -66,11 +66,12 @@ const SubmissionEditor = ({ data: [data, setData], active: [active, setActive], 
 	const _break = [1330, 1120]
 	return (
 		<Container break={_break} width={width}>
-			<img styles={{ "object-fit": "cover", "width": "100%", "height": "100%" }} width="100%" height="100%" src={"data:image/jpeg;base64," + images[active]} />
-			{(width <= _break[0] && width > _break[1]) ?
+			<StyledImage width="100%" height="100%" src={"data:image/jpeg;base64," + images[active]} />
+			{(width <= _break[0] && width > _break[1]) ? // vertical checkboxes
 				<div>
-					<Checkboxes vertical={true} accept={accept} decline={reject} disabled={data[active].status === "submitted"} />
-					<Toolbar formData={[formData, setFormData]} image={images[active]} i={active} />
+					<StyledVerticalContainer>
+						<Checkboxes vertical={true} accept={accept} decline={reject} disabled={data[active].status === "submitted"} />
+					</StyledVerticalContainer>
 				</div>
 				: null
 			}
@@ -78,10 +79,14 @@ const SubmissionEditor = ({ data: [data, setData], active: [active, setActive], 
 				{(formData ? formData.type : null) == standard ? (
 					<>
 						{(width <= _break[1]) ?
-							<div>
+							<div> { /* checkboxes and data under image */ }
 								<Checkboxes accept={accept} save={edit} decline={reject} disabled={data[active].status === "submitted"} />
-								<Toolbar formData={[formData, setFormData]} image={images[active]} i={active} />
+								<Toolbar formData={[formData, setFormData]} image={images[active]} i={active} setImage={odlcUpload} />
 							</div>
+							: null
+						}
+						{(width <= _break[0] && width > _break[1]) ? // vertical checkboxes
+							<Toolbar formData={[formData, setFormData]} image={images[active]} i={active} setImage={odlcUpload} />
 							: null
 						}
 						<Shape.Labels />
@@ -94,19 +99,38 @@ const SubmissionEditor = ({ data: [data, setData], active: [active, setActive], 
 						<Position hook={[formData, setFormData]} />
 					</>
 				) : (
-					<EmergentDesc hook={[formData, setFormData]} />
-					)}
+					<>
+						{ width <= _break[1] ?
+							<Checkboxes accept={accept} save={edit} decline={reject} disabled={data[active].status === "submitted"} />
+							: null
+						}
+						{ width <= _break[0] ?
+							<Toolbar formData={[formData, setFormData]} image={images[active]} i={active} setImage={odlcUpload} />
+							: null
+						}
+						<EmergentDesc hook={[formData, setFormData]} />
+					</>
+				)}
 			</ContentContainer>
-			{(width > _break[0]) ?
+			{(width > _break[0]) ? // data to the right
 				<div>
 					<Checkboxes accept={accept} save={edit} decline={reject} disabled={data[active].status === "submitted"} />
-					<Toolbar styles={{ "margin-bottom": "1em" }} formData={[formData, setFormData]} image={images[active]} setImage={odlcUpload} i={active} />
+					<Toolbar formData={[formData, setFormData]} image={images[active]} setImage={odlcUpload} i={active} />
 				</div>
 				: null
 			}
 		</Container>
 	)
 }
+
+const StyledImage = styled.img`
+	object-fit: contain;
+`
+
+const StyledVerticalContainer = styled.div`
+	display: flex;
+	height: 100%;
+`
 
 const ContentContainer = styled.div`
 	display: flex;

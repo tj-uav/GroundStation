@@ -21,6 +21,7 @@ export const Toolbar = ({ formData: [formData, setFormData], image, setImage, i 
 
 const StyledDiv = styled.div`
 	display: flex;
+	margin-bottom: 1.5em;
 `
 
 const TypeButton = ({ formData: [formData, setFormData] }) => {
