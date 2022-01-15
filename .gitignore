@@ -137,10 +137,19 @@ dmypy.json
 # Cython debug symbols
 cython_debug/
 
-# Custom filepaths
-client/node_modules/
-server/config.json
-venv/
+# IDEs
 .vscode/
 .idea/
+
+# Custom
+/interop/
+/client/node_modules/
+/server/config.json
+/server/ardupilot/
+/server/assets/map_images/*
+/server/assets/odlc_images/*
+!/server/assets/map_images/sample.png
+!/server/assets/odlc_images/sample.png
 odlc.json
+log.txt
+debug_log.txt

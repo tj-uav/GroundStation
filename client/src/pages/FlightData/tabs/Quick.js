@@ -13,17 +13,17 @@ const Quick = () => {
 	const [latLong, setLatLong] = useState({ "lat": 0, "lon": 0 })
 
 	const updateData = () => {
-		fetch("http://localhost:5000/mav/quick")
+		fetch("http://localhost:5000/uav/quick")
 			.then(response => response.json())
 			.then(data => {
-				setAltitude(data.altitude)
-				setOrientation({"yaw": data.orientation.yaw, "roll": data.orientation.roll, "pitch": data.orientation.pitch })
-				setGroundSpeed(data.ground_speed)
-				setAirspeed(data.air_speed)
-				setDistToWaypoint(data.dist_to_wp)
-				setBattery(data.voltage)
-				setThrottle(data.throttle)
-				setLatLong({"lat": data.lat, "lon": data.lon})
+				setAltitude(data.result.altitude)
+				setOrientation({"yaw": data.result.orientation.yaw, "roll": data.result.orientation.roll, "pitch": data.result.orientation.pitch })
+				setGroundSpeed(data.result.ground_speed)
+				setAirspeed(data.result.air_speed)
+				setDistToWaypoint(data.result.dist_to_wp)
+				setBattery(data.result.voltage)
+				setThrottle(data.result.throttle)
+				setLatLong({"lat": data.result.lat, "lon": data.result.lon})
 			})
 	}
 
@@ -44,27 +44,27 @@ const Quick = () => {
 		>
 			<Column style={{ marginBottom: "1rem" }}>
 				<Row>
-					<Box label="Altitude" content={altitude} />
+					<Box label="Altitude" content={altitude.toFixed(2) + " ft"} />
 					<Row>
-						<Box label="Yaw" content={orientation.yaw} />
-						<Box label="Roll" content={orientation.roll} />
-						<Box label="Pitch" content={orientation.pitch} />
+						<Box label="Yaw" content={(orientation.yaw) + "\u00B0"} />
+						<Box label="Roll" content={(orientation.roll) + "\u00B0"} />
+						<Box label="Pitch" content={(orientation.pitch) + "\u00B0"} />
 					</Row>
 				</Row>
 				<Row>
-					<Box label="Ground Speed" content={groundSpeed} />
-					<Box label="Airspeed" content={airspeed} />
-				</Row>
-				<Row>
-					<Box label="Distance to Waypoint" content={distToWaypoint} />
-					<Box label="Battery" content={battery} />
-				</Row>
-				<Row>
-					<Box label="Throttle" content={throttle} />
 					<Row>
-						<Box label="Latitude" content={latLong.lat} />
-						<Box label="Longitude" content={latLong.lon} />
+						<Box label="Latitude" content={Math.abs(latLong.lat).toFixed(8) + "\u00B0 N"} />
+						<Box label="Longitude" content={Math.abs(latLong.lon).toFixed(8) + "\u00B0 W"} />
 					</Row>
+				</Row>
+				<Row>
+					<Box label="Throttle" content={throttle.toFixed(2) + " %"} />
+					<Box label="Ground Speed" content={groundSpeed.toFixed(2) + " mph"} />
+					<Box label="Airspeed" content={airspeed.toFixed(2) + " mph"} />
+				</Row>
+				<Row>
+					<Box label="Distance to Waypoint" content={distToWaypoint.toFixed(2) + " ft"} />
+					<Box label="Battery" content={battery.toFixed(2) + " V"} />
 				</Row>
 			</Column>
 			<Box label="Console + Error Messages" error />

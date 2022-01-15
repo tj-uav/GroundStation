@@ -6,3 +6,4 @@ dronekit
 pymavlink
 pySerial
 requests
+dronekit-sitl

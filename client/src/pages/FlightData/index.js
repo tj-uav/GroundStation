@@ -25,12 +25,12 @@ TODO: Display list highlighting (and vice versa)
 
 const FlightData = () => {
 	const queryTelemetry = () => {
-		httpget("/mav/telemetry", response => setPlane({
+		httpget("/interop/telemetry", response => setPlane({
 			latlng: {
-				lat: response.data.latitude,
-				lng: response.data.longitude
+				lat: response.data.result.latitude,
+				lng: response.data.result.longitude
 			},
-			heading: response.data.heading,
+			heading: response.data.result.heading,
 		}))
 	}
 
@@ -96,7 +96,7 @@ const FlightData = () => {
 		<div
 			style={{
 				display: "grid",
-				padding: "1rem 1rem 0 1rem",
+				padding: "0 1rem 0 1rem",
 				gridTemplateColumns: "37rem 100fr",
 				gap: "1rem",
 				width: "100%",
