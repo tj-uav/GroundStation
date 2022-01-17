@@ -43,7 +43,9 @@ class ImageHandler:
         self.logger.info("INITIALIZED IMAGE HANDLER")
 
     def socket_connect(self):
-        eventlet.wsgi.server(eventlet.listen(('', 4000)), self.app, log_output=False)
+        eventlet.wsgi.server(eventlet.listen(
+            (self.config["uav"]["images"]["host"], self.config["uav"]["images"]["port"])
+        ), self.app, log_output=False)
 
     # When socket connection is not used
     def retreive_images(self):
