@@ -32,17 +32,18 @@ class UAVHandler:
             self.mode = self.params = None
         self.commands = []
         self.armed = False
+        print("╠ CREATED UAV HANDLER")
+        self.logger.info("CREATED UAV HANDLER")
 
     def connect(self):
-        self.logger.info("ATTEMPTED UAV CONNECTION")
         try:
             if self.serial:
                 self.vehicle = connect(self.port, wait_ready=True, baud=BAUDRATE)
             else:
                 self.vehicle = connect(self.port, wait_ready=True)
             self.update()
-            print("CONNECTED TO UAV")
-            self.logger.info("CONNECTED TO UAV")
+            print("╠ INITIALIZED UAV HANDLER")
+            self.logger.info("INITIALIZED UAV HANDLER")
             return {}
         except Exception as e:
             raise GeneralError(str(e)) from e

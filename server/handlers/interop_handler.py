@@ -4,10 +4,10 @@ import logging
 import os
 from datetime import datetime, timedelta, date
 
-from google.protobuf import json_format
-from requests.exceptions import ConnectionError as RequestsCE
 from auvsi_suas.client import client
 from auvsi_suas.proto import interop_api_pb2 as interop
+from google.protobuf import json_format
+from requests.exceptions import ConnectionError as RequestsCE
 
 from errors import InvalidRequestError, InvalidStateError, GeneralError, ServiceUnavailableError
 
@@ -65,7 +65,7 @@ class InteropHandler:
     def __init__(self, gs, config):
         self.logger = logging.getLogger("main")
         print("╠ CREATED INTEROP HANDLER")
-        self.logger.info("╠ CREATED INTEROP ERROR")
+        self.logger.info("CREATED INTEROP ERROR")
         self.gs = gs
         self.config = config
         self.mission_id = self.config["interop"]["mission_id"]
@@ -106,7 +106,7 @@ class InteropHandler:
             self.obstacles = self.mission.stationary_obstacles
             self.obstacles_dict = [json_format.MessageToDict(o) for o in self.obstacles]
             print("╠ INITIALIZED INTEROP HANDLER")
-            self.logger.info("╠ INITIALIZED INTEROP HANDLER")
+            self.logger.info("INITIALIZED INTEROP HANDLER")
             return {}
         except RequestsCE as e:
             self.login_status = False
