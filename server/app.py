@@ -42,11 +42,11 @@ console_handler = logging.StreamHandler(sys.stdout)
 console_handler.setLevel(logging.IMPORTANT)
 console_handler.setFormatter(formatter)
 
-file_handler = logging.FileHandler("log.txt", mode="w")
+file_handler = logging.FileHandler("logs/info.log", mode="w")
 file_handler.setLevel(logging.INFO)
 file_handler.setFormatter(formatter)
 
-debug_file_handler = logging.FileHandler("debug_log.txt", mode="w")
+debug_file_handler = logging.FileHandler("logs/debug.log", mode="w")
 debug_file_handler.setLevel(logging.DEBUG)
 debug_file_handler.setFormatter(formatter)
 

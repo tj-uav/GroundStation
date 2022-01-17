@@ -207,7 +207,7 @@ class InteropHandler:
                           description: str = None):
         try:
             with open(f"assets/odlc_images/{len(self.odlc_queued_data)}.png", "wb") as file:
-                file.write(base64.decodebytes(bytes(image, 'utf-8')))
+                file.write(base64.b64decode(image))
             base_obj = {
                 "created": datetime.now(),
                 "auto_submit": datetime.now() + timedelta(minutes=5),
