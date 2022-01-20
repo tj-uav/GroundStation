@@ -19,13 +19,12 @@ COMMANDS = {
 
 
 class UAVHandler:
-    def __init__(self, gs, config, socketio):
+    def __init__(self, gs, config):
         self.logger = logging.getLogger("main")
         self.gs = gs
         self.config = config
-        self.port = self.config["uav"]["port"]
-        self.serial = self.config["uav"]["serial"]
-        self.socketio = socketio
+        self.port = self.config["uav"]["telemetry"]["port"]
+        self.serial = self.config["uav"]["telemetry"]["serial"]
         self.update_thread = None
         self.vehicle = None
         self.altitude = self.orientation = self.ground_speed = self.air_speed = self.dist_to_wp = \
@@ -33,17 +32,18 @@ class UAVHandler:
             self.mode = self.params = None
         self.commands = []
         self.armed = False
+        print("╠ CREATED UAV HANDLER")
+        self.logger.info("CREATED UAV HANDLER")
 
     def connect(self):
-        self.logger.info("ATTEMPTED UAV CONNECTION")
         try:
             if self.serial:
                 self.vehicle = connect(self.port, wait_ready=True, baud=BAUDRATE)
             else:
                 self.vehicle = connect(self.port, wait_ready=True)
             self.update()
-            print("CONNECTED TO UAV")
-            self.logger.info("CONNECTED TO UAV")
+            print("╠ INITIALIZED UAV HANDLER")
+            self.logger.info("INITIALIZED UAV HANDLER")
             return {}
         except Exception as e:
             raise GeneralError(str(e)) from e
