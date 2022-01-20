@@ -185,7 +185,7 @@ const FlightPlanMap = props => {
 				length={4}
 				onClick={handleClick}
 				ref={mapRef}
-				zoom={15}
+				zoom={16}
 				style={{ height: "100%" }}
 			>
 				<TileLayer
@@ -194,9 +194,9 @@ const FlightPlanMap = props => {
 				/>
 
 				<PolylineDecorator positions={props.getters.waypoints} color="#00AA00" />
-				<Polyline positions={circle(props.getters.fence)} color="#0000FF"></Polyline>
-				<Polyline positions={circle(props.getters.ugvFence)} color="#6e0d9a"></Polyline>
-				<Polyline positions={circle(props.getters.searchGrid)} color="#ee7313"></Polyline>
+				<Polyline positions={circle(props.getters.fence)} color="#0000FF" />
+				<Polyline positions={circle(props.getters.ugvFence)} color="#6e0d9a" />
+				<Polyline positions={circle(props.getters.searchGrid)} color="#ee7313" />
 				
 				{ /* Need for Auvsi Suas: waypoints, obstacles, geofence, ugv drop 
 				     ugv drive, ugv fence, odlc search grid, off axis odlc */ }
