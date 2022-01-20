@@ -119,5 +119,5 @@ class GroundStation:
     def call(self, func, *args, log=True):
         result = self.func_map[func](*args)
         if log:
-            self.logger.log(logging.DEBUG, func + ": " + json.dumps(result))
+            self.logger.log(logging.DEBUG, func + ": " + json.dumps(result, default=str))
         return result

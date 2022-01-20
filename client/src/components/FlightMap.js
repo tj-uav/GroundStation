@@ -16,7 +16,7 @@ const FlightPlanMap = props => {
 	const [icons, setIcons] = useState({})
 
 	useEffect(() => {
-		httpget("http://localhost:5000/interop/mission", response => {
+		httpget("/interop/mission", response => {
 			setState(response.data.result.mapCenterPos)
 
 			let waypoints = []

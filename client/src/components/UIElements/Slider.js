@@ -12,6 +12,7 @@ const Slider = ({
 	height,
 	onChange,
 	value: value_g = undefined,
+	step = 1,
 	...props
 }) => {
 	const [value_l, setValue] = useState(initial)
@@ -34,6 +35,7 @@ const Slider = ({
 					setValue(e.target.value)
 					onChange(e.target.value)
 				}}
+				step={step}
 			></StyledSlider>
 		</StyledSliderBox>
 	)

@@ -2,7 +2,7 @@ import json
 import logging
 import random
 
-from dronekit import connect, Command, VehicleMode
+#from dronekit import connect, Command, VehicleMode
 from pymavlink import mavutil as uavutil
 
 from errors import GeneralError, InvalidRequestError
