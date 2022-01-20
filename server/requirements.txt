@@ -1,9 +1,18 @@
+python-dotenv
+requests
+protobuf
+
+# Flask Webserver
 Flask
 Flask-Cors
 flask-socketio
-protobuf
+
+# UAV Handler
 dronekit
+dronekit-sitl
 pymavlink
 pySerial
-requests
-dronekit-sitl
+
+# Image Handler
+python-socketio
+eventlet

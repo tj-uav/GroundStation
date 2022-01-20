@@ -17,13 +17,12 @@ COMMANDS = {
 
 
 class DummyUAVHandler:
-    def __init__(self, gs, config, socketio):
+    def __init__(self, gs, config):
         self.logger = logging.getLogger("main")
         self.gs = gs
         self.config = config
-        self.port = self.config["uav"]["port"]
-        self.serial = self.config["uav"]["serial"]
-        self.socketio = socketio
+        self.port = self.config["uav"]["telemetry"]["port"]
+        self.serial = self.config["uav"]["telemetry"]["serial"]
         self.update_thread = None
         self.altitude = self.orientation = self.ground_speed = self.air_speed = self.dist_to_wp = \
             self.voltage = self.battery_level = self.throttle = self.lat = self.lon = \
@@ -33,10 +32,12 @@ class DummyUAVHandler:
         self.mode = "AUTO"
         self.commands = []
         self.armed = False
+        print("╠ CREATED DUMMY UAV HANDLER")
+        self.logger.info("CREATED DUMMY UAV HANDLER")
 
     def connect(self):
-        print("CREATED DUMMY UAV HANDLER")
-        self.logger.info("CREATED DUMMY UAV HANDLER")
+        print("╠ INITIALIZED DUMMY UAV HANDLER")
+        self.logger.info("INITIALIZED DUMMY UAV HANDLER")
         self.update()
         return {}
 
@@ -62,19 +63,20 @@ class DummyUAVHandler:
                 self.lat = self.waypoints[self.waypoint_index]["latitude"]
                 self.lon = self.waypoints[self.waypoint_index]["longitude"]
             speed = 0.0001
-            x_dist = self.waypoints[self.waypoint_index]["latitude"]-self.lat
-            y_dist = self.waypoints[self.waypoint_index]["longitude"]-self.lon
+            x_dist = self.waypoints[self.waypoint_index]["latitude"] - self.lat
+            y_dist = self.waypoints[self.waypoint_index]["longitude"] - self.lon
             dist = math.sqrt(x_dist ** 2 + y_dist ** 2)
             angle = math.atan2(y_dist, x_dist)
             if dist <= 0.0001:
                 self.lat = self.waypoints[self.waypoint_index]["latitude"]
                 self.lon = self.waypoints[self.waypoint_index]["longitude"]
-                self.waypoint_index = (self.waypoint_index+1) % len(self.waypoints)
+                self.waypoint_index = (self.waypoint_index + 1) % len(self.waypoints)
             else:
                 self.lat = (self.lat + math.cos(angle) * speed)
                 self.lon = (self.lon + math.sin(angle) * speed)
             self.orientation = {
-                'yaw': int((angle/(2*math.pi) * 360) if angle >= 0 else (angle/(2*math.pi)*360 + 360)),
+                'yaw': int((angle / (2 * math.pi) * 360) if angle >= 0 else (
+                            angle / (2 * math.pi) * 360 + 360)),
                 'roll': random.randint(-30, 30),
                 'pitch': random.randint(-20, 20)
             }

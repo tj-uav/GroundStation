@@ -2,14 +2,12 @@ import base64
 import json
 import logging
 import os
-import string
 from datetime import datetime, timedelta, date
-from random import choice, randint, random
 
-from google.protobuf import json_format
-from requests.exceptions import ConnectionError as RequestsCE
 from auvsi_suas.client import client
 from auvsi_suas.proto import interop_api_pb2 as interop
+from google.protobuf import json_format
+from requests.exceptions import ConnectionError as RequestsCE
 
 from errors import InvalidRequestError, InvalidStateError, GeneralError, ServiceUnavailableError
 
@@ -56,7 +54,7 @@ class InteropHandler:
 
     def __init__(self, gs, config):
         self.logger = logging.getLogger("main")
-        print("CREATED INTEROP HANDLER")
+        print("╠ CREATED INTEROP HANDLER")
         self.logger.info("CREATED INTEROP ERROR")
         self.gs = gs
         self.config = config
@@ -97,30 +95,7 @@ class InteropHandler:
             }
             self.obstacles = self.mission.stationary_obstacles
             self.obstacles_dict = [json_format.MessageToDict(o) for o in self.obstacles]
-
-            if self.config['uav']['dummy']:
-                dummy_img = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVQYV2NgYAAAAAMAAWgmWQ0AAAAASUVORK5CYII="
-                for i in range(5):
-                    if i == 3:
-                        self.odlc_add_to_queue(dummy_img,
-                                               "emergent",
-                                               random() * 90,
-                                               random() * -90,
-                                               randint(0, 360),
-                                               description="Emergent object ahoy!")
-                    else:
-                        self.odlc_add_to_queue(dummy_img,
-                                               "standard",
-                                               random() * 90,
-                                               random() * -90,
-                                               randint(0, 360),
-                                               choice(list(self.ODLC_KEY["shape"].keys())),
-                                               choice(list(self.ODLC_KEY["color"].keys())),
-                                               choice(string.ascii_uppercase + string.digits),
-                                               choice(list(self.ODLC_KEY["color"].keys())))
-                self.odlc_reject(2)
-                self.odlc_submit(4, "submitted")
-            print("INITIALIZED INTEROP HANDLER")
+            print("╠ INITIALIZED INTEROP HANDLER")
             self.logger.info("INITIALIZED INTEROP HANDLER")
             return {}
         except RequestsCE as e:
@@ -222,7 +197,7 @@ class InteropHandler:
                           description: str = None):
         try:
             with open(f"assets/odlc_images/{len(self.odlc_queued_data)}.png", "wb") as file:
-                file.write(base64.decodebytes(bytes(image, 'utf-8')))
+                file.write(base64.b64decode(image))
             base_obj = {
                 "created": datetime.now(),
                 "auto_submit": datetime.now() + timedelta(minutes=5),

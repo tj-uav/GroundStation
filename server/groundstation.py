@@ -1,7 +1,7 @@
 import json
+import logging
 import time
 from threading import Thread
-import logging
 
 from handlers.dummy_uav_handler import DummyUAVHandler
 from handlers.image_handler import ImageHandler
@@ -10,25 +10,22 @@ from handlers.uav_handler import UAVHandler
 
 
 class GroundStation:
-    def __init__(self, socket):
+    def __init__(self):
         self.logger = logging.getLogger("main")
-
         with open("config.json", "r") as file:
             self.config = json.load(file)
 
         self.interop_telem_thread = self.uav_update_thread = self.retreive_image_thread = None
 
+        print("╔══ CREATING HANDLERS")
+        self.logger.info("CREATING HANDLERS")
         self.interop = InteropHandler(self, config=self.config)
-        self.interop_telem_thread = self.plane_thread = None
-
-        if self.config["uav"]["dummy"]:
-            self.uav = DummyUAVHandler(self, self.config, socket)
+        self.interop_telem_thread = self.plane_thread = self.retreive_image_thread = None
+        if self.config["uav"]["telemetry"]["dummy"]:
+            self.uav = DummyUAVHandler(self, self.config)
         else:
-            self.uav = UAVHandler(self, self.config, socket)
-
-        self.image = ImageHandler(self)
-
-        self.interop.login()
+            self.uav = UAVHandler(self, self.config)
+        self.image = ImageHandler(self, self.config)
 
         self.func_map = {
             "i_login": self.interop.login,
@@ -67,12 +64,22 @@ class GroundStation:
 
             "m_getarmed": self.uav.get_armed,
             "m_arm": self.uav.arm,
-            "m_disarm": self.uav.disarm
+            "m_disarm": self.uav.disarm,
+
+            "cv_process": self.image.process_image
         }
+        print("╚═══ CREATED HANDLERS\n")
+        self.logger.info("CREATED HANDLERS\n")
 
-        time.sleep(5)
-
+        print("╔═══ INITIALIZING HANDLERS")
+        self.logger.info("INITIALIZING HANDLERS")
+        self.interop.login()
+        time.sleep(1)
         self.uav.connect()
+        self.image.initialize()
+        print("╚═══ INITIALIZED HANDLERS\n")
+        self.logger.info("INITIALIZED HANDLERS\n")
+
         self.async_calls()
 
     def telemetry_thread(self):
@@ -90,13 +97,18 @@ class GroundStation:
             time.sleep(0.1)
 
     def image_thread(self):
-        while True:
-            run = self.image.retreive_images()
-            if run:
-                self.logger.debug("[Image] %s", run)
-            time.sleep(0.1)
+        if not self.config["uav"]["images"]["dummy"]:  # Initialize a socket connection
+            self.image.socket_connect()
+        else:  # Use a dummy connection
+            while True:
+                run = self.image.retreive_images()
+                if run:
+                    self.logger.info("[Image] Successfully identified ODLC from Image")
+                time.sleep(0.1)
 
     def async_calls(self):
+        print("╔═══ STARTING ASYNC THREADS")
+        self.logger.info("STARTING ASYNC THREADS")
         self.interop_telem_thread = Thread(target=self.telemetry_thread)
         self.interop_telem_thread.name = "InteropThread"
         self.interop_telem_thread.daemon = True
@@ -110,10 +122,19 @@ class GroundStation:
         self.retreive_image_thread.daemon = True
 
         self.interop_telem_thread.start()
+        print("╠ STARTED TELEMETRY THREAD")
+        self.logger.info("STARTED TELEMETRY THREAD")
+
         self.plane_thread.start()
+        print("╠ STARTED UAV THREAD")
+        self.logger.info("STARTED UAV THREAD")
+
         self.retreive_image_thread.start()
-        print("STARTED ASYNC THREADS")
-        self.logger.info("STARTED ASYNC THREADS")
+        print("╠ STARTED IMAGE THREAD")
+        self.logger.info("STARTED IMAGE THREAD")
+
+        print("╚═══ STARTED ASYNC THREADS\n")
+        self.logger.info("STARTED ASYNC THREADS\n")
 
     # Calls a function from self.func_map, with the provided parameters
     def call(self, func, *args, log=True):
