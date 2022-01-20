@@ -24,8 +24,11 @@ const Box = forwardRef(({ content, label, editable, onChange = undefined, ...pro
 				style={props.style}
 				ref={ref}
 				onChange={e => {
-					if (onChange) onChange(e.target.value)
-					setValue(e.target.value)
+					let text = e.target.value
+					if (onChange) {
+						text = onChange(e.target.value) ?? text
+					}
+					setValue(text)
 				}}
 				className="paragraph"
 				readOnly={!editable ?? true}
