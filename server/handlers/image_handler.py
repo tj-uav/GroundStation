@@ -1,3 +1,4 @@
+import base64
 import logging
 import os
 import string
@@ -37,7 +38,7 @@ class ImageHandler:
 
         @self.sio.event
         def disconnect(sid):
-            self.logger.critical("[Image] Lost socketio connection (sid: %s)", sid)
+            self.logger.warning("[Image] Lost socketio connection (sid: %s)", sid)
 
         print("╠ INITIALIZED IMAGE HANDLER")
         self.logger.info("INITIALIZED IMAGE HANDLER")
@@ -51,8 +52,12 @@ class ImageHandler:
     def retreive_images(self):
         # Retreives Image from UAV
         if random() < 0.05:  # Average of 2 seconds
-            img = os.getenv("IMAGE")
-            return self.process_image(img)  # Dummy Image
+            with open("assets/odlc_images/sample.png", "rb") as image_file:
+                img = base64.b64encode(image_file.read())
+            if self.process_image(img):  # Dummy Image
+                self.logger.info("[Image] Successfully identified ODLC from Image")
+                return True
+        return False
 
     def process_image(self, image):
         if random() < 0.05:  # 5% chance that the image is of an ODLC
