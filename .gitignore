@@ -142,9 +142,10 @@ cython_debug/
 .idea/
 
 # Custom
-client/node_modules/
-server/config.json
-server/ardupilot/
+/interop/
+/client/node_modules/
+/server/config.json
+/server/ardupilot/
 /server/assets/map_images/*
 /server/assets/odlc_images/*
 !/server/assets/map_images/sample.png

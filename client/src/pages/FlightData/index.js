@@ -25,7 +25,7 @@ TODO: Display list highlighting (and vice versa)
 
 const FlightData = () => {
 	const queryTelemetry = () => {
-		httpget("http://localhost:5000/interop/telemetry", response => setPlane({
+		httpget("/interop/telemetry", response => setPlane({
 			latlng: {
 				lat: response.data.result.latitude,
 				lng: response.data.result.longitude

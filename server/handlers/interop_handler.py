@@ -24,16 +24,6 @@ class InteropHandler:
             "standard": interop.Odlc.STANDARD,
             "emergent": interop.Odlc.EMERGENT
         },
-        "orientation": {
-            0: interop.Odlc.N,
-            45: interop.Odlc.NE,
-            90: interop.Odlc.E,
-            135: interop.Odlc.SE,
-            180: interop.Odlc.S,
-            225: interop.Odlc.SW,
-            270: interop.Odlc.W,
-            315: interop.Odlc.NW,
-        },
         "shape": {
             "circle": interop.Odlc.CIRCLE,
             "semicircle": interop.Odlc.SEMICIRCLE,
@@ -214,18 +204,14 @@ class InteropHandler:
                 "status": None,
                 "autonomous": True,
                 "type": self.ODLC_KEY["type"][type_],
-                "latitude": lat,
-                "longitude": lon
+                "latitude": float(lat),
+                "longitude": float(lon)
             }
             if type_ == "emergent":
                 data_obj = {"description": description}
             else:
                 data_obj = {
-                    "orientation": self.ODLC_KEY["orientation"][orientation] \
-                        if orientation in self.ODLC_KEY["orientation"] else \
-                        self.ODLC_KEY["orientation"][min(
-                            self.ODLC_KEY["orientation"].keys(), key=lambda k: abs(k - orientation)
-                        )],
+                    "orientation": int(orientation / 45) + 1,
                     "shape": self.ODLC_KEY["shape"][shape],
                     "shape_color": self.ODLC_KEY["color"][shape_color],
                     "alphanumeric": alpha,
@@ -248,15 +234,18 @@ class InteropHandler:
                 with open(f"assets/odlc_images/{id_}.png", "wb") as file:
                     file.write(base64.decodebytes(bytes(image, 'utf-8')))
             old_obj = self.odlc_queued_data[id_]
-            if type_ == "emergent":
+            old_obj["type"] = int(type_) if type_ else old_obj["type"]
+            old_obj["autonomous"] = False
+            old_obj["latitude"] = float(lat) if lat else old_obj["latitude"]
+            old_obj["longitude"] = float(lon) if lon else old_obj["longitude"]
+            if old_obj["type"] == interop.Odlc.EMERGENT:
                 old_obj["description"] = description if description else old_obj["description"]
             else:
-                keymap = {"lat": lat, "lon": lon, "orientation": orientation, "shape": shape,
-                          "shape_color": shape_color, "alphanumeric": alpha,
-                          "alphanumeric_color": alpha_color}
-                for name, newval in keymap.items():
-                    if newval:
-                        old_obj[name] = newval
+                old_obj["orientation"] = int(orientation) if orientation else old_obj["orientation"]
+                old_obj["shape"] = int(shape) if shape else old_obj["shape"]
+                old_obj["shape_color"] = int(shape_color) if shape_color else old_obj["shape_color"]
+                old_obj["alphanumeric"] = alpha if alpha else old_obj["alphanumeric"]
+                old_obj["alphanumeric_color"] = int(alpha_color) if alpha_color else old_obj["alphanumeric_color"]
             self.odlc_queued_data[id_] = old_obj
             return {}
         except InvalidStateError as e:
@@ -277,7 +266,7 @@ class InteropHandler:
         except Exception as e:
             raise GeneralError(str(e)) from e
 
-    def odlc_submit(self, id_):
+    def odlc_submit(self, id_, status):
         try:
             if len(self.odlc_queued_data) <= id_:
                 raise InvalidStateError("Invalid ODLC ID")
@@ -291,14 +280,17 @@ class InteropHandler:
             submission.type = obj_data["type"]
             submission.latitude = obj_data["latitude"]
             submission.longitude = obj_data["longitude"]
-            submission.orientation = obj_data["orientation"]
-            submission.shape = obj_data["shape"]
-            submission.shape_color = obj_data["shape_color"]
-            submission.alphanumeric = obj_data["alphanumeric"]
-            submission.alphanumeric_color = obj_data["alphanumeric_color"]
+            if obj_data["type"] == interop.Odlc.STANDARD:
+                submission.orientation = obj_data["orientation"]
+                submission.shape = obj_data["shape"]
+                submission.shape_color = obj_data["shape_color"]
+                submission.alphanumeric = obj_data["alphanumeric"]
+                submission.alphanumeric_color = obj_data["alphanumeric_color"]
+            else:
+                submission.description = obj_data["description"]
             odlc = self.client.post_odlc(submission)
             self.client.put_odlc_image(odlc.id, image_data)
-            self.odlc_queued_data[id_]["status"] = True
+            self.odlc_queued_data[id_]["status"] = status
             return {}
         except InvalidStateError as e:
             raise InvalidStateError(str(e)) from e

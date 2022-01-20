@@ -13,7 +13,6 @@ const Dropdown = forwardRef(
 			onChange = undefined,
 			initial = undefined,
 			blank = "--",
-			selected = undefined,
 			maxOptionsShownAtOnce = 10,
 		},
 		ref
@@ -21,10 +20,10 @@ const Dropdown = forwardRef(
 		const [active, setActive] = useState(false)
 		const [option, setOption] = useState(initial)
 		useEffect(() => {
-			setOption(selected)
-		}, [selected])
-		let options = children.map(c => (React.isValidElement(c) ? c.props.children : c))
-		options.sort() // native is in-place, idk why
+			setOption(initial)
+		}, [initial])
+		let options = children.map(c => ({ text: (React.isValidElement(c) ? c.props.children : c), value: c.props.value ?? c.props.children }))
+		options.sort((a, b) => {return a.text > b.text})
 
 		return (
 			<div style={{ position: "relative" }} onMouseLeave={() => setActive(false)}>
@@ -42,15 +41,16 @@ const Dropdown = forwardRef(
 					{active ? (
 						options.map((option, i) => (
 							<DropdownContent
+								value={option.value}
 								key={i}
 								number={i}
-								setOption={ID => {
-									if (onChange) onChange(ID)
+								setOption={(ID, value) => {
+									if (onChange) onChange(value)
 									setOption(ID)
 									setActive(false)
 								}}
 							>
-								{option}
+								{option.text}
 							</DropdownContent>
 						))
 					) : (
@@ -75,10 +75,10 @@ const StyledDropdown = styled(StyledButton)`
 	height: 100%;
 `
 
-const DropdownContent = ({ children, setOption, number, ...props }) => {
+const DropdownContent = ({ value, children, setOption, number, ...props }) => {
 	const ID = useState(children)[0]
 	return (
-		<StyledDropdownContent id={ID} number={number} onClick={() => setOption(ID)} {...props}>
+		<StyledDropdownContent id={ID} number={number} onClick={() => setOption(ID, value)} {...props}>
 			{children}
 		</StyledDropdownContent>
 	)
@@ -102,4 +102,11 @@ const StyledDropdownContent = styled(StyledButton)`
 	}
 `
 
+const StyledDropdownItem = ({children, value}) => {
+	return (
+		<span>{children}</span>
+	)
+}
+
+Dropdown.Item = StyledDropdownItem
 export default Dropdown
