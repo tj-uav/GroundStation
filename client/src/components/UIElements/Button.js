@@ -1,11 +1,11 @@
 import React, { useState, forwardRef } from "react"
 import styled from "styled-components"
 
-import { dark, blue, red } from "theme/Colors"
+import { dark, blue } from "theme/Colors"
 
 import Link from "./Link"
 
-const Button = forwardRef(({ active, controlled, to, href, careful = false, ...props }, ref) => {
+const Button = forwardRef(({ active, onChange, controlled, to, href, careful = false, ...props }, ref) => {
 	const [isActive, setActive] = useState(active ?? false)
 
 	return (
@@ -21,6 +21,7 @@ const Button = forwardRef(({ active, controlled, to, href, careful = false, ...p
 					setTimeout(() => {
 						if (!careful) setActive(false)
 						if (ref?.current) setActive(false)
+						if (onChange) onChange()
 					}, 100)
 			}}
 			to={to}
@@ -39,9 +40,9 @@ export const StyledButton = styled(Link).attrs(props => ({
 })`
 	position: relative;
 	box-sizing: border-box;
-	background: ${props => (props.active ? blue : dark)};
+	background: ${props => (props.active ? (props.color ?? blue) : dark)};
 	transition: background-color 0.1s ease;
-	color: ${props => (props.active ? dark : (props.red ? red : blue))} !important;
+	color: ${props => (props.active ? dark : (props.color ?? blue))} !important;
 	text-decoration: none !important;
 	display: flex;
 	justify-content: center;
@@ -58,7 +59,7 @@ export const StyledButton = styled(Link).attrs(props => ({
 		right: 0;
 		bottom: 0;
 		height: 0.25rem;
-		background: ${blue};
+		background: ${props => props.color ?? blue};
 		transition: height 0.1s ease;
 	}
 
@@ -69,7 +70,7 @@ export const StyledButton = styled(Link).attrs(props => ({
 		right: 0;
 		bottom: 0;
 		height: 0.5rem;
-		background: ${blue};
+		background: ${props => props.color ?? blue};
 	}
 `
 
