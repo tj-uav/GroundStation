@@ -1,7 +1,7 @@
 // @flow
 
 import React, { createRef, useState, useEffect } from "react"
-import { Map, TileLayer, Tooltip, Marker, Polyline, Circle } from "react-leaflet"
+import { Map, TileLayer, Tooltip, Marker, Polyline, Circle, LayersControl, LayerGroup } from "react-leaflet"
 import { httpget } from "../backend.js"
 import L from "leaflet"
 import PolylineDecorator from "../pages/FlightData/tabs/FlightPlan/PolylineDecorator.js"
@@ -160,14 +160,16 @@ const FlightPlanMap = props => {
 	}
 
 	const handleClick = event => {
-		let get = props.getters[props.mode]
-		let set = props.setters[props.mode]
-		if (get.constructor.name == "Array") {
-			let temp = get.slice()
-			temp.push({ lat: event.latlng.lat, lng: event.latlng.lng })
-			set(temp)
-		} else { // object {}
-			set({ lat: event.latlng.lat, lng: event.latlng.lng })
+		if (props.getters.mode) {
+			let get = props.getters[props.mode]
+			let set = props.setters[props.mode]
+			if (get.constructor.name == "Array") {
+				let temp = get.slice()
+				temp.push({ lat: event.latlng.lat, lng: event.latlng.lng })
+				set(temp)
+			} else { // object {}
+				set({ lat: event.latlng.lat, lng: event.latlng.lng })
+			}
 		}
 	}
 
@@ -192,51 +194,73 @@ const FlightPlanMap = props => {
 					attribution='&amp;copy <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
 					url={online ? "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" : "/map/{z}/{x}/{y}.png"}
 				/>
-
-				<PolylineDecorator positions={props.getters.waypoints} color="#00AA00" />
-				<Polyline positions={circle(props.getters.fence)} color="#0000FF" />
-				<Polyline positions={circle(props.getters.ugvFence)} color="#6e0d9a" />
-				<Polyline positions={circle(props.getters.searchGrid)} color="#ee7313" />
-				
-				{ /* Need for Auvsi Suas: waypoints, obstacles, geofence, ugv drop 
-				     ugv drive, ugv fence, odlc search grid, off axis odlc */ }
-				{props.getters.waypoints.map((marker, index) => {
-					return popup(marker, index, "waypoints")
-				})}
-				{props.getters.fence.map((marker, index) => {
-					return popup(marker, index, "fence")
-				})}
-				{props.getters.obstacles.map((obstacle) => {
-					return (
-						<Circle center={[obstacle.latitude, obstacle.longitude]} color="#FF0000" radius={obstacle.radius/3.281}>
-							<Tooltip>
-								Obstacle ({ obstacle.latitude.toFixed(5) }, { obstacle.longitude.toFixed(5) })
-							</Tooltip>
-						</Circle>
-					)
-				})}
-				{props.getters.ugvDrop.lat == null ? null : singlePopup("ugvDrop")}
-				{props.getters.ugvDrive.lat == null ? null : singlePopup("ugvDrive")}
-				{props.getters.ugvFence.map((marker, index) => {
-					return popup(marker, index, "ugvFence")
-				})}
-				{props.getters.searchGrid.map((marker, index) => {
-					return popup(marker, index, "searchGrid")
-				})}
-				{props.getters.offAxis.lat == null ? null : singlePopup("offAxis")}
-				{props.getters.plane.heading == null ? null : (
-					<RotatedMarker icon={icons.planeDirection} position={props.getters.plane.latlng} rotationAngle={props.getters.plane.heading} rotationOrigin={"50% 100%"} />
-				)}
-				{props.getters.plane.heading == null ? null : (
-					<Marker icon={icons.plane} position={props.getters.plane.latlng}>
-						<Tooltip>
-							UAV ({ props.getters.plane.latlng.lat.toFixed(5) }, { props.getters.plane.latlng.lng.toFixed(5) })
-						</Tooltip>
-					</Marker>
-				)}
-				{props.getters.plane.heading == null ? null : (
-					<RotatedMarker icon={icons.planeDirectionOutline} position={props.getters.plane.latlng} rotationAngle={props.getters.plane.heading} rotationOrigin={"50% 100%"} />
-				)}
+				<LayersControl position="topright">
+					{ /* Need for Auvsi Suas: waypoints, obstacles, geofence, ugv drop 
+						ugv drive, ugv fence, odlc search grid, off axis odlc */ }
+					<LayersControl.Overlay checked name="Waypoints">
+						<LayerGroup>
+							<PolylineDecorator layer="Waypoints" positions={props.getters.waypoints} color="#00AA00" />
+							{props.getters.waypoints.map((marker, index) => {
+								return popup(marker, index, "waypoints")
+							})}
+						</LayerGroup>
+					</LayersControl.Overlay>
+					<LayersControl.Overlay checked name="Geofence">
+						<LayerGroup>
+							<Polyline positions={circle(props.getters.fence)} color="#0000FF" />
+							{props.getters.fence.map((marker, index) => {
+								return popup(marker, index, "fence")
+							})}
+						</LayerGroup>
+					</LayersControl.Overlay>
+					<LayersControl.Overlay checked name="Obstacles">
+						<LayerGroup>
+							{props.getters.obstacles.map((obstacle) => {
+								return (
+									<Circle center={[obstacle.latitude, obstacle.longitude]} color="#FF0000" radius={obstacle.radius/3.281}>
+										<Tooltip>
+											Obstacle ({ obstacle.latitude.toFixed(5) }, { obstacle.longitude.toFixed(5) })
+										</Tooltip>
+									</Circle>
+								)
+							})}
+						</LayerGroup>
+					</LayersControl.Overlay>
+					<LayersControl.Overlay checked name="UGV">
+						<LayerGroup>
+							<Polyline positions={circle(props.getters.ugvFence)} color="#6e0d9a" />
+							{props.getters.ugvDrop.lat == null ? null : singlePopup("ugvDrop")}
+							{props.getters.ugvDrive.lat == null ? null : singlePopup("ugvDrive")}
+							{props.getters.ugvFence.map((marker, index) => {
+								return popup(marker, index, "ugvFence")
+							})}
+						</LayerGroup>
+					</LayersControl.Overlay>
+					<LayersControl.Overlay checked name="Search Grid">
+						<LayerGroup>
+							<Polyline positions={circle(props.getters.searchGrid)} color="#ee7313" />
+							{props.getters.searchGrid.map((marker, index) => {
+								return popup(marker, index, "searchGrid")
+							})}
+						</LayerGroup>
+					</LayersControl.Overlay>
+					<LayersControl.Overlay checked name="Off Axis ODLC">
+						{props.getters.offAxis.lat == null ? null : singlePopup("offAxis")}
+					</LayersControl.Overlay>
+					<LayersControl.Overlay checked name="Plane">
+						{props.getters.plane.heading == null ? null : (
+							<LayerGroup>
+								<RotatedMarker icon={icons.planeDirection} position={props.getters.plane.latlng} rotationAngle={props.getters.plane.heading} rotationOrigin={"50% 100%"} />
+								<Marker icon={icons.plane} position={props.getters.plane.latlng}>
+									<Tooltip>
+										UAV ({ props.getters.plane.latlng.lat.toFixed(5) }, { props.getters.plane.latlng.lng.toFixed(5) })
+									</Tooltip>
+								</Marker>
+								<RotatedMarker icon={icons.planeDirectionOutline} position={props.getters.plane.latlng} rotationAngle={props.getters.plane.heading} rotationOrigin={"50% 100%"} />
+							</LayerGroup>
+						)}
+					</LayersControl.Overlay>
+				</LayersControl>
 			</Map>
 		</div>
 	)
