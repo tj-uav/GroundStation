@@ -4,6 +4,8 @@ import logging
 import sys
 import traceback
 
+from io import StringIO
+
 from flask import Flask, redirect, url_for, request, jsonify
 from flask_cors import CORS
 
@@ -50,9 +52,15 @@ debug_file_handler = logging.FileHandler("logs/debug.log", mode="w")
 debug_file_handler.setLevel(logging.DEBUG)
 debug_file_handler.setFormatter(formatter)
 
+LOG_STREAM = StringIO()
+string_handler = logging.StreamHandler(LOG_STREAM)
+string_handler.setLevel(logging.INFO)
+string_handler.setFormatter(formatter)
+
 logger.addHandler(console_handler)
 logger.addHandler(file_handler)
 logger.addHandler(debug_file_handler)
+logger.addHandler(string_handler)
 
 logger.info("STARTED LOGGING")
 
@@ -62,7 +70,7 @@ gs = GroundStation()
 @app.errorhandler(Exception)
 def handle_error(e):
     logger.error(type(e).__name__)
-    logger.info("Traceback of %s : ", type(e).__name__, exc_info=e)
+    logger.debug("Traceback of %s : ", type(e).__name__, exc_info=e)
     return jsonify({
         "title": "Unhandled Server Error",
         "message": str(e),
@@ -74,7 +82,7 @@ def handle_error(e):
 @app.errorhandler(InvalidRequestError)
 def handle_400(e):
     logger.error(type(e).__name__)
-    logger.info("Traceback of %s : ", type(e).__name__, exc_info=e)
+    logger.debug("Traceback of %s : ", type(e).__name__, exc_info=e)
     return jsonify({
         "title": "Invalid Request",
         "message": str(e),
@@ -86,7 +94,7 @@ def handle_400(e):
 @app.errorhandler(InvalidStateError)
 def handle_409(e):
     logger.error(type(e).__name__)
-    logger.info("Traceback of %s : ", type(e).__name__, exc_info=e)
+    logger.debug("Traceback of %s : ", type(e).__name__, exc_info=e)
     return jsonify({
         "title": "Invalid State Error",
         "message": str(e),
@@ -98,7 +106,7 @@ def handle_409(e):
 @app.errorhandler(GeneralError)
 def handle_500(e):
     logger.error(type(e).__name__)
-    logger.info("Traceback of %s : ", type(e).__name__, exc_info=e)
+    logger.debug("Traceback of %s : ", type(e).__name__, exc_info=e)
     return jsonify({
         "title": "Server Error",
         "message": str(e),
@@ -110,7 +118,7 @@ def handle_500(e):
 @app.errorhandler(ServiceUnavailableError)
 def handle_503(e):
     logger.error(type(e).__name__)
-    logger.info("Traceback of %s : ", type(e).__name__, exc_info=e)
+    logger.debug("Traceback of %s : ", type(e).__name__, exc_info=e)
     return jsonify({
         "title": "Service Unavailable Error",
         "message": str(e),
@@ -124,14 +132,33 @@ def index():
     return "TJ UAV Ground Station Backend homepage"
 
 
-@app.route("/hello")
-def hello():
-    return redirect(url_for("index"))
+@app.route("/log/<string:type>")
+def create_log(type):
+    if type == "debug":
+        logger.debug("This is for debugging")
+    elif type == "info":
+        logger.info("This is info")
+    elif type == "warning":
+        logger.warning("This is a warning")
+    elif type == "important":
+        logger.important("This is important")
+    elif type == "error":
+        logger.error("This is an error")
+    elif type == "critical":
+        logger.critical("This is critical")
+    else:
+        pass
+    return ""
 
 
 @app.route("/favicon.ico")
 def favicon():
     return ""
+
+
+@app.route("/logs")
+def logs():
+    return {"result": LOG_STREAM.getvalue().split("\n")}
 
 
 @app.route("/interop/login", methods=["POST"])

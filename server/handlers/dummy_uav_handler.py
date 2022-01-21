@@ -62,7 +62,7 @@ class DummyUAVHandler:
                 self.waypoint_index = 1 % len(self.waypoints)
                 self.lat = self.waypoints[self.waypoint_index]["latitude"]
                 self.lon = self.waypoints[self.waypoint_index]["longitude"]
-            speed = 0.00008
+            speed = 0.000016
             x_dist = self.waypoints[self.waypoint_index]["latitude"] - self.lat
             y_dist = self.waypoints[self.waypoint_index]["longitude"] - self.lon
             dist = math.sqrt(x_dist ** 2 + y_dist ** 2)
