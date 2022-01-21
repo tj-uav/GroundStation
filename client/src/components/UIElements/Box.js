@@ -1,7 +1,7 @@
 import React, { useState, useEffect, forwardRef } from "react"
 import styled from "styled-components"
 
-import { dark } from "theme/Colors"
+import { dark, darker } from "theme/Colors"
 
 import Label from "./Label"
 
@@ -21,6 +21,7 @@ const Box = forwardRef(({ content, label, editable, onChange = undefined, ...pro
 				""
 			)}
 			<StyledBoxContent
+				{...props}
 				style={props.style}
 				ref={ref}
 				onChange={e => {
@@ -57,7 +58,7 @@ const StyledBoxContent = styled.textarea`
 	resize: none;
 	text-align: center;
 	overflow: hidden;
-	background: ${dark};
+  	background: ${props => (props.transparent ? darker : dark)};	
 `
 
 export default Box
