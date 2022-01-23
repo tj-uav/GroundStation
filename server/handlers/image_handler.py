@@ -21,7 +21,7 @@ class ImageHandler:
         self.logger.info("CREATED IMAGE HANDLER")
 
     def initialize(self):
-        self.sio = socketio.Server()
+        self.sio = socketio.Server(max_http_buffer_size=30_000_000)
         self.app = socketio.WSGIApp(self.sio)
 
         @self.sio.event
@@ -51,7 +51,7 @@ class ImageHandler:
     # When socket connection is not used
     def retreive_images(self):
         # Retreives Image from UAV
-        if random() < 0.05:  # Average of 2 seconds
+        if random() < 1:  # Every image (until CV implementation)
             with open("assets/odlc_images/sample.png", "rb") as image_file:
                 img = base64.b64encode(image_file.read())
             if self.process_image(img):  # Dummy Image
