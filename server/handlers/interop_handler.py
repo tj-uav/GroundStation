@@ -110,7 +110,7 @@ class InteropHandler:
         if self.login_status and self.client:
             raise InvalidStateError("Already Logged In")
         try:
-            self.client = client.Client(url=self.config["interop"]["url"],
+            self.client: client.Client = client.Client(url=self.config["interop"]["url"],
                                         username=self.config["interop"]["username"],
                                         password=self.config["interop"]["password"])
             self.login_status = True
