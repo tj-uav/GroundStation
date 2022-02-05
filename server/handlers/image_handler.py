@@ -21,7 +21,7 @@ class ImageHandler:
         self.logger.info("CREATED IMAGE HANDLER")
 
     def initialize(self):
-        self.sio = socketio.Server(max_http_buffer_size=30_000_000)
+        self.sio = socketio.Server(max_http_buffer_size=40_000_000)
         self.app = socketio.WSGIApp(self.sio)
 
         @self.sio.event
