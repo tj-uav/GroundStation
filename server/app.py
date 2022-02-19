@@ -132,22 +132,23 @@ def index():
     return "TJ UAV Ground Station Backend homepage"
 
 
-@app.route("/hello")
-def hello():
-    logger.warning("epic fail")
-    return redirect(url_for("index"))
-
-
-@app.route("/jello")
-def jello():
-    logger.important("the harder the fail the more epic")
-    return redirect(url_for("index"))
-
-
-@app.route("/yello")
-def yello():
-    logger.critical("this fail is very epioc")
-    return redirect(url_for("index"))
+@app.route("/log/<string:type>")
+def create_log(type):
+    if type == "debug":
+        logger.debug("This is for debugging")
+    elif type == "info":
+        logger.info("This is info")
+    elif type == "warning":
+        logger.warning("This is a warning")
+    elif type == "important":
+        logger.important("This is important")
+    elif type == "error":
+        logger.error("This is an error")
+    elif type == "critical":
+        logger.critical("This is critical")
+    else:
+        pass
+    return ""
 
 
 @app.route("/favicon.ico")
