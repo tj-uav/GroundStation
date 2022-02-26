@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react"
+import React, { useEffect, useState } from "react"
 
 import TabBar from "components/TabBar"
 import { httpget } from "backend"
@@ -7,7 +7,6 @@ import FlightPlanMap from "components/FlightMap"
 import FlightPlanToolbar from "./tabs/FlightPlan/FlightPlanToolbar"
 import Quick from "./tabs/Quick"
 import Actions from "./tabs/Actions"
-import Servo from "./tabs/Servo"
 import Logs from "./tabs/Logs"
 
 /*
@@ -25,16 +24,6 @@ TODO: Display list highlighting (and vice versa)
 */
 
 const FlightData = () => {
-	const queryTelemetry = () => {
-		httpget("/interop/telemetry", response => setPlane({
-			latlng: {
-				lat: response.data.result.latitude,
-				lng: response.data.result.longitude
-			},
-			heading: response.data.result.heading,
-		}))
-	}
-
 	const [mode, setMode] = useState("waypoints")
 	const [waypoints, setWaypoints] = useState([])
 	const [commands, setCommands] = useState([])
@@ -46,6 +35,7 @@ const FlightData = () => {
 	const [offAxis, setOffAxis] = useState({})
 	const [searchGrid, setSearchGrid] = useState([])
 	const [plane, setPlane] = useState({})
+	const [ugv, setUgv] = useState({})
 
 	const getters = {
 		commands: commands,
@@ -57,7 +47,8 @@ const FlightData = () => {
 		obstacles: obstacles,
 		offAxis: offAxis,
 		searchGrid: searchGrid,
-		plane: plane
+		plane: plane,
+		ugv: ugv
 	}
 
 	const setters = {
@@ -70,7 +61,8 @@ const FlightData = () => {
 		obstacles: setObstacles,
 		offAxis: setOffAxis,
 		searchGrid: setSearchGrid,
-		plane: plane,
+		plane: setPlane,
+		ugv: setUgv
 	}
 
 	const display = {
@@ -83,14 +75,32 @@ const FlightData = () => {
 		obstacles: "Obstacles",
 		offAxis: "Off Axis ODLC",
 		searchGrid: "ODLC Search Grid",
-		plane: "Plane"
+		plane: "Plane",
+		ugv: "UGV"
+	}
+
+	const queryTelemetry = () => {
+		httpget("/uav/quick", response => setPlane({
+			latlng: {
+				lat: response.data.result.lat,
+				lng: response.data.result.lon
+			},
+			heading: response.data.result.orientation.yaw
+		}))
+		httpget("/ugv/quick", response => setUgv({
+			latlng: {
+				lat: response.data.result.lat,
+				lng: response.data.result.lon
+			},
+			heading: response.data.result.yaw
+		}))
 	}
 
 	useEffect(() => {
 		const interval = setInterval(() => {
-			queryTelemetry();
-		}, 500);
-		return () => clearInterval(interval);
+			queryTelemetry()
+		}, 500)
+		return () => clearInterval(interval)
 	}, [])
 
 	return (
@@ -102,7 +112,7 @@ const FlightData = () => {
 				gap: "1rem",
 				width: "100%",
 				height: "auto",
-				overflowY: "hidden",
+				overflowY: "hidden"
 			}}
 		>
 			<TabBar>
