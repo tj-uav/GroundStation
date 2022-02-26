@@ -1,14 +1,21 @@
 {
     "uav": {
         "telemetry": {
-            "dummy": true,
+            "type": "dummy",
             "port": "tcp:127.0.0.1:5760",
             "serial": false
         },
         "images": {
-            "dummy": true,
+            "type": "dummy",
             "host": "",
             "port": 4000
+        }
+    },
+    "ugv": {
+        "telemetry": {
+            "type": "dummy",
+            "port": "tcp:127.0.0.1:5760",
+            "serial": false
         }
     },
     "interop": {

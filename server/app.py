@@ -6,7 +6,7 @@ import traceback
 
 from io import StringIO
 
-from flask import Flask, redirect, url_for, request, jsonify
+from flask import Flask, request, jsonify
 from flask_cors import CORS
 
 from errors import InvalidRequestError, InvalidStateError, GeneralError, ServiceUnavailableError
@@ -133,18 +133,18 @@ def index():
 
 
 @app.route("/log/<string:type>")
-def create_log(type):
-    if type == "debug":
+def create_log(type_):
+    if type_ == "debug":
         logger.debug("This is for debugging")
-    elif type == "info":
+    elif type_ == "info":
         logger.info("This is info")
-    elif type == "warning":
+    elif type_ == "warning":
         logger.warning("This is a warning")
-    elif type == "important":
+    elif type_ == "important":
         logger.important("This is important")
-    elif type == "error":
+    elif type_ == "error":
         logger.error("This is an error")
-    elif type == "critical":
+    elif type_ == "critical":
         logger.critical("This is critical")
     else:
         pass
