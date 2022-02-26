@@ -14,6 +14,7 @@ const FlightPlanMap = props => {
 
 	let mapRef = createRef()
 	const [icons, setIcons] = useState({})
+	const [online, setOnline] = useState(false)
 
 	useEffect(() => {
 		httpget("/interop/mission", response => {
@@ -79,7 +80,37 @@ const FlightPlanMap = props => {
 			planeDirection: new DirectionPointerIcon({ iconUrl: "../assets/pointer.svg" }),
 			planeDirectionOutline: new DirectionPointerIcon({ iconUrl: "../assets/pointer-outline.svg" }),
 		})
+
+		window.addEventListener("offline", () => {
+			setOnline(false)
+		})
+
+		window.addEventListener("online", () => {
+			setOnline(true)
+		})
+
+		const internet = setInterval(() => {
+			checkInternet()
+		}, 5000)
+
+		return () => {
+			clearInterval(internet)
+		}
 	}, [])
+
+	const checkInternet = () => {
+		if (navigator.onLine) {
+			fetch("https://g.co", {
+				mode: "no-cors"
+			}).then(() => {
+				setOnline(true)
+			}).catch(() => {
+				setOnline(false)
+			})
+		} else {
+			setOnline(false)
+		}
+	}
 
 	const handleKeyPress = (event, idx) => {
 		console.log(event.originalEvent.key)
@@ -159,7 +190,7 @@ const FlightPlanMap = props => {
 			>
 				<TileLayer
 					attribution='&amp;copy <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-					url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+					url={online ? "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" : "/map/{z}/{x}/{y}.png"}
 				/>
 
 				<PolylineDecorator positions={props.getters.waypoints} color="#00AA00" />
