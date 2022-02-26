@@ -53,8 +53,8 @@ class DummyUGVHandler:
             if not self.droppos:
                 self.droppos = self.gs.call("i_data", "ugv")
                 self.droppos = self.droppos["result"]
-                self.lat = self.droppos["drive"]["latitude"] + (random.random() - 0.5)
-                self.lon = self.droppos["drive"]["longitude"] + (random.random() - 0.5)
+            self.lat = self.droppos["drive"]["latitude"] + (random.random() - 0.5) / 1000
+            self.lon = self.droppos["drive"]["longitude"] + (random.random() - 0.5) / 1000
             x_dist = self.droppos["drive"]["latitude"] - self.lat
             y_dist = self.droppos["drive"]["longitude"] - self.lon
             angle = math.atan2(y_dist, x_dist)
