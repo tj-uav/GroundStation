@@ -1,7 +1,6 @@
 import json
 import logging
 import math
-import random
 
 from dronekit import connect, Command, VehicleMode
 from pymavlink import mavutil as uavutil
@@ -55,7 +54,7 @@ class UGVHandler:
         try:
             loc = self.vehicle.location.global_frame
             angle = self.vehicle.attitude
-            self.yaw = angle.yaw,
+            self.yaw = angle.yaw
             self.ground_speed = self.vehicle.groundspeed
             self.lat = loc.lat
             self.lon = loc.lon
@@ -65,14 +64,14 @@ class UGVHandler:
             if not self.droppos:
                 self.droppos = self.gs.call("i_data", "ugv")
                 self.droppos = self.droppos["result"]
-            x_dist = self.droppos["drive"]["latitude"] - self.lat
-            y_dist = self.droppos["drive"]["longitude"] - self.lon
+            x_dist = self.droppos["drop"]["latitude"] - self.lat
+            y_dist = self.droppos["drop"]["longitude"] - self.lon
             angle = math.atan2(y_dist, x_dist)
-            x_dist_ft = x_dist * 5280 * 69
-            y_dist_ft = math.cos((x_dist / 180) * math.pi) * y_dist
+            x_dist_ft = x_dist * (math.cos(self.lat * math.pi / 180) * 69.172) * 5280
+            y_dist_ft = y_dist * 69.172 * 5280
             self.dist_to_dest = math.sqrt(x_dist_ft ** 2 + y_dist_ft ** 2)
             self.yaw = int((angle / (2 * math.pi) * 360) if angle >= 0 else (
-                        angle / (2 * math.pi) * 360 + 360))
+                    angle / (2 * math.pi) * 360 + 360))
             return {}
         except Exception as e:
             raise GeneralError(str(e)) from e
@@ -81,12 +80,12 @@ class UGVHandler:
         try:
             self.update()
             return {"result": {
-            "states": [self.current_state, self.next_objective, self.dist_to_dest],
-            "yaw": self.yaw,
-            "lat": self.lat,
-            "lon": self.lon,
-            "ground_speed": self.ground_speed,
-            "connection": self.connection
+                "states": [self.current_state, self.next_objective, self.dist_to_dest],
+                "yaw": self.yaw,
+                "lat": self.lat,
+                "lon": self.lon,
+                "ground_speed": self.ground_speed,
+                "connection": self.connection
             }}
         except Exception as e:
             raise GeneralError(str(e)) from e
@@ -153,7 +152,7 @@ class UGVHandler:
 
     def save_params(self):
         try:
-            with open("ugv_params.json", "w") as file:
+            with open("handlers/flight/ugv/ugv_params.json", "w") as file:
                 json.dump(self.vehicle.paramreters, file)
             return {}
         except Exception as e:
@@ -161,7 +160,7 @@ class UGVHandler:
 
     def load_params(self):
         try:
-            with open("ugv_params.json", "r") as file:
+            with open("handlers/flight/ugv/ugv_params.json", "r") as file:
                 self.vehicle.params = json.load(file)
             return {}
         except Exception as e:
@@ -176,7 +175,7 @@ class UGVHandler:
             raise GeneralError(str(e)) from e
 
     def insert_command(self, command, lat, lon, alt):
-        if command not in COMMANDS.keys():
+        if command not in COMMANDS:
             raise InvalidRequestError("Invalid Command Name")
         try:
             new_cmd = Command(0, 0, 0, uavutil.mavlink.MAV_FRAME_GLOBAL_RELATIVE_ALT,

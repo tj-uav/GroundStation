@@ -27,7 +27,7 @@ class DummyUGVHandler:
         self.current_state = self.next_objective = self.yaw = self.ground_speed = \
             self.connection = self.droppos = self.lat = self.lon = self.dist_to_dest = \
             self.mode = self.gps = None
-        with open("ugv_params.json", "r") as file:
+        with open("handlers/flight/ugv/ugv_params.json", "r") as file:
             self.params = json.load(file)
         self.mode = "AUTO"
         self.states = ["On Plane", "Drop to Ground", "Reach Destination", "Terminated"]
@@ -53,13 +53,13 @@ class DummyUGVHandler:
             if not self.droppos:
                 self.droppos = self.gs.call("i_data", "ugv")
                 self.droppos = self.droppos["result"]
-            self.lat = self.droppos["drive"]["latitude"] + (random.random() - 0.5) / 1000
-            self.lon = self.droppos["drive"]["longitude"] + (random.random() - 0.5) / 1000
-            x_dist = self.droppos["drive"]["latitude"] - self.lat
-            y_dist = self.droppos["drive"]["longitude"] - self.lon
+            self.lat = self.droppos["drop"]["latitude"] + (random.random() - 0.5) / 2000
+            self.lon = self.droppos["drop"]["longitude"] + (random.random() - 0.5) / 2000
+            x_dist = self.droppos["drop"]["latitude"] - self.lat
+            y_dist = self.droppos["drop"]["longitude"] - self.lon
             angle = math.atan2(y_dist, x_dist)
-            x_dist_ft = x_dist * 5280 * 69
-            y_dist_ft = math.cos((x_dist / 180) * math.pi) * y_dist
+            x_dist_ft = x_dist * (math.cos(self.lat * math.pi / 180) * 69.172) * 5280
+            y_dist_ft = y_dist * 69.172 * 5280
             self.dist_to_dest = math.sqrt(x_dist_ft ** 2 + y_dist_ft ** 2)
             self.yaw = int((angle / (2 * math.pi) * 360) if angle >= 0 else (
                         angle / (2 * math.pi) * 360 + 360))
@@ -127,7 +127,7 @@ class DummyUGVHandler:
 
     def save_params(self):
         try:
-            with open("ugv_params.json", "w") as file:
+            with open("handlers/flight/ugv/ugv_params.json", "w") as file:
                 json.dump(self.params, file)
             return {}
         except Exception as e:
@@ -135,7 +135,7 @@ class DummyUGVHandler:
 
     def load_params(self):
         try:
-            with open("ugv_params.json", "r") as file:
+            with open("handlers/flight/ugv/ugv_params.json", "r") as file:
                 self.params = json.load(file)
             return {}
         except Exception as e:
@@ -149,7 +149,7 @@ class DummyUGVHandler:
             raise GeneralError(str(e)) from e
 
     def insert_command(self, command, lat, lon, alt):
-        if command not in COMMANDS.keys():
+        if command not in COMMANDS:
             raise InvalidRequestError("Invalid Command Name")
         try:
             new_cmd = Command(0, 0, 0, mavutil.mavlink.MAV_FRAME_GLOBAL_RELATIVE_ALT,
