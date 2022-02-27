@@ -9,7 +9,7 @@ import RotatedMarker from "./RotatedMarker.js"
 
 const FlightPlanMap = props => {
 	const [state, setState] = useState({
-		latlng: { lat: 38.1458611, lng: -76.4265257 },
+		latlng: { lat: 38.1458611, lng: -76.428038 },
 	})
 
 	let mapRef = createRef()
@@ -79,7 +79,7 @@ const FlightPlanMap = props => {
 			plane: new VehicleIcon({ iconUrl: "../assets/plane.svg" }),
 			planeDirection: new DirectionPointerIcon({ iconUrl: "../assets/pointer.svg" }),
 			planeDirectionOutline: new DirectionPointerIcon({ iconUrl: "../assets/pointer-outline.svg" }),
-			ugv: new VehicleIcon({ iconUrl: "../assets/plane.svg" }),
+			ugv: new VehicleIcon({ iconUrl: "../assets/ugv.svg" }),
 			ugvDirection: new DirectionPointerIcon({ iconUrl: "../assets/pointer.svg" }),
 			ugvDirectionOutline: new DirectionPointerIcon({ iconUrl: "../assets/pointer-outline.svg" }),
 		})

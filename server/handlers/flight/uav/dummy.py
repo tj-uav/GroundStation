@@ -27,7 +27,7 @@ class DummyUAVHandler:
         self.altitude = self.orientation = self.ground_speed = self.air_speed = self.dist_to_wp = \
             self.battery = self.throttle = self.lat = self.lon = self.connection = self.waypoint = \
             self.mode = self.waypoints = self.waypoint_index = self.temperature = None
-        with open("uav_params.json", "r") as file:
+        with open("handlers/flight/uav/uav_params.json", "r") as file:
             self.params = json.load(file)
         self.mode = "AUTO"
         self.commands = []
@@ -52,8 +52,8 @@ class DummyUAVHandler:
             }
             self.ground_speed = random.random() * 30 + 45
             self.air_speed = random.random() * 30 + 45
-            self.battery = [random.random() * 2 + 14, random.random() * 2 + 14]
-            self.temperature = [(random.random() * 25 + 25) for _ in range(4)]
+            self.battery = random.random() * 2 + 14
+            # self.temperature = [(random.random() * 25 + 25) for _ in range(4)]
             self.connection = [random.random(), random.random(), random.random() * 100]
             # simulates the plane flying over waypoints
             if not self.waypoints:
@@ -67,8 +67,8 @@ class DummyUAVHandler:
             y_dist = self.waypoints[self.waypoint_index]["longitude"] - self.lon
             dist = math.sqrt(x_dist ** 2 + y_dist ** 2)
             angle = math.atan2(y_dist, x_dist)
-            x_dist_ft = x_dist * 5280 * 69
-            y_dist_ft = math.cos((x_dist / 180) * math.pi) * y_dist
+            x_dist_ft = x_dist * (math.cos(self.lat * math.pi / 180) * 69.172) * 5280
+            y_dist_ft = y_dist * 69.172 * 5280
             self.dist_to_wp = math.sqrt(x_dist_ft ** 2 + y_dist_ft ** 2)
             if dist <= 0.0001:
                 self.lat = self.waypoints[self.waypoint_index]["latitude"]
@@ -100,7 +100,6 @@ class DummyUAVHandler:
             "ground_speed": self.ground_speed,
             "air_speed": self.air_speed,
             "battery": self.battery,
-            "temperature": self.temperature,
             "waypoint": self.waypoint,
             "connection": self.connection
         }}
@@ -153,7 +152,7 @@ class DummyUAVHandler:
 
     def save_params(self):
         try:
-            with open("uav_params.json", "w") as file:
+            with open("handlers/flight/uav/uav_params.json", "w") as file:
                 json.dump(self.params, file)
             return {}
         except Exception as e:
@@ -161,7 +160,7 @@ class DummyUAVHandler:
 
     def load_params(self):
         try:
-            with open("uav_params.json", "r") as file:
+            with open("handlers/flight/uav/uav_params.json", "r") as file:
                 self.params = json.load(file)
             return {}
         except Exception as e:

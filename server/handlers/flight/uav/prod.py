@@ -1,7 +1,6 @@
 import json
 import logging
 import math
-import random
 
 from dronekit import connect, Command, VehicleMode
 from pymavlink import mavutil as uavutil
@@ -29,11 +28,9 @@ class UAVHandler:
         self.update_thread = None
         self.vehicle = None
         self.altitude = self.orientation = self.ground_speed = self.air_speed = self.dist_to_wp = \
-            self.voltage = self.throttle = self.lat = self.lon = self.connection = self.waypoint = \
+            self.battery = self.throttle = self.lat = self.lon = self.connection = self.waypoint = \
             self.mode = self.waypoints = self.waypoint_index = self.temperature = self.params = \
             self.gps = None
-        with open("uav_params.json", "r") as file:
-            self.params = json.load(file)
         self.mode = "MANUAL"
         self.commands = []
         self.armed = False
@@ -60,11 +57,17 @@ class UAVHandler:
             battery = self.vehicle.battery
             self.altitude = loc.alt
             self.throttle = None
-            self.orientation = dict(yaw=angle.yaw, roll=angle.roll, pitch=angle.pitch),
+            self.orientation = dict(
+                roll=angle.roll * 180 / math.pi,
+                pitch=angle.pitch * 180 / math.pi,
+                yaw=angle.yaw * 180 / math.pi,
+            )
+            self.orientation["yaw"] = 360 + self.orientation["yaw"] if self.orientation["yaw"] < 0 else \
+                self.orientation["yaw"]
             self.ground_speed = self.vehicle.groundspeed
             self.air_speed = self.vehicle.airspeed
-            self.voltage = battery.voltage
-            self.temperature = self.vehicle.temperature
+            self.battery = battery.voltage
+            # self.temperature = self.vehicle.temperature
             self.gps = self.vehicle.gps_0
             self.connection = [self.gps.eph, self.gps.epv, self.gps.satellites_visible]
             self.lat = loc.lat
@@ -76,8 +79,8 @@ class UAVHandler:
             x_dist = self.waypoints[self.waypoint_index]["latitude"] - self.lat
             y_dist = self.waypoints[self.waypoint_index]["longitude"] - self.lon
             dist = math.sqrt(x_dist ** 2 + y_dist ** 2)
-            x_dist_ft = x_dist * 5280 * 69
-            y_dist_ft = math.cos((x_dist / 180) * math.pi) * y_dist
+            x_dist_ft = x_dist * (math.cos(self.lat * math.pi / 180) * 69.172) * 5280
+            y_dist_ft = y_dist * 69.172 * 5280
             self.dist_to_wp = math.sqrt(x_dist_ft ** 2 + y_dist_ft ** 2)
             if dist <= 0.0001:
                 self.waypoint_index = (self.waypoint_index + 1) % len(self.waypoints)
@@ -92,14 +95,15 @@ class UAVHandler:
             self.update()
             return {"result": {
                 "altitude": self.altitude,
+                "throttle": self.throttle,
                 "orientation": self.orientation,
+                "lat": self.lat,
+                "lon": self.lon,
                 "ground_speed": self.ground_speed,
                 "air_speed": self.air_speed,
-                "dist_to_wp": self.dist_to_wp,
-                "voltage": self.voltage,
-                "throttle": self.throttle,
-                "lat": self.lat,
-                "lon": self.lon
+                "battery": self.battery,
+                "waypoint": self.waypoint,
+                "connection": self.connection
             }}
         except Exception as e:
             raise GeneralError(str(e)) from e
@@ -146,29 +150,25 @@ class UAVHandler:
             raise InvalidRequestError("Parameter Value cannot be converted to float") from e
         try:
             self.vehicle.parameters[key] = value
-            self.params[key] = value
             return {}
         except Exception as e:
             raise GeneralError(str(e)) from e
 
     def set_params(self, **kwargs):
         try:
-            new_params = dict(self.vehicle.parameters.items())
             for key, value in kwargs.items():
                 try:
                     float(value)
                 except ValueError as e:
                     raise InvalidRequestError("Parameter Value cannot be converted to float") from e
-                new_params[key] = value
-            self.vehicle.parameters = new_params
-            self.params = new_params
+                self.vehicle.parameters[key] = value
             return {}
         except Exception as e:
             raise GeneralError(str(e)) from e
 
     def save_params(self):
         try:
-            with open("uav_params.json", "w") as file:
+            with open("handlers/flight/uav/uav_params.json", "w") as file:
                 json.dump(self.vehicle.paramreters, file)
             return {}
         except Exception as e:
@@ -176,9 +176,8 @@ class UAVHandler:
 
     def load_params(self):
         try:
-            with open("uav_params.json", "r") as file:
-                self.params = json.load(file)
-            self.vehicle.parameters = self.params
+            with open("handlers/flight/uav/uav_params.json", "r") as file:
+                self.vehicle.parameters = json.load(file)
             return {}
         except Exception as e:
             raise GeneralError(str(e)) from e
@@ -192,7 +191,7 @@ class UAVHandler:
             raise GeneralError(str(e)) from e
 
     def insert_command(self, command, lat, lon, alt):
-        if command not in COMMANDS.keys():
+        if command not in COMMANDS:
             raise InvalidRequestError("Invalid Command Name")
         try:
             new_cmd = Command(0, 0, 0, uavutil.mavlink.MAV_FRAME_GLOBAL_RELATIVE_ALT,

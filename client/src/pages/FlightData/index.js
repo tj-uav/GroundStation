@@ -80,13 +80,13 @@ const FlightData = () => {
 	}
 
 	const queryTelemetry = () => {
-		httpget("/uav/quick", response => setPlane({
+		httpget("/uav/quick", response => {console.log(response.data.result); setPlane({
 			latlng: {
 				lat: response.data.result.lat,
 				lng: response.data.result.lon
 			},
 			heading: response.data.result.orientation.yaw
-		}))
+		})})
 		httpget("/ugv/quick", response => setUgv({
 			latlng: {
 				lat: response.data.result.lat,
