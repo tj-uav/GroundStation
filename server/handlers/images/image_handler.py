@@ -1,6 +1,5 @@
 import base64
 import logging
-import os
 import string
 from random import random, randint, choice
 
@@ -81,3 +80,4 @@ class ImageHandler:
                          log=False
                          )
             return True
+        return False
