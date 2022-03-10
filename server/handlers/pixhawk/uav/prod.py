@@ -62,8 +62,8 @@ class UAVHandler:
                 pitch=angle.pitch * 180 / math.pi,
                 yaw=angle.yaw * 180 / math.pi,
             )
-            self.orientation["yaw"] = 360 + self.orientation["yaw"] if self.orientation["yaw"] < 0 else \
-                self.orientation["yaw"]
+            self.orientation["yaw"] = 360 + self.orientation["yaw"] if self.orientation["yaw"] < 0 \
+                else self.orientation["yaw"]
             self.ground_speed = self.vehicle.groundspeed
             self.air_speed = self.vehicle.airspeed
             self.battery = battery.voltage
@@ -168,7 +168,7 @@ class UAVHandler:
 
     def save_params(self):
         try:
-            with open("handlers/pixhawk/uav/uav_params.json", "w") as file:
+            with open("handlers/pixhawk/uav/uav_params.json", "w", encoding="utf-8") as file:
                 json.dump(self.vehicle.paramreters, file)
             return {}
         except Exception as e:
@@ -176,7 +176,7 @@ class UAVHandler:
 
     def load_params(self):
         try:
-            with open("handlers/pixhawk/uav/uav_params.json", "r") as file:
+            with open("handlers/pixhawk/uav/uav_params.json", "r", encoding="utf-8") as file:
                 self.vehicle.parameters = json.load(file)
             return {}
         except Exception as e:

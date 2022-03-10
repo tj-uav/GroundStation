@@ -27,7 +27,7 @@ class DummyUGVHandler:
         self.current_state = self.next_objective = self.yaw = self.ground_speed = \
             self.connection = self.droppos = self.lat = self.lon = self.dist_to_dest = \
             self.mode = self.gps = None
-        with open("handlers/pixhawk/ugv/ugv_params.json", "r") as file:
+        with open("handlers/pixhawk/ugv/ugv_params.json", "r", encoding="utf-8") as file:
             self.params = json.load(file)
         self.mode = "AUTO"
         self.states = ["On Plane", "Drop to Ground", "Reach Destination", "Terminated"]
@@ -45,7 +45,8 @@ class DummyUGVHandler:
     def update(self):
         try:
             self.current_state = random.choice(self.states)
-            self.next_objective = self.states[((self.states.index(self.current_state)) + 1) % len(self.states)]
+            self.next_objective = self.states[
+                ((self.states.index(self.current_state)) + 1) % len(self.states)]
             self.yaw = random.randint(0, 360)
             self.ground_speed = random.random() * 30 + 45
             self.connection = [random.random(), random.random(), random.random() * 100]
@@ -127,7 +128,7 @@ class DummyUGVHandler:
 
     def save_params(self):
         try:
-            with open("handlers/pixhawk/ugv/ugv_params.json", "w") as file:
+            with open("handlers/pixhawk/ugv/ugv_params.json", "w", encoding="utf-8") as file:
                 json.dump(self.params, file)
             return {}
         except Exception as e:
@@ -135,7 +136,7 @@ class DummyUGVHandler:
 
     def load_params(self):
         try:
-            with open("handlers/pixhawk/ugv/ugv_params.json", "r") as file:
+            with open("handlers/pixhawk/ugv/ugv_params.json", "r", encoding="utf-8") as file:
                 self.params = json.load(file)
             return {}
         except Exception as e:

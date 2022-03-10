@@ -152,7 +152,7 @@ class UGVHandler:
 
     def save_params(self):
         try:
-            with open("handlers/pixhawk/ugv/ugv_params.json", "w") as file:
+            with open("handlers/pixhawk/ugv/ugv_params.json", "w", encoding="utf-8") as file:
                 json.dump(self.vehicle.paramreters, file)
             return {}
         except Exception as e:
@@ -160,7 +160,7 @@ class UGVHandler:
 
     def load_params(self):
         try:
-            with open("handlers/pixhawk/ugv/ugv_params.json", "r") as file:
+            with open("handlers/pixhawk/ugv/ugv_params.json", "r", encoding="utf-8") as file:
                 self.vehicle.params = json.load(file)
             return {}
         except Exception as e:
