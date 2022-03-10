@@ -27,7 +27,7 @@ class DummyUAVHandler:
         self.altitude = self.orientation = self.ground_speed = self.air_speed = self.dist_to_wp = \
             self.battery = self.throttle = self.lat = self.lon = self.connection = self.waypoint = \
             self.mode = self.waypoints = self.waypoint_index = self.temperature = None
-        with open("handlers/pixhawk/uav/uav_params.json", "r") as file:
+        with open("handlers/pixhawk/uav/uav_params.json", "r", encoding="utf-8") as file:
             self.params = json.load(file)
         self.mode = "AUTO"
         self.commands = []
@@ -79,10 +79,10 @@ class DummyUAVHandler:
                 self.lon = (self.lon + math.sin(angle) * speed)
             self.waypoint = [self.waypoint_index, self.dist_to_wp]
             self.orientation = {
-                'yaw': int((angle / (2 * math.pi) * 360) if angle >= 0 else (
+                "yaw": int((angle / (2 * math.pi) * 360) if angle >= 0 else (
                         angle / (2 * math.pi) * 360 + 360)),
-                'roll': random.randint(-30, 30),
-                'pitch': random.randint(-20, 20)
+                "roll": random.randint(-30, 30),
+                "pitch": random.randint(-20, 20)
             }
             return {}
         except KeyError as e:
@@ -152,7 +152,7 @@ class DummyUAVHandler:
 
     def save_params(self):
         try:
-            with open("handlers/pixhawk/uav/uav_params.json", "w") as file:
+            with open("handlers/pixhawk/uav/uav_params.json", "w", encoding="utf-8") as file:
                 json.dump(self.params, file)
             return {}
         except Exception as e:
@@ -160,7 +160,7 @@ class DummyUAVHandler:
 
     def load_params(self):
         try:
-            with open("handlers/pixhawk/uav/uav_params.json", "r") as file:
+            with open("handlers/pixhawk/uav/uav_params.json", "r", encoding="utf-8") as file:
                 self.params = json.load(file)
             return {}
         except Exception as e:
