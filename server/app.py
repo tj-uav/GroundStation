@@ -7,16 +7,14 @@ from io import StringIO
 from flask import Flask, jsonify
 from flask_cors import CORS
 
-from app.interop.interop import interop
-from app.uav.uav import uav
-from app.ugv.ugv import ugv
+from app import interop, uav, ugv
 from errors import InvalidRequestError, InvalidStateError, GeneralError, ServiceUnavailableError
 from groundstation import GroundStation
 
 log = logging.getLogger("werkzeug")
 log.setLevel(logging.ERROR)
 
-with open("config.json", "r") as file:
+with open("config.json", "r", encoding="utf-8") as file:
     config = json.load(file)
 
 app = Flask(__name__)
