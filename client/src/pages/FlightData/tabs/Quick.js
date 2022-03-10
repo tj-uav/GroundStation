@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from "react"
-import { Box } from "components/UIElements"
+import { Box, Label } from "components/UIElements"
 import { Row, Column } from "components/Containers"
+
+import styled from "styled-components"
+import { ReactComponent as RawUGV } from "icons/ugv.svg"
+import { ReactComponent as RawUAV } from "icons/plane.svg"
 
 const Quick = () => {
 	const [Aaltitude, setAaltitude] = useState(0)
@@ -69,6 +73,10 @@ const Quick = () => {
 				height: "calc(100vh - 9.5rem)",
 			}}
 		>
+			<StyledDiv>
+				<Label className="paragraph" style={{ "font-size": "2em", color: "black" }}>Plane</Label>
+				<UAV />
+			</StyledDiv>
 			<Column style={{ marginBottom: "1rem", gap: "0.5rem" }}>
 				<Row style={{ gap: "1rem" }}>
 					<Row>
@@ -94,16 +102,6 @@ const Quick = () => {
 						<Box label="Mode" content={Amode} />
 					</Row>
 				</Row>
-				{/*<Row style={{ gap: "1rem" }}>*/}
-				{/*	<Row>*/}
-				{/*		<Box label="Left Motor" content={Atemperature[0].toFixed(2) + "\u00B0 C"} />*/}
-				{/*		<Box label="ESC" content={Atemperature[1].toFixed(2) + "\u00B0 C"} />*/}
-				{/*	</Row>*/}
-				{/*	<Row>*/}
-				{/*		<Box label="Right Motor" content={Atemperature[2].toFixed(2) + "\u00B0 C"} />*/}
-				{/*		<Box label="ESC" content={Atemperature[3].toFixed(2) + "\u00B0 C"} />*/}
-				{/*	</Row>*/}
-				{/*</Row>*/}
 				<Row style={{ gap: "1rem" }}>
 					<Row>
 						<Row>
@@ -118,12 +116,10 @@ const Quick = () => {
 					</Row>
 				</Row>
 			</Column>
-			{/* Horribly styled for now - Please fix later */}
-			<Column style={{ marginBottom: "1rem", gap: "0.5rem" }}>
-				<Box label="" content={"⬆️  UAV️  ⬆️"} transparent={true} />
-				<Box label="" content={"---------------------------------------------️"} transparent={true} style={{ height: "2rem" }} />
-				<Box label="" content={"⬇️  UGV  ⬇️"} transparent={true} />
-			</Column>
+			<StyledDiv style={{marginTop: "1rem"}}>
+				<Label className="paragraph" style={{"font-size": "2em", "color": "black"}}>UGV</Label>
+				<UGV />
+			</StyledDiv>
 			<Column style={{ marginBottom: "1rem", gap: "0.5rem" }}>
 				<Row style={{ gap: "1rem" }}>
 					<Row>
@@ -151,5 +147,24 @@ const Quick = () => {
 		</div>
 	)
 }
+
+const UAV = styled(RawUAV)`
+	height: 3em;
+	width: 7em;
+	margin-right: 0;
+	margin-left: auto;
+`
+
+const UGV = styled(RawUGV)`
+	height: 3em;
+	width: 5em;
+	margin-right: 0;
+	margin-left: auto;
+`
+
+const StyledDiv = styled.div`
+	display: flex;
+	margin-bottom: 1em;
+`
 
 export default Quick
