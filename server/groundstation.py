@@ -4,37 +4,32 @@ import time
 from threading import Thread
 
 import errors
-from handlers.pixhawk.uav.dummy import DummyUAVHandler
-# from handlers.pixhawk.uav.sim import SimUAVHandler
-from handlers.pixhawk.uav.prod import UAVHandler
-from handlers.pixhawk.ugv.dummy import DummyUGVHandler
-# from handlers.pixhawk.ugv.sim import SimUGVHandler
-from handlers.pixhawk.ugv.prod import UGVHandler
-from handlers.images.image_handler import ImageHandler
-from handlers.interop.interop_handler import InteropHandler
+from handlers import DummyUAV, ProdUAV
+from handlers import DummyUGV, ProdUGV
+from handlers import Interop, Image
 
 
 class GroundStation:
     def __init__(self):
         self.logger = logging.getLogger("main")
-        with open("config.json", "r") as file:
+        with open("config.json", "r", encoding="utf-8") as file:
             self.config = json.load(file)
-
-        self.interop_telem_thread = self.uav_update_thread = self.retreive_image_thread = None
 
         print("╔══ CREATING HANDLERS")
         self.logger.info("CREATING HANDLERS")
 
-        self.interop_telem_thread = self.plane_thread = self.rover_thread = self.retreive_image_thread = None
-        self.interop = InteropHandler(self, config=self.config)
-        self.image = ImageHandler(self, self.config)
+        self.interop_telem_thread = self.plane_thread = self.rover_thread = \
+            self.retreive_image_thread = None
+
+        self.interop = Interop(self, config=self.config)
+        self.image = Image(self, self.config)
 
         uavconfig = self.config["uav"]["telemetry"]["type"]
-        self.uav = DummyUAVHandler if uavconfig == "dummy" else (SimUAVHandler if uavconfig == "sim" else UAVHandler)
+        self.uav = DummyUAV if uavconfig == "dummy" else ProdUAV
         self.uav = self.uav(self, self.config)
 
         ugvconfig = self.config["ugv"]["telemetry"]["type"]
-        self.ugv = DummyUGVHandler if ugvconfig == "dummy" else (SimUGVHandler if ugvconfig == "sim" else UGVHandler)
+        self.ugv = DummyUGV if ugvconfig == "dummy" else ProdUGV
         self.ugv = self.ugv(self, self.config)
 
         print("╚═══ CREATED HANDLERS\n")
@@ -125,16 +120,16 @@ class GroundStation:
                     self.interop.login()  # Re-initiate connection
                     self.logger.important("[Telemetry] Re-initiated connection with Interop Server")
                 except errors.ServiceUnavailableError:
-                    self.logger.info("[Telemetry] Unable to re-initiate connection with Interop Server, retrying in "
-                                     "one second")
+                    self.logger.info("[Telemetry] Unable to re-initiate connection with Interop "
+                                     "Server, retrying in one second")
                 time.sleep(1)
                 continue
 
             try:
                 run = self.interop.submit_telemetry()
             except errors.ServiceUnavailableError:  # Lost connection to Interop
-                self.logger.critical("[Telemetry] Lost connection to Interop Server, attempting to re-initiate "
-                                     "connection every second")
+                self.logger.critical("[Telemetry] Lost connection to Interop Server, attempting to "
+                                     "re-initiate connection every second")
                 continue
 
             if run:
@@ -206,6 +201,6 @@ class GroundStation:
     # Calls a function from self.func_map, with the provided parameters
     def call(self, func, *args, log=True):
         result = self.func_map[func](*args)
-        # if log:
-        #     self.logger.log(logging.DEBUG, func + ": " + json.dumps(result, default=str))
+        if log and self.config["debug_log"]:
+            self.logger.log(logging.DEBUG, func + ": " + json.dumps(result, default=str))
         return result
