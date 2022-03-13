@@ -18,6 +18,7 @@ with open("config.json", "r", encoding="utf-8") as file:
     config = json.load(file)
 
 app = Flask(__name__)
+app.config["JSONIFY_PRETTYPRINT_REGULAR"] = True
 CORS(app)
 
 app.register_blueprint(interop, url_prefix="/interop")
