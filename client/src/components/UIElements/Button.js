@@ -48,8 +48,8 @@ export const StyledButton = styled(Link).attrs(props => ({
 	justify-content: center;
 	align-items: center;
 	text-align: center;
-  	padding-top: ${props => (props.compact ? "0.5rem" : "1rem")};
-  	padding-bottom: ${props => (props.compact ? "0.5rem" : "1rem")};
+  	padding-top: ${props => (props.large ? "1rem" : "0.5rem")};
+  	padding-bottom: ${props => (props.large ? "1rem" : "0.5rem")};
   	cursor: pointer;
 
 	::after {

@@ -7,10 +7,10 @@ const ServoRow = ({ number, port1, port2 }) => {
 		<Row columns="minmax(0, 4fr) 16fr minmax(0, 4fr) minmax(0, 4fr)" height="3.6rem">
 			<Box content={number} line="360%" />
 			<Row gap="0.5rem">
-				<Button compact={true}>Low</Button>
-				<Button compact={true}>Mid</Button>
-				<Button compact={true}>High</Button>
-				<Button compact={true}>Toggle</Button>
+				<Button>Low</Button>
+				<Button>Mid</Button>
+				<Button>High</Button>
+				<Button>Toggle</Button>
 			</Row>
 			<Box content={port1} line="360%" />
 			<Box content={port2} line="360%" />
