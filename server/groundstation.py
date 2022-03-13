@@ -69,7 +69,8 @@ class GroundStation:
 
             "uav_getcommands": self.uav.get_commands,
             "uav_insertcommand": self.uav.insert_command,  # command, lat, lon, alt
-            "uav_clearcommands": self.uav.clear_mission,
+            "uav_jumpcommand": self.uav.jump_to_command,  # command
+            "uav_clearcommands": self.uav.clear_commands,
 
             "uav_getarmed": self.uav.get_armed,
             "uav_arm": self.uav.arm,
