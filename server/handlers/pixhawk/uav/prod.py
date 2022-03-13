@@ -1,21 +1,70 @@
 import json
 import logging
 import math
+from typing import Optional
 
-from dronekit import connect, Command, VehicleMode
+from dronekit import connect, Command, VehicleMode, Vehicle
 from pymavlink import mavutil as uavutil
 
-from errors import GeneralError, InvalidRequestError
+from errors import GeneralError, InvalidRequestError, InvalidStateError
 
 SERIAL_PORT = "/dev/ttyACM0"
 BAUDRATE = 115200
 
 COMMANDS = {
-    "TAKEOFF": uavutil.mavlink.MAV_CMD_NAV_TAKEOFF,
+    # Takeoff will be initiated using a Flight Mode
+    # "TAKEOFF": uavutil.mavlink.MAV_CMD_NAV_TAKEOFF,
     "WAYPOINT": uavutil.mavlink.MAV_CMD_NAV_WAYPOINT,
     "LAND": uavutil.mavlink.MAV_CMD_NAV_LAND,
     "GEOFENCE": uavutil.mavlink.MAV_CMD_NAV_FENCE_POLYGON_VERTEX_INCLUSION
 }
+
+
+def readmission(filename):
+    """
+    Load a mission from a file into a list.
+
+    This function is used by upload_mission().
+    """
+    print(f"Reading mission from file: {filename}\n")
+    missionlist = []
+    with open(filename, "r", encoding="utf-8") as f:
+        for i, line in enumerate(f):
+            if i == 0:
+                if not line.startswith("QGC WPL 110"):
+                    raise Exception("File is not supported WP version")
+            else:
+                linearray = line.split("\t")
+                ln_currentwp = int(linearray[1])
+                ln_frame = int(linearray[2])
+                ln_command = int(linearray[3])
+                ln_param1 = float(linearray[4])
+                ln_param2 = float(linearray[5])
+                ln_param3 = float(linearray[6])
+                ln_param4 = float(linearray[7])
+                ln_param5 = float(linearray[8])
+                ln_param6 = float(linearray[9])
+                ln_param7 = float(linearray[10])
+                ln_autocontinue = int(linearray[11].strip())
+                cmd = Command(0, 0, 0, ln_frame, ln_command, ln_currentwp, ln_autocontinue,
+                              ln_param1, ln_param2, ln_param3, ln_param4, ln_param5, ln_param6,
+                              ln_param7)
+                missionlist.append(cmd)
+    return missionlist
+
+
+def download_mission(vehicle):
+    """
+    Downloads the current mission and returns it in a list.
+    It is used in save_mission() to get the file information to save.
+    """
+    missionlist = []
+    cmds = vehicle.commands
+    cmds.download()
+    cmds.wait_ready()
+    for cmd in cmds:
+        missionlist.append(cmd)
+    return missionlist
 
 
 class UAVHandler:
@@ -26,7 +75,7 @@ class UAVHandler:
         self.port = self.config["uav"]["telemetry"]["port"]
         self.serial = self.config["uav"]["telemetry"]["serial"]
         self.update_thread = None
-        self.vehicle = None
+        self.vehicle: Optional[Vehicle] = None
         self.altitude = self.orientation = self.ground_speed = self.air_speed = self.dist_to_wp = \
             self.battery = self.lat = self.lon = self.connection = self.waypoint = self.armed = \
             self.mode = self.waypoints = self.waypoint_index = self.temperature = self.params = \
@@ -36,6 +85,8 @@ class UAVHandler:
         self.armed = False
         print("╠ CREATED UAV HANDLER")
         self.logger.info("CREATED UAV HANDLER")
+
+    # Basic Methods
 
     def connect(self):
         try:
@@ -110,8 +161,11 @@ class UAVHandler:
             "quick": self.quick()["result"],
             "mode": self.mode.name,
             "commands": [cmd.to_dict() for cmd in self.vehicle.commands],
-            "armed": self.armed
+            "armed": self.get_armed()["result"],
+            "status": self.vehicle.system_status.state
         }}
+
+    # Flight Mode
 
     def set_flight_mode(self, flightmode):
         try:
@@ -127,6 +181,8 @@ class UAVHandler:
         except Exception as e:
             raise GeneralError(str(e)) from e
 
+    # Parameters
+
     def get_param(self, key):
         try:
             return {"result": self.vehicle.parameters[key]}
@@ -135,7 +191,8 @@ class UAVHandler:
 
     def get_params(self):
         try:
-            return {"result": self.vehicle.parameters.items()}
+            return {"result": dict((keys, values) for keys, values in tuple(
+                self.vehicle.parameters.items()))}
         except Exception as e:
             raise GeneralError(str(e)) from e
 
@@ -165,7 +222,7 @@ class UAVHandler:
     def save_params(self):
         try:
             with open("handlers/pixhawk/uav/uav_params.json", "w", encoding="utf-8") as file:
-                json.dump(self.vehicle.paramreters, file)
+                json.dump(self.vehicle.parameters, file)
             return {}
         except Exception as e:
             raise GeneralError(str(e)) from e
@@ -178,11 +235,14 @@ class UAVHandler:
         except Exception as e:
             raise GeneralError(str(e)) from e
 
+    # Commands (Mission)
+
     def get_commands(self):
         try:
-            commands = self.vehicle.commands
-            commands.download()
-            return {"result": [cmd.to_dict() for cmd in commands]}
+            cmds = self.vehicle.commands
+            cmds.download()
+            cmds.wait_ready()
+            return {"result": [cmd.to_dict() for cmd in cmds]}
         except Exception as e:
             raise GeneralError(str(e)) from e
 
@@ -190,17 +250,54 @@ class UAVHandler:
         if command not in COMMANDS:
             raise InvalidRequestError("Invalid Command Name")
         try:
-            new_cmd = Command(0, 0, 0, uavutil.mavlink.MAV_FRAME_GLOBAL_RELATIVE_ALT,
-                              COMMANDS[command], 0, 0, 0, 0, 0, 0, lat, lon, alt)
             cmds = self.vehicle.commands
             cmds.download()
+            cmds.wait_ready()
+            new_cmd = Command(0, 0, 0, uavutil.mavlink.MAV_FRAME_GLOBAL_RELATIVE_ALT,
+                              COMMANDS[command], 0, 0, 0, 0, 0, 0, lat, lon, alt)
             cmds.add(new_cmd)
             cmds.upload()
+            if command == "LAND":
+                self.jump_to_command(cmds.count)
             return {}
         except Exception as e:
             raise GeneralError(str(e)) from e
 
-    def clear_mission(self):
+    # TODO: add below 3 commands to UAV dummy, UGV all
+    def jump_to_command(self, command: int):
+        try:
+            self.vehicle.commands.next = command
+        except Exception as e:
+            raise GeneralError(str(e)) from e
+
+    def load_commands(self):
+        """
+        Upload a mission from a file.
+        """
+        # Read mission from file
+        missionlist = readmission("handlers/pixhawk/uav/uav_mission.txt")
+        cmds = self.vehicle.commands
+        cmds.clear()
+        # Add new mission to vehicle
+        for command in missionlist:
+            cmds.add(command)
+        self.vehicle.commands.upload()
+
+    def save_commands(self):
+        """
+        Save a mission in the Waypoint file format (https://qgroundcontrol.org/mavlink/waypoint_protocol#waypoint_file_format).
+        """
+        missionlist = download_mission(self.vehicle)
+        output = 'QGC WPL 110\n'
+        for cmd in missionlist:
+            commandline = f"{cmd.seq}\t{cmd.current}\t{cmd.frame}\t{cmd.command}\t{cmd.param1}\t" \
+                          f"{cmd.param2}\t{cmd.param3}\t{cmd.param4}\t{cmd.x}\t{cmd.y}\t" \
+                          f"{cmd.z}\t{cmd.autocontinue}\n"
+            output += commandline
+        with open("handlers/pixhawk/uav/uav_mission.txt", "w", encoding="utf-8") as file_:
+            file_.write(output)
+
+    def clear_commands(self):
         try:
             self.vehicle.commands.clear()
             self.vehicle.commands.upload()
@@ -208,16 +305,28 @@ class UAVHandler:
         except Exception as e:
             raise GeneralError(str(e)) from e
 
+    # Armed
+
     def get_armed(self):
         try:
-            return {"result": self.vehicle.armed}
+            if self.vehicle.armed:
+                return {"result": "ARMED"}
+            elif self.vehicle.is_armable:
+                return {"result": "DISARMED, ARMABLE"}
+            else:
+                return {"result": "DISARMED"}
         except Exception as e:
             raise GeneralError(str(e)) from e
 
     def arm(self):
         try:
+            if not self.vehicle.is_armable:
+                raise InvalidStateError("Vehicle is not armable")
             self.vehicle.armed = True  # Motors can be started
+            print(self.vehicle.armed)
             return {}
+        except InvalidStateError as e:
+            raise InvalidStateError(str(e)) from e
         except Exception as e:
             raise GeneralError(str(e)) from e
 

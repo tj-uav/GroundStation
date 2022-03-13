@@ -31,6 +31,7 @@ class DummyUAVHandler:
             self.params = json.load(file)
         self.mode = "AUTO"
         self.armed = True
+        self.status = "ACTIVE"
         self.commands = []
         print("╠ CREATED DUMMY UAV HANDLER")
         self.logger.info("CREATED DUMMY UAV HANDLER")
@@ -75,10 +76,10 @@ class DummyUAVHandler:
                 self.lon = (self.lon + math.sin(angle) * speed)
             self.waypoint = [self.waypoint_index, self.dist_to_wp]
             self.orientation = {
-                "yaw": int((angle / (2 * math.pi) * 360) if angle >= 0 else (
-                        angle / (2 * math.pi) * 360 + 360)),
-                "roll": random.randint(-30, 30),
-                "pitch": random.randint(-20, 20)
+                "yaw": (angle / (2 * math.pi) * 360) if angle >= 0 else (
+                        angle / (2 * math.pi) * 360 + 360),
+                "roll": random.random() * 60 - 30,
+                "pitch": random.random() * 40 - 20
             }
             return {}
         except KeyError as e:
@@ -104,7 +105,8 @@ class DummyUAVHandler:
             "quick": self.quick()["result"],
             "mode": self.mode,
             "commands": [cmd.to_dict() for cmd in self.commands],
-            "armed": self.armed
+            "armed": self.armed,
+            "status": self.status
         }}
 
     def set_flight_mode(self, flightmode):

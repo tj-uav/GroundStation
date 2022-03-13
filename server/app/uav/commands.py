@@ -13,7 +13,6 @@ def uav_get_commands():
 @uav_commands.route("/insert", methods=["POST"])
 def uav_insert_command():
     f = request.json
-    print(f)
     if not all(field in f for field in ["command", "lat", "lon", "alt"]):
         raise InvalidRequestError("Missing required fields in request")
     return app.gs.call("uav_insertcommand",
@@ -22,6 +21,14 @@ def uav_insert_command():
                        f.get("lon"),
                        f.get("alt")
                        )
+
+
+@uav_commands.route("/jump", methods=["POST"])
+def uav_jump_command():
+    f = request.json
+    if not all(field in f for field in ["command"]):
+        raise InvalidRequestError("Missing required fields in request")
+    return app.gs.call("uav_jumpcommand", f.get("command"))
 
 
 @uav_commands.route("/clear", methods=["POST"])
