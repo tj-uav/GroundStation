@@ -76,9 +76,9 @@ const FlightPlanMap = props => {
 			ugvDrive: new MarkerIcon({ iconUrl: "../assets/icon-ugvDrive.png" }),
 			offAxis: new MarkerIcon({ iconUrl: "../assets/icon-offAxis.png" }),
 			searchGrid: new MarkerIcon({ iconUrl: "../assets/icon-searchGrid.png" }),
-			plane: new VehicleIcon({ iconUrl: "../assets/plane.svg" }),
-			planeDirection: new DirectionPointerIcon({ iconUrl: "../assets/pointer.svg" }),
-			planeDirectionOutline: new DirectionPointerIcon({ iconUrl: "../assets/pointer-outline.svg" }),
+			uav: new VehicleIcon({ iconUrl: "../assets/uav.svg" }),
+			uavDirection: new DirectionPointerIcon({ iconUrl: "../assets/pointer.svg" }),
+			uavDirectionOutline: new DirectionPointerIcon({ iconUrl: "../assets/pointer-outline.svg" }),
 			ugv: new VehicleIcon({ iconUrl: "../assets/ugv.svg" }),
 			ugvDirection: new DirectionPointerIcon({ iconUrl: "../assets/pointer.svg" }),
 			ugvDirectionOutline: new DirectionPointerIcon({ iconUrl: "../assets/pointer-outline.svg" }),
@@ -250,16 +250,16 @@ const FlightPlanMap = props => {
 					<LayersControl.Overlay checked name="Off Axis ODLC">
 						{props.getters.offAxis.lat == null ? null : singlePopup("offAxis")}
 					</LayersControl.Overlay>
-					<LayersControl.Overlay checked name="Plane">
-						{props.getters.plane.heading == null ? null : (
+					<LayersControl.Overlay checked name="UAV">
+						{props.getters.uav.heading == null ? null : (
 							<LayerGroup>
-								<RotatedMarker icon={icons.planeDirection} position={props.getters.plane.latlng} rotationAngle={props.getters.plane.heading} rotationOrigin={"50% 100%"} />
-								<Marker icon={icons.plane} position={props.getters.plane.latlng}>
+								<RotatedMarker icon={icons.uavDirection} position={props.getters.uav.latlng} rotationAngle={props.getters.uav.heading} rotationOrigin={"50% 100%"} />
+								<Marker icon={icons.uav} position={props.getters.uav.latlng}>
 									<Tooltip>
-										UAV ({ props.getters.plane.latlng.lat.toFixed(5) }, { props.getters.plane.latlng.lng.toFixed(5) })
+										UAV ({ props.getters.uav.latlng.lat.toFixed(5) }, { props.getters.uav.latlng.lng.toFixed(5) })
 									</Tooltip>
 								</Marker>
-								<RotatedMarker icon={icons.planeDirectionOutline} position={props.getters.plane.latlng} rotationAngle={props.getters.plane.heading} rotationOrigin={"50% 100%"} />
+								<RotatedMarker icon={icons.uavDirectionOutline} position={props.getters.uav.latlng} rotationAngle={props.getters.uav.heading} rotationOrigin={"50% 100%"} />
 							</LayerGroup>
 						)}
 					</LayersControl.Overlay>

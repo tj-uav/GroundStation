@@ -68,6 +68,9 @@ def download_mission(vehicle):
 
 
 class UAVHandler:
+    mph = 2.23694
+    ft = 3.28084
+
     def __init__(self, gs, config):
         self.logger = logging.getLogger("main")
         self.gs = gs
@@ -77,12 +80,12 @@ class UAVHandler:
         self.update_thread = None
         self.vehicle: Optional[Vehicle] = None
         self.altitude = self.orientation = self.ground_speed = self.air_speed = self.dist_to_wp = \
-            self.battery = self.lat = self.lon = self.connection = self.waypoint = self.armed = \
-            self.mode = self.waypoints = self.waypoint_index = self.temperature = self.params = \
-            self.gps = None
+            self.battery = self.lat = self.lon = self.connection = self.waypoint = \
+            self.waypoints = self.waypoint_index = self.temperature = self.params = self.gps = None
         self.mode = VehicleMode("MANUAL")
         self.commands = []
         self.armed = False
+        self.status = "STANDBY"
         print("╠ CREATED UAV HANDLER")
         self.logger.info("CREATED UAV HANDLER")
 
@@ -103,19 +106,20 @@ class UAVHandler:
 
     def update(self):
         try:
-            loc = self.vehicle.location.global_frame
-            angle = self.vehicle.attitude
+            # Global Relative Frame uses absolute Latitude/Longitude and relative Altitude
+            loc = self.vehicle.location.global_relative_frame
+            rpy = self.vehicle.attitude  # Roll, Pitch, Yaw
             battery = self.vehicle.battery
-            self.altitude = loc.alt
+            self.altitude = loc.alt * self.ft
             self.orientation = dict(
-                yaw=angle.yaw * 180 / math.pi,
-                roll=angle.roll * 180 / math.pi,
-                pitch=angle.pitch * 180 / math.pi
+                yaw=rpy.yaw * 180 / math.pi,
+                roll=rpy.roll * 180 / math.pi,
+                pitch=rpy.pitch * 180 / math.pi
             )
             self.orientation["yaw"] += 360 if self.orientation["yaw"] < 0 else 0
-            self.ground_speed = self.vehicle.groundspeed
-            self.air_speed = self.vehicle.airspeed
-            self.battery = battery.voltage
+            self.ground_speed = self.vehicle.groundspeed * self.mph
+            self.air_speed = self.vehicle.airspeed * self.mph
+            self.battery = battery.voltage  # * 0.001  # Millivolts to volts?
             self.gps = self.vehicle.gps_0
             self.connection = [self.gps.eph, self.gps.epv, self.gps.satellites_visible]
             self.lat = loc.lat
@@ -126,11 +130,12 @@ class UAVHandler:
                 self.waypoint_index = 1 % len(self.waypoints)
             x_dist = self.waypoints[self.waypoint_index]["latitude"] - self.lat
             y_dist = self.waypoints[self.waypoint_index]["longitude"] - self.lon
-            dist = math.sqrt(x_dist ** 2 + y_dist ** 2)
+            dist = math.sqrt(x_dist ** 2 + y_dist ** 2)  # Angular distance
+            # Conversion from decimal degrees to miles
             x_dist_ft = x_dist * (math.cos(self.lat * math.pi / 180) * 69.172) * 5280
             y_dist_ft = y_dist * 69.172 * 5280
-            self.dist_to_wp = math.sqrt(x_dist_ft ** 2 + y_dist_ft ** 2)
-            if dist <= 0.0001:
+            self.dist_to_wp = math.sqrt(x_dist_ft ** 2 + y_dist_ft ** 2)  # Distance in miles
+            if dist <= 0.0001:  # Arbitrary value
                 self.waypoint_index = (self.waypoint_index + 1) % len(self.waypoints)
             self.waypoint = [self.waypoint_index, self.dist_to_wp]
             self.mode = self.vehicle.mode
@@ -263,7 +268,6 @@ class UAVHandler:
         except Exception as e:
             raise GeneralError(str(e)) from e
 
-    # TODO: add below 3 commands to UAV dummy, UGV all
     def jump_to_command(self, command: int):
         try:
             self.vehicle.commands.next = command
@@ -274,25 +278,24 @@ class UAVHandler:
         """
         Upload a mission from a file.
         """
-        # Read mission from file
         missionlist = readmission("handlers/pixhawk/uav/uav_mission.txt")
         cmds = self.vehicle.commands
         cmds.clear()
-        # Add new mission to vehicle
         for command in missionlist:
             cmds.add(command)
         self.vehicle.commands.upload()
 
     def save_commands(self):
         """
-        Save a mission in the Waypoint file format (https://qgroundcontrol.org/mavlink/waypoint_protocol#waypoint_file_format).
+        Save a mission in the Waypoint file format
+        (https://qgroundcontrol.org/mavlink/waypoint_protocol#waypoint_file_format).
         """
         missionlist = download_mission(self.vehicle)
-        output = 'QGC WPL 110\n'
+        output = "QGC WPL 110\n"
         for cmd in missionlist:
-            commandline = f"{cmd.seq}\t{cmd.current}\t{cmd.frame}\t{cmd.command}\t{cmd.param1}\t" \
-                          f"{cmd.param2}\t{cmd.param3}\t{cmd.param4}\t{cmd.x}\t{cmd.y}\t" \
-                          f"{cmd.z}\t{cmd.autocontinue}\n"
+            commandline = f"{cmd.seq}\t{cmd.current}\t{cmd.frame}\t{cmd.command}\t" \
+                          f"{cmd.param1}\t{cmd.param2}\t{cmd.param3}\t{cmd.param4}\t{cmd.x}\t" \
+                          f"{cmd.y}\t{cmd.z}\t{cmd.autocontinue}\n"
             output += commandline
         with open("handlers/pixhawk/uav/uav_mission.txt", "w", encoding="utf-8") as file_:
             file_.write(output)
@@ -312,9 +315,9 @@ class UAVHandler:
             if self.vehicle.armed:
                 return {"result": "ARMED"}
             elif self.vehicle.is_armable:
-                return {"result": "DISARMED, ARMABLE"}
+                return {"result": "DISARMED (ARMABLE)"}
             else:
-                return {"result": "DISARMED"}
+                return {"result": "DISARMED (NOT ARMABLE)"}
         except Exception as e:
             raise GeneralError(str(e)) from e
 
