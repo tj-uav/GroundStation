@@ -93,7 +93,7 @@ class GroundStation:
 
             "ugv_getcommands": self.ugv.get_commands,
             "ugv_insertcommand": self.ugv.insert_command,  # command, lat, lon, alt
-            "ugv_clearcommands": self.ugv.clear_mission,
+            "ugv_clearcommands": self.ugv.clear_commands,
 
             "ugv_getarmed": self.ugv.get_armed,
             "ugv_arm": self.ugv.arm,
