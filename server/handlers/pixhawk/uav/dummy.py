@@ -4,19 +4,55 @@ import math
 import random
 
 from dronekit import Command
-from pymavlink import mavutil
+from pymavlink import mavutil as uavutil
 
 from errors import GeneralError, ServiceUnavailableError, InvalidRequestError
 
 COMMANDS = {
-    "TAKEOFF": mavutil.mavlink.MAV_CMD_NAV_TAKEOFF,
-    "WAYPOINT": mavutil.mavlink.MAV_CMD_NAV_WAYPOINT,
-    "LAND": mavutil.mavlink.MAV_CMD_NAV_LAND,
-    "GEOFENCE": mavutil.mavlink.MAV_CMD_NAV_FENCE_POLYGON_VERTEX_INCLUSION
+    # Takeoff will be initiated using a Flight Mode
+    # "TAKEOFF": uavutil.mavlink.MAV_CMD_NAV_TAKEOFF,
+    "WAYPOINT": uavutil.mavlink.MAV_CMD_NAV_WAYPOINT,
+    "LAND": uavutil.mavlink.MAV_CMD_NAV_LAND,
+    "GEOFENCE": uavutil.mavlink.MAV_CMD_NAV_FENCE_POLYGON_VERTEX_INCLUSION
 }
 
 
+def readmission(filename):
+    """
+    Load a mission from a file into a list.
+
+    This function is used by upload_mission().
+    """
+    print(f"Reading mission from file: {filename}\n")
+    missionlist = []
+    with open(filename, "r", encoding="utf-8") as f:
+        for i, line in enumerate(f):
+            if i == 0:
+                if not line.startswith("QGC WPL 110"):
+                    raise Exception("File is not supported WP version")
+            else:
+                linearray = line.split("\t")
+                ln_currentwp = int(linearray[1])
+                ln_frame = int(linearray[2])
+                ln_command = int(linearray[3])
+                ln_param1 = float(linearray[4])
+                ln_param2 = float(linearray[5])
+                ln_param3 = float(linearray[6])
+                ln_param4 = float(linearray[7])
+                ln_param5 = float(linearray[8])
+                ln_param6 = float(linearray[9])
+                ln_param7 = float(linearray[10])
+                ln_autocontinue = int(linearray[11].strip())
+                cmd = Command(0, 0, 0, ln_frame, ln_command, ln_currentwp, ln_autocontinue,
+                              ln_param1, ln_param2, ln_param3, ln_param4, ln_param5, ln_param6,
+                              ln_param7)
+                missionlist.append(cmd)
+    return missionlist
+
+
 class DummyUAVHandler:
+    sim_speed = 0.000016
+
     def __init__(self, gs, config):
         self.logger = logging.getLogger("main")
         self.gs = gs
@@ -25,16 +61,18 @@ class DummyUAVHandler:
         self.serial = self.config["uav"]["telemetry"]["serial"]
         self.update_thread = None
         self.altitude = self.orientation = self.ground_speed = self.air_speed = self.dist_to_wp = \
-            self.battery = self.lat = self.lon = self.connection = self.waypoint = self.mode = \
-            self.waypoints = self.waypoint_index = self.temperature = self.gps = None
+            self.battery = self.lat = self.lon = self.connection = self.waypoint = \
+            self.waypoints = self.waypoint_index = self.temperature = self.params = self.gps = None
         with open("handlers/pixhawk/uav/uav_params.json", "r", encoding="utf-8") as file:
             self.params = json.load(file)
         self.mode = "AUTO"
+        self.commands = []
         self.armed = True
         self.status = "ACTIVE"
-        self.commands = []
         print("╠ CREATED DUMMY UAV HANDLER")
         self.logger.info("CREATED DUMMY UAV HANDLER")
+
+    # Basic Methods
 
     def connect(self):
         try:
@@ -59,7 +97,6 @@ class DummyUAVHandler:
                 self.waypoint_index = 1 % len(self.waypoints)
                 self.lat = self.waypoints[self.waypoint_index]["latitude"]
                 self.lon = self.waypoints[self.waypoint_index]["longitude"]
-            speed = 0.000016
             x_dist = self.waypoints[self.waypoint_index]["latitude"] - self.lat
             y_dist = self.waypoints[self.waypoint_index]["longitude"] - self.lon
             dist = math.sqrt(x_dist ** 2 + y_dist ** 2)
@@ -72,8 +109,8 @@ class DummyUAVHandler:
                 self.lon = self.waypoints[self.waypoint_index]["longitude"]
                 self.waypoint_index = (self.waypoint_index + 1) % len(self.waypoints)
             else:
-                self.lat = (self.lat + math.cos(angle) * speed)
-                self.lon = (self.lon + math.sin(angle) * speed)
+                self.lat = (self.lat + math.cos(angle) * self.sim_speed)
+                self.lon = (self.lon + math.sin(angle) * self.sim_speed)
             self.waypoint = [self.waypoint_index, self.dist_to_wp]
             self.orientation = {
                 "yaw": (angle / (2 * math.pi) * 360) if angle >= 0 else (
@@ -105,9 +142,11 @@ class DummyUAVHandler:
             "quick": self.quick()["result"],
             "mode": self.mode,
             "commands": [cmd.to_dict() for cmd in self.commands],
-            "armed": self.armed,
+            "armed": self.get_armed()["result"],
             "status": self.status
         }}
+
+    # Flight Mode
 
     def set_flight_mode(self, flightmode):
         self.mode = flightmode
@@ -115,6 +154,8 @@ class DummyUAVHandler:
 
     def get_flight_mode(self):
         return {"result": self.mode}
+
+    # Parameters
 
     def get_param(self, key):
         return {"result": self.params[key]}
@@ -163,6 +204,8 @@ class DummyUAVHandler:
         except Exception as e:
             raise GeneralError(str(e)) from e
 
+    # Commands (Mission)
+
     def get_commands(self):
         try:
             commands = self.commands
@@ -174,19 +217,52 @@ class DummyUAVHandler:
         if command not in COMMANDS:
             raise InvalidRequestError("Invalid Command Name")
         try:
-            new_cmd = Command(0, 0, 0, mavutil.mavlink.MAV_FRAME_GLOBAL_RELATIVE_ALT,
+            new_cmd = Command(0, 0, 0, uavutil.mavlink.MAV_FRAME_GLOBAL_RELATIVE_ALT,
                               COMMANDS[command], 0, 0, 0, 0, 0, 0, lat, lon, alt)
             self.commands.append(new_cmd)
             return {}
         except Exception as e:
             raise GeneralError(str(e)) from e
 
-    def clear_mission(self):
+    def jump_to_command(self, command: int):
+        pass
+
+    def load_commands(self):
+        """
+        Upload a mission from a file.
+        """
+        try:
+            missionlist = readmission("handlers/pixhawk/uav/uav_mission.txt")
+            for command in missionlist:
+                self.commands.append(command)
+        except Exception as e:
+            raise GeneralError(str(e)) from e
+
+    def save_commands(self):
+        """
+        Save a mission in the Waypoint file format
+        (https://qgroundcontrol.org/mavlink/waypoint_protocol#waypoint_file_format).
+        """
+        try:
+            output = "QGC WPL 110\n"
+            for cmd in self.commands:
+                commandline = f"{cmd.seq}\t{cmd.current}\t{cmd.frame}\t{cmd.command}\t" \
+                              f"{cmd.param1}\t{cmd.param2}\t{cmd.param3}\t{cmd.param4}\t{cmd.x}\t" \
+                              f"{cmd.y}\t{cmd.z}\t{cmd.autocontinue}\n"
+                output += commandline
+            with open("handlers/pixhawk/uav/uav_mission.txt", "w", encoding="utf-8") as file_:
+                file_.write(output)
+        except Exception as e:
+            raise GeneralError(str(e)) from e
+
+    def clear_commands(self):
         self.commands = []
         return {}
 
+    # Armed
+
     def get_armed(self):
-        return {"result": self.armed}
+        return {"result": "ARMED" if self.armed else "DISARMED (ARMABLE)"}
 
     def arm(self):
         self.armed = True  # Motors can be started
