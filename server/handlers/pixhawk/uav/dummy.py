@@ -9,10 +9,7 @@ from pymavlink import mavutil as uavutil
 from errors import GeneralError, ServiceUnavailableError, InvalidRequestError
 
 COMMANDS = {
-    # Takeoff will be initiated using a Flight Mode
-    # "TAKEOFF": uavutil.mavlink.MAV_CMD_NAV_TAKEOFF,
     "WAYPOINT": uavutil.mavlink.MAV_CMD_NAV_WAYPOINT,
-    "LAND": uavutil.mavlink.MAV_CMD_NAV_LAND,
     "GEOFENCE": uavutil.mavlink.MAV_CMD_NAV_FENCE_POLYGON_VERTEX_INCLUSION
 }
 
@@ -111,7 +108,7 @@ class DummyUAVHandler:
             else:
                 self.lat = (self.lat + math.cos(angle) * self.sim_speed)
                 self.lon = (self.lon + math.sin(angle) * self.sim_speed)
-            self.waypoint = [self.waypoint_index, self.dist_to_wp]
+            self.waypoint = [self.waypoint_index + 1, self.dist_to_wp]
             self.orientation = {
                 "yaw": (angle / (2 * math.pi) * 360) if angle >= 0 else (
                         angle / (2 * math.pi) * 360 + 360),
