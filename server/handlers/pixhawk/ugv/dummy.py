@@ -193,20 +193,6 @@ class DummyUGVHandler:
         except Exception as e:
             raise GeneralError(str(e)) from e
 
-    def insert_command(self, command, lat, lon, alt):
-        if command not in COMMANDS:
-            raise InvalidRequestError("Invalid Command Name")
-        try:
-            new_cmd = Command(0, 0, 0, uavutil.mavlink.MAV_FRAME_GLOBAL_RELATIVE_ALT,
-                              COMMANDS[command], 0, 0, 0, 0, 0, 0, lat, lon, alt)
-            self.commands.append(new_cmd)
-            return {}
-        except Exception as e:
-            raise GeneralError(str(e)) from e
-
-    def jump_to_command(self, command: int):
-        pass
-
     def load_commands(self):
         """
         Upload a mission from a file.
@@ -215,23 +201,6 @@ class DummyUGVHandler:
             missionlist = readmission("handlers/pixhawk/uav/uav_mission.txt")
             for command in missionlist:
                 self.commands.append(command)
-        except Exception as e:
-            raise GeneralError(str(e)) from e
-
-    def save_commands(self):
-        """
-        Save a mission in the Waypoint file format
-        (https://qgroundcontrol.org/mavlink/waypoint_protocol#waypoint_file_format).
-        """
-        try:
-            output = "QGC WPL 110\n"
-            for cmd in self.commands:
-                commandline = f"{cmd.seq}\t{cmd.current}\t{cmd.frame}\t{cmd.command}\t" \
-                              f"{cmd.param1}\t{cmd.param2}\t{cmd.param3}\t{cmd.param4}\t{cmd.x}\t" \
-                              f"{cmd.y}\t{cmd.z}\t{cmd.autocontinue}\n"
-                output += commandline
-            with open("handlers/pixhawk/uav/uav_mission.txt", "w", encoding="utf-8") as file_:
-                file_.write(output)
         except Exception as e:
             raise GeneralError(str(e)) from e
 
