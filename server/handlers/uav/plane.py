@@ -1,5 +1,5 @@
 """
-This is decigned to subclass Dronekit's Vehicle class, to allow for extra values to be collected
+This is decigned to subclass Dronekit"s Vehicle class, to allow for extra values to be collected
 This is not currently implemented into the code, as the Pixhawk is not yet configured to send
 these values
 However, this code is kept in the repository for future use and maintenance purposes
@@ -15,8 +15,10 @@ class Temperature:
         self.right_esc = right_esc
 
     def __str__(self):
-        return f"Temperature: left_motor={self.left_motor},left_esc={self.left_esc},right_motor=" \
-               f"{self.right_motor},right_esc={self.right_esc} "
+        return (
+            f"Temperature: left_motor={self.left_motor},left_esc={self.left_esc},right_motor="
+            f"{self.right_motor},right_esc={self.right_esc} "
+        )
 
 
 class Battery:
