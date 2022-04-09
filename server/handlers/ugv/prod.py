@@ -1,12 +1,14 @@
 import json
 import logging
 import math
+import os
 from typing import Optional
 
 from dronekit import connect, Command, VehicleMode, Vehicle
 from pymavlink import mavutil as uavutil
 
 from errors import GeneralError, InvalidRequestError, InvalidStateError
+from handlers.utils import decorate_all_functions, log
 
 SERIAL_PORT = "/dev/ttyACM0"
 BAUDRATE = 115200
@@ -16,7 +18,7 @@ COMMANDS = {
     # "TAKEOFF": uavutil.mavlink.MAV_CMD_NAV_TAKEOFF,
     "WAYPOINT": uavutil.mavlink.MAV_CMD_NAV_WAYPOINT,
     "LAND": uavutil.mavlink.MAV_CMD_NAV_LAND,
-    "GEOFENCE": uavutil.mavlink.MAV_CMD_NAV_FENCE_POLYGON_VERTEX_INCLUSION
+    "GEOFENCE": uavutil.mavlink.MAV_CMD_NAV_FENCE_POLYGON_VERTEX_INCLUSION,
 }
 
 
@@ -46,9 +48,22 @@ def readmission(filename):
                 ln_param6 = float(linearray[9])
                 ln_param7 = float(linearray[10])
                 ln_autocontinue = int(linearray[11].strip())
-                cmd = Command(0, 0, 0, ln_frame, ln_command, ln_currentwp, ln_autocontinue,
-                              ln_param1, ln_param2, ln_param3, ln_param4, ln_param5, ln_param6,
-                              ln_param7)
+                cmd = Command(
+                    0,
+                    0,
+                    0,
+                    ln_frame,
+                    ln_command,
+                    ln_currentwp,
+                    ln_autocontinue,
+                    ln_param1,
+                    ln_param2,
+                    ln_param3,
+                    ln_param4,
+                    ln_param5,
+                    ln_param6,
+                    ln_param7,
+                )
                 missionlist.append(cmd)
     return missionlist
 
@@ -67,20 +82,28 @@ def download_mission(vehicle):
     return missionlist
 
 
+@decorate_all_functions(log, logging.getLogger("groundstation"))
 class UGVHandler:
     mph = 2.23694
     ft = 3.28084
 
     def __init__(self, gs, config):
-        self.logger = logging.getLogger("main")
+        self.logger = logging.getLogger("groundstation")
         self.gs = gs
         self.config = config
         self.port = self.config["ugv"]["telemetry"]["port"]
         self.serial = self.config["ugv"]["telemetry"]["serial"]
         self.update_thread = None
         self.vehicle: Optional[Vehicle] = None
-        self.yaw = self.ground_speed = self.droppos = self.dest = self.dist_to_dest = \
-            self.battery = self.lat = self.lon = self.connection = self.mode = self.gps = None
+        self.yaw = (
+            self.ground_speed
+        ) = (
+            self.droppos
+        ) = (
+            self.dest
+        ) = (
+            self.dist_to_dest
+        ) = self.battery = self.lat = self.lon = self.connection = self.mode = self.gps = None
         self.mode = VehicleMode("MANUAL")
         self.commands = []
         self.armed = False
@@ -120,14 +143,14 @@ class UGVHandler:
             self.connection = [self.gps.eph, self.gps.epv, self.gps.satellites_visible]
             self.mode = self.vehicle.mode
             if not self.droppos:
-                self.droppos = self.gs.call("i_data", "ugv")
+                self.droppos = self.gs.interop.get_data("ugv")
                 self.droppos = self.droppos["result"]
             x_dist = self.droppos["drop"]["latitude"] - self.lat
             y_dist = self.droppos["drop"]["longitude"] - self.lon
             # Conversion from decimal degrees to miles
             x_dist_ft = x_dist * (math.cos(self.lat * math.pi / 180) * 69.172) * 5280
             y_dist_ft = y_dist * 69.172 * 5280
-            self.dist_to_dest = math.sqrt(x_dist_ft ** 2 + y_dist_ft ** 2)
+            self.dist_to_dest = math.sqrt(x_dist_ft**2 + y_dist_ft**2)
             self.dest = [self.droppos, self.dist_to_dest]
             self.mode = self.vehicle.mode
             self.armed = self.vehicle.armed
@@ -136,24 +159,42 @@ class UGVHandler:
             raise GeneralError(str(e)) from e
 
     def quick(self):
-        return {"result": {
-            "yaw": self.yaw,
-            "lat": self.lat,
-            "lon": self.lon,
-            "ground_speed": self.ground_speed,
-            "battery": self.battery,
-            "destination": self.dest,
-            "connection": self.connection
-        }}
+        return {
+            "result": {
+                "yaw": self.yaw,
+                "lat": self.lat,
+                "lon": self.lon,
+                "ground_speed": self.ground_speed,
+                "battery": self.battery,
+                "destination": self.dest,
+                "connection": self.connection,
+            }
+        }
 
     def stats(self):
-        return {"result": {
-            "quick": self.quick()["result"],
-            "mode": self.mode.name,
-            "commands": [cmd.to_dict() for cmd in self.commands],
-            "armed": self.get_armed()["result"],
-            "status": self.vehicle.system_status.state
-        }}
+        return {
+            "result": {
+                "quick": self.quick()["result"],
+                "mode": self.mode.name,
+                "commands": [cmd.to_dict() for cmd in self.commands],
+                "armed": self.get_armed()["result"],
+                "status": self.vehicle.system_status.state,
+            }
+        }
+
+    # Setup
+
+    def set_home(self):
+        pass
+
+    def calibrate(self):
+        pass
+
+    def restart(self):
+        pass
+
+    def abort(self):
+        pass
 
     # Flight Mode
 
@@ -181,8 +222,11 @@ class UGVHandler:
 
     def get_params(self):
         try:
-            return {"result": dict((keys, values) for keys, values in tuple(
-                self.vehicle.parameters.items()))}
+            return {
+                "result": dict(
+                    (keys, values) for keys, values in tuple(self.vehicle.parameters.items())
+                )
+            }
         except Exception as e:
             raise GeneralError(str(e)) from e
 
@@ -203,7 +247,9 @@ class UGVHandler:
                 try:
                     float(value)
                 except ValueError as e:
-                    raise InvalidRequestError("Parameter Value cannot be converted to float") from e
+                    raise InvalidRequestError(
+                        "Parameter Value cannot be converted to float"
+                    ) from e
                 self.vehicle.parameters[key] = value
             return {}
         except Exception as e:
@@ -211,7 +257,11 @@ class UGVHandler:
 
     def save_params(self):
         try:
-            with open("handlers/pixhawk/ugv/ugv_params.json", "w", encoding="utf-8") as file:
+            with open(
+                os.path.join(os.path.dirname(os.path.abspath(__file__)), "ugv_params.json"),
+                "w",
+                encoding="utf-8",
+            ) as file:
                 json.dump(self.vehicle.parameters, file)
             return {}
         except Exception as e:
@@ -219,7 +269,11 @@ class UGVHandler:
 
     def load_params(self):
         try:
-            with open("handlers/pixhawk/ugv/ugv_params.json", "r", encoding="utf-8") as file:
+            with open(
+                os.path.join(os.path.dirname(os.path.abspath(__file__)), "ugv_params.json"),
+                "r",
+                encoding="utf-8",
+            ) as file:
                 self.vehicle.parameters = json.load(file)
             return {}
         except Exception as e:
@@ -289,3 +343,6 @@ class UGVHandler:
             return {}
         except Exception as e:
             raise GeneralError(str(e)) from e
+
+    def __repr__(self):
+        return "UGV Handler"

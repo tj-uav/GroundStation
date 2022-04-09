@@ -150,6 +150,8 @@ cython_debug/
 /server/assets/odlc_images/*
 !/server/assets/map_images/sample.png
 !/server/assets/odlc_images/sample.png
+/server/handlers/uav/uav_mission.txt
+/server/handlers/ugv/ugv_mission.txt
 odlc.json
 log.txt
 debug_log.txt
