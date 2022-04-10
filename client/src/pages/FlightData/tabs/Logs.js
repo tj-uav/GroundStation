@@ -69,10 +69,10 @@ const Logs = () => {
 
 		return () => {
 			clearInterval(tick)
-			window.sessionStorage.setItem("logs", logsRef.current.reduce((p, n) => {
+			window.sessionStorage.setItem("logs", logsRef.length > 0 ? "" : logsRef.current.reduce((p, n) => {
 				return p + "|||" + n
 			}))
-			window.sessionStorage.setItem("filters", filtersRef.current.reduce((p, n) => {
+			window.sessionStorage.setItem("filters", filtersRef.length > 0 ? "" : filtersRef.current.reduce((p, n) => {
 				return p + "|||" + n
 			}))
 			if (autoScrollRef.current) {

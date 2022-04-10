@@ -1,9 +1,11 @@
 import React, { useState, forwardRef } from "react"
 import styled from "styled-components"
 
-import { dark, blue } from "theme/Colors"
+import { dark, blue, red } from "theme/Colors"
 
 import Link from "./Link"
+
+import { ReactComponent as RawWarning } from "icons/warning.svg"
 
 const Button = forwardRef(({ active, onChange, controlled, to, href, careful = false, ...props }, ref) => {
 	const [isActive, setActive] = useState(active ?? false)
@@ -27,9 +29,28 @@ const Button = forwardRef(({ active, onChange, controlled, to, href, careful = f
 			to={to}
 			href={href}
 			{...props}
-		/>
+		>
+			<div styles="display: inline;">
+				{ props.children }
+				{ props.warning ? <Warning /> : null }
+			</div>
+		</StyledButton>
 	)
 })
+
+const Warning = styled(RawWarning)`
+	height: 1em;
+	width: 1em;
+	margin-left: 0.5em;
+	margin-top: -0.25em;
+	color: ${props => props.warningColor ? props.warningColor : red};
+	fill: ${props => props.warningColor ? props.warningColor : red};
+	g {
+		path {
+			stroke: ${props => props.warningColor ? props.warningColor : red};
+		}
+	}
+`
 
 // prettier-ignore
 export const StyledButton = styled(Link).attrs(props => ({
