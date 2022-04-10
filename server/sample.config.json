@@ -23,5 +23,6 @@
         "username": "testuser",
         "password": "testpass",
         "mission_id": 1
-    }
+    },
+    "debug_log": false
 }
