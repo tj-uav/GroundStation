@@ -1,7 +1,7 @@
 // @flow
 
 import React, { createRef, useState, useEffect } from "react"
-import { Map, TileLayer, Tooltip, Marker, Polyline, Circle, LayersControl, LayerGroup } from "react-leaflet"
+import { MapContainer, TileLayer, Tooltip, Marker, Polyline, Circle, LayersControl, LayerGroup } from "react-leaflet"
 import { httpget } from "../backend.js"
 import L from "leaflet"
 import PolylineDecorator from "../pages/FlightData/tabs/FlightPlan/PolylineDecorator.js"
@@ -163,7 +163,7 @@ const FlightPlanMap = props => {
 	}
 
 	const handleClick = event => {
-		if (props.getters.mode) {
+		if (props.mode && false) {
 			let get = props.getters[props.mode]
 			let set = props.setters[props.mode]
 			if (get.constructor.name == "Array") {
@@ -185,7 +185,7 @@ const FlightPlanMap = props => {
 
 	return (
 		<div>
-			<Map
+			<MapContainer
 				center={state.latlng}
 				length={4}
 				onClick={handleClick}
@@ -277,7 +277,7 @@ const FlightPlanMap = props => {
 						)}
 					</LayersControl.Overlay>
 				</LayersControl>
-			</Map>
+			</MapContainer>
 		</div>
 	)
 }
