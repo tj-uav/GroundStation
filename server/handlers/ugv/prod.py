@@ -185,16 +185,28 @@ class UGVHandler:
     # Setup
 
     def set_home(self):
-        pass
+        try:
+            return {}
+        except Exception as e:
+            raise GeneralError(str(e)) from e
 
     def calibrate(self):
-        pass
+        try:
+            return {}
+        except Exception as e:
+            raise GeneralError(str(e)) from e
 
     def restart(self):
-        pass
+        try:
+            return {}
+        except Exception as e:
+            raise GeneralError(str(e)) from e
 
     def abort(self):
-        pass
+        try:
+            return {}
+        except Exception as e:
+            raise GeneralError(str(e)) from e
 
     # Flight Mode
 
