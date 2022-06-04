@@ -42,7 +42,11 @@ setattr(logging, "important", log_root)
 
 logger = logging.getLogger("groundstation")
 logger.setLevel(logging.DEBUG)
-formatter = logging.Formatter("[%(levelname)-9s] %(asctime)s  %(message)s")
+
+autopilot = logging.getLogger("autopilot")
+autopilot.setLevel(logging.DEBUG)
+
+formatter = logging.Formatter("[%(levelname)-9s] (%(name)s) %(asctime)s  %(message)-500s")
 
 # console_handler = logging.StreamHandler(sys.stdout)
 # console_handler.setLevel(logging.IMPORTANT)
@@ -53,17 +57,20 @@ file_handler = logging.FileHandler("logs/info.log", mode="w")
 file_handler.setLevel(logging.INFO)
 file_handler.setFormatter(formatter)
 logger.addHandler(file_handler)
+autopilot.addHandler(file_handler)
 
 debug_file_handler = logging.FileHandler("logs/debug.log", mode="w")
 debug_file_handler.setLevel(logging.DEBUG)
 debug_file_handler.setFormatter(formatter)
 logger.addHandler(debug_file_handler)
+autopilot.addHandler(debug_file_handler)
 
 LOG_STREAM = StringIO()
 string_handler = logging.StreamHandler(LOG_STREAM)
 string_handler.setLevel(logging.DEBUG)
 string_handler.setFormatter(formatter)
 logger.addHandler(string_handler)
+autopilot.addHandler(string_handler)
 
 logger.info("STARTED LOGGING")
 

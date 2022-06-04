@@ -1,14 +1,19 @@
+from __future__ import annotations
 import json
 import logging
 import math
 import os
 import random
+import typing
 
 from dronekit import Command
 from pymavlink import mavutil as uavutil
 
 from errors import GeneralError, ServiceUnavailableError, InvalidRequestError
 from handlers.utils import decorate_all_functions, log
+
+if typing.TYPE_CHECKING:
+    from groundstation import GroundStation
 
 COMMANDS = {
     # Takeoff will be initiated using a Flight Mode
@@ -69,7 +74,7 @@ def readmission(filename):
 class DummyUGVHandler:
     def __init__(self, gs, config):
         self.logger = logging.getLogger("groundstation")
-        self.gs = gs
+        self.gs: GroundStation = gs
         self.config = config
         self.port = self.config["ugv"]["telemetry"]["port"]
         self.serial = self.config["ugv"]["telemetry"]["serial"]
@@ -116,8 +121,12 @@ class DummyUGVHandler:
             if not self.droppos:
                 self.droppos = self.gs.interop.get_data("ugv")
                 self.droppos = self.droppos["result"]
-            self.lat = self.droppos["drop"]["latitude"] + (random.random() - 0.5) / 2000
-            self.lon = self.droppos["drop"]["longitude"] + (random.random() - 0.5) / 2000
+            if not self.lat:
+                self.lat = self.droppos["drop"]["latitude"]# + (random.random() - 0.5) / 2000
+                self.lon = self.droppos["drop"]["longitude"]# + (random.random() - 0.5) / 2000
+            self.lat += (random.random() - 0.5) / 80000
+            self.lon += (random.random() - 0.5) / 80000
+            # ^^ remove after frr
             x_dist = self.droppos["drop"]["latitude"] - self.lat
             y_dist = self.droppos["drop"]["longitude"] - self.lon
             angle = math.atan2(y_dist, x_dist)
