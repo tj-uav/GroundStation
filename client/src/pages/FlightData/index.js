@@ -8,7 +8,6 @@ import FlightPlanToolbar from "./tabs/FlightPlan/FlightPlanToolbar"
 import Quick from "./tabs/Quick"
 import Actions from "./tabs/Actions"
 import Servo from "./tabs/Servo"
-import Logs from "./tabs/Logs"
 
 /*
 TODO: Home icon
@@ -108,16 +107,15 @@ const FlightData = () => {
 			<TabBar>
 				<Quick />
 				<Actions />
-				{/*<Servo />*/}
 				<FlightPlanToolbar
 					display={display}
 					getters={getters}
 					setters={setters}
 					mode={mode}
 					setMode={setMode}
-					tabName={"Map"}
+					tabName={"Flight Plan"}
 				/>
-				<Logs />
+				<Servo />
 			</TabBar>
 			<FlightPlanMap
 				display={display}

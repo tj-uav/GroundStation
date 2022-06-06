@@ -3,7 +3,7 @@ import logging
 import math
 import random
 
-# from dronekit import Command
+#from dronekit import Command
 from pymavlink import mavutil
 
 from errors import GeneralError, ServiceUnavailableError, InvalidRequestError
@@ -25,8 +25,8 @@ class DummyUAVHandler:
         self.serial = self.config["uav"]["telemetry"]["serial"]
         self.update_thread = None
         self.altitude = self.orientation = self.ground_speed = self.air_speed = self.dist_to_wp = \
-            self.battery = self.throttle = self.lat = self.lon = self.connection = self.waypoint = \
-            self.mode = self.waypoints = self.waypoint_index = self.temperature = None
+            self.voltage = self.battery_level = self.throttle = self.lat = self.lon = \
+            self.mode = self.waypoints = self.waypoint_index = None
         with open("params.json", "r") as file:
             self.params = json.load(file)
         self.mode = "AUTO"
@@ -44,7 +44,6 @@ class DummyUAVHandler:
     def update(self):
         try:
             self.altitude = random.random() * 250 + 150
-            self.throttle = random.randint(60, 80)
             self.orientation = {
                 "yaw": random.randint(0, 360),
                 "roll": random.randint(-30, 30),
@@ -52,9 +51,10 @@ class DummyUAVHandler:
             }
             self.ground_speed = random.random() * 30 + 45
             self.air_speed = random.random() * 30 + 45
-            self.battery = [random.random() * 2 + 14, random.random() * 2 + 14]
-            self.temperature = [(random.random() * 25 + 25) for _ in range(4)]
-            self.connection = [random.random(), random.randint(0, 5), random.random() * 100]
+            self.dist_to_wp = random.random() * 100
+            self.voltage = random.random() * 2 + 14
+            self.battery_level = random.randint(0, 100)
+            self.throttle = random.randint(60, 80)
             # simulates the plane flying over waypoints
             if not self.waypoints:
                 self.waypoints = self.gs.call("i_data", "waypoints")
@@ -62,14 +62,11 @@ class DummyUAVHandler:
                 self.waypoint_index = 1 % len(self.waypoints)
                 self.lat = self.waypoints[self.waypoint_index]["latitude"]
                 self.lon = self.waypoints[self.waypoint_index]["longitude"]
-            speed = 0.00008
+            speed = 0.0001
             x_dist = self.waypoints[self.waypoint_index]["latitude"] - self.lat
             y_dist = self.waypoints[self.waypoint_index]["longitude"] - self.lon
             dist = math.sqrt(x_dist ** 2 + y_dist ** 2)
             angle = math.atan2(y_dist, x_dist)
-            x_dist_ft = x_dist * 5280 * 69
-            y_dist_ft = math.cos((x_dist / 180) * math.pi) * y_dist
-            self.dist_to_wp = math.sqrt(x_dist_ft ** 2 + y_dist_ft ** 2)
             if dist <= 0.0001:
                 self.lat = self.waypoints[self.waypoint_index]["latitude"]
                 self.lon = self.waypoints[self.waypoint_index]["longitude"]
@@ -77,10 +74,9 @@ class DummyUAVHandler:
             else:
                 self.lat = (self.lat + math.cos(angle) * speed)
                 self.lon = (self.lon + math.sin(angle) * speed)
-            self.waypoint = [self.waypoint_index, self.dist_to_wp]
             self.orientation = {
                 'yaw': int((angle / (2 * math.pi) * 360) if angle >= 0 else (
-                        angle / (2 * math.pi) * 360 + 360)),
+                            angle / (2 * math.pi) * 360 + 360)),
                 'roll': random.randint(-30, 30),
                 'pitch': random.randint(-20, 20)
             }
@@ -93,16 +89,14 @@ class DummyUAVHandler:
     def quick(self):
         return {"result": {
             "altitude": self.altitude,
-            "throttle": self.throttle,
             "orientation": self.orientation,
-            "lat": self.lat,
-            "lon": self.lon,
             "ground_speed": self.ground_speed,
             "air_speed": self.air_speed,
-            "battery": self.battery,
-            "temperature": self.temperature,
-            "waypoint": self.waypoint,
-            "connection": self.connection
+            "dist_to_wp": self.dist_to_wp,
+            "voltage": self.voltage,
+            "throttle": self.throttle,
+            "lat": self.lat,
+            "lon": self.lon
         }}
 
     def stats(self):

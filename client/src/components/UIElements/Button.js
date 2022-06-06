@@ -1,7 +1,7 @@
 import React, { useState, forwardRef } from "react"
 import styled from "styled-components"
 
-import { dark, blue, red } from "theme/Colors"
+import { dark, blue } from "theme/Colors"
 
 import Link from "./Link"
 
@@ -41,15 +41,12 @@ export const StyledButton = styled(Link).attrs(props => ({
 	box-sizing: border-box;
 	background: ${props => (props.active ? blue : dark)};
 	transition: background-color 0.1s ease;
-	color: ${props => (props.active ? dark : (props.red ? red : blue))} !important;
+	color: ${props => (props.active ? dark : blue)} !important;
 	text-decoration: none !important;
 	display: flex;
 	justify-content: center;
 	align-items: center;
 	text-align: center;
-  	padding-top: ${props => (props.compact ? "0.5rem" : "1rem")};
-  	padding-bottom: ${props => (props.compact ? "0.5rem" : "1rem")};
-  	cursor: pointer;
 
 	::after {
 		content: "";

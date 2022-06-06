@@ -1,14 +1,88 @@
-import React, { useState, useEffect, useRef } from "react"
+import React, { useState, useEffect } from "react"
 import { Button, Box, Label, Slider, Dropdown } from "components/UIElements"
 import { Row, Column } from "components/Containers"
-import regexParse from "regex-parser"
-import { red } from "../../../theme/Colors"
 
 const actions = {
-	waypoint: [0, 1, 2, 3, 4]
+	actions: ["actions"],
+	waypoint: ["waypoints"],
+	flight: [
+		"Manual",
+		"CIRCLE",
+		"STABILIZE",
+		"TRAINING",
+		"ACRO",
+		"FBWA",
+		"FBWB",
+		"CRUISE",
+		"AUTOTUNE",
+		"Auto",
+		"RTL",
+		"Loiter",
+		"AVOID_ADSB",
+		"Guided",
+		"QSTABILIZE",
+		"QHOVER",
+		"QLOITER",
+		"QLAND",
+		"QRTL",
+		"INITIALIZING",
+		"QStabilize",
+		"QHover",
+		"QLoiter",
+		"QLand",
+	],
+	mount: ["mount"],
+}
+
+const LabelledSlider = ({ for: label, hook, ...props }) => {
+	const [value, setValue] = hook
+
+	return (
+		<Column gap="0" style={{ display: "initial" }} {...props}>
+			<Label>{label}</Label>
+			<Row columns="repeat(4, minmax(0, 1fr))" gap="0.5rem">
+				<Box content={value} style={{ marginRight: "0.5rem" }} />
+				<Slider
+					style={{ gridColumn: "span 3" }}
+					initial={value}
+					onChange={v => {
+						console.log(v)
+						setValue(v)
+					}}
+				/>
+			</Row>
+		</Column>
+	)
+}
+
+const DropdownRow = ({ with: buttons, ...props }) => {
+	const indent = index => (index === 0 ? { marginRight: "0.5rem" } : null)
+
+	return (
+		<Row height="2rem" gap="0.5rem" {...props}>
+			{buttons.map((button, index) => {
+				return index === 0 ? (
+					<Dropdown
+						key={index}
+						initial={button.name}
+						children={actions[button.name.toLowerCase()].map(o => (
+							<span>{o}</span>
+						))}
+					/>
+				) : (
+					<Button key={index} style={indent(index)}>
+						{button.name}
+					</Button>
+				)
+			})}
+		</Row>
+	)
 }
 
 const Actions = () => {
+	const [speed, setSpeed] = useState(0)
+	const [altitude, setAltitude] = useState(0)
+	const [loiterRate, setLoiterRate] = useState(0)
 
 	const updateData = () => {}
 
@@ -19,8 +93,6 @@ const Actions = () => {
 		return () => clearInterval(tick)
 	})
 
-	const inputBox = useRef(null)
-
 	return (
 		<div
 			style={{
@@ -30,76 +102,54 @@ const Actions = () => {
 			}}
 		>
 			<Column>
-				<Row id="labels1" height="2rem" gap="0.5rem">
-					<Label columns={1}>Flight Modes</Label>
+				<Row id="labels" height="2rem" gap="0.5rem">
+					<Label columns={1}>Dropdown</Label>
+					<Label columns={3}>Functions</Label>
 				</Row>
 			</Column>
 
 			<Column style={{ marginBottom: "1rem" }}>
-				<Row>
-					<Button>AUTO</Button>
-					<Button>MANUAL</Button>
-					<Button>STABILIZE</Button>
-					<Button>LOITER</Button>
-					<Button>CIRCLE</Button>
-					<Button>RTL</Button>
-				</Row>
-			</Column>
+				<DropdownRow
+					with={[
+						{ name: "Actions" },
+						{ name: "Do Action" },
+						{ name: "Auto" },
+						{ name: "Set Home Alt" },
+					]}
+				/>
 
-			<Column>
-				<Row id="labels2" height="2rem" gap="0.5rem">
-					<Label columns={1}>Waypoints</Label>
-				</Row>
-			</Column>
-			<Column style={{ marginBottom: "1rem" }}>
-				<Row style={{ gap: "1rem" }}>
-					<Row>
-						<Box
-							ref={inputBox}
-							onKeyDown={e => {
-								if (e.nativeEvent.key === "Enter") e.preventDefault()
-								e.stopPropagation()
-							}}
-							placeholder="#"
-							style={{ textAlign: "center" }}
-							line="360%"
-							editable
-						/>
-						<Button>GO!</Button>
-					</Row>
-					<Button>WAYPOINTS (#1)</Button>
-					<Button>ODLC (#20)</Button>
-					<Button>MAP (#50)</Button>
-				</Row>
-			</Column>
+				<DropdownRow
+					with={[
+						{ name: "Waypoint" },
+						{ name: "Set Waypoint" },
+						{ name: "Loiter" },
+						{ name: "Restart Mission" },
+					]}
+				/>
 
-			<Column>
-				<Row id="labels3" height="2rem" gap="0.5rem">
-					<Label columns={1}>Mission</Label>
-				</Row>
-			</Column>
-			<Column style={{ marginBottom: "1rem" }}>
-				<Row>
-					<Button>START</Button>
-					<Button>RESTART</Button>
-					<Button red={true}>ABORT LANDING</Button>
-				</Row>
-			</Column>
+				<DropdownRow
+					with={[
+						{ name: "Flight" },
+						{ name: "Set Mode" },
+						{ name: "RTL" },
+						{ name: "Raw View" },
+					]}
+				/>
 
-			<Column>
-				<Row id="labels4" height="2rem" gap="0.5rem">
-					<Label columns={1}>Configuration</Label>
-				</Row>
+				<DropdownRow
+					with={[
+						{ name: "Mount" },
+						{ name: "Set Mount" },
+						{ name: "Clear Track" },
+						{ name: "Arm or Disarm" },
+					]}
+				/>
+
+				<LabelledSlider for="Speed" hook={[speed, setSpeed]} />
+				<LabelledSlider for="Altitude" hook={[altitude, setAltitude]} />
+				<LabelledSlider for="Loiter Rate" hook={[loiterRate, setLoiterRate]} />
 			</Column>
-			<Column style={{ marginBottom: "1rem" }}>
-				<Row>
-					<Button red={true}>SET HOME ALT</Button>
-					<Button red={true}>CALIBRATION</Button>
-					<Button red={true}>ARM/DISARM</Button>
-					<Button red={true}>RESTART</Button>
-				</Row>
-			</Column>
-			<Box label="" content="LEVEL" />
+			<Box label="Console + Error Messages" error />
 		</div>
 	)
 }

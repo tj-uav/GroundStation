@@ -4,16 +4,16 @@ import { Row, Column } from "components/Containers"
 
 const ServoRow = ({ number, port1, port2 }) => {
 	return (
-		<Row columns="minmax(0, 4fr) 16fr minmax(0, 4fr) minmax(0, 4fr)" height="3.6rem">
-			<Box content={number} line="360%" />
+		<Row columns="minmax(0, 4fr) 22fr minmax(0, 4fr) minmax(0, 4fr)" height="2rem">
+			<Box content={number} line="200%" />
 			<Row gap="0.5rem">
-				<Button compact={true}>Low</Button>
-				<Button compact={true}>Mid</Button>
-				<Button compact={true}>High</Button>
-				<Button compact={true}>Toggle</Button>
+				<Button>Low</Button>
+				<Button>Mid</Button>
+				<Button>High</Button>
+				<Button>Toggle</Button>
 			</Row>
-			<Box content={port1} line="360%" />
-			<Box content={port2} line="360%" />
+			<Box content={port1} line="200%" />
+			<Box content={port2} line="200%" />
 		</Row>
 	)
 }
@@ -54,7 +54,7 @@ const Servo = () => {
 				height: "calc(100vh - 9.5rem)",
 			}}
 		>
-			<Row columns="minmax(0, 4fr) 16fr minmax(0, 4fr) minmax(0, 4fr)" height="2rem">
+			<Row columns="minmax(0, 4fr) 22fr minmax(0, 4fr) minmax(0, 4fr)" height="2rem">
 				<Label>Servo</Label>
 				<Label>Function</Label>
 				<Label>Port(s)</Label>
@@ -64,6 +64,7 @@ const Servo = () => {
 					return <ServoRow key={index} number={index} port1={1110} port2={1900} />
 				})}
 			</Column>
+			<Box label="Console + Error Messages" error />
 		</div>
 	)
 }
