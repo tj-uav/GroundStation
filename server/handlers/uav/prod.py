@@ -433,7 +433,7 @@ class UAVHandler:
         except Exception as e:
             raise GeneralError(str(e)) from e
 
-    def load_commands(self):
+    def write_commands(self):
         """
         Upload a mission from a file.
         """
@@ -450,7 +450,7 @@ class UAVHandler:
         except Exception as e:
             raise GeneralError(str(e)) from e
 
-    def save_commands(self):
+    def load_commands(self):
         """
         Save a mission in the Waypoint file format
         (https://qgroundcontrol.org/mavlink/waypoint_protocol#waypoint_file_format).
@@ -466,7 +466,7 @@ class UAVHandler:
                 )
                 output += commandline
             with open(
-                os.path.join(os.path.dirname(os.path.abspath(__file__)), "uav_params.json"),
+                os.path.join(os.path.dirname(os.path.abspath(__file__)), "uav_mission.txt"),
                 "w",
                 encoding="utf-8",
             ) as file_:
