@@ -31,9 +31,9 @@ const Quick = () => {
 	const [Gconnection, setGconnection] = useState([95, 0, 95])
 
 	const updateData = () => {
-		httpget("/uav/stats", response => {
-				let data = response.data
-
+		httpget("/uav/stats")
+			.then(response => response.data)
+			.then(data => {
 				setAarmed(data.result.armed)
 				setAorientation({"yaw": data.result.quick.orientation.yaw, "roll": data.result.quick.orientation.roll, "pitch": data.result.quick.orientation.pitch })
 				setAlatLong({"lat": data.result.quick.lat, "lon": data.result.quick.lon})
@@ -46,9 +46,9 @@ const Quick = () => {
 				setAwaypoint(data.result.quick.waypoint)
 				setAconnection(data.result.quick.connection)
 			})
-		httpget("/ugv/stats", response => {
-				let data = response.data
-
+		httpget("/ugv/stats")
+			.then(response => response.data)
+			.then(data => {
 				setGarmed(data.result.armed)
 				setGgroundSpeed(data.result.quick.ground_speed)
 				setGyaw(data.result.quick.yaw)
@@ -64,9 +64,9 @@ const Quick = () => {
 	useEffect(() => {
 		const tick = setInterval(() => {
 			updateData()
-		}, 500)
+		}, 250)
 		return () => clearInterval(tick)
-	}, [])
+	})
 
 	return (
 		<div
@@ -77,7 +77,7 @@ const Quick = () => {
 			}}
 		>
 			<StyledDiv>
-				<Label className="paragraph" style={{ "font-size": "2em", color: "black", "margin-top": "auto", "margin-bottom": 0 }}>UAV</Label>
+				<Label className="paragraph" style={{ "font-size": "2em", color: "black" }}>UAV</Label>
 				<UAV />
 			</StyledDiv>
 			<Column style={{ marginBottom: "1rem", gap: "0.5rem" }}>
@@ -164,19 +164,17 @@ const Quick = () => {
 }
 
 const UAV = styled(RawUAV)`
-	height: 6em;
-	width: 8em;
+	height: 3em;
+	width: 7em;
 	margin-right: 0;
 	margin-left: auto;
-	margin-bottom: -2em;
 `
 
 const UGV = styled(RawUGV)`
-	height: 4em;
+	height: 3em;
 	width: 5em;
 	margin-right: 0;
 	margin-left: auto;
-	margin-bottom: -1em;
 `
 
 const StyledDiv = styled.div`

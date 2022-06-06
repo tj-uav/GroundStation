@@ -1,10 +1,11 @@
-import React, { useEffect } from "react"
-import { useLeafletContext } from "@react-leaflet/core"
+import React, { useRef, useState, useEffect } from "react"
+import { Polyline, withLeaflet } from "react-leaflet"
 import L from "leaflet"
 import "leaflet-polylinedecorator"
 
-const PolylineDecorator = ({ color, positions, layer, ...props }) => {
-	const context = useLeafletContext()
+const PolylineDecorator = withLeaflet(props => {
+	const [display, setDisplay] = useState(true)
+	var mapDecoratorRef = useRef()
 
 	const arrow = [
 		{
@@ -19,9 +20,31 @@ const PolylineDecorator = ({ color, positions, layer, ...props }) => {
 	]
 
 	useEffect(() => {
-		const polyline = new L.Polyline(positions, {
-			color: color
-		})
+		const { map } = polyRef.current.props.leaflet
+
+		if (props.layer) {
+			map.on("overlayremove", (layer) => {
+				if (layer.name === props.layer) {
+					setDisplay(false)
+				}
+			})
+			map.on("overlayadd", (layer) => {
+				if (layer.name === props.layer) {
+					setDisplay(true)
+				}
+			})
+		}
+	}, [])
+
+	const polyRef = useRef()
+	const decoRef = useRef()
+	useEffect(() => {
+		const polyline = polyRef.current.leafletElement //get native Leaflet polyline
+		const { map } = polyRef.current.props.leaflet //get native Leaflet map
+
+		if (decoRef.current) {
+			decoRef.current.removeFrom(map)
+		}
 
 		let temp = []
 		let latlngs = polyline.getLatLngs()
@@ -30,24 +53,16 @@ const PolylineDecorator = ({ color, positions, layer, ...props }) => {
 				temp.push([latlngs[i], latlngs[i + 1]])
 			}
 		}
-		const decorator = new L.polylineDecorator(temp, {
-			patterns: arrow
+
+		decoRef.current = L.polylineDecorator(temp, {
+			patterns: arrow,
 		})
-
-		const container = context.layerContainer || context.map
-
-		container.addLayer(polyline)
-		container.addLayer(decorator)
-
-		return () => {
-			container.removeLayer(polyline)
-			container.removeLayer(decorator)
+		if (display) {
+			mapDecoratorRef.current = decoRef.current.addTo(map)
 		}
-	}, [positions])
+	})
 
-	return (
-		<div />
-	)
-}
+	return <Polyline ref={polyRef} patterns={arrow} {...props} />
+})
 
 export default PolylineDecorator

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react"
-import { Button, Box, Label, Dropdown } from "components/UIElements"
+import { Button, Box, Label, Slider, Dropdown } from "components/UIElements"
 import { Row, Column } from "components/Containers"
+import regexParse from "regex-parser"
 import { darkred } from "../../../theme/Colors"
 import { httpget, httppost } from "../../../backend"
 import styled from "styled-components"
@@ -10,8 +11,6 @@ import { ReactComponent as RawUAV } from "icons/uav.svg"
 const actions = {
 	waypoint: [0, 1, 2, 3, 4]
 }
-
-const Modes = ["Manual", "Auto", "Takeoff", "Land", "Stabilize", "Loiter", "Circle", "RTL"]
 
 const Actions = () => {
 	const [Aaltitude, setAaltitude] = useState(0)
@@ -88,7 +87,7 @@ const Actions = () => {
 			}}
 		>
 			<StyledDiv>
-				<Label className="paragraph" style={{ "font-size": "2em", color: "black", "margin-top": "auto", "margin-bottom": 0 }}>UAV</Label>
+				<Label className="paragraph" style={{ "font-size": "2em", color: "black" }}>UAV</Label>
 				<UAV />
 			</StyledDiv>
 			<Column style={{ marginBottom: "1rem", gap: "0.5rem" }}>
@@ -106,30 +105,22 @@ const Actions = () => {
 			</Column>
 			<Column>
 				<Row id="labels1" height="2rem" gap="0.5rem">
-					<Label columns={1}>Flight Modes</Label>
+					<Label columns={1}>Flight Modes (Current: {Amode})</Label>
 				</Row>
 			</Column>
 
 			<Column style={{ marginBottom: "1rem" }}>
-				<Row height="2.5rem">
-					<Dropdown
-						initial={Modes.find(m => m.toUpperCase() === Amode)}
-						onChange={i => {
-							let m = Modes[i].toUpperCase()
-							httppost("/uav/mode/set", {"mode": m})
-							setAmode(m)
-						}}
-					>
-						{Modes.map((v, i) => {
-							return (
-								<span value={i}>{v}</span>
-							)
-						})}
-					</Dropdown>
-					<Button onClick={() => { setAmode("MANUAL"); httppost("/uav/mode/set", { "mode": "MANUAL" }) }}>Manual</Button>
-					<Button onClick={() => { setAmode("AUTO"); httppost("/uav/mode/set", { "mode": "AUTO" }) }}>Auto</Button>
-					<Button warning={true} color={darkred} onClick={() => { setAmode("TAKEOFF"); httppost("/uav/mode/set", { "mode": "TAKEOFF" }) }}>Takeoff</Button>
-					<Button warning={true} color={darkred} onClick={() => { httppost("/uav/commands/insert", { "command": "LAND", "lat": 38.14469, "lon": -76.42799, alt: 6.6 }) }}>Land</Button>
+				<Row>
+					<Button onClick={() => httppost("/uav/mode/set", {"mode": "MANUAL"})}>MANUAL</Button>
+					<Button onClick={() => httppost("/uav/mode/set", {"mode": "AUTO"})}>AUTO</Button>
+					<Button color={darkred} onClick={() => httppost("/uav/mode/set", {"mode": "TAKEOFF"})}>TAKEOFF</Button>
+					<Button color={darkred} onClick={() => httppost("/uav/commands/insert", {"command": "LAND", "lat": 38.14469, "lon": -76.42799, alt: 6.6})}>LAND</Button>
+				</Row>
+				<Row>
+					<Button onClick={() => httppost("/uav/mode/set", {"mode": "STABILIZE"})}>STABILIZE</Button>
+					<Button onClick={() => httppost("/uav/mode/set", {"mode": "LOITER"})}>LOITER</Button>
+					<Button onClick={() => httppost("/uav/mode/set", {"mode": "CIRCLE"})}>CIRCLE</Button>
+					<Button onClick={() => httppost("/uav/mode/set", {"mode": "RTL"})}>RTL</Button>
 				</Row>
 			</Column>
 			<Column>
@@ -139,10 +130,10 @@ const Actions = () => {
 			</Column>
 			<Column style={{ marginBottom: "1rem" }}>
 				<Row>
-					<Button color={darkred}>Set home?</Button>
-					<Button color={darkred}>Calibration?</Button>
-					<Button color={darkred} onClick={() => httppost(Aarmed === "ARMED" ? "/uav/disarm" : "/uav/arm")}>{Aarmed === "ARMED" ? "Disarm" : "Arm"}</Button>
-					<Button color={darkred}>Restart?</Button>
+					<Button color={darkred}>SET HOME?</Button>
+					<Button color={darkred}>CALIBRATE?</Button>
+					<Button color={darkred} onClick={() => httppost(Aarmed === "ARMED" ? "/uav/disarm" : "/uav/arm")}>{Aarmed === "ARMED" ? "DISARM" : "ARM"}</Button>
+					<Button color={darkred}>RESTART?</Button>
 				</Row>
 			</Column>
 			<Column>
@@ -182,11 +173,11 @@ const Actions = () => {
 							line="200%"
 							editable
 						/>
-						<Button onClick={() => httppost("/uav/commands/jump", { "command": waypointNum })}>Go!</Button>
+						<Button onClick={() => httppost("/uav/commands/jump", {"command": waypointNum})}>GO!</Button>
 					</Row>
-					<Button onClick={() => httppost("/uav/commands/jump", { "command": 1 })}>Waypoints (#1?)</Button>
-					<Button onClick={() => httppost("/uav/commands/jump", { "command": 20 })}>Odlc (#20?)</Button>
-					<Button onClick={() => httppost("/uav/commands/jump", { "command": 50 })}>Map (#50?)</Button>
+					<Button onClick={() => httppost("/uav/commands/jump", {"command": 1})}>WAYPOINTS (#1?)</Button>
+					<Button onClick={() => httppost("/uav/commands/jump", {"command": 20})}>ODLC (#20?)</Button>
+					<Button onClick={() => httppost("/uav/commands/jump", {"command": 50})}>MAP (#50?)</Button>
 				</Row>
 			</Column>
 			<Column>
@@ -196,14 +187,14 @@ const Actions = () => {
 			</Column>
 			<Column style={{ marginBottom: "1rem" }}>
 				<Row>
-					<Button onClick={() => window.open("http://localhost:5000/uav/commands/view")}>View</Button>
-					<Button onClick={() => httppost("/uav/commands/load")}>Load</Button>
-					<Button onClick={() => httppost("/uav/commands/save")}>Save</Button>
-					<Button onClick={() => httppost("/uav/commands/clear")}>Clear</Button>
-					<Button color={darkred}>Abort Land?</Button>
+					<Button onClick={() => window.open("http://localhost:5000/uav/commands/view")}>VIEW</Button>
+					<Button onClick={() => httppost("/uav/commands/load")}>LOAD</Button>
+					<Button onClick={() => httppost("/uav/commands/save")}>SAVE</Button>
+					<Button onClick={() => httppost("/uav/commands/clear")}>CLEAR</Button>
+					<Button color={darkred}>ABORT LAND?</Button>
 				</Row>
 			</Column>
-			<StyledDiv style={{ marginTop: "0em" }}>
+			<StyledDiv style={{marginTop: "1rem"}}>
 				<Label className="paragraph" style={{"font-size": "2em", "color": "black"}}>UGV</Label>
 				<UGV />
 			</StyledDiv>
@@ -219,8 +210,8 @@ const Actions = () => {
 								<Label columns={1}>Flight Modes (Current: {Gmode})</Label>
 							</Row>
 							<Row>
-								<Button onClick={() => httppost("/ugv/mode/set", { "mode": "MANUAL" })}>Manual</Button>
-								<Button onClick={() => httppost("/ugv/mode/set", { "mode": "AUTO" })}>Auto<br/> </Button>
+								<Button onClick={() => httppost("/ugv/mode/set", {"mode": "MANUAL"})}>MANUAL</Button>
+								<Button onClick={() => httppost("/ugv/mode/set", {"mode": "AUTO"})}>AUTO<br/> </Button>
 							</Row>
 						</Column>
 					</Row>
@@ -234,12 +225,12 @@ const Actions = () => {
 			</Column>
 			<Column style={{ marginBottom: "1rem" }}>
 				<Row>
-					<Button onClick={() => window.open("http://localhost:5000/ugv/commands/view")}>View</Button>
-					<Button onClick={() => httppost("/ugv/commands/load")}>Reset</Button>
-					<Button color={darkred}>Abort?</Button>
-					<Button color={darkred}>Calibrate?</Button>
-					<Button color={darkred} onClick={() => httppost(Garmed === "ARMED" ? "/ugv/disarm" : "/ugv/arm")}>{Garmed === "ARMED" ? "Disarm" : "Arm"}</Button>
-					<Button color={darkred}>Restart?</Button>
+					<Button onClick={() => window.open("http://localhost:5000/ugv/commands/view")}>VIEW</Button>
+					<Button onClick={() => httppost("/ugv/commands/load")}>RESET</Button>
+					<Button color={darkred}>ABORT?</Button>
+					<Button color={darkred}>CALIBRATE?</Button>
+					<Button color={darkred} onClick={() => httppost(Garmed === "ARMED" ? "/ugv/disarm" : "/ugv/arm")}>{Garmed === "ARMED" ? "DISARM" : "ARM"}</Button>
+					<Button color={darkred}>RESTART?</Button>
 				</Row>
 			</Column>
 		</div>
@@ -247,26 +238,22 @@ const Actions = () => {
 }
 
 const UAV = styled(RawUAV)`
-	height: 6em;
-	width: 8em;
-	margin-right: 0;
-	margin-left: auto;
-	margin-bottom: -0.9em;
+  height: 3em;
+  width: 7em;
+  margin-right: 0;
+  margin-left: auto;
 `
 
 const UGV = styled(RawUGV)`
-	height: 3em;
-	width: 5em;
-	margin-right: 0;
-	margin-left: auto;
-	margin-top: auto;
-	margin-bottom: -0.25em;
+  height: 3em;
+  width: 5em;
+  margin-right: 0;
+  margin-left: auto;
 `
 
 const StyledDiv = styled.div`
- 	display: flex;
-	margin-top: -0.5em;
- 	margin-bottom: 1em;
+  display: flex;
+  margin-bottom: 1em;
 `
 
 export default Actions
