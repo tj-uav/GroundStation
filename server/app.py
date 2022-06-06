@@ -132,7 +132,7 @@ def index():
     return "TJ UAV Ground Station Backend homepage"
 
 
-@app.route("/log/<string:type_>")
+@app.route("/log/<string:type>")
 def create_log(type_):
     if type_ == "debug":
         logger.debug("This is for debugging")
