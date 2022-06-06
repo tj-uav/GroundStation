@@ -1,10 +1,11 @@
 import React, { useState, useEffect, forwardRef } from "react"
 import styled from "styled-components"
 
-import { blue } from "theme/Colors"
 import { ReactComponent as Caret } from "icons/caret.svg"
 
 import { StyledButton } from "./Button"
+import { blue } from "theme/Colors"
+import { unselectable } from "css.js"
 
 const Dropdown = forwardRef(
 	(
@@ -39,9 +40,9 @@ const Dropdown = forwardRef(
 				</StyledDropdown>
 				<div style={{ maxHeight: `${maxOptionsShownAtOnce * 100}%`, overflow: "auto" }}>
 					{active ? (
-						options.map((option, i) => (
+						options.map((_option, i) => (
 							<DropdownContent
-								value={option.value}
+								value={_option.value}
 								key={i}
 								number={i}
 								setOption={(ID, value) => {
@@ -50,7 +51,7 @@ const Dropdown = forwardRef(
 									setActive(false)
 								}}
 							>
-								{option.text}
+								{_option.text}
 							</DropdownContent>
 						))
 					) : (
@@ -70,6 +71,7 @@ const StyledCaret = styled(Caret).withConfig({
 `
 
 const StyledDropdown = styled(StyledButton)`
+	${unselectable}
 	padding: 0 1rem;
 	justify-content: space-between;
 	height: 100%;
@@ -85,6 +87,7 @@ const DropdownContent = ({ value, children, setOption, number, ...props }) => {
 }
 
 const StyledDropdownContent = styled(StyledButton)`
+	${unselectable}
 	justify-content: flex-start;
 	color: black !important;
 	padding-left: 1rem;

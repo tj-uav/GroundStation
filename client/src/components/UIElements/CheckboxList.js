@@ -12,7 +12,7 @@ const CheckboxList = props => {
 const Option = props => {
     return (
         <StyledOption>
-            <StyledCheckbox checked={props.checked} color={props.color} type="checkbox" id={props.id ?? props.value} value={props.value} name={props.name} />
+            <StyledCheckbox checked={props.checked} color={props.color} type="checkbox" id={props.id ?? props.value} value={props.value} />
             {props.children}
         </StyledOption>
     )

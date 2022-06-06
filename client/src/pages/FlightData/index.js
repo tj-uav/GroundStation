@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"
+import React, { useState } from "react"
 
 import TabBar from "components/TabBar"
 import { httpget } from "backend"
@@ -8,6 +8,7 @@ import FlightPlanToolbar from "./tabs/FlightPlan/FlightPlanToolbar"
 import Quick from "./tabs/Quick"
 import Actions from "./tabs/Actions"
 import Logs from "./tabs/Logs"
+import { useInterval } from "../../util"
 
 /*
 TODO: Home icon
@@ -79,7 +80,7 @@ const FlightData = () => {
 		ugv: "UGV"
 	}
 
-	const queryTelemetry = () => {
+	useInterval(500, () => {
 		httpget("/uav/quick", response => setUav({
 			latlng: {
 				lat: response.data.result.lat,
@@ -94,14 +95,7 @@ const FlightData = () => {
 			},
 			heading: response.data.result.yaw
 		}))
-	}
-
-	useEffect(() => {
-		const interval = setInterval(() => {
-			queryTelemetry()
-		}, 500)
-		return () => clearInterval(interval)
-	}, [])
+	})
 
 	return (
 		<div
