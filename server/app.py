@@ -4,7 +4,7 @@ import sys
 import traceback
 from io import StringIO
 
-from flask import Flask, jsonify, Response
+from flask import Flask, jsonify
 from flask_cors import CORS
 
 from app import interop, uav, ugv
@@ -40,29 +40,30 @@ setattr(logging, "IMPORTANT", logging.INFO + 5)
 setattr(logging.getLoggerClass(), "important", log_level)
 setattr(logging, "important", log_root)
 
-logger = logging.getLogger("groundstation")
+logger = logging.getLogger("main")
 logger.setLevel(logging.DEBUG)
 formatter = logging.Formatter("[%(levelname)-9s] %(asctime)s  %(message)s")
 
-# console_handler = logging.StreamHandler(sys.stdout)
-# console_handler.setLevel(logging.IMPORTANT)
-# console_handler.setFormatter(formatter)
-# logger.addHandler(console_handler)
+console_handler = logging.StreamHandler(sys.stdout)
+console_handler.setLevel(logging.IMPORTANT)
+console_handler.setFormatter(formatter)
 
 file_handler = logging.FileHandler("logs/info.log", mode="w")
 file_handler.setLevel(logging.INFO)
 file_handler.setFormatter(formatter)
-logger.addHandler(file_handler)
 
 debug_file_handler = logging.FileHandler("logs/debug.log", mode="w")
 debug_file_handler.setLevel(logging.DEBUG)
 debug_file_handler.setFormatter(formatter)
-logger.addHandler(debug_file_handler)
 
 LOG_STREAM = StringIO()
 string_handler = logging.StreamHandler(LOG_STREAM)
-string_handler.setLevel(logging.DEBUG)
+string_handler.setLevel(logging.INFO)
 string_handler.setFormatter(formatter)
+
+logger.addHandler(console_handler)
+logger.addHandler(file_handler)
+logger.addHandler(debug_file_handler)
 logger.addHandler(string_handler)
 
 logger.info("STARTED LOGGING")
@@ -75,85 +76,60 @@ app.gs = gs
 def handle_error(e):
     logger.error(type(e).__name__)
     logger.debug("Traceback of %s : ", type(e).__name__, exc_info=e)
-    return (
-        jsonify(
-            {
-                "title": "Unhandled Server Error",
-                "message": str(e),
-                "exception": type(e).__name__,
-                "traceback": traceback.format_tb(e.__traceback__),
-            }
-        ),
-        500,
-    )
+    return jsonify({
+        "title": "Unhandled Server Error",
+        "message": str(e),
+        "exception": type(e).__name__,
+        "traceback": traceback.format_tb(e.__traceback__)
+    }), 500
 
 
 @app.errorhandler(InvalidRequestError)
 def handle_400(e):
     logger.error(type(e).__name__)
     logger.debug("Traceback of %s : ", type(e).__name__, exc_info=e)
-    return (
-        jsonify(
-            {
-                "title": "Invalid Request",
-                "message": str(e),
-                "exception": type(e).__name__,
-                "traceback": traceback.format_tb(e.__traceback__),
-            }
-        ),
-        400,
-    )
+    return jsonify({
+        "title": "Invalid Request",
+        "message": str(e),
+        "exception": type(e).__name__,
+        "traceback": traceback.format_tb(e.__traceback__)
+    }), 400
 
 
 @app.errorhandler(InvalidStateError)
 def handle_409(e):
     logger.error(type(e).__name__)
     logger.debug("Traceback of %s : ", type(e).__name__, exc_info=e)
-    return (
-        jsonify(
-            {
-                "title": "Invalid State Error",
-                "message": str(e),
-                "exception": type(e).__name__,
-                "traceback": traceback.format_tb(e.__traceback__),
-            }
-        ),
-        409,
-    )
+    return jsonify({
+        "title": "Invalid State Error",
+        "message": str(e),
+        "exception": type(e).__name__,
+        "traceback": traceback.format_tb(e.__traceback__)
+    }), 409
 
 
 @app.errorhandler(GeneralError)
 def handle_500(e):
     logger.error(type(e).__name__)
     logger.debug("Traceback of %s : ", type(e).__name__, exc_info=e)
-    return (
-        jsonify(
-            {
-                "title": "Server Error",
-                "message": str(e),
-                "exception": type(e).__name__,
-                "traceback": traceback.format_tb(e.__traceback__),
-            }
-        ),
-        500,
-    )
+    return jsonify({
+        "title": "Server Error",
+        "message": str(e),
+        "exception": type(e).__name__,
+        "traceback": traceback.format_tb(e.__traceback__)
+    }), 500
 
 
 @app.errorhandler(ServiceUnavailableError)
 def handle_503(e):
     logger.error(type(e).__name__)
     logger.debug("Traceback of %s : ", type(e).__name__, exc_info=e)
-    return (
-        jsonify(
-            {
-                "title": "Service Unavailable Error",
-                "message": str(e),
-                "exception": type(e).__name__,
-                "traceback": traceback.format_tb(e.__traceback__),
-            }
-        ),
-        503,
-    )
+    return jsonify({
+        "title": "Service Unavailable Error",
+        "message": str(e),
+        "exception": type(e).__name__,
+        "traceback": traceback.format_tb(e.__traceback__)
+    }), 503
 
 
 @app.route("/")

@@ -6,7 +6,6 @@ import { httpget } from "backend"
 import { dark, darkest, darkdark, red } from "theme/Colors"
 
 const colors = {
-	DEBUG: darkdark,
 	INFO: darkdark,
 	IMPORTANT: "#346CBC",
 	WARNING: "#F59505",
@@ -17,7 +16,7 @@ const colors = {
 const Logs = () => {
 	const [logs, setLogs] = useState([])
 	const [autoScroll, setAutoScroll] = useState(true)
-	const [filters, setFilters] = useState(["[INFO     ]", "[IMPORTANT]", "[WARNING  ]", "[ERROR    ]", "[CRITICAL ]"])
+	const [filters, setFilters] = useState(["[Image]", "[INFO     ]", "[IMPORTANT]", "[WARNING  ]", "[ERROR    ]", "[CRITICAL ]"])
 	const autoScrollRef = useRef()
 	const scrollDiv = useRef()
 	const container = useRef()
@@ -100,7 +99,7 @@ const Logs = () => {
 			>
 				<Row>
 					<Column gap="0em">
-						<CheckboxList.Option checked={filters.includes("[DEBUG    ]")} value="[DEBUG    ]" color={colors.DEBUG}>Debug</CheckboxList.Option>
+						<CheckboxList.Option checked={filters.includes("[Image]")} value="[Image]" color={colors.INFO}>ODLCs</CheckboxList.Option>
 						<CheckboxList.Option checked={filters.includes("[INFO     ]")} value="[INFO     ]" color={colors.INFO}>Info</CheckboxList.Option>
 						<CheckboxList.Option checked={filters.includes("[IMPORTANT]")} value="[IMPORTANT]" color={colors.IMPORTANT}>Important</CheckboxList.Option>
 					</Column>

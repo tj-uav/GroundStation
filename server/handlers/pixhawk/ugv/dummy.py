@@ -1,21 +1,19 @@
 import json
 import logging
 import math
-import os
 import random
 
 from dronekit import Command
 from pymavlink import mavutil as uavutil
 
 from errors import GeneralError, ServiceUnavailableError, InvalidRequestError
-from handlers.utils import decorate_all_functions, log
 
 COMMANDS = {
     # Takeoff will be initiated using a Flight Mode
     # "TAKEOFF": uavutil.mavlink.MAV_CMD_NAV_TAKEOFF,
     "WAYPOINT": uavutil.mavlink.MAV_CMD_NAV_WAYPOINT,
     "LAND": uavutil.mavlink.MAV_CMD_NAV_LAND,
-    "GEOFENCE": uavutil.mavlink.MAV_CMD_NAV_FENCE_POLYGON_VERTEX_INCLUSION,
+    "GEOFENCE": uavutil.mavlink.MAV_CMD_NAV_FENCE_POLYGON_VERTEX_INCLUSION
 }
 
 
@@ -45,49 +43,24 @@ def readmission(filename):
                 ln_param6 = float(linearray[9])
                 ln_param7 = float(linearray[10])
                 ln_autocontinue = int(linearray[11].strip())
-                cmd = Command(
-                    0,
-                    0,
-                    0,
-                    ln_frame,
-                    ln_command,
-                    ln_currentwp,
-                    ln_autocontinue,
-                    ln_param1,
-                    ln_param2,
-                    ln_param3,
-                    ln_param4,
-                    ln_param5,
-                    ln_param6,
-                    ln_param7,
-                )
+                cmd = Command(0, 0, 0, ln_frame, ln_command, ln_currentwp, ln_autocontinue,
+                              ln_param1, ln_param2, ln_param3, ln_param4, ln_param5, ln_param6,
+                              ln_param7)
                 missionlist.append(cmd)
     return missionlist
 
 
-@decorate_all_functions(log, logging.getLogger("groundstation"))
 class DummyUGVHandler:
     def __init__(self, gs, config):
-        self.logger = logging.getLogger("groundstation")
+        self.logger = logging.getLogger("main")
         self.gs = gs
         self.config = config
         self.port = self.config["ugv"]["telemetry"]["port"]
         self.serial = self.config["ugv"]["telemetry"]["serial"]
         self.update_thread = None
-        self.yaw = (
-            self.ground_speed
-        ) = (
-            self.droppos
-        ) = (
-            self.dest
-        ) = (
-            self.dist_to_dest
-        ) = self.battery = self.lat = self.lon = self.connection = self.mode = self.gps = None
-        with open(
-            os.path.join(os.path.dirname(os.path.abspath(__file__)), "ugv_params.json"),
-            "r",
-            encoding="utf-8",
-        ) as file:
+        self.yaw = self.ground_speed = self.droppos = self.dest = self.dist_to_dest = \
+            self.battery = self.lat = self.lon = self.connection = self.mode = self.gps = None
+        with open("handlers/pixhawk/ugv/ugv_params.json", "r", encoding="utf-8") as file:
             self.params = json.load(file)
         self.mode = "AUTO"
         self.commands = []
@@ -114,7 +87,7 @@ class DummyUGVHandler:
             self.connection = [random.random(), random.random(), random.random() * 100]
             # simulates the ugv in the ugv boundary
             if not self.droppos:
-                self.droppos = self.gs.interop.get_data("ugv")
+                self.droppos = self.gs.call("i_data", "ugv")
                 self.droppos = self.droppos["result"]
             self.lat = self.droppos["drop"]["latitude"] + (random.random() - 0.5) / 2000
             self.lon = self.droppos["drop"]["longitude"] + (random.random() - 0.5) / 2000
@@ -123,13 +96,10 @@ class DummyUGVHandler:
             angle = math.atan2(y_dist, x_dist)
             x_dist_ft = x_dist * (math.cos(self.lat * math.pi / 180) * 69.172) * 5280
             y_dist_ft = y_dist * 69.172 * 5280
-            self.dist_to_dest = math.sqrt(x_dist_ft**2 + y_dist_ft**2)
+            self.dist_to_dest = math.sqrt(x_dist_ft ** 2 + y_dist_ft ** 2)
             self.dest = [self.droppos, self.dist_to_dest]
-            self.yaw = int(
-                (angle / (2 * math.pi) * 360)
-                if angle >= 0
-                else (angle / (2 * math.pi) * 360 + 360)
-            )
+            self.yaw = int((angle / (2 * math.pi) * 360) if angle >= 0 else (
+                        angle / (2 * math.pi) * 360 + 360))
             return {}
         except KeyError as e:
             raise ServiceUnavailableError("Interop Connection Lost") from e
@@ -137,42 +107,24 @@ class DummyUGVHandler:
             raise GeneralError(str(e)) from e
 
     def quick(self):
-        return {
-            "result": {
-                "yaw": self.yaw,
-                "lat": self.lat,
-                "lon": self.lon,
-                "ground_speed": self.ground_speed,
-                "battery": self.battery,
-                "destination": self.dest,
-                "connection": self.connection,
-            }
-        }
+        return {"result": {
+            "yaw": self.yaw,
+            "lat": self.lat,
+            "lon": self.lon,
+            "ground_speed": self.ground_speed,
+            "battery": self.battery,
+            "destination": self.dest,
+            "connection": self.connection
+        }}
 
     def stats(self):
-        return {
-            "result": {
-                "quick": self.quick()["result"],
-                "mode": self.mode,
-                "commands": [cmd.to_dict() for cmd in self.commands],
-                "armed": self.get_armed()["result"],
-                "status": self.status,
-            }
-        }
-
-    # Setup
-
-    def set_home(self):
-        pass
-
-    def calibrate(self):
-        pass
-
-    def restart(self):
-        pass
-
-    def abort(self):
-        pass
+        return {"result": {
+            "quick": self.quick()["result"],
+            "mode": self.mode,
+            "commands": [cmd.to_dict() for cmd in self.commands],
+            "armed": self.get_armed()["result"],
+            "status": self.status
+        }}
 
     # Flight Mode
 
@@ -209,9 +161,7 @@ class DummyUGVHandler:
                 try:
                     float(value)
                 except ValueError as e:
-                    raise InvalidRequestError(
-                        "Parameter Value cannot be converted to float"
-                    ) from e
+                    raise InvalidRequestError("Parameter Value cannot be converted to float") from e
                 new_params[key] = float(value)
             self.params = new_params
             return {}
@@ -220,11 +170,7 @@ class DummyUGVHandler:
 
     def save_params(self):
         try:
-            with open(
-                os.path.join(os.path.dirname(os.path.abspath(__file__)), "ugv_params.json"),
-                "w",
-                encoding="utf-8",
-            ) as file:
+            with open("handlers/pixhawk/ugv/ugv_params.json", "w", encoding="utf-8") as file:
                 json.dump(self.params, file)
             return {}
         except Exception as e:
@@ -232,11 +178,7 @@ class DummyUGVHandler:
 
     def load_params(self):
         try:
-            with open(
-                os.path.join(os.path.dirname(os.path.abspath(__file__)), "ugv_params.json"),
-                "r",
-                encoding="utf-8",
-            ) as file:
+            with open("handlers/pixhawk/ugv/ugv_params.json", "r", encoding="utf-8") as file:
                 self.params = json.load(file)
             return {}
         except Exception as e:
@@ -256,9 +198,7 @@ class DummyUGVHandler:
         Upload a mission from a file.
         """
         try:
-            missionlist = readmission(
-                os.path.join(os.path.dirname(os.path.abspath(__file__)), "ugv_mission.txt")
-            )
+            missionlist = readmission("handlers/pixhawk/uav/uav_mission.txt")
             for command in missionlist:
                 self.commands.append(command)
         except Exception as e:
@@ -280,6 +220,3 @@ class DummyUGVHandler:
     def disarm(self):
         self.armed = False
         return {}
-
-    def __repr__(self):
-        return "Dummy UGV Handler"

@@ -131,7 +131,7 @@ const Actions = () => {
 			<Column style={{ marginBottom: "1rem" }}>
 				<Row>
 					<Button color={darkred}>SET HOME?</Button>
-					<Button color={darkred}>CALIBRATE?</Button>
+					<Button color={darkred}>CALIBRATION?</Button>
 					<Button color={darkred} onClick={() => httppost(Aarmed === "ARMED" ? "/uav/disarm" : "/uav/arm")}>{Aarmed === "ARMED" ? "DISARM" : "ARM"}</Button>
 					<Button color={darkred}>RESTART?</Button>
 				</Row>

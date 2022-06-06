@@ -1,6 +1,5 @@
-from .uav import DummyUAV, ProdUAV
-from .ugv import DummyUGV, ProdUGV
-from .interop import InteropHandler as Interop
-from .image import ImageHandler as Image
+from .pixhawk import DummyUAV, ProdUAV, DummyUGV, ProdUGV
+from .interop import Interop
+from .images import Image
 
 __all__ = ("DummyUAV", "ProdUAV", "DummyUGV", "ProdUGV", "Interop", "Image")
