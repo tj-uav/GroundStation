@@ -94,33 +94,7 @@ const Quick = () => {
 					</Row>
 				</Row>
 			</Column>
-			<Column style={{ marginBottom: "1rem", gap: "0.5rem" }}>
-				<Box label="" content={"⬆️  UAV                            |                            UGV  ⬇️"} transparent={true} />
-			</Column>
-			<Column style={{ marginBottom: "1rem", gap: "0.5rem" }}>
-				<Row style={{ gap: "1rem" }}>
-					<Row>
-						<Box label="Current State" content={"Ground Travel"} />
-						<Box label="Next Objective" content={"Reach Destination"} />
-						<Box label="To Destination" content={waypoint[1].toFixed(2) + " ft"} />
-					</Row>
-				</Row>
-				<Row style={{ gap: "1rem" }}>
-					<Box label="Latitude" content={Math.abs(latLong.lat).toFixed(8) + "\u00B0 N"} />
-					<Box label="Longitude" content={Math.abs(latLong.lon).toFixed(8) + "\u00B0 W"} />
-				</Row>
-				<Row style={{ gap: "1rem" }}>
-					<Row>
-						<Box label="Ground Speed" content={groundSpeed.toFixed(2) + " mph"} />
-						<Box label="Yaw" content={(orientation.yaw) + "\u00B0"} />
-					</Row>
-					<Row>
-						<Box label="GPS HDOP" content={connection[0].toFixed(2)} />
-						<Box label="Satellites" content={connection[1].toFixed(0)} />
-						<Box label="Link %" content={connection[2].toFixed(0) + " %"} />
-					</Row>
-				</Row>
-			</Column>
+			<Box label="" content="LEVEL" />
 		</div>
 	)
 }

@@ -12,9 +12,7 @@ const httpget = async (endpoint, func, error) => {
         if (func) func(response)
         return response
     } catch (e) {
-        if(error) {
-            error(e)
-        }
+        error(e)
     }
 }
 

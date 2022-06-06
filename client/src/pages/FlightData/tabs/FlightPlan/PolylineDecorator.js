@@ -4,9 +4,6 @@ import L from "leaflet"
 import "leaflet-polylinedecorator"
 
 const PolylineDecorator = withLeaflet(props => {
-	const [display, setDisplay] = useState(true)
-	var mapDecoratorRef = useRef()
-
 	const arrow = [
 		{
 			offset: "50%",
@@ -18,23 +15,6 @@ const PolylineDecorator = withLeaflet(props => {
 			}),
 		},
 	]
-
-	useEffect(() => {
-		const { map } = polyRef.current.props.leaflet
-
-		if (props.layer) {
-			map.on("overlayremove", (layer) => {
-				if (layer.name === props.layer) {
-					setDisplay(false)
-				}
-			})
-			map.on("overlayadd", (layer) => {
-				if (layer.name === props.layer) {
-					setDisplay(true)
-				}
-			})
-		}
-	}, [])
 
 	const polyRef = useRef()
 	const decoRef = useRef()
@@ -57,9 +37,7 @@ const PolylineDecorator = withLeaflet(props => {
 		decoRef.current = L.polylineDecorator(temp, {
 			patterns: arrow,
 		})
-		if (display) {
-			mapDecoratorRef.current = decoRef.current.addTo(map)
-		}
+		decoRef.current.addTo(map)
 	})
 
 	return <Polyline ref={polyRef} patterns={arrow} {...props} />

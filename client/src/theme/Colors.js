@@ -1,4 +1,3 @@
-export const light = "#F5F2ED"
 export const dark = "#E2DBD5"
 export const darker = "#D1C7BD"
 export const darkest = "#8f8881"

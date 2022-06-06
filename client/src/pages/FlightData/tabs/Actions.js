@@ -82,7 +82,7 @@ const Actions = () => {
 				<Row>
 					<Button>START</Button>
 					<Button>RESTART</Button>
-					<Button color={red}>ABORT LANDING</Button>
+					<Button red={true}>ABORT LANDING</Button>
 				</Row>
 			</Column>
 
@@ -93,10 +93,10 @@ const Actions = () => {
 			</Column>
 			<Column style={{ marginBottom: "1rem" }}>
 				<Row>
-					<Button color={red}>SET HOME ALT</Button>
-					<Button color={red}>CALIBRATION</Button>
-					<Button color={red}>ARM/DISARM</Button>
-					<Button color={red}>RESTART</Button>
+					<Button red={true}>SET HOME ALT</Button>
+					<Button red={true}>CALIBRATION</Button>
+					<Button red={true}>ARM/DISARM</Button>
+					<Button red={true}>RESTART</Button>
 				</Row>
 			</Column>
 			<Box label="" content="LEVEL" />
