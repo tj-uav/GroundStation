@@ -6,6 +6,7 @@ import { httpget } from "../backend.js"
 import L from "leaflet"
 import PolylineDecorator from "../pages/FlightData/tabs/FlightPlan/PolylineDecorator.js"
 import RotatedMarker from "./RotatedMarker.js"
+import { useInterval } from "../util"
 
 const FlightPlanMap = props => {
 	const [state, setState] = useState({
@@ -92,13 +93,6 @@ const FlightPlanMap = props => {
 			setOnline(true)
 		})
 
-		const internet = setInterval(() => {
-			checkInternet()
-		}, 5000)
-
-		return () => {
-			clearInterval(internet)
-		}
 	}, [])
 
 	const checkInternet = () => {
@@ -114,6 +108,7 @@ const FlightPlanMap = props => {
 			setOnline(false)
 		}
 	}
+	useInterval(5000, checkInternet)
 
 	const handleKeyPress = (event, idx) => {
 		console.log(event.originalEvent.key)

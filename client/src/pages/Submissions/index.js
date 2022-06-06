@@ -1,9 +1,10 @@
-import React, { useEffect, useState, useRef, createContext } from "react"
+import React, { useState, useRef, createContext } from "react"
 
 import SubmissionEditor from "pages/Submissions/SubmissionEditor"
 import TabBar from "components/TabBar"
 import { View, Submitted, Rejected } from "pages/Submissions/Tabs"
 import { httpget, httppost } from "backend"
+import { useInterval } from "../../util"
 
 export const SubmitContext = createContext()
 
@@ -33,7 +34,7 @@ const Submissions = () => {
 		return undefined
 	}
 
-	const queryData = () => {
+	useInterval(1000, () => {
 		httpget("/interop/odlc/list", async (response) => {
 			const odlcsEqual = (a, b) => {
 				if (a.alphanumeric === b.alphnumeric ||
@@ -83,15 +84,7 @@ const Submissions = () => {
 		}, async (exception) => {
 			console.log(exception)
 		})
-	}
-
-	useEffect(() => {
-		queryData()
-		const tick = setInterval(() => {
-			queryData()
-		}, 1000)
-		return () => clearInterval(tick)
-	}, [])
+	})
 
 	const convertOdlc = (o) => {
 		return { ...o, orientation: o.orientation/45+1 }

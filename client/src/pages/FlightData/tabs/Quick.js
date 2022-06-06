@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react"
+import React, { useState } from "react"
 import { Box, Label } from "components/UIElements"
 import { Row, Column } from "components/Containers"
 
@@ -6,6 +6,7 @@ import styled from "styled-components"
 import { ReactComponent as RawUGV } from "icons/ugv.svg"
 import { ReactComponent as RawUAV } from "icons/uav.svg"
 import { httpget } from "../../../backend"
+import { useInterval } from "../../../util"
 
 const Quick = () => {
 	const [Aarmed, setAarmed] = useState("")
@@ -30,43 +31,36 @@ const Quick = () => {
 	const [Gbattery, setGbattery] = useState(16)
 	const [Gconnection, setGconnection] = useState([95, 0, 95])
 
-	const updateData = () => {
+	useInterval(400, () => {
 		httpget("/uav/stats", response => {
-				let data = response.data
+			let data = response.data
 
-				setAarmed(data.result.armed)
-				setAorientation({"yaw": data.result.quick.orientation.yaw, "roll": data.result.quick.orientation.roll, "pitch": data.result.quick.orientation.pitch })
-				setAlatLong({"lat": data.result.quick.lat, "lon": data.result.quick.lon})
-				setAaltitude(data.result.quick.altitude)
-				setAbattery(data.result.quick.battery)
-				setAgroundSpeed(data.result.quick.ground_speed)
-				setAairspeed(data.result.quick.air_speed)
-				setAstatus(data.result.status)
-				setAmode(data.result.mode)
-				setAwaypoint(data.result.quick.waypoint)
-				setAconnection(data.result.quick.connection)
-			})
+			setAarmed(data.result.armed)
+			setAorientation({"yaw": data.result.quick.orientation.yaw, "roll": data.result.quick.orientation.roll, "pitch": data.result.quick.orientation.pitch })
+			setAlatLong({"lat": data.result.quick.lat, "lon": data.result.quick.lon})
+			setAaltitude(data.result.quick.altitude)
+			setAbattery(data.result.quick.battery)
+			setAgroundSpeed(data.result.quick.ground_speed)
+			setAairspeed(data.result.quick.air_speed)
+			setAstatus(data.result.status)
+			setAmode(data.result.mode)
+			setAwaypoint(data.result.quick.waypoint)
+			setAconnection(data.result.quick.connection)
+		})
 		httpget("/ugv/stats", response => {
-				let data = response.data
+			let data = response.data
 
-				setGarmed(data.result.armed)
-				setGgroundSpeed(data.result.quick.ground_speed)
-				setGyaw(data.result.quick.yaw)
-				setGlatLong({"lat": data.result.quick.lat, "lon": data.result.quick.lon})
-				setGstatus(data.result.status)
-				setGmode(data.result.mode)
-				setGdestination(data.result.quick.destination[1])
-				setGbattery(data.result.quick.battery)
-				setGconnection(data.result.quick.connection)
-			})
-	}
-
-	useEffect(() => {
-		const tick = setInterval(() => {
-			updateData()
-		}, 500)
-		return () => clearInterval(tick)
-	}, [])
+			setGarmed(data.result.armed)
+			setGgroundSpeed(data.result.quick.ground_speed)
+			setGyaw(data.result.quick.yaw)
+			setGlatLong({"lat": data.result.quick.lat, "lon": data.result.quick.lon})
+			setGstatus(data.result.status)
+			setGmode(data.result.mode)
+			setGdestination(data.result.quick.destination[1])
+			setGbattery(data.result.quick.battery)
+			setGconnection(data.result.quick.connection)
+		})
+	})
 
 	return (
 		<div
@@ -93,8 +87,8 @@ const Quick = () => {
 				</Row>
 				<Row style={{ gap: "1rem" }}>
 					<Row>
-						<Box label="Latitude" content={Math.abs(AlatLong.lat).toFixed(8) + "\u00B0"} />
-						<Box label="Longitude" content={Math.abs(AlatLong.lon).toFixed(8) + "\u00B0"} />
+						<Box label="Latitude" content={AlatLong.lat.toFixed(7) + "\u00B0"} />
+						<Box label="Longitude" content={AlatLong.lon.toFixed(7) + "\u00B0"} />
 					</Row>
 					<Row>
 						<Box label="Altitude" content={Aaltitude.toFixed(2) + " ft"} />

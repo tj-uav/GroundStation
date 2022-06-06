@@ -7,7 +7,8 @@
         },
         "images": {
             "type": "dummy",
-            "url": "http://192.168.1.99:4000"
+            "host": "",
+            "port": 4000
         }
     },
     "ugv": {

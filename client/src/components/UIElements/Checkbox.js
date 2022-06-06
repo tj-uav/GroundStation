@@ -1,7 +1,7 @@
 import React, { useState } from "react"
 import styled from "styled-components"
 
-import { dark, blue, red, green, grey } from "theme/Colors"
+import { blue, red, green, grey } from "theme/Colors"
 import { ReactComponent as RawAccept } from "icons/check.svg"
 import { ReactComponent as RawDecline } from "icons/decline.svg"
 import { ReactComponent as RawSave } from "icons/save.svg"
