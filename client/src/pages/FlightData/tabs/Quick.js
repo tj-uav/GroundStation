@@ -89,8 +89,8 @@ const Quick = () => {
 					</Row>
 					<Row>
 						<Box label="GPS HDOP" content={connection[0].toFixed(2)} />
-						<Box label="GPS VDOP" content={connection[1].toFixed(2)} />
-						<Box label="Satellites" content={connection[2].toFixed(0)} />
+						<Box label="Satellites" content={connection[1].toFixed(0)} />
+						<Box label="Link %" content={connection[2].toFixed(0) + " %"} />
 					</Row>
 				</Row>
 			</Column>
@@ -116,8 +116,8 @@ const Quick = () => {
 					</Row>
 					<Row>
 						<Box label="GPS HDOP" content={connection[0].toFixed(2)} />
-						<Box label="GPS VDOP" content={connection[1].toFixed(2)} />
-						<Box label="Satellites" content={connection[2].toFixed(0)} />
+						<Box label="Satellites" content={connection[1].toFixed(0)} />
+						<Box label="Link %" content={connection[2].toFixed(0) + " %"} />
 					</Row>
 				</Row>
 			</Column>

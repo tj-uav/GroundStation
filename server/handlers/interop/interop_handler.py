@@ -160,7 +160,7 @@ class InteropHandler:
             raise ServiceUnavailableError("Interop connection lost, attempted to re-initiate")
         try:
             telemetry = interop.Telemetry()
-            uav_quick = self.gs.call("uav_quick", log=False)
+            uav_quick = self.gs.call("m_quick", log=False)
             uav_quick = uav_quick["result"]
             telemetry.latitude = uav_quick["lat"]
             telemetry.longitude = uav_quick["lon"]

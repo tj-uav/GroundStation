@@ -27,7 +27,7 @@ class DummyUAVHandler:
         self.altitude = self.orientation = self.ground_speed = self.air_speed = self.dist_to_wp = \
             self.battery = self.throttle = self.lat = self.lon = self.connection = self.waypoint = \
             self.mode = self.waypoints = self.waypoint_index = self.temperature = None
-        with open("uav_params.json", "r") as file:
+        with open("params.json", "r") as file:
             self.params = json.load(file)
         self.mode = "AUTO"
         self.commands = []
@@ -54,7 +54,7 @@ class DummyUAVHandler:
             self.air_speed = random.random() * 30 + 45
             self.battery = [random.random() * 2 + 14, random.random() * 2 + 14]
             self.temperature = [(random.random() * 25 + 25) for _ in range(4)]
-            self.connection = [random.random(), random.random(), random.random() * 100]
+            self.connection = [random.random(), random.randint(0, 5), random.random() * 100]
             # simulates the plane flying over waypoints
             if not self.waypoints:
                 self.waypoints = self.gs.call("i_data", "waypoints")
@@ -153,7 +153,7 @@ class DummyUAVHandler:
 
     def save_params(self):
         try:
-            with open("uav_params.json", "w") as file:
+            with open("params.json", "w") as file:
                 json.dump(self.params, file)
             return {}
         except Exception as e:
@@ -161,7 +161,7 @@ class DummyUAVHandler:
 
     def load_params(self):
         try:
-            with open("uav_params.json", "r") as file:
+            with open("params.json", "r") as file:
                 self.params = json.load(file)
             return {}
         except Exception as e:

@@ -282,82 +282,82 @@ def map_submit():
 
 
 @app.route("/uav/connect", methods=["POST"])
-def uav_connect():
-    return gs.call("uav_connect")
+def connect():
+    return gs.call("m_connect")
 
 
 @app.route("/uav/update", methods=["POST"])
-def uav_update():
-    return gs.call("uav_update")
+def update():
+    return gs.call("m_update")
 
 
 @app.route("/uav/quick")
-def uav_quick():
-    return gs.call("uav_quick")
+def quick():
+    return gs.call("m_quick")
 
 
 @app.route("/uav/stats")
-def uav_stats():
-    return gs.call("uav_stats")
+def stats():
+    return gs.call("m_stats")
 
 
 @app.route("/uav/mode/get")
-def uav_get_mode():
-    return gs.call("uav_getflightmode")
+def get_mode():
+    return gs.call("m_getflightmode")
 
 
 @app.route("/uav/mode/set", methods=["POST"])
-def uav_set_mode():
+def set_mode():
     f = request.json
     if not all(field in f for field in ["mode"]):
         raise InvalidRequestError("Missing required fields in request")
-    return gs.call("uav_setflightmode", f.get("mode"))
+    return gs.call("m_setflightmode", f.get("mode"))
 
 
 @app.route("/uav/params/get/<key>")
-def uav_get_param(key):
-    return gs.call("uav_getparam", key)
+def get_param(key):
+    return gs.call("m_getparam", key)
 
 
 @app.route("/uav/params/getall")
-def uav_get_params():
-    return gs.call("uav_getparams")
+def get_params():
+    return gs.call("m_getparams")
 
 
 @app.route("/uav/params/set/<key>/<value>", methods=["POST"])
-def uav_set_param(key, value):
-    return gs.call("uav_setparam", key, value)
+def set_param(key, value):
+    return gs.call("m_setparam", key, value)
 
 
 @app.route("/uav/params/setmultiple", methods=["POST"])
-def uav_set_params():
+def set_params():
     f = request.json
     if not all(field in f for field in ["params"]):
         raise InvalidRequestError("Missing required fields in request")
-    return gs.call("uav_setparams", f.get("params"))  # {"param": "newvalue"}
+    return gs.call("m_setparams", f.get("params"))  # {"param": "newvalue"}
 
 
 @app.route("/uav/params/save", methods=["POST"])
-def uav_save_params():
-    return gs.call("uav_saveparams")
+def save_params():
+    return gs.call("m_saveparams")
 
 
 @app.route("/uav/params/load", methods=["POST"])
-def uav_load_params():
-    return gs.call("uav_loadparams")
+def load_params():
+    return gs.call("m_loadparams")
 
 
 @app.route("/uav/commands/get")
-def uav_get_commands():
-    return gs.call("uav_getcommands")
+def get_commands():
+    return gs.call("m_getcommands")
 
 
 @app.route("/uav/commands/insert", methods=["POST"])
-def uav_insert_command():
+def insert_command():
     f = request.json
     if not all(field in f for field in ["command", "lat", "lon", "alt"]):
         raise InvalidRequestError("Missing required fields in request")
-    return gs.call("uav_insertcommand",
+    return gs.call("m_insertcommand",
                    f.get("command"),
                    f.get("lat"),
                    f.get("lon"),
@@ -366,127 +366,23 @@ def uav_insert_command():
 
 
 @app.route("/uav/commands/clear", methods=["POST"])
-def uav_clear_commands():
-    return gs.call("uav_clearcommands")
+def clear_commands():
+    return gs.call("m_clearcommands")
 
 
 @app.route("/uav/getarmed")
-def uav_armed():
-    return gs.call("uav_getarmed")
+def armed():
+    return gs.call("m_getarmed")
 
 
 @app.route("/uav/arm", methods=["POST"])
-def uav_arm():
-    return gs.call("uav_arm")
+def arm():
+    return gs.call("m_arm")
 
 
 @app.route("/uav/disarm", methods=["POST"])
-def uav_disarm():
-    return gs.call("uav_disarm")
-
-
-@app.route("/ugv/connect", methods=["POST"])
-def ugv_connect():
-    return gs.call("ugv_connect")
-
-
-@app.route("/ugv/update", methods=["POST"])
-def ugv_update():
-    return gs.call("ugv_update")
-
-
-@app.route("/ugv/quick")
-def ugv_quick():
-    return gs.call("ugv_quick")
-
-
-@app.route("/ugv/stats")
-def ugv_stats():
-    return gs.call("ugv_stats")
-
-
-@app.route("/ugv/mode/get")
-def ugv_get_mode():
-    return gs.call("ugv_getflightmode")
-
-
-@app.route("/ugv/mode/set", methods=["POST"])
-def ugv_set_mode():
-    f = request.json
-    if not all(field in f for field in ["mode"]):
-        raise InvalidRequestError("Missing required fields in request")
-    return gs.call("ugv_setflightmode", f.get("mode"))
-
-
-@app.route("/ugv/params/get/<key>")
-def ugv_get_param(key):
-    return gs.call("ugv_getparam", key)
-
-
-@app.route("/ugv/params/getall")
-def ugv_get_params():
-    return gs.call("ugv_getparams")
-
-
-@app.route("/ugv/params/set/<key>/<value>", methods=["POST"])
-def ugv_set_param(key, value):
-    return gs.call("ugv_setparam", key, value)
-
-
-@app.route("/ugv/params/setmultiple", methods=["POST"])
-def ugv_set_params():
-    f = request.json
-    if not all(field in f for field in ["params"]):
-        raise InvalidRequestError("Missing required fields in request")
-    return gs.call("ugv_setparams", f.get("params"))  # {"param": "newvalue"}
-
-
-@app.route("/ugv/params/save", methods=["POST"])
-def ugv_save_params():
-    return gs.call("ugv_saveparams")
-
-
-@app.route("/ugv/params/load", methods=["POST"])
-def ugv_load_params():
-    return gs.call("ugv_loadparams")
-
-
-@app.route("/ugv/commands/get")
-def ugv_get_commands():
-    return gs.call("ugv_getcommands")
-
-
-@app.route("/ugv/commands/insert", methods=["POST"])
-def ugv_insert_command():
-    f = request.json
-    if not all(field in f for field in ["command", "lat", "lon", "alt"]):
-        raise InvalidRequestError("Missing required fields in request")
-    return gs.call("ugv_insertcommand",
-                   f.get("command"),
-                   f.get("lat"),
-                   f.get("lon"),
-                   f.get("alt")
-                   )
-
-
-@app.route("/ugv/commands/clear", methods=["POST"])
-def ugv_clear_commands():
-    return gs.call("ugv_clearcommands")
-
-
-@app.route("/ugv/getarmed")
-def ugv_armed():
-    return gs.call("ugv_getarmed")
-
-
-@app.route("/ugv/arm", methods=["POST"])
-def ugv_arm():
-    return gs.call("ugv_arm")
-
-
-@app.route("/ugv/disarm", methods=["POST"])
-def ugv_disarm():
-    return gs.call("ugv_disarm")
+def disarm():
+    return gs.call("m_disarm")
 
 
 if __name__ == "__main__":
