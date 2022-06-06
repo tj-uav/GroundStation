@@ -308,7 +308,7 @@ class DummyUAVHandler:
     def jump_to_command(self, command: int):
         pass
 
-    def load_commands(self):
+    def write_commands(self):
         """
         Upload a mission from a file.
         """
@@ -319,7 +319,7 @@ class DummyUAVHandler:
         except Exception as e:
             raise GeneralError(str(e)) from e
 
-    def save_commands(self):
+    def load_commands(self):
         """
         Save a mission in the Waypoint file format
         (https://qgroundcontrol.org/mavlink/waypoint_protocol#waypoint_file_format).

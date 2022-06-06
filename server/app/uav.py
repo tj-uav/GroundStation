@@ -86,19 +86,36 @@ def uav_jump_command():
     return app.gs.uav.jump_to_command(f.get("command"))
 
 
-@uav_commands.route("/save", methods=["POST"])
-def uav_save_commands():
-    return app.gs.uav.save_commands()
+@uav_commands.route("/write", methods=["POST"])
+def uav_write_commands():
+    """
+    Write commands from the mission file to the UAV.
+    """
+    return app.gs.uav.write_commands()
 
 
 @uav_commands.route("/load", methods=["POST"])
 def uav_load_commands():
+    """
+    Load commands from the UAV to the mission file.
+    """
     return app.gs.uav.load_commands()
 
 
 @uav_commands.route("/view")
 def uav_view_commands_file():
     return send_file("handlers/uav/uav_mission.txt")
+
+
+@uav_commands.route("/generate", methods=["POST"])
+def uav_generate_commands_file():
+    f = request.json
+    if not all(field in f for field in ["waypoints"]):
+        raise InvalidRequestError("Missing required fields in request")
+    with open("handlers/uav/uav_mission.txt", "w") as file:
+        counter = 1
+        for waypoint in f.get("waypoints"):
+            file.write(f"{counter}\t0\t3\t16\t0.0\t0.0\t0.0\t0.0\t{waypoint.get('lat')}\t{waypoint.get('lon')}\t{waypoint.get('alt')}\t1\n")
 
 
 @uav_commands.route("/clear", methods=["POST"])

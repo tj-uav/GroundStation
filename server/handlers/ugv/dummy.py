@@ -260,7 +260,7 @@ class DummyUGVHandler:
         except Exception as e:
             raise GeneralError(str(e)) from e
 
-    def load_commands(self):
+    def write_commands(self):
         """
         Upload a mission from a file.
         """
