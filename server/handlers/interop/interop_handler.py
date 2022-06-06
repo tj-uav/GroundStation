@@ -232,7 +232,7 @@ class InteropHandler:
         try:
             if image:
                 with open(f"assets/odlc_images/{id_}.png", "wb") as file:
-                    file.write(base64.decodebytes(bytes(image, "utf-8")))
+                    file.write(base64.decodebytes(bytes(image, 'utf-8')))
             old_obj = self.odlc_queued_data[id_]
             old_obj["type"] = int(type_) if type_ else old_obj["type"]
             old_obj["autonomous"] = False
@@ -245,8 +245,7 @@ class InteropHandler:
                 old_obj["shape"] = int(shape) if shape else old_obj["shape"]
                 old_obj["shape_color"] = int(shape_color) if shape_color else old_obj["shape_color"]
                 old_obj["alphanumeric"] = alpha if alpha else old_obj["alphanumeric"]
-                old_obj["alphanumeric_color"] = int(alpha_color) if alpha_color else \
-                    old_obj["alphanumeric_color"]
+                old_obj["alphanumeric_color"] = int(alpha_color) if alpha_color else old_obj["alphanumeric_color"]
             self.odlc_queued_data[id_] = old_obj
             return {}
         except InvalidStateError as e:
@@ -300,7 +299,7 @@ class InteropHandler:
 
     def odlc_save_queue(self, filename="odlc"):
         try:
-            with open(filename + ".json", "w", encoding="utf-8") as file:
+            with open(filename + ".json", "w") as file:
                 json.dump(self.odlc_queued_data, file, default=json_serial)
                 return {}
         except Exception as e:
@@ -308,7 +307,7 @@ class InteropHandler:
 
     def odlc_load_queue(self, filename="odlc"):
         try:
-            with open(filename + ".json", "r", encoding="utf-8") as file:
+            with open(filename + ".json", "r") as file:
                 self.odlc_queued_data = json.load(file)
                 for x, obj in enumerate(self.odlc_queued_data):
                     obj["created"] = datetime.fromisoformat(obj["created"])
@@ -325,7 +324,7 @@ class InteropHandler:
             if os.path.isfile(f"assets/map_images/{name}.png"):
                 raise InvalidStateError("Map with this name already exists")
             with open(f"assets/map_images/{name}.png", "wb") as file:
-                file.write(base64.decodebytes(bytes(image, "utf-8")))
+                file.write(base64.decodebytes(bytes(image, 'utf-8')))
             self.map_image = image
             return {}
         except InvalidStateError as e:
@@ -336,7 +335,7 @@ class InteropHandler:
     def map_submit(self, name=None):
         try:
             if not name:
-                self.submitted_map = base64.decodebytes(bytes(self.map_image, "utf-8"))
+                self.submitted_map = base64.decodebytes(bytes(self.map_image, 'utf-8'))
                 self.client.put_map_image(self.mission_id, self.submitted_map)
             else:
                 if not os.path.isfile(f"assets/map_images/{name}.png"):

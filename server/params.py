@@ -21,7 +21,7 @@ def read_all_params(master: mavutil.mavfile):
         try:
             message = master.recv_match(type="PARAM_VALUE", blocking=True, timeout=1)
             if message is None:
-                param_name = None
+                break
             param_name = message.param_id
         except Exception as e:
             print(e)
@@ -30,11 +30,13 @@ def read_all_params(master: mavutil.mavfile):
     assert param_name == LAST_PARAM_ID
 
 
+"""
+Read in a single param from target system (Pixhawk)
+Returns None if param not found else {"param_name": param_value}
+"""
+
+
 def read_single_param(master: mavutil.mavfile, name: "str") -> dict:
-    """
-    Read in a single param from target system (Pixhawk)
-    Returns None if param not found else {"param_name": param_value}
-    """
     master.param_fetch_one(name)
     # TODO: Check if this automatically updates master.params
     message = master.recv_match(type="PARAM_VALUE", blocking=True, timeout=1)
@@ -43,11 +45,13 @@ def read_single_param(master: mavutil.mavfile, name: "str") -> dict:
     return {message.param_id: message.param_value}
 
 
+"""
+Load params from a file into a dictionary
+Returns None if filepath doesn"t exist, otherwise returns dictionary
+"""
+
+
 def load_file(filepath):
-    """
-    Load params from a file into a dictionary
-    Returns None if filepath doesn"t exist, otherwise returns dictionary
-    """
     mavparm_handler = mavparm.MAVParmDict()
     mavparm_handler.load(filepath)
     return dict(mavparm_handler)
@@ -61,13 +65,15 @@ def diff(filepath1, filepath2):
 
 
 def save_params(filepath):
-    print(filepath)
+    pass
+
+
+"""
+Read a single param to the target system (Pixhawk)
+Returns True if the param write succeeded otherwise False
+"""
 
 
 def write_param(master, name, value, param_type) -> bool:
-    """
-    Read a single param to the target system (Pixhawk)
-    Returns True if the param write succeeded otherwise False
-    """
     mavparm_handler = mavparm.MAVParmDict()
     return mavparm_handler.mavset(master, name, value, param_type)

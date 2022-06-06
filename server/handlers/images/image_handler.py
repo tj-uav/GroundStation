@@ -67,16 +67,16 @@ class ImageHandler:
                          random() * 90,
                          random() * -90,
                          randint(0, 360),
-                         choice(["circle", "semicircle", "quarter_circle", "triangle", "square",
-                                 "rectangle", "trapezoid", "pentagon", "hexagon", "heptagon",
-                                 "octagon", "star", "cross"]),
+                         choice(['circle', 'semicircle', 'quarter_circle', 'triangle', 'square',
+                                 'rectangle', 'trapezoid', 'pentagon', 'hexagon', 'heptagon',
+                                 'octagon', 'star', 'cross']),
                          choice(
-                             ["white", "gray", "red", "blue", "green", "yellow", "purple", "brown",
-                              "orange"]),
+                             ['white', 'gray', 'red', 'blue', 'green', 'yellow', 'purple', 'brown',
+                              'orange']),
                          choice(string.ascii_uppercase + string.digits),
                          choice(
-                             ["white", "gray", "red", "blue", "green", "yellow", "purple", "brown",
-                              "orange"]),
+                             ['white', 'gray', 'red', 'blue', 'green', 'yellow', 'purple', 'brown',
+                              'orange']),
                          log=False
                          )
             return True
