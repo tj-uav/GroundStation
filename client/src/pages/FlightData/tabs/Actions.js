@@ -187,8 +187,8 @@ const Actions = () => {
 			<Column style={{ marginBottom: "1rem" }}>
 				<Row>
 					<Button href="http://localhost:5000/uav/commands/view" newTab={true}>View</Button>
+					<Button onClick={() => httppost("/uav/commands/write")}>Write</Button>
 					<Button onClick={() => httppost("/uav/commands/load")}>Load</Button>
-					<Button onClick={() => httppost("/uav/commands/save")}>Save</Button>
 					<Button onClick={() => httppost("/uav/commands/clear")}>Clear</Button>
 					<Button warning={true} color={darkred} onClick={() => httppost("/uav/abort")}>Abort?</Button>
 				</Row>
@@ -209,8 +209,9 @@ const Actions = () => {
 								<Label columns={1}>Flight Modes (Current: {Gmode})</Label>
 							</Row>
 							<Row>
-								<Button onClick={() => httppost("/ugv/mode/set", { "mode": "MANUAL" })}>Manual</Button>
-								<Button onClick={() => httppost("/ugv/mode/set", { "mode": "AUTO" })}>Auto<br/> </Button>
+								<Button onClick={() => window.open("http://localhost:5000/ugv/commands/view")}>View</Button>
+								<Button onClick={() => httppost("/ugv/commands/write")}>Reset</Button>
+								<Button warning={true} color={darkred} onClick={() => httppost("/ugv/abort")}>Abort?</Button>
 							</Row>
 						</Column>
 					</Row>
