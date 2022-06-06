@@ -107,6 +107,20 @@ def uav_view_commands_file():
     return send_file("handlers/uav/uav_mission.txt")
 
 
+@uav_commands.route("/export")
+def uav_export_commands_file():
+    waypoints = []
+    with open("handlers/uav/uav_mission.txt", "w") as f:
+        for line in f.readlines():
+            spl = line.split("\t")
+            waypoints.append({
+                "lat": float(spl[8]),
+                "lon": float(spl[9]),
+                "alt": float(spl[10])
+            })
+    return {"waypoints": waypoints}
+
+
 @uav_commands.route("/generate", methods=["POST"])
 def uav_generate_commands_file():
     f = request.json
