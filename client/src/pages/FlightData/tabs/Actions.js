@@ -11,55 +11,55 @@ const actions = {
 
 const Actions = () => {
 	const [Aaltitude, setAaltitude] = useState(0)
-	// const [Athrottle, setAthrottle] = useState(0)
+	const [Athrottle, setAthrottle] = useState(0)
 	const [Aorientation, setAorientation] = useState({ "yaw": 0, "pitch": 0, "roll": 0 })
-	// const [AlatLong, setAlatLong] = useState({ "lat": 0, "lon": 0 })
+	const [AlatLong, setAlatLong] = useState({ "lat": 0, "lon": 0 })
 	const [Amode, setAmode] = useState("")
 	const [Aarmed, setAarmed] = useState("")
-	// const [Astatus, setAstatus] = useState("")
+	const [Astatus, setAstatus] = useState("")
 	const [AgroundSpeed, setAgroundSpeed] = useState(0)
-	// const [Aairspeed, setAairspeed] = useState(0)
-	// const [Abattery, setAbattery] = useState(16)
+	const [Aairspeed, setAairspeed] = useState(0)
+	const [Abattery, setAbattery] = useState(16)
 	const [Awaypoint, setAwaypoint] = useState([1, 0])
-	// const [Aconnection, setAconnection] = useState([95, 0, 95])
-	//
-	// const [Gcurrent, setGcurrent] = useState("")
-	// const [Gnext, setGnext] = useState("")
-	// const [Gwaypoint, setGwaypoint] = useState(0)
-	// const [Gyaw, setGyaw] = useState(0)
-	// const [GlatLong, setGlatLong] = useState({ "lat": 0, "lon": 0 })
-	// const [GgroundSpeed, setGgroundSpeed] = useState(0)
-	// const [Gconnection, setGconnection] = useState([95, 0, 95])
+	const [Aconnection, setAconnection] = useState([95, 0, 95])
+
+	const [Gcurrent, setGcurrent] = useState("")
+	const [Gnext, setGnext] = useState("")
+	const [Gwaypoint, setGwaypoint] = useState(0)
+	const [Gyaw, setGyaw] = useState(0)
+	const [GlatLong, setGlatLong] = useState({ "lat": 0, "lon": 0 })
+	const [GgroundSpeed, setGgroundSpeed] = useState(0)
+	const [Gconnection, setGconnection] = useState([95, 0, 95])
 
 	const updateData = () => {
 		httpget("/uav/stats")
 			.then(response => response.data)
 			.then(data => {
 				setAaltitude(data.result.quick.altitude)
-				// setAthrottle(data.result.quick.throttle)
+				setAthrottle(data.result.quick.throttle)
 				setAorientation({"yaw": data.result.quick.orientation.yaw, "roll": data.result.quick.orientation.roll, "pitch": data.result.quick.orientation.pitch })
-				// setAlatLong({"lat": data.result.quick.lat, "lon": data.result.quick.lon})
+				setAlatLong({"lat": data.result.quick.lat, "lon": data.result.quick.lon})
 				setAmode(data.result.mode)
 				setAarmed(data.result.armed)
-				// setAstatus(data.result.status)
+				setAstatus(data.result.status)
 				setAgroundSpeed(data.result.quick.ground_speed)
-				// setAairspeed(data.result.quick.air_speed)
-				// setAbattery(data.result.quick.battery)
+				setAairspeed(data.result.quick.air_speed)
+				setAbattery(data.result.quick.battery)
 				// setAtemperature(data.result.quick.temperature)
 				setAwaypoint(data.result.quick.waypoint)
-				// setAconnection(data.result.quick.connection)
+				setAconnection(data.result.quick.connection)
 			})
-		// httpget("/ugv/stats")
-		// 	.then(response => response.data)
-		// 	.then(data => {
-		// 		setGcurrent(data.result.quick.states[0])
-		// 		setGnext(data.result.quick.states[1])
-		// 		setGwaypoint(data.result.quick.states[2])
-		// 		setGyaw(data.result.quick.yaw)
-		// 		setGlatLong({"lat": data.result.quick.lat, "lon": data.result.quick.lon})
-		// 		setGgroundSpeed(data.result.quick.ground_speed)
-		// 		setGconnection(data.result.quick.connection)
-		// 	})
+		httpget("/ugv/stats")
+			.then(response => response.data)
+			.then(data => {
+				setGcurrent(data.result.quick.states[0])
+				setGnext(data.result.quick.states[1])
+				setGwaypoint(data.result.quick.states[2])
+				setGyaw(data.result.quick.yaw)
+				setGlatLong({"lat": data.result.quick.lat, "lon": data.result.quick.lon})
+				setGgroundSpeed(data.result.quick.ground_speed)
+				setGconnection(data.result.quick.connection)
+			})
 	}
 
 	useEffect(() => {
@@ -79,19 +79,6 @@ const Actions = () => {
 				height: "calc(100vh - 9.5rem)",
 			}}
 		>
-			<Column style={{ marginBottom: "1rem", gap: "0.5rem" }}>
-				<Row style={{ gap: "1rem" }}>
-					<Row>
-						<Box label="Altitude" content={Aaltitude.toFixed(2) + " ft"} />
-						<Box label="Ground Speed" content={AgroundSpeed.toFixed(2) + " mph"} />
-					</Row>
-					<Row>
-						<Box label="Roll" content={(Aorientation.roll.toFixed(2)) + "\u00B0"} />
-						<Box label="Pitch" content={(Aorientation.pitch.toFixed(2)) + "\u00B0"} />
-						<Box label="Yaw" content={(Aorientation.yaw.toFixed(2))  + "\u00B0"} />
-					</Row>
-				</Row>
-			</Column>
 			<Column>
 				<Row id="labels1" height="2rem" gap="0.5rem">
 					<Label columns={1}>Flight Modes (Current: {Amode})</Label>
@@ -112,19 +99,7 @@ const Actions = () => {
 					<Button onClick={() => httppost("/uav/mode/set", {"mode": "RTL"})}>RTL</Button>
 				</Row>
 			</Column>
-			<Column>
-				<Row id="labels4" height="2rem" gap="0.5rem">
-					<Label columns={1}>Configuration</Label>
-				</Row>
-			</Column>
-			<Column style={{ marginBottom: "1rem" }}>
-				<Row>
-					<Button color={darkred}>SET HOME</Button>
-					<Button color={darkred}>CALIBRATION</Button>
-					<Button color={darkred} onClick={() => httppost((Aarmed === "ARMED" ? "/uav/disarm" : "/uav/arm"), {"command": inputBox.value})}>{Aarmed === "ARMED" ? "DISARM" : "ARM"}</Button>
-					<Button color={darkred}>RESTART</Button>
-				</Row>
-			</Column>
+
 			<Column>
 				<Row id="labels2" height="2rem" gap="0.5rem">
 					<Label columns={1}>Waypoints (Current: {Awaypoint[0]})</Label>
@@ -177,6 +152,8 @@ const Actions = () => {
 			</Column>
 			<Column style={{ marginBottom: "1rem" }}>
 				<Row>
+					{/*<Button>START</Button>*/}
+					{/*<Button>RESTART</Button>*/}
 					<Button>LOAD</Button>
 					<Button>SAVE</Button>
 					<Button>CLEAR</Button>
@@ -184,6 +161,19 @@ const Actions = () => {
 				</Row>
 			</Column>
 
+			<Column>
+				<Row id="labels4" height="2rem" gap="0.5rem">
+					<Label columns={1}>Configuration</Label>
+				</Row>
+			</Column>
+			<Column style={{ marginBottom: "1rem" }}>
+				<Row>
+					<Button color={darkred}>SET HOME ALT</Button>
+					<Button color={darkred}>CALIBRATION</Button>
+					<Button color={darkred} onClick={() => httppost((Aarmed === "ARMED" ? "/uav/disarm" : "/uav/arm"), {"command": inputBox.value})}>{Aarmed === "ARMED" ? "DISARM" : "ARM"}</Button>
+					<Button color={darkred}>RESTART</Button>
+				</Row>
+			</Column>
 			<Box label="" content="LEVEL" />
 		</div>
 	)
