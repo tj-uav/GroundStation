@@ -16,74 +16,53 @@ COMMANDS = {
 }
 
 
-class DummyUAVHandler:
+class DummyUGVHandler:
     def __init__(self, gs, config):
         self.logger = logging.getLogger("main")
         self.gs = gs
         self.config = config
-        self.port = self.config["uav"]["telemetry"]["port"]
-        self.serial = self.config["uav"]["telemetry"]["serial"]
+        self.port = self.config["ugv"]["telemetry"]["port"]
+        self.serial = self.config["ugv"]["telemetry"]["serial"]
         self.update_thread = None
-        self.altitude = self.orientation = self.ground_speed = self.air_speed = self.dist_to_wp = \
-            self.battery = self.throttle = self.lat = self.lon = self.connection = self.waypoint = \
-            self.mode = self.waypoints = self.waypoint_index = self.temperature = None
-        with open("handlers/pixhawk/uav/uav_params.json", "r") as file:
+        self.current_state = self.next_objective = self.yaw = self.ground_speed = \
+            self.connection = self.droppos = self.lat = self.lon = self.dist_to_dest = \
+            self.mode = self.gps = None
+        with open("handlers/flight/ugv/ugv_params.json", "r") as file:
             self.params = json.load(file)
         self.mode = "AUTO"
+        self.states = ["On Plane", "Drop to Ground", "Reach Destination", "Terminated"]
         self.commands = []
         self.armed = False
-        print("╠ CREATED DUMMY UAV HANDLER")
-        self.logger.info("CREATED DUMMY UAV HANDLER")
+        print("╠ CREATED DUMMY UGV HANDLER")
+        self.logger.info("CREATED DUMMY UGV HANDLER")
 
     def connect(self):
-        print("╠ INITIALIZED DUMMY UAV HANDLER")
-        self.logger.info("INITIALIZED DUMMY UAV HANDLER")
+        print("╠ INITIALIZED DUMMY UGV HANDLER")
+        self.logger.info("INITIALIZED DUMMY UGV HANDLER")
         self.update()
         return {}
 
     def update(self):
         try:
-            self.altitude = random.random() * 250 + 150
-            self.throttle = random.randint(60, 80)
-            self.orientation = {
-                "yaw": random.randint(0, 360),
-                "roll": random.randint(-30, 30),
-                "pitch": random.randint(-20, 20)
-            }
+            self.current_state = random.choice(self.states)
+            self.next_objective = self.states[((self.states.index(self.current_state)) + 1) % len(self.states)]
+            self.yaw = random.randint(0, 360)
             self.ground_speed = random.random() * 30 + 45
-            self.air_speed = random.random() * 30 + 45
-            self.battery = random.random() * 2 + 14
-            # self.temperature = [(random.random() * 25 + 25) for _ in range(4)]
             self.connection = [random.random(), random.random(), random.random() * 100]
             # simulates the plane flying over waypoints
-            if not self.waypoints:
-                self.waypoints = self.gs.call("i_data", "waypoints")
-                self.waypoints = self.waypoints["result"]
-                self.waypoint_index = 1 % len(self.waypoints)
-                self.lat = self.waypoints[self.waypoint_index]["latitude"]
-                self.lon = self.waypoints[self.waypoint_index]["longitude"]
-            speed = 0.000016
-            x_dist = self.waypoints[self.waypoint_index]["latitude"] - self.lat
-            y_dist = self.waypoints[self.waypoint_index]["longitude"] - self.lon
-            dist = math.sqrt(x_dist ** 2 + y_dist ** 2)
+            if not self.droppos:
+                self.droppos = self.gs.call("i_data", "ugv")
+                self.droppos = self.droppos["result"]
+            self.lat = self.droppos["drop"]["latitude"] + (random.random() - 0.5) / 2000
+            self.lon = self.droppos["drop"]["longitude"] + (random.random() - 0.5) / 2000
+            x_dist = self.droppos["drop"]["latitude"] - self.lat
+            y_dist = self.droppos["drop"]["longitude"] - self.lon
             angle = math.atan2(y_dist, x_dist)
             x_dist_ft = x_dist * (math.cos(self.lat * math.pi / 180) * 69.172) * 5280
             y_dist_ft = y_dist * 69.172 * 5280
-            self.dist_to_wp = math.sqrt(x_dist_ft ** 2 + y_dist_ft ** 2)
-            if dist <= 0.0001:
-                self.lat = self.waypoints[self.waypoint_index]["latitude"]
-                self.lon = self.waypoints[self.waypoint_index]["longitude"]
-                self.waypoint_index = (self.waypoint_index + 1) % len(self.waypoints)
-            else:
-                self.lat = (self.lat + math.cos(angle) * speed)
-                self.lon = (self.lon + math.sin(angle) * speed)
-            self.waypoint = [self.waypoint_index, self.dist_to_wp]
-            self.orientation = {
-                'yaw': int((angle / (2 * math.pi) * 360) if angle >= 0 else (
-                        angle / (2 * math.pi) * 360 + 360)),
-                'roll': random.randint(-30, 30),
-                'pitch': random.randint(-20, 20)
-            }
+            self.dist_to_dest = math.sqrt(x_dist_ft ** 2 + y_dist_ft ** 2)
+            self.yaw = int((angle / (2 * math.pi) * 360) if angle >= 0 else (
+                        angle / (2 * math.pi) * 360 + 360))
             return {}
         except KeyError as e:
             raise ServiceUnavailableError("Interop Connection Lost") from e
@@ -92,22 +71,18 @@ class DummyUAVHandler:
 
     def quick(self):
         return {"result": {
-            "altitude": self.altitude,
-            "throttle": self.throttle,
-            "orientation": self.orientation,
+            "states": [self.current_state, self.next_objective, self.dist_to_dest],
+            "yaw": self.yaw,
             "lat": self.lat,
             "lon": self.lon,
             "ground_speed": self.ground_speed,
-            "air_speed": self.air_speed,
-            "battery": self.battery,
-            "waypoint": self.waypoint,
             "connection": self.connection
         }}
 
     def stats(self):
         return {"result": {
             "quick": self.quick(),
-            "mode": self.mode,
+            "flightmode": self.mode,
             "commands": [cmd.to_dict() for cmd in self.commands],
             "armed": self.armed
         }}
@@ -152,7 +127,7 @@ class DummyUAVHandler:
 
     def save_params(self):
         try:
-            with open("handlers/pixhawk/uav/uav_params.json", "w") as file:
+            with open("handlers/flight/ugv/ugv_params.json", "w") as file:
                 json.dump(self.params, file)
             return {}
         except Exception as e:
@@ -160,7 +135,7 @@ class DummyUAVHandler:
 
     def load_params(self):
         try:
-            with open("handlers/pixhawk/uav/uav_params.json", "r") as file:
+            with open("handlers/flight/ugv/ugv_params.json", "r") as file:
                 self.params = json.load(file)
             return {}
         except Exception as e:

@@ -18,24 +18,24 @@ COMMANDS = {
 }
 
 
-class UAVHandler:
+class UGVHandler:
     def __init__(self, gs, config):
         self.logger = logging.getLogger("main")
         self.gs = gs
         self.config = config
-        self.port = self.config["uav"]["telemetry"]["port"]
-        self.serial = self.config["uav"]["telemetry"]["serial"]
+        self.port = self.config["ugv"]["telemetry"]["port"]
+        self.serial = self.config["ugv"]["telemetry"]["serial"]
         self.update_thread = None
         self.vehicle = None
-        self.altitude = self.orientation = self.ground_speed = self.air_speed = self.dist_to_wp = \
-            self.battery = self.throttle = self.lat = self.lon = self.connection = self.waypoint = \
-            self.mode = self.waypoints = self.waypoint_index = self.temperature = self.params = \
-            self.gps = None
-        self.mode = "MANUAL"
+        self.states = ["On Plane", "Drop to Ground", "Reach Destination", "Terminated"]
+        self.current_state = "Reach Destination"
+        self.next_objective = "Terminated"
+        self.yaw = self.ground_speed = self.connection = self.droppos = self.lat = self.lon = \
+            self.dist_to_dest = self.mode = self.gps = None
         self.commands = []
         self.armed = False
-        print("╠ CREATED UAV HANDLER")
-        self.logger.info("CREATED UAV HANDLER")
+        print("╠ CREATED UGV HANDLER")
+        self.logger.info("CREATED UGV HANDLER")
 
     def connect(self):
         try:
@@ -44,8 +44,8 @@ class UAVHandler:
             else:
                 self.vehicle = connect(self.port, wait_ready=True)
             self.update()
-            print("╠ INITIALIZED UAV HANDLER")
-            self.logger.info("INITIALIZED UAV HANDLER")
+            print("╠ INITIALIZED UGV HANDLER")
+            self.logger.info("INITIALIZED UGV HANDLER")
             return {}
         except Exception as e:
             raise GeneralError(str(e)) from e
@@ -54,38 +54,24 @@ class UAVHandler:
         try:
             loc = self.vehicle.location.global_frame
             angle = self.vehicle.attitude
-            battery = self.vehicle.battery
-            self.altitude = loc.alt
-            self.throttle = None
-            self.orientation = dict(
-                roll=angle.roll * 180 / math.pi,
-                pitch=angle.pitch * 180 / math.pi,
-                yaw=angle.yaw * 180 / math.pi,
-            )
-            self.orientation["yaw"] = 360 + self.orientation["yaw"] if self.orientation["yaw"] < 0 else \
-                self.orientation["yaw"]
+            self.yaw = angle.yaw
             self.ground_speed = self.vehicle.groundspeed
-            self.air_speed = self.vehicle.airspeed
-            self.battery = battery.voltage
-            # self.temperature = self.vehicle.temperature
-            self.gps = self.vehicle.gps_0
-            self.connection = [self.gps.eph, self.gps.epv, self.gps.satellites_visible]
             self.lat = loc.lat
             self.lon = loc.lon
-            if not self.waypoints:
-                self.waypoints = self.gs.call("i_data", "waypoints")
-                self.waypoints = self.waypoints["result"]
-                self.waypoint_index = 1 % len(self.waypoints)
-            x_dist = self.waypoints[self.waypoint_index]["latitude"] - self.lat
-            y_dist = self.waypoints[self.waypoint_index]["longitude"] - self.lon
-            dist = math.sqrt(x_dist ** 2 + y_dist ** 2)
+            self.gps = self.vehicle.gps_0
+            self.connection = [self.gps.eph, self.gps.epv, self.gps.satellites_visible]
+            self.mode = self.vehicle.mode
+            if not self.droppos:
+                self.droppos = self.gs.call("i_data", "ugv")
+                self.droppos = self.droppos["result"]
+            x_dist = self.droppos["drop"]["latitude"] - self.lat
+            y_dist = self.droppos["drop"]["longitude"] - self.lon
+            angle = math.atan2(y_dist, x_dist)
             x_dist_ft = x_dist * (math.cos(self.lat * math.pi / 180) * 69.172) * 5280
             y_dist_ft = y_dist * 69.172 * 5280
-            self.dist_to_wp = math.sqrt(x_dist_ft ** 2 + y_dist_ft ** 2)
-            if dist <= 0.0001:
-                self.waypoint_index = (self.waypoint_index + 1) % len(self.waypoints)
-            self.waypoint = [self.waypoint_index, self.dist_to_wp]
-            self.mode = self.vehicle.mode
+            self.dist_to_dest = math.sqrt(x_dist_ft ** 2 + y_dist_ft ** 2)
+            self.yaw = int((angle / (2 * math.pi) * 360) if angle >= 0 else (
+                    angle / (2 * math.pi) * 360 + 360))
             return {}
         except Exception as e:
             raise GeneralError(str(e)) from e
@@ -94,15 +80,11 @@ class UAVHandler:
         try:
             self.update()
             return {"result": {
-                "altitude": self.altitude,
-                "throttle": self.throttle,
-                "orientation": self.orientation,
+                "states": [self.current_state, self.next_objective, self.dist_to_dest],
+                "yaw": self.yaw,
                 "lat": self.lat,
                 "lon": self.lon,
                 "ground_speed": self.ground_speed,
-                "air_speed": self.air_speed,
-                "battery": self.battery,
-                "waypoint": self.waypoint,
                 "connection": self.connection
             }}
         except Exception as e:
@@ -110,8 +92,8 @@ class UAVHandler:
 
     def stats(self):
         return {"result": {
-            "quick": self.quick()["result"],
-            "mode": self.vehicle.mode.name,
+            "quick": self.quick(),
+            "flightmode": self.vehicle.mode,
             "commands": [cmd.to_dict() for cmd in self.vehicle.commands],
             "armed": self.vehicle.armed
         }}
@@ -156,19 +138,21 @@ class UAVHandler:
 
     def set_params(self, **kwargs):
         try:
+            new_params = dict(self.vehicle.parameters.items())
             for key, value in kwargs.items():
                 try:
                     float(value)
                 except ValueError as e:
                     raise InvalidRequestError("Parameter Value cannot be converted to float") from e
-                self.vehicle.parameters[key] = value
+                new_params[key] = value
+            self.vehicle.parameters = new_params
             return {}
         except Exception as e:
             raise GeneralError(str(e)) from e
 
     def save_params(self):
         try:
-            with open("handlers/pixhawk/uav/uav_params.json", "w") as file:
+            with open("handlers/flight/ugv/ugv_params.json", "w") as file:
                 json.dump(self.vehicle.paramreters, file)
             return {}
         except Exception as e:
@@ -176,8 +160,8 @@ class UAVHandler:
 
     def load_params(self):
         try:
-            with open("handlers/pixhawk/uav/uav_params.json", "r") as file:
-                self.vehicle.parameters = json.load(file)
+            with open("handlers/flight/ugv/ugv_params.json", "r") as file:
+                self.vehicle.params = json.load(file)
             return {}
         except Exception as e:
             raise GeneralError(str(e)) from e
@@ -220,14 +204,14 @@ class UAVHandler:
 
     def arm(self):
         try:
-            self.vehicle.armed = True  # Motors can be started
+            self.vehicle.arm()  # Motors can be started
             return {}
         except Exception as e:
             raise GeneralError(str(e)) from e
 
     def disarm(self):
         try:
-            self.vehicle.armed = False
+            self.vehicle.disarm()
             return {}
         except Exception as e:
             raise GeneralError(str(e)) from e

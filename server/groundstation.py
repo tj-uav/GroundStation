@@ -4,12 +4,12 @@ import time
 from threading import Thread
 
 import errors
-from handlers.pixhawk.uav.dummy import DummyUAVHandler
-# from handlers.pixhawk.uav.sim import SimUAVHandler
-from handlers.pixhawk.uav.prod import UAVHandler
-from handlers.pixhawk.ugv.dummy import DummyUGVHandler
-# from handlers.pixhawk.ugv.sim import SimUGVHandler
-from handlers.pixhawk.ugv.prod import UGVHandler
+from handlers.flight.uav.dummy import DummyUAVHandler
+# from handlers.flight.uav.sim import SimUAVHandler
+from handlers.flight.uav.prod import UAVHandler
+from handlers.flight.ugv.dummy import DummyUGVHandler
+# from handlers.flight.ugv.sim import SimUGVHandler
+from handlers.flight.ugv.prod import UGVHandler
 from handlers.images.image_handler import ImageHandler
 from handlers.interop.interop_handler import InteropHandler
 
@@ -206,6 +206,6 @@ class GroundStation:
     # Calls a function from self.func_map, with the provided parameters
     def call(self, func, *args, log=True):
         result = self.func_map[func](*args)
-        # if log:
-        #     self.logger.log(logging.DEBUG, func + ": " + json.dumps(result, default=str))
+        if log:
+            self.logger.log(logging.DEBUG, func + ": " + json.dumps(result, default=str))
         return result

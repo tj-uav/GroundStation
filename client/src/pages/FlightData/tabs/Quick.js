@@ -7,8 +7,6 @@ const Quick = () => {
 	const [Athrottle, setAthrottle] = useState(0)
 	const [Aorientation, setAorientation] = useState({ "yaw": 0, "pitch": 0, "roll": 0 })
 	const [AlatLong, setAlatLong] = useState({ "lat": 0, "lon": 0 })
-	const [Amode, setAmode] = useState("")
-	const [Aarmed, setAarmed] = useState(false)
 	const [AgroundSpeed, setAgroundSpeed] = useState(0)
 	const [Aairspeed, setAairspeed] = useState(0)
 	const [Abattery, setAbattery] = useState(16)
@@ -25,32 +23,30 @@ const Quick = () => {
 	const [Gconnection, setGconnection] = useState([95, 0, 95])
 
 	const updateData = () => {
-		fetch("http://localhost:5000/uav/stats")
+		fetch("http://localhost:5000/uav/quick")
 			.then(response => response.json())
 			.then(data => {
-				setAaltitude(data.result.quick.altitude)
-				setAthrottle(data.result.quick.throttle)
-				setAorientation({"yaw": data.result.quick.orientation.yaw, "roll": data.result.quick.orientation.roll, "pitch": data.result.quick.orientation.pitch })
-				setAlatLong({"lat": data.result.quick.lat, "lon": data.result.quick.lon})
-				setAmode(data.result.mode)
-				setAarmed(data.result.armed)
-				setAgroundSpeed(data.result.quick.ground_speed)
-				setAairspeed(data.result.quick.air_speed)
-				setAbattery(data.result.quick.battery)
-				// setAtemperature(data.result.quick.temperature)
-				setAwaypoint(data.result.quick.waypoint)
-				setAconnection(data.result.quick.connection)
+				setAaltitude(data.result.altitude)
+				setAthrottle(data.result.throttle)
+				setAorientation({"yaw": data.result.orientation.yaw, "roll": data.result.orientation.roll, "pitch": data.result.orientation.pitch })
+				setAlatLong({"lat": data.result.lat, "lon": data.result.lon})
+				setAgroundSpeed(data.result.ground_speed)
+				setAairspeed(data.result.air_speed)
+				setAbattery(data.result.battery)
+				// setAtemperature(data.result.temperature)
+				setAwaypoint(data.result.waypoint)
+				setAconnection(data.result.connection)
 			})
-		fetch("http://localhost:5000/ugv/stats")
+		fetch("http://localhost:5000/ugv/quick")
 			.then(response => response.json())
 			.then(data => {
-				setGcurrent(data.result.quick.states[0])
-				setGnext(data.result.quick.states[1])
-				setGwaypoint(data.result.quick.states[2])
-				setGyaw(data.result.quick.yaw)
-				setGlatLong({"lat": data.result.quick.lat, "lon": data.result.quick.lon})
-				setGgroundSpeed(data.result.quick.ground_speed)
-				setGconnection(data.result.quick.connection)
+				setGcurrent(data.result.states[0])
+				setGnext(data.result.states[1])
+				setGwaypoint(data.result.states[2])
+				setGyaw(data.result.yaw)
+				setGlatLong({"lat": data.result.lat, "lon": data.result.lon})
+				setGgroundSpeed(data.result.ground_speed)
+				setGconnection(data.result.connection)
 			})
 	}
 
@@ -80,18 +76,14 @@ const Quick = () => {
 					</Row>
 				</Row>
 				<Row style={{ gap: "1rem" }}>
-					<Row>
-						<Box label="Latitude" content={Math.abs(AlatLong.lat).toFixed(8) + "\u00B0 N"} />
-						<Box label="Longitude" content={Math.abs(AlatLong.lon).toFixed(8) + "\u00B0 W"} />
-						<Box label="Battery (6S)" content={Abattery.toFixed(2) + "V"} />
-					</Row>
+					<Box label="Latitude" content={Math.abs(AlatLong.lat).toFixed(8) + "\u00B0 N"} />
+					<Box label="Longitude" content={Math.abs(AlatLong.lon).toFixed(8) + "\u00B0 W"} />
 				</Row>
 				<Row style={{ gap: "1rem" }}>
 					<Row>
 						<Box label="Ground Speed" content={AgroundSpeed.toFixed(2) + " mph"} />
 						<Box label="Airspeed" content={Aairspeed.toFixed(2) + " mph"} />
-						<Box label="Armed" content={Aarmed ? "Yes ✅" : "No ❌"} />
-						<Box label="Mode" content={Amode} />
+						<Box label="Battery (6S)" content={Abattery.toFixed(2) + "V"} />
 					</Row>
 				</Row>
 				{/*<Row style={{ gap: "1rem" }}>*/}
@@ -106,15 +98,13 @@ const Quick = () => {
 				{/*</Row>*/}
 				<Row style={{ gap: "1rem" }}>
 					<Row>
-						<Row>
-							<Box label="Waypoint #" content={"#" + (Awaypoint[0] + 1).toFixed(0)} />
-							<Box label="Distance" content={Awaypoint[1].toFixed(2) + " ft"} />
-						</Row>
-						<Row>
-							<Box label="GPS HDOP" content={Aconnection[0].toFixed(2)} />
-							<Box label="GPS VDOP" content={Aconnection[1].toFixed(2)} />
-							<Box label="Satellites" content={Aconnection[2].toFixed(0)} />
-						</Row>
+						<Box label="Waypoint #" content={"#" + (Awaypoint[0] + 1).toFixed(0)} />
+						<Box label="Distance" content={Awaypoint[1].toFixed(2) + " ft"} />
+					</Row>
+					<Row>
+						<Box label="GPS HDOP" content={Aconnection[0].toFixed(2)} />
+						<Box label="GPS VDOP" content={Aconnection[1].toFixed(2)} />
+						<Box label="Satellites" content={Aconnection[2].toFixed(0)} />
 					</Row>
 				</Row>
 			</Column>
