@@ -1,9 +1,7 @@
-from __future__ import annotations
 import base64
 import json
 import logging
 import os
-import typing
 from datetime import datetime, timedelta, date
 
 from auvsi_suas.client import client
@@ -13,9 +11,6 @@ from requests.exceptions import ConnectionError as RequestsCE
 
 from errors import InvalidRequestError, InvalidStateError, GeneralError, ServiceUnavailableError
 from handlers.utils import decorate_all_functions, log
-
-if typing.TYPE_CHECKING:
-    from groundstation import GroundStation
 
 
 def json_serial(obj):
@@ -60,7 +55,7 @@ class InteropHandler:
         self.logger = logging.getLogger("groundstation")
         print("╠ CREATED INTEROP HANDLER")
         self.logger.info("CREATED INTEROP ERROR")
-        self.gs: GroundStation = gs
+        self.gs = gs
         self.config = config
         self.mission_id = self.config["interop"]["mission_id"]
         self.login_status = False
@@ -211,7 +206,7 @@ class InteropHandler:
 
     def odlc_add_to_queue(
         self,
-        image: bytes = None,
+        image: str = None,
         type_: str = None,
         lat: float = None,
         lon: float = None,
@@ -224,7 +219,7 @@ class InteropHandler:
     ):
         try:
             with open(f"assets/odlc_images/{len(self.odlc_queued_data)}.png", "wb") as file:
-                file.write(image)
+                file.write(base64.b64decode(image))
             base_obj = {
                 "created": datetime.now(),
                 "auto_submit": datetime.now() + timedelta(minutes=5),

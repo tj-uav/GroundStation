@@ -3,8 +3,6 @@ import logging
 import time
 from threading import Thread
 
-import requests
-
 import errors
 from handlers import DummyUAV, ProdUAV
 from handlers import DummyUGV, ProdUGV
@@ -94,26 +92,14 @@ class GroundStation:
             time.sleep(0.1)
 
     def image_thread(self):
-        if self.config["uav"]["images"]["type"] == "prod":  # Initialize a socket connection
-            while True:
-                time.sleep(1)
-                try:
-                    res = requests.get(f"{self.config['uav']['images']['url']}/last_image")
-                except Exception:
-                    self.logger.error("[Image] Cannot connect to FlightSoftware, retrying in 5 seconds")
-                    time.sleep(4)
-                    continue
-                if res.status_code != 200:
-                    self.logger.error("[Image] Unable to retreive image count, retrying in 5 seconds")
-                    time.sleep(4)
-                    continue
-                img_cnt = res.json()["result"]
-                if img_cnt != self.image.img_count:
-                    self.image.retreive_image(img_cnt)
+        if not self.config["uav"]["images"]["type"] == "prod":  # Initialize a socket connection
+            self.image.socket_connect()
         else:  # Use a dummy connection
             while True:
-                self.image.dummy_retreive_image()
-                time.sleep(2)
+                run = self.image.retreive_images()
+                if run:
+                    self.logger.info("[Image] Successfully identified ODLC from Image")
+                time.sleep(0.1)
 
     def async_calls(self):
         print("╔═══ STARTING ASYNC THREADS")

@@ -1,9 +1,7 @@
-from __future__ import annotations
 import json
 import logging
 import math
 import os
-import typing
 from typing import Optional
 
 from dronekit import connect, Command, VehicleMode, Vehicle
@@ -11,9 +9,6 @@ from pymavlink import mavutil as uavutil
 
 from errors import GeneralError, InvalidRequestError, InvalidStateError
 from handlers.utils import decorate_all_functions, log
-
-if typing.TYPE_CHECKING:
-    from groundstation import GroundStation
 
 BAUDRATE = 57600
 
@@ -144,7 +139,7 @@ class UAVHandler:
 
     def __init__(self, gs, config):
         self.logger = logging.getLogger("groundstation")
-        self.gs: GroundStation = gs
+        self.gs = gs
         self.config = config
         self.port = self.config["uav"]["telemetry"]["port"]
         self.serial = self.config["uav"]["telemetry"]["serial"]
@@ -276,11 +271,11 @@ class UAVHandler:
 
     def calibrate(self):
         try:
-            self.vehicle.send_calibrate_accelerometer(simple=True)
+            self.vehicle.send_calibrate_accelerometer()
             self.vehicle.send_calibrate_barometer()
             self.vehicle.send_calibrate_gyro()
-            # self.vehicle.send_calibrate_magnetometer()
-            # self.vehicle.send_calibrate_vehicle_level()
+            self.vehicle.send_calibrate_magnetometer()
+            self.vehicle.send_calibrate_vehicle_level()
             return {}
         except Exception as e:
             raise GeneralError(str(e)) from e

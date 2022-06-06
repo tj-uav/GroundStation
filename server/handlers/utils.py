@@ -4,7 +4,7 @@ from functools import wraps
 from logging import Logger
 from typing import Callable
 
-log_exempt = ("update", "stats", "quick", "get_armed", "submit_telemetry", "odlc_get_queue", "odlc_add_to_queue", "process_image")
+log_exempt = ("update", "stats", "quick", "get_armed", "submit_telemetry", "odlc_get_queue")
 
 
 def log(func: Callable, logger: Logger) -> Callable:

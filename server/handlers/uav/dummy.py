@@ -1,19 +1,14 @@
-from __future__ import annotations
 import json
 import logging
 import math
 import os
 import random
-import typing
 
 from dronekit import Command
 from pymavlink import mavutil as uavutil
 
 from errors import GeneralError, ServiceUnavailableError, InvalidRequestError
 from handlers.utils import decorate_all_functions, log
-
-if typing.TYPE_CHECKING:
-    from groundstation import GroundStation
 
 COMMANDS = {
     "WAYPOINT": uavutil.mavlink.MAV_CMD_NAV_WAYPOINT,
@@ -73,7 +68,7 @@ class DummyUAVHandler:
 
     def __init__(self, gs, config):
         self.logger = logging.getLogger("groundstation")
-        self.gs: GroundStation = gs
+        self.gs = gs
         self.config = config
         self.port = self.config["uav"]["telemetry"]["port"]
         self.serial = self.config["uav"]["telemetry"]["serial"]
