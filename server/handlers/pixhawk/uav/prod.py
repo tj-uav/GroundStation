@@ -28,10 +28,10 @@ class UAVHandler:
         self.update_thread = None
         self.vehicle = None
         self.altitude = self.orientation = self.ground_speed = self.air_speed = self.dist_to_wp = \
-            self.battery = self.lat = self.lon = self.connection = self.waypoint = self.armed = \
+            self.battery = self.throttle = self.lat = self.lon = self.connection = self.waypoint = \
             self.mode = self.waypoints = self.waypoint_index = self.temperature = self.params = \
             self.gps = None
-        self.mode = VehicleMode("MANUAL")
+        self.mode = "MANUAL"
         self.commands = []
         self.armed = False
         print("╠ CREATED UAV HANDLER")
@@ -56,15 +56,18 @@ class UAVHandler:
             angle = self.vehicle.attitude
             battery = self.vehicle.battery
             self.altitude = loc.alt
+            self.throttle = None
             self.orientation = dict(
-                yaw=angle.yaw * 180 / math.pi,
                 roll=angle.roll * 180 / math.pi,
-                pitch=angle.pitch * 180 / math.pi
+                pitch=angle.pitch * 180 / math.pi,
+                yaw=angle.yaw * 180 / math.pi,
             )
-            self.orientation["yaw"] += 360 if self.orientation["yaw"] < 0 else 0
+            self.orientation["yaw"] = 360 + self.orientation["yaw"] if self.orientation["yaw"] < 0 \
+                else self.orientation["yaw"]
             self.ground_speed = self.vehicle.groundspeed
             self.air_speed = self.vehicle.airspeed
             self.battery = battery.voltage
+            # self.temperature = self.vehicle.temperature
             self.gps = self.vehicle.gps_0
             self.connection = [self.gps.eph, self.gps.epv, self.gps.satellites_visible]
             self.lat = loc.lat
@@ -83,7 +86,6 @@ class UAVHandler:
                 self.waypoint_index = (self.waypoint_index + 1) % len(self.waypoints)
             self.waypoint = [self.waypoint_index, self.dist_to_wp]
             self.mode = self.vehicle.mode
-            self.armed = self.vehicle.armed
             return {}
         except Exception as e:
             raise GeneralError(str(e)) from e
@@ -93,6 +95,7 @@ class UAVHandler:
             self.update()
             return {"result": {
                 "altitude": self.altitude,
+                "throttle": self.throttle,
                 "orientation": self.orientation,
                 "lat": self.lat,
                 "lon": self.lon,
@@ -108,22 +111,23 @@ class UAVHandler:
     def stats(self):
         return {"result": {
             "quick": self.quick()["result"],
-            "mode": self.mode.name,
+            "mode": self.vehicle.mode.name,
             "commands": [cmd.to_dict() for cmd in self.vehicle.commands],
-            "armed": self.armed
+            "armed": self.vehicle.armed
         }}
 
     def set_flight_mode(self, flightmode):
         try:
-            self.mode = self.vehicle.mode = VehicleMode(flightmode)
+            self.vehicle.mode = VehicleMode(flightmode)
+            self.mode = flightmode
             return {}
         except Exception as e:
             raise GeneralError(str(e)) from e
 
     def get_flight_mode(self):
         try:
-            self.mode = self.vehicle.mode
-            return {"result": self.mode.name}
+            self.mode = self.vehicle.mode.name
+            return {"result": self.mode}
         except Exception as e:
             raise GeneralError(str(e)) from e
 

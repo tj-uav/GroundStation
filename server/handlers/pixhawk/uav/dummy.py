@@ -25,31 +25,35 @@ class DummyUAVHandler:
         self.serial = self.config["uav"]["telemetry"]["serial"]
         self.update_thread = None
         self.altitude = self.orientation = self.ground_speed = self.air_speed = self.dist_to_wp = \
-            self.battery = self.lat = self.lon = self.connection = self.waypoint = self.mode = \
-            self.waypoints = self.waypoint_index = self.temperature = self.gps = None
+            self.battery = self.throttle = self.lat = self.lon = self.connection = self.waypoint = \
+            self.mode = self.waypoints = self.waypoint_index = self.temperature = None
         with open("handlers/pixhawk/uav/uav_params.json", "r", encoding="utf-8") as file:
             self.params = json.load(file)
         self.mode = "AUTO"
-        self.armed = True
         self.commands = []
+        self.armed = False
         print("╠ CREATED DUMMY UAV HANDLER")
         self.logger.info("CREATED DUMMY UAV HANDLER")
 
     def connect(self):
-        try:
-            self.update()
-            print("╠ INITIALIZED DUMMY UAV HANDLER")
-            self.logger.info("INITIALIZED DUMMY UAV HANDLER")
-            return {}
-        except Exception as e:
-            raise GeneralError(str(e)) from e
+        print("╠ INITIALIZED DUMMY UAV HANDLER")
+        self.logger.info("INITIALIZED DUMMY UAV HANDLER")
+        self.update()
+        return {}
 
     def update(self):
         try:
             self.altitude = random.random() * 250 + 150
+            self.throttle = random.randint(60, 80)
+            self.orientation = {
+                "yaw": random.randint(0, 360),
+                "roll": random.randint(-30, 30),
+                "pitch": random.randint(-20, 20)
+            }
             self.ground_speed = random.random() * 30 + 45
             self.air_speed = random.random() * 30 + 45
             self.battery = random.random() * 2 + 14
+            # self.temperature = [(random.random() * 25 + 25) for _ in range(4)]
             self.connection = [random.random(), random.random(), random.random() * 100]
             # simulates the plane flying over waypoints
             if not self.waypoints:
@@ -89,6 +93,7 @@ class DummyUAVHandler:
     def quick(self):
         return {"result": {
             "altitude": self.altitude,
+            "throttle": self.throttle,
             "orientation": self.orientation,
             "lat": self.lat,
             "lon": self.lon,
@@ -101,7 +106,7 @@ class DummyUAVHandler:
 
     def stats(self):
         return {"result": {
-            "quick": self.quick()["result"],
+            "quick": self.quick(),
             "mode": self.mode,
             "commands": [cmd.to_dict() for cmd in self.commands],
             "armed": self.armed
