@@ -3,10 +3,10 @@ import logging
 import time
 from threading import Thread
 
-from handlers.flight.uav.dummy import DummyUAVHandler
-from handlers.images.image_handler import ImageHandler
-from handlers.interop.interop_handler import InteropHandler
-from handlers.flight.uav.prod import UAVHandler
+from handlers.dummy_uav_handler import DummyUAVHandler
+from handlers.image_handler import ImageHandler
+from handlers.interop_handler import InteropHandler
+from handlers.uav_handler import UAVHandler
 
 
 class GroundStation:

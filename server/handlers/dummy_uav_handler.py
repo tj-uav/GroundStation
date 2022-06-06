@@ -3,7 +3,7 @@ import logging
 import math
 import random
 
-from dronekit import Command
+# from dronekit import Command
 from pymavlink import mavutil
 
 from errors import GeneralError, ServiceUnavailableError, InvalidRequestError
