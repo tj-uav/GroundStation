@@ -70,9 +70,9 @@ def ugv_get_commands():
     return app.gs.ugv.get_commands()
 
 
-@ugv_commands.route("/load", methods=["POST"])
-def uav_load_commands():
-    return app.gs.ugv.load_commands()
+@ugv_commands.route("/write", methods=["POST"])
+def uav_write_commands():
+    return app.gs.ugv.write_commands()
 
 
 @ugv_commands.route("/view")
