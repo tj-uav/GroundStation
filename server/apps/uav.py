@@ -114,6 +114,7 @@ def uav_view_commands_file():
     return send_file(os.path.join(os.getcwd(), "assets", "missions", "plane.txt"))
 
 
+<<<<<<< HEAD:server/apps/uav.py
 @uav_commands.route("/export")
 def uav_export_commands_file():
     waypoints = []
@@ -138,6 +139,8 @@ def uav_export_commands_file():
     return {"waypoints": waypoints}
 
 
+=======
+>>>>>>> bffcf3d (Update backend command routes and add route to generate mission file):server/app/uav.py
 @uav_commands.route("/generate", methods=["POST"])
 def uav_generate_commands_file():
     f = request.json
