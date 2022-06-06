@@ -79,9 +79,6 @@ const FlightPlanMap = props => {
 			plane: new VehicleIcon({ iconUrl: "../assets/plane.svg" }),
 			planeDirection: new DirectionPointerIcon({ iconUrl: "../assets/pointer.svg" }),
 			planeDirectionOutline: new DirectionPointerIcon({ iconUrl: "../assets/pointer-outline.svg" }),
-			ugv: new VehicleIcon({ iconUrl: "../assets/plane.svg" }),
-			ugvDirection: new DirectionPointerIcon({ iconUrl: "../assets/pointer.svg" }),
-			ugvDirectionOutline: new DirectionPointerIcon({ iconUrl: "../assets/pointer-outline.svg" }),
 		})
 
 		window.addEventListener("offline", () => {
@@ -229,7 +226,7 @@ const FlightPlanMap = props => {
 							})}
 						</LayerGroup>
 					</LayersControl.Overlay>
-					<LayersControl.Overlay checked name="UGV Points">
+					<LayersControl.Overlay checked name="UGV">
 						<LayerGroup>
 							<Polyline positions={circle(props.getters.ugvFence)} color="#6e0d9a" />
 							{props.getters.ugvDrop.lat == null ? null : singlePopup("ugvDrop")}
@@ -260,19 +257,6 @@ const FlightPlanMap = props => {
 									</Tooltip>
 								</Marker>
 								<RotatedMarker icon={icons.planeDirectionOutline} position={props.getters.plane.latlng} rotationAngle={props.getters.plane.heading} rotationOrigin={"50% 100%"} />
-							</LayerGroup>
-						)}
-					</LayersControl.Overlay>
-					<LayersControl.Overlay checked name="UGV">
-						{props.getters.ugv.heading == null ? null : (
-							<LayerGroup>
-								<RotatedMarker icon={icons.ugvDirection} position={props.getters.ugv.latlng} rotationAngle={props.getters.ugv.heading} rotationOrigin={"50% 100%"} />
-								<Marker icon={icons.ugv} position={props.getters.ugv.latlng}>
-									<Tooltip>
-										UGV ({ props.getters.ugv.latlng.lat.toFixed(5) }, { props.getters.ugv.latlng.lng.toFixed(5) })
-									</Tooltip>
-								</Marker>
-								<RotatedMarker icon={icons.ugvDirectionOutline} position={props.getters.ugv.latlng} rotationAngle={props.getters.ugv.heading} rotationOrigin={"50% 100%"} />
 							</LayerGroup>
 						)}
 					</LayersControl.Overlay>

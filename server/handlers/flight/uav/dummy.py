@@ -175,7 +175,7 @@ class DummyUAVHandler:
             raise GeneralError(str(e)) from e
 
     def insert_command(self, command, lat, lon, alt):
-        if command not in COMMANDS:
+        if command not in COMMANDS.keys():
             raise InvalidRequestError("Invalid Command Name")
         try:
             new_cmd = Command(0, 0, 0, mavutil.mavlink.MAV_FRAME_GLOBAL_RELATIVE_ALT,

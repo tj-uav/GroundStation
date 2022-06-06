@@ -24,22 +24,17 @@ class GroundStation:
 
         print("╔══ CREATING HANDLERS")
         self.logger.info("CREATING HANDLERS")
-
-        self.interop_telem_thread = self.plane_thread = self.rover_thread = self.retreive_image_thread = None
         self.interop = InteropHandler(self, config=self.config)
+        self.interop_telem_thread = self.plane_thread = self.retreive_image_thread = None
+        if self.config["uav"]["telemetry"]["dummy"]:
+            self.uav = DummyUAVHandler(self, self.config)
+        else:
+            self.uav = UAVHandler(self, self.config)
+        if self.config["ugv"]["telemetry"]["dummy"]:
+            self.ugv = DummyUGVHandler(self, self.config)
+        else:
+            self.ugv = UGVHandler(self, self.config)
         self.image = ImageHandler(self, self.config)
-
-        uavconfig = self.config["uav"]["telemetry"]["type"]
-        self.uav = DummyUAVHandler if uavconfig == "dummy" else (SimUAVHandler if uavconfig == "sim" else UAVHandler)
-        self.uav = self.uav(self, self.config)
-
-        ugvconfig = self.config["ugv"]["telemetry"]["type"]
-        self.ugv = DummyUGVHandler if ugvconfig == "dummy" else (SimUGVHandler if ugvconfig == "sim" else UGVHandler)
-        self.ugv = self.ugv(self, self.config)
-
-        print("╚═══ CREATED HANDLERS\n")
-        self.logger.info("CREATED HANDLERS\n")
-
 
         self.func_map = {
             "i_login": self.interop.login,
@@ -105,6 +100,8 @@ class GroundStation:
 
             "cv_process": self.image.process_image
         }
+        print("╚═══ CREATED HANDLERS\n")
+        self.logger.info("CREATED HANDLERS\n")
 
         print("╔═══ INITIALIZING HANDLERS")
         self.logger.info("INITIALIZING HANDLERS")
@@ -125,38 +122,38 @@ class GroundStation:
                     self.interop.login()  # Re-initiate connection
                     self.logger.important("[Telemetry] Re-initiated connection with Interop Server")
                 except errors.ServiceUnavailableError:
-                    self.logger.info("[Telemetry] Unable to re-initiate connection with Interop Server, retrying in "
-                                     "one second")
+                    self.logger.important("[Telemetry] Unable to re-initiate connection with "
+                                          "Interop Server, retrying in one second")
                 time.sleep(1)
                 continue
 
             try:
                 run = self.interop.submit_telemetry()
             except errors.ServiceUnavailableError:  # Lost connection to Interop
-                self.logger.critical("[Telemetry] Lost connection to Interop Server, attempting to re-initiate "
-                                     "connection every second")
+                self.logger.critical("[Telemetry] Lost connection to Interop Server, attempting "
+                                     "to re-initiate connection every second")
                 continue
 
-            if run:
+            if run != {}:
                 self.logger.debug("[Telemetry] %s", run)
             time.sleep(0.1)
 
     def uav_thread(self):
         while True:
             run = self.uav.update()
-            if run:
+            if run != {}:
                 self.logger.debug("[UAV] %s", run)
             time.sleep(0.1)
 
     def ugv_thread(self):
         while True:
             run = self.ugv.update()
-            if run:
+            if run != {}:
                 self.logger.debug("[UGV] %s", run)
             time.sleep(0.1)
 
     def image_thread(self):
-        if not self.config["uav"]["images"]["type"] == "prod":  # Initialize a socket connection
+        if not self.config["uav"]["images"]["dummy"]:  # Initialize a socket connection
             self.image.socket_connect()
         else:  # Use a dummy connection
             while True:

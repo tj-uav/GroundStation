@@ -1,7 +1,6 @@
 python-dotenv
 requests
 protobuf
-pylint
 
 # Flask Webserver
 Flask
