@@ -93,8 +93,8 @@ const Quick = () => {
 				</Row>
 				<Row style={{ gap: "1rem" }}>
 					<Row>
-						<Box label="Latitude" content={Math.abs(AlatLong.lat).toFixed(8) + "\u00B0"} />
-						<Box label="Longitude" content={Math.abs(AlatLong.lon).toFixed(8) + "\u00B0"} />
+						<Box label="Latitude" content={Math.abs(AlatLong.lat).toFixed(8) + "\u00B0 N"} />
+						<Box label="Longitude" content={Math.abs(AlatLong.lon).toFixed(8) + "\u00B0 W"} />
 					</Row>
 					<Row>
 						<Box label="Altitude" content={Aaltitude.toFixed(2) + " ft"} />
@@ -139,8 +139,8 @@ const Quick = () => {
 				</Row>
 				<Row style={{ gap: "1rem" }}>
 					<Row>
-						<Box label="Latitude" content={Math.abs(GlatLong.lat).toFixed(8) + "\u00B0"} />
-						<Box label="Longitude" content={Math.abs(GlatLong.lon).toFixed(8) + "\u00B0"} />
+						<Box label="Latitude" content={Math.abs(GlatLong.lat).toFixed(8) + "\u00B0 N"} />
+						<Box label="Longitude" content={Math.abs(GlatLong.lon).toFixed(8) + "\u00B0 W"} />
 					</Row>
 					<Row>
 						<Box label="Status" content={Gstatus} />

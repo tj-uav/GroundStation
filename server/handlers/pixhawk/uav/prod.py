@@ -137,7 +137,7 @@ class UAVHandler:
             self.dist_to_wp = math.sqrt(x_dist_ft ** 2 + y_dist_ft ** 2)  # Distance in miles
             if dist <= 0.0001:  # Arbitrary value
                 self.waypoint_index = (self.waypoint_index + 1) % len(self.waypoints)
-            self.waypoint = [self.waypoint_index + 1, self.dist_to_wp]
+            self.waypoint = [self.waypoint_index, self.dist_to_wp]
             self.mode = self.vehicle.mode
             self.armed = self.vehicle.armed
             return {}
@@ -271,7 +271,6 @@ class UAVHandler:
     def jump_to_command(self, command: int):
         try:
             self.vehicle.commands.next = command
-            return {}
         except Exception as e:
             raise GeneralError(str(e)) from e
 
@@ -279,35 +278,27 @@ class UAVHandler:
         """
         Upload a mission from a file.
         """
-        try:
-            missionlist = readmission("handlers/pixhawk/uav/uav_mission.txt")
-            cmds = self.vehicle.commands
-            cmds.clear()
-            for command in missionlist:
-                cmds.add(command)
-            self.vehicle.commands.upload()
-            return {}
-        except Exception as e:
-            raise GeneralError(str(e)) from e
+        missionlist = readmission("handlers/pixhawk/uav/uav_mission.txt")
+        cmds = self.vehicle.commands
+        cmds.clear()
+        for command in missionlist:
+            cmds.add(command)
+        self.vehicle.commands.upload()
 
     def save_commands(self):
         """
         Save a mission in the Waypoint file format
         (https://qgroundcontrol.org/mavlink/waypoint_protocol#waypoint_file_format).
         """
-        try:
-            missionlist = download_mission(self.vehicle)
-            output = "QGC WPL 110\n"
-            for cmd in missionlist:
-                commandline = f"{cmd.seq}\t{cmd.current}\t{cmd.frame}\t{cmd.command}\t" \
-                              f"{cmd.param1}\t{cmd.param2}\t{cmd.param3}\t{cmd.param4}\t{cmd.x}\t" \
-                              f"{cmd.y}\t{cmd.z}\t{cmd.autocontinue}\n"
-                output += commandline
-            with open("handlers/pixhawk/uav/uav_mission.txt", "w", encoding="utf-8") as file_:
-                file_.write(output)
-            return {}
-        except Exception as e:
-            raise GeneralError(str(e)) from e
+        missionlist = download_mission(self.vehicle)
+        output = "QGC WPL 110\n"
+        for cmd in missionlist:
+            commandline = f"{cmd.seq}\t{cmd.current}\t{cmd.frame}\t{cmd.command}\t" \
+                          f"{cmd.param1}\t{cmd.param2}\t{cmd.param3}\t{cmd.param4}\t{cmd.x}\t" \
+                          f"{cmd.y}\t{cmd.z}\t{cmd.autocontinue}\n"
+            output += commandline
+        with open("handlers/pixhawk/uav/uav_mission.txt", "w", encoding="utf-8") as file_:
+            file_.write(output)
 
     def clear_commands(self):
         try:
@@ -335,6 +326,7 @@ class UAVHandler:
             if not self.vehicle.is_armable:
                 raise InvalidStateError("Vehicle is not armable")
             self.vehicle.armed = True  # Motors can be started
+            print(self.vehicle.armed)
             return {}
         except InvalidStateError as e:
             raise InvalidStateError(str(e)) from e

@@ -5,8 +5,6 @@
 # Its canonical open-source location is:
 #   https://google.github.io/styleguide/pylintrc
 
-# Modified for use by TJUAV
-
 [MASTER]
 
 # Files or directories to be skipped. They should be base names, not paths.

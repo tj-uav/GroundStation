@@ -70,8 +70,6 @@ class GroundStation:
             "uav_getcommands": self.uav.get_commands,
             "uav_insertcommand": self.uav.insert_command,  # command, lat, lon, alt
             "uav_jumpcommand": self.uav.jump_to_command,  # command
-            "uav_savecommands": self.uav.save_commands,
-            "uav_loadcommands": self.uav.load_commands,
             "uav_clearcommands": self.uav.clear_commands,
 
             "uav_getarmed": self.uav.get_armed,
@@ -94,7 +92,7 @@ class GroundStation:
             "ugv_loadparams": self.ugv.load_params,
 
             "ugv_getcommands": self.ugv.get_commands,
-            "ugv_loadcommands": self.ugv.load_commands,
+            "ugv_insertcommand": self.ugv.insert_command,  # command, lat, lon, alt
             "ugv_clearcommands": self.ugv.clear_commands,
 
             "ugv_getarmed": self.ugv.get_armed,
