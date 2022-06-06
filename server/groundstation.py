@@ -3,13 +3,14 @@ import logging
 import time
 from threading import Thread
 
-import errors
 from handlers.flight.uav.dummy import DummyUAVHandler
 # from handlers.flight.uav.sim import SimUAVHandler
 from handlers.flight.uav.prod import UAVHandler
+
 from handlers.flight.ugv.dummy import DummyUGVHandler
 # from handlers.flight.ugv.sim import SimUGVHandler
 from handlers.flight.ugv.prod import UGVHandler
+
 from handlers.images.image_handler import ImageHandler
 from handlers.interop.interop_handler import InteropHandler
 
@@ -117,23 +118,7 @@ class GroundStation:
 
     def telemetry_thread(self):
         while True:
-            if not self.interop.login_status:  # Connection to Interop Server is already lost
-                try:
-                    self.interop.login()  # Re-initiate connection
-                    self.logger.important("[Telemetry] Re-initiated connection with Interop Server")
-                except errors.ServiceUnavailableError:
-                    self.logger.important("[Telemetry] Unable to re-initiate connection with "
-                                          "Interop Server, retrying in one second")
-                time.sleep(1)
-                continue
-
-            try:
-                run = self.interop.submit_telemetry()
-            except errors.ServiceUnavailableError:  # Lost connection to Interop
-                self.logger.critical("[Telemetry] Lost connection to Interop Server, attempting "
-                                     "to re-initiate connection every second")
-                continue
-
+            run = self.interop.submit_telemetry()
             if run != {}:
                 self.logger.debug("[Telemetry] %s", run)
             time.sleep(0.1)
