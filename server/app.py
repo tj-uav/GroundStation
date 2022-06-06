@@ -72,6 +72,12 @@ string_handler.setFormatter(formatter)
 logger.addHandler(string_handler)
 autopilot.addHandler(string_handler)
 
+LOG_STREAM = StringIO()
+string_handler = logging.StreamHandler(LOG_STREAM)
+string_handler.setLevel(logging.DEBUG)
+string_handler.setFormatter(formatter)
+logger.addHandler(string_handler)
+
 logger.info("STARTED LOGGING")
 
 gs = GroundStation()

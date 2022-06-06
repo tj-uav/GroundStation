@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react"
+import React, { useState } from "react"
 import { Button, Box, Label, Dropdown } from "components/UIElements"
 import { Row, Column } from "components/Containers"
 import { darkred } from "../../../theme/Colors"
@@ -6,6 +6,7 @@ import { httpget, httppost } from "../../../backend"
 import styled from "styled-components"
 import { ReactComponent as RawUGV } from "icons/ugv.svg"
 import { ReactComponent as RawUAV } from "icons/uav.svg"
+import { useInterval } from "../../../util"
 
 const actions = {
 	waypoint: [0, 1, 2, 3, 4]
@@ -37,44 +38,33 @@ const Actions = () => {
 	const [Gbattery, setGbattery] = useState(16)
 	const [Gconnection, setGconnection] = useState([95, 0, 95])
 
-	const updateData = () => {
-		httpget("/uav/stats")
-			.then(response => response.data)
-			.then(data => {
-				setAaltitude(data.result.quick.altitude)
-				// setAthrottle(data.result.quick.throttle)
-				setAorientation({"yaw": data.result.quick.orientation.yaw, "roll": data.result.quick.orientation.roll, "pitch": data.result.quick.orientation.pitch })
-				// setAlatLong({"lat": data.result.quick.lat, "lon": data.result.quick.lon})
-				setAmode(data.result.mode)
-				setAarmed(data.result.armed)
-				// setAstatus(data.result.status)
-				setAgroundSpeed(data.result.quick.ground_speed)
-				// setAairspeed(data.result.quick.air_speed)
-				// setAbattery(data.result.quick.battery)
-				// setAtemperature(data.result.quick.temperature)
-				setAwaypoint(data.result.quick.waypoint)
-				// setAconnection(data.result.quick.connection)
-			})
-		httpget("/ugv/stats")
-			.then(response => response.data)
-			.then(data => {
-				setGarmed(data.result.armed)
-				setGgroundSpeed(data.result.quick.ground_speed)
-				setGyaw(data.result.quick.yaw)
-				setGlatLong({"lat": data.result.quick.lat, "lon": data.result.quick.lon})
-				setGstatus(data.result.status)
-				setGmode(data.result.mode)
-				setGdestination(data.result.quick.destination[1])
-				setGbattery(data.result.quick.battery)
-				setGconnection(data.result.quick.connection)
-			})
-	}
-
-	useEffect(() => {
-		const tick = setInterval(() => {
-			updateData()
-		}, 250)
-		return () => clearInterval(tick)
+	useInterval(250, () => {
+		httpget("/uav/stats", ({ data }) => {
+			setAaltitude(data.result.quick.altitude)
+			// setAthrottle(data.result.quick.throttle)
+			setAorientation({"yaw": data.result.quick.orientation.yaw, "roll": data.result.quick.orientation.roll, "pitch": data.result.quick.orientation.pitch })
+			// setAlatLong({"lat": data.result.quick.lat, "lon": data.result.quick.lon})
+			setAmode(data.result.mode)
+			setAarmed(data.result.armed)
+			// setAstatus(data.result.status)
+			setAgroundSpeed(data.result.quick.ground_speed)
+			// setAairspeed(data.result.quick.air_speed)
+			// setAbattery(data.result.quick.battery)
+			// setAtemperature(data.result.quick.temperature)
+			setAwaypoint(data.result.quick.waypoint)
+			// setAconnection(data.result.quick.connection)
+		})
+		httpget("/ugv/stats", ({ data }) => {
+			setGarmed(data.result.armed)
+			setGgroundSpeed(data.result.quick.ground_speed)
+			setGyaw(data.result.quick.yaw)
+			setGlatLong({"lat": data.result.quick.lat, "lon": data.result.quick.lon})
+			setGstatus(data.result.status)
+			setGmode(data.result.mode)
+			setGdestination(data.result.quick.destination[1])
+			setGbattery(data.result.quick.battery)
+			setGconnection(data.result.quick.connection)
+		})
 	})
 
 	const [waypointNum, setWaypointNum] = useState(1)
@@ -128,8 +118,8 @@ const Actions = () => {
 					</Dropdown>
 					<Button onClick={() => { setAmode("MANUAL"); httppost("/uav/mode/set", { "mode": "MANUAL" }) }}>Manual</Button>
 					<Button onClick={() => { setAmode("AUTO"); httppost("/uav/mode/set", { "mode": "AUTO" }) }}>Auto</Button>
-					<Button onClick={() => { setAmode("LOITER"); httppost("/uav/mode/set", { "mode": "LOITER" }) }}>Loiter</Button>
-					<Button onClick={() => { setAmode("RTL"); httppost("/uav/mode/set", { "mode": "RTL" }) }}>RTL</Button>
+					<Button warning={true} color={darkred} onClick={() => { setAmode("TAKEOFF"); httppost("/uav/mode/set", { "mode": "TAKEOFF" }) }}>Takeoff</Button>
+					<Button warning={true} color={darkred} onClick={() => { httppost("/uav/commands/insert", { "command": "LAND", "lat": 38.14469, "lon": -76.42799, alt: 6.6 }) }}>Land</Button>
 				</Row>
 			</Column>
 			<Column>
@@ -196,7 +186,7 @@ const Actions = () => {
 			</Column>
 			<Column style={{ marginBottom: "1rem" }}>
 				<Row>
-					<Button onClick={() => window.open("http://localhost:5000/uav/commands/view")}>View</Button>
+					<Button href="http://localhost:5000/uav/commands/view" newTab={true}>View</Button>
 					<Button onClick={() => httppost("/uav/commands/load")}>Load</Button>
 					<Button onClick={() => httppost("/uav/commands/save")}>Save</Button>
 					<Button onClick={() => httppost("/uav/commands/clear")}>Clear</Button>
@@ -216,12 +206,11 @@ const Actions = () => {
 					<Row>
 						<Column>
 							<Row id="labels1" height="0rem" gap="0.5rem">
-								<Label columns={1}>Mission</Label>
+								<Label columns={1}>Flight Modes (Current: {Gmode})</Label>
 							</Row>
 							<Row>
-								<Button onClick={() => window.open("http://localhost:5000/ugv/commands/view")}>View</Button>
-								<Button onClick={() => httppost("/ugv/commands/load")}>Reset</Button>
-								<Button warning={true} color={darkred} onClick={() => httppost("/ugv/abort")}>Abort?</Button>
+								<Button onClick={() => httppost("/ugv/mode/set", { "mode": "MANUAL" })}>Manual</Button>
+								<Button onClick={() => httppost("/ugv/mode/set", { "mode": "AUTO" })}>Auto<br/> </Button>
 							</Row>
 						</Column>
 					</Row>
@@ -229,7 +218,8 @@ const Actions = () => {
 			</Column>
 			<Column>
 				<Row id="labels3" height="2rem" gap="0.5rem">
-					<Label>Configuration</Label>
+					<Label columns={3}>Mission</Label>
+					<Label columns={3}>Configuration</Label>
 				</Row>
 			</Column>
 			<Column style={{ marginBottom: "1rem" }}>

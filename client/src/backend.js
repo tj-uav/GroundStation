@@ -24,4 +24,12 @@ const httppost = async (endpoint, data, func) => {
     return response
 }
 
-export { httpget, httppost }
+const getUrl = () => {
+    return url
+}
+
+const setUrl = (u) => {
+    url = u;
+}
+
+export { httpget, httppost, getUrl, setUrl }

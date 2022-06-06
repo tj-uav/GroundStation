@@ -6,6 +6,7 @@ import { dark, blue, red } from "theme/Colors"
 import Link from "./Link"
 
 import { ReactComponent as RawWarning } from "icons/warning.svg"
+import { unselectable } from "css.js"
 
 const Button = forwardRef(({ active, onChange, controlled, to, href, careful = false, ...props }, ref) => {
 	const [isActive, setActive] = useState(active ?? false)
@@ -28,6 +29,7 @@ const Button = forwardRef(({ active, onChange, controlled, to, href, careful = f
 			}}
 			to={to}
 			href={href}
+			newTab={props.newTab}
 			{...props}
 		>
 			<div styles="display: inline;">
@@ -56,9 +58,11 @@ const Warning = styled(RawWarning)`
 export const StyledButton = styled(Link).attrs(props => ({
 	to: props.to,
 	href: props.href,
+	newTab: props.newTab
 })).withConfig({
 	shouldForwardProp: (prop, fn) => !["active"].includes(prop),
 })`
+	${unselectable}
 	position: relative;
 	box-sizing: border-box;
 	background: ${props => (props.active ? (props.color ?? blue) : dark)};

@@ -4,6 +4,7 @@ import { Button, CheckboxList } from "components/UIElements"
 import { Column, Row } from "components/Containers"
 import { httpget } from "backend"
 import { dark, darkest, darkdark, red } from "theme/Colors"
+import { useInterval } from "../../../util"
 
 const colors = {
 	DEBUG: darkdark,
@@ -32,12 +33,12 @@ const Logs = () => {
 		scrollDiv.current.scrollIntoView()
 	}
 
-	const updateData = () => {
+	useInterval(1000, () => {
 		httpget("/logs", (response) => {
 			setLogs(response.data.result)
 			checkScrolling(true)
 		})
-	}
+	})
 
 	const checkScrolling = (shouldScroll) => {
 		let scrollTop = container.current.scrollTop
@@ -64,12 +65,7 @@ const Logs = () => {
 			scrollToBottom()
 		}
 
-		const tick = setInterval(() => {
-			updateData()
-		}, 1000)
-
 		return () => {
-			clearInterval(tick)
 			window.sessionStorage.setItem("logs", logsRef.length > 0 ? "" : logsRef.current.reduce((p, n) => {
 				return p + "|||" + n
 			}))
@@ -87,7 +83,6 @@ const Logs = () => {
 	return (
 		<StyledContainer>
 			<CheckboxList name="logFilter" onChange={(e) => {
-					console.log(e.target.value)
 					if (e.target.checked) {
 						if (!filters.includes(e.target.value)) {
 							setFilters([...filters, e.target.value])
@@ -112,7 +107,7 @@ const Logs = () => {
 						<CheckboxList.Option checked={filters.includes("[CRITICAL ]")} value="[CRITICAL ]" color={colors.CRITICAL}>Critical</CheckboxList.Option>
 					</Column>
 					<Column gap="0em">
-						<ScrollButton onChange={() => window.open("http://localhost:5000/logs")}>Open Log File</ScrollButton>
+						<ScrollButton href="http://localhost:5000/logs" newTab={true}>Open Log File</ScrollButton>
 						<ScrollButton onChange={() => { scrollDiv.current.scrollIntoView(); setAutoScroll(true) }}>Scroll To End</ScrollButton>
 					</Column>
 				</Row>
@@ -147,9 +142,9 @@ const StyledLog = ({ content }) => {
 }
 
 const ScrollButton = styled(Button)`
-	margin: auto 0 0 auto;
+	margin: 0.25em 0 0 2.5em;
 	width: 75%;
-	height: 1.5em;
+	height: 2em;
 `
 
 const StyledContainer = styled.div`
