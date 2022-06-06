@@ -4,50 +4,16 @@ import math
 import random
 
 from dronekit import Command
-from pymavlink import mavutil as uavutil
+from pymavlink import mavutil
 
 from errors import GeneralError, ServiceUnavailableError, InvalidRequestError
 
 COMMANDS = {
-    # Takeoff will be initiated using a Flight Mode
-    # "TAKEOFF": uavutil.mavlink.MAV_CMD_NAV_TAKEOFF,
-    "WAYPOINT": uavutil.mavlink.MAV_CMD_NAV_WAYPOINT,
-    "LAND": uavutil.mavlink.MAV_CMD_NAV_LAND,
-    "GEOFENCE": uavutil.mavlink.MAV_CMD_NAV_FENCE_POLYGON_VERTEX_INCLUSION
+    "TAKEOFF": mavutil.mavlink.MAV_CMD_NAV_TAKEOFF,
+    "WAYPOINT": mavutil.mavlink.MAV_CMD_NAV_WAYPOINT,
+    "LAND": mavutil.mavlink.MAV_CMD_NAV_LAND,
+    "GEOFENCE": mavutil.mavlink.MAV_CMD_NAV_FENCE_POLYGON_VERTEX_INCLUSION
 }
-
-
-def readmission(filename):
-    """
-    Load a mission from a file into a list.
-
-    This function is used by upload_mission().
-    """
-    print(f"Reading mission from file: {filename}\n")
-    missionlist = []
-    with open(filename, "r", encoding="utf-8") as f:
-        for i, line in enumerate(f):
-            if i == 0:
-                if not line.startswith("QGC WPL 110"):
-                    raise Exception("File is not supported WP version")
-            else:
-                linearray = line.split("\t")
-                ln_currentwp = int(linearray[1])
-                ln_frame = int(linearray[2])
-                ln_command = int(linearray[3])
-                ln_param1 = float(linearray[4])
-                ln_param2 = float(linearray[5])
-                ln_param3 = float(linearray[6])
-                ln_param4 = float(linearray[7])
-                ln_param5 = float(linearray[8])
-                ln_param6 = float(linearray[9])
-                ln_param7 = float(linearray[10])
-                ln_autocontinue = int(linearray[11].strip())
-                cmd = Command(0, 0, 0, ln_frame, ln_command, ln_currentwp, ln_autocontinue,
-                              ln_param1, ln_param2, ln_param3, ln_param4, ln_param5, ln_param6,
-                              ln_param7)
-                missionlist.append(cmd)
-    return missionlist
 
 
 class DummyUGVHandler:
@@ -58,34 +24,33 @@ class DummyUGVHandler:
         self.port = self.config["ugv"]["telemetry"]["port"]
         self.serial = self.config["ugv"]["telemetry"]["serial"]
         self.update_thread = None
-        self.yaw = self.ground_speed = self.droppos = self.dest = self.dist_to_dest = \
-            self.battery = self.lat = self.lon = self.connection = self.mode = self.gps = None
+        self.current_state = self.next_objective = self.yaw = self.ground_speed = \
+            self.connection = self.droppos = self.lat = self.lon = self.dist_to_dest = \
+            self.mode = self.gps = None
         with open("handlers/pixhawk/ugv/ugv_params.json", "r", encoding="utf-8") as file:
             self.params = json.load(file)
         self.mode = "AUTO"
+        self.states = ["On Plane", "Drop to Ground", "Reach Destination", "Terminated"]
         self.commands = []
-        self.armed = True
-        self.status = "ACTIVE"
+        self.armed = False
         print("╠ CREATED DUMMY UGV HANDLER")
         self.logger.info("CREATED DUMMY UGV HANDLER")
 
-    # Basic Methods
-
     def connect(self):
-        try:
-            self.update()
-            print("╠ INITIALIZED DUMMY UGV HANDLER")
-            self.logger.info("INITIALIZED DUMMY UGV HANDLER")
-            return {}
-        except Exception as e:
-            raise GeneralError(str(e)) from e
+        print("╠ INITIALIZED DUMMY UGV HANDLER")
+        self.logger.info("INITIALIZED DUMMY UGV HANDLER")
+        self.update()
+        return {}
 
     def update(self):
         try:
+            self.current_state = random.choice(self.states)
+            self.next_objective = self.states[
+                ((self.states.index(self.current_state)) + 1) % len(self.states)]
+            self.yaw = random.randint(0, 360)
             self.ground_speed = random.random() * 30 + 45
-            self.battery = random.random() * 2 + 14
             self.connection = [random.random(), random.random(), random.random() * 100]
-            # simulates the ugv in the ugv boundary
+            # simulates the plane flying over waypoints
             if not self.droppos:
                 self.droppos = self.gs.call("i_data", "ugv")
                 self.droppos = self.droppos["result"]
@@ -97,7 +62,6 @@ class DummyUGVHandler:
             x_dist_ft = x_dist * (math.cos(self.lat * math.pi / 180) * 69.172) * 5280
             y_dist_ft = y_dist * 69.172 * 5280
             self.dist_to_dest = math.sqrt(x_dist_ft ** 2 + y_dist_ft ** 2)
-            self.dest = [self.droppos, self.dist_to_dest]
             self.yaw = int((angle / (2 * math.pi) * 360) if angle >= 0 else (
                         angle / (2 * math.pi) * 360 + 360))
             return {}
@@ -108,12 +72,11 @@ class DummyUGVHandler:
 
     def quick(self):
         return {"result": {
+            "states": [self.current_state, self.next_objective, self.dist_to_dest],
             "yaw": self.yaw,
             "lat": self.lat,
             "lon": self.lon,
             "ground_speed": self.ground_speed,
-            "battery": self.battery,
-            "destination": self.dest,
             "connection": self.connection
         }}
 
@@ -122,11 +85,8 @@ class DummyUGVHandler:
             "quick": self.quick()["result"],
             "mode": self.mode,
             "commands": [cmd.to_dict() for cmd in self.commands],
-            "armed": self.get_armed()["result"],
-            "status": self.status
+            "armed": self.armed
         }}
-
-    # Flight Mode
 
     def set_flight_mode(self, flightmode):
         self.mode = flightmode
@@ -134,8 +94,6 @@ class DummyUGVHandler:
 
     def get_flight_mode(self):
         return {"result": self.mode}
-
-    # Parameters
 
     def get_param(self, key):
         return {"result": self.params[key]}
@@ -184,8 +142,6 @@ class DummyUGVHandler:
         except Exception as e:
             raise GeneralError(str(e)) from e
 
-    # Commands (Mission)
-
     def get_commands(self):
         try:
             commands = self.commands
@@ -197,52 +153,19 @@ class DummyUGVHandler:
         if command not in COMMANDS:
             raise InvalidRequestError("Invalid Command Name")
         try:
-            new_cmd = Command(0, 0, 0, uavutil.mavlink.MAV_FRAME_GLOBAL_RELATIVE_ALT,
+            new_cmd = Command(0, 0, 0, mavutil.mavlink.MAV_FRAME_GLOBAL_RELATIVE_ALT,
                               COMMANDS[command], 0, 0, 0, 0, 0, 0, lat, lon, alt)
             self.commands.append(new_cmd)
             return {}
         except Exception as e:
             raise GeneralError(str(e)) from e
 
-    def jump_to_command(self, command: int):
-        pass
-
-    def load_commands(self):
-        """
-        Upload a mission from a file.
-        """
-        try:
-            missionlist = readmission("handlers/pixhawk/uav/uav_mission.txt")
-            for command in missionlist:
-                self.commands.append(command)
-        except Exception as e:
-            raise GeneralError(str(e)) from e
-
-    def save_commands(self):
-        """
-        Save a mission in the Waypoint file format
-        (https://qgroundcontrol.org/mavlink/waypoint_protocol#waypoint_file_format).
-        """
-        try:
-            output = "QGC WPL 110\n"
-            for cmd in self.commands:
-                commandline = f"{cmd.seq}\t{cmd.current}\t{cmd.frame}\t{cmd.command}\t" \
-                              f"{cmd.param1}\t{cmd.param2}\t{cmd.param3}\t{cmd.param4}\t{cmd.x}\t" \
-                              f"{cmd.y}\t{cmd.z}\t{cmd.autocontinue}\n"
-                output += commandline
-            with open("handlers/pixhawk/uav/uav_mission.txt", "w", encoding="utf-8") as file_:
-                file_.write(output)
-        except Exception as e:
-            raise GeneralError(str(e)) from e
-
-    def clear_commands(self):
+    def clear_mission(self):
         self.commands = []
         return {}
 
-    # Armed
-
     def get_armed(self):
-        return {"result": "ARMED" if self.armed else "DISARMED (ARMABLE)"}
+        return {"result": self.armed}
 
     def arm(self):
         self.armed = True  # Motors can be started

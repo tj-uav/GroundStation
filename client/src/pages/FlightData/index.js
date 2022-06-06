@@ -34,7 +34,7 @@ const FlightData = () => {
 	const [obstacles, setObstacles] = useState([])
 	const [offAxis, setOffAxis] = useState({})
 	const [searchGrid, setSearchGrid] = useState([])
-	const [uav, setUav] = useState({})
+	const [plane, setPlane] = useState({})
 	const [ugv, setUgv] = useState({})
 
 	const getters = {
@@ -47,7 +47,7 @@ const FlightData = () => {
 		obstacles: obstacles,
 		offAxis: offAxis,
 		searchGrid: searchGrid,
-		uav: uav,
+		plane: plane,
 		ugv: ugv
 	}
 
@@ -61,7 +61,7 @@ const FlightData = () => {
 		obstacles: setObstacles,
 		offAxis: setOffAxis,
 		searchGrid: setSearchGrid,
-		uav: setUav,
+		plane: setPlane,
 		ugv: setUgv
 	}
 
@@ -75,12 +75,12 @@ const FlightData = () => {
 		obstacles: "Obstacles",
 		offAxis: "Off Axis ODLC",
 		searchGrid: "ODLC Search Grid",
-		uav: "UAV",
+		plane: "Plane",
 		ugv: "UGV"
 	}
 
 	const queryTelemetry = () => {
-		httpget("/uav/quick", response => {console.log(response.data.result); setUav({
+		httpget("/uav/quick", response => {console.log(response.data.result); setPlane({
 			latlng: {
 				lat: response.data.result.lat,
 				lng: response.data.result.lon
