@@ -187,16 +187,16 @@ class DummyUAVHandler:
     # Setup
 
     def set_home(self):
-        return {}
+        pass
 
     def calibrate(self):
-        return {}
+        pass
 
     def restart(self):
-        return {}
+        pass
 
     def abort(self):
-        return {}
+        pass
 
     # Flight Mode
 

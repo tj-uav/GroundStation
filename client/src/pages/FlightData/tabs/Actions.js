@@ -11,7 +11,7 @@ const actions = {
 	waypoint: [0, 1, 2, 3, 4]
 }
 
-const Modes = ["Manual", "Auto", "Loiter", "RTL", "Takeoff", "Land", "Circle", "Stabilize"]
+const Modes = ["Manual", "Auto", "Takeoff", "Land", "Stabilize", "Loiter", "Circle", "RTL"]
 
 const Actions = () => {
 	const [Aaltitude, setAaltitude] = useState(0)
@@ -128,8 +128,8 @@ const Actions = () => {
 					</Dropdown>
 					<Button onClick={() => { setAmode("MANUAL"); httppost("/uav/mode/set", { "mode": "MANUAL" }) }}>Manual</Button>
 					<Button onClick={() => { setAmode("AUTO"); httppost("/uav/mode/set", { "mode": "AUTO" }) }}>Auto</Button>
-					<Button onClick={() => { setAmode("LOITER"); httppost("/uav/mode/set", { "mode": "LOITER" }) }}>Loiter</Button>
-					<Button onClick={() => { setAmode("RTL"); httppost("/uav/mode/set", { "mode": "RTL" }) }}>RTL</Button>
+					<Button warning={true} color={darkred} onClick={() => { setAmode("TAKEOFF"); httppost("/uav/mode/set", { "mode": "TAKEOFF" }) }}>Takeoff</Button>
+					<Button warning={true} color={darkred} onClick={() => { httppost("/uav/commands/insert", { "command": "LAND", "lat": 38.14469, "lon": -76.42799, alt: 6.6 }) }}>Land</Button>
 				</Row>
 			</Column>
 			<Column>
@@ -139,10 +139,10 @@ const Actions = () => {
 			</Column>
 			<Column style={{ marginBottom: "1rem" }}>
 				<Row>
-					<Button warning={true} color={darkred} onClick={() => httppost("/uav/sethome")}>Set home?</Button>
-					<Button warning={true} color={darkred} onClick={() => httppost("/uav/calibrate")}>Calibration?</Button>
-					<Button warning={true} color={darkred} onClick={() => httppost(Aarmed === "ARMED" ? "/uav/disarm" : "/uav/arm")}>{Aarmed === "ARMED" ? "Disarm" : "Arm"}</Button>
-					<Button warning={true} color={darkred} onClick={() => httppost("/uav/restart")}>Restart?</Button>
+					<Button color={darkred}>Set home?</Button>
+					<Button color={darkred}>Calibration?</Button>
+					<Button color={darkred} onClick={() => httppost(Aarmed === "ARMED" ? "/uav/disarm" : "/uav/arm")}>{Aarmed === "ARMED" ? "Disarm" : "Arm"}</Button>
+					<Button color={darkred}>Restart?</Button>
 				</Row>
 			</Column>
 			<Column>
@@ -200,7 +200,7 @@ const Actions = () => {
 					<Button onClick={() => httppost("/uav/commands/load")}>Load</Button>
 					<Button onClick={() => httppost("/uav/commands/save")}>Save</Button>
 					<Button onClick={() => httppost("/uav/commands/clear")}>Clear</Button>
-					<Button warning={true} color={darkred} onClick={() => httppost("/uav/abort")}>Abort?</Button>
+					<Button color={darkred}>Abort Land?</Button>
 				</Row>
 			</Column>
 			<StyledDiv style={{ marginTop: "0em" }}>
@@ -216,12 +216,11 @@ const Actions = () => {
 					<Row>
 						<Column>
 							<Row id="labels1" height="0rem" gap="0.5rem">
-								<Label columns={1}>Mission</Label>
+								<Label columns={1}>Flight Modes (Current: {Gmode})</Label>
 							</Row>
 							<Row>
-								<Button onClick={() => window.open("http://localhost:5000/ugv/commands/view")}>View</Button>
-								<Button onClick={() => httppost("/ugv/commands/load")}>Reset</Button>
-								<Button warning={true} color={darkred} onClick={() => httppost("/ugv/abort")}>Abort?</Button>
+								<Button onClick={() => httppost("/ugv/mode/set", { "mode": "MANUAL" })}>Manual</Button>
+								<Button onClick={() => httppost("/ugv/mode/set", { "mode": "AUTO" })}>Auto<br/> </Button>
 							</Row>
 						</Column>
 					</Row>
@@ -229,15 +228,18 @@ const Actions = () => {
 			</Column>
 			<Column>
 				<Row id="labels3" height="2rem" gap="0.5rem">
-					<Label>Configuration</Label>
+					<Label columns={3}>Mission</Label>
+					<Label columns={3}>Configuration</Label>
 				</Row>
 			</Column>
 			<Column style={{ marginBottom: "1rem" }}>
 				<Row>
-					<Button warning={true} color={darkred} onClick={() => httppost("/ugv/sethome")}>Set home?</Button>
-					<Button warning={true} color={darkred} onClick={() => httppost("/ugv/calibrate")}>Calibration?</Button>
-					<Button warning={true} color={darkred} onClick={() => httppost(Garmed === "ARMED" ? "/ugv/disarm" : "/ugv/arm")}>{Garmed === "ARMED" ? "Disarm" : "Arm"}</Button>
-					<Button warning={true} color={darkred} onClick={() => httppost("/ugv/restart")}>Restart?</Button>
+					<Button onClick={() => window.open("http://localhost:5000/ugv/commands/view")}>View</Button>
+					<Button onClick={() => httppost("/ugv/commands/load")}>Reset</Button>
+					<Button color={darkred}>Abort?</Button>
+					<Button color={darkred}>Calibrate?</Button>
+					<Button color={darkred} onClick={() => httppost(Garmed === "ARMED" ? "/ugv/disarm" : "/ugv/arm")}>{Garmed === "ARMED" ? "Disarm" : "Arm"}</Button>
+					<Button color={darkred}>Restart?</Button>
 				</Row>
 			</Column>
 		</div>

@@ -77,7 +77,7 @@ def uav_load_commands():
 
 @ugv_commands.route("/view")
 def uav_view_commands_file():
-    return send_file("handlers/ugv/ugv_mission.txt")
+    return send_file("handlers/pixhawk/uav/uav_mission.txt")
 
 
 @ugv_commands.route("/clear", methods=["POST"])
