@@ -1,12 +1,15 @@
 // @flow
 
-import React, { createRef, useState, useEffect } from "react"
-import { MapContainer, TileLayer, Tooltip, Marker, Polyline, Circle, LayersControl, LayerGroup } from "react-leaflet"
+import React, { createRef, useEffect, useState, useRef } from "react"
+import { MapContainer, TileLayer, Tooltip, Marker, Polyline, Circle, LayersControl, LayerGroup, useMapEvent, Popup } from "react-leaflet"
 import { httpget } from "../backend.js"
 import L from "leaflet"
+
 import PolylineDecorator from "../pages/FlightData/tabs/FlightPlan/PolylineDecorator.js"
 import RotatedMarker from "./RotatedMarker.js"
 import { useInterval } from "../util"
+import { Box, Button } from "components/UIElements"
+import { red } from "theme/Colors"
 
 const FlightPlanMap = props => {
 	const [state, setState] = useState({
@@ -43,6 +46,12 @@ const FlightPlanMap = props => {
 			props.setters.obstacles(response.data.result.stationaryObstacles)
 		})
 
+		httpget("/uav/commands/export", response => {
+			props.setters.path(response.data.waypoints.map((marker) => {
+				return { lat: marker.lat, lng: marker.lon, alt: marker.alt }
+			}))
+		})
+
 		var MarkerIcon = L.Icon.extend({
 			options: {
 				iconSize: [25, 41],
@@ -77,6 +86,7 @@ const FlightPlanMap = props => {
 			ugvDrive: new MarkerIcon({ iconUrl: "../assets/icon-ugvDrive.png" }),
 			offAxis: new MarkerIcon({ iconUrl: "../assets/icon-offAxis.png" }),
 			searchGrid: new MarkerIcon({ iconUrl: "../assets/icon-searchGrid.png" }),
+			path: new MarkerIcon({ iconUrl: "../assets/icon-path.png" }),
 			uav: new VehicleIcon({ iconUrl: "../assets/uav.svg" }),
 			uavDirection: new DirectionPointerIcon({ iconUrl: "../assets/pointer.svg" }),
 			uavDirectionOutline: new DirectionPointerIcon({ iconUrl: "../assets/pointer-outline.svg" }),
@@ -122,49 +132,93 @@ const FlightPlanMap = props => {
 	}
 
 	const handleMove = (event, idx, datatype) => {
-		let get = props.getters[datatype]
-		let set = props.setters[datatype]
+		let get = props.getters["path"]
+		let set = props.setters["path"]
 		let temp = get.slice()
-		let loc = { lat: event.target.getLatLng().lat, lng: event.target.getLatLng().lng }
+		let loc = { lat: event.target.getLatLng().lat, lng: event.target.getLatLng().lng, alt: props.getters[datatype][idx].alt, opacity: 0.5 }
 		temp[idx] = loc
 		set(temp)
+		props.setSaved(false)
 	}
 
-	const popup = (latlng, key, datatype) => (
-		<Marker
-			icon={icons[datatype]}
-			position={latlng}
-			onclick={() => {}}
-			onkeydown={event => handleKeyPress(event, key)}
-			draggable={true}
-			onmoveend={event => handleMove(event, key, datatype)}
-			datatype={datatype}
-		>
-			<Tooltip>
-				{props.display[datatype] + " " + (key + 1)} ({ latlng.lat.toFixed(5) }, { latlng.lng.toFixed(5) })
-			</Tooltip>
-		</Marker>
-	)
+	const popup = (latlng, key, datatype, popupMenu) => {
+		return (
+			<Marker
+				icon={icons[datatype]}
+				position={latlng}
+				eventHandlers={{
+					dragend: (event) => { handleMove(event, key, datatype) }
+				}}
+				onkeydown={event => handleKeyPress(event, key)}
+				draggable={true}
+				datatype={datatype}
+				opacity={latlng.opacity}
+			>
+				<Tooltip>
+					{props.display[datatype] + " " + (key + 1)} ({latlng.lat.toFixed(5)}, {latlng.lng.toFixed(5)}{latlng.alt ? ", " + latlng.alt + " ft" : null})
+				</Tooltip>
+				{popupMenu ?
+					<Popup>
+						{popupMenu}
+					</Popup>
+				: null}
+			</Marker>
+		)
+	}
 
 	const singlePopup = (type) => {
 		return (
-			<Marker icon={icons[type]} position={props.getters[type]} draggable={true}>
+			<Marker icon={icons[type]} position={props.getters[type]} draggable={true} opacity={props.getters[type].opacity}>
 				<Tooltip>
-					{props.display[type]} ({ props.getters[type].lat.toFixed(5) }, { props.getters[type].lng.toFixed(5) })
+					{props.display[type]} ({props.getters[type].lat.toFixed(5)}, {props.getters[type].lng.toFixed(5)})
 				</Tooltip>
 			</Marker>)
 	}
 
 	const handleClick = event => {
-		if (props.mode && false) {
-			let get = props.getters[props.mode]
-			let set = props.setters[props.mode]
-			if (get.constructor.name == "Array") {
+		if (props.mode) {
+			let get = props.getters["path"]
+			let set = props.setters["path"]
+			if (props.mode === "push" || (props.mode === "insert" && get.length < 2)) {
 				let temp = get.slice()
-				temp.push({ lat: event.latlng.lat, lng: event.latlng.lng })
+				temp.push({ lat: event.latlng.lat, lng: event.latlng.lng, opacity: 0.5 })
 				set(temp)
-			} else { // object {}
-				set({ lat: event.latlng.lat, lng: event.latlng.lng })
+			} else if (props.mode === "insert") {
+				const getPerpendicularDistance = (i) => {
+					let first = get[i]
+					let second = get[i + 1]
+					let m = (second.lat - first.lat)/(second.lng - first.lng)
+					let x0 = (event.latlng.lng/m + event.latlng.lat - second.lat + m*second.lng)/(m + 1/m) // projection of event point on line
+					let y0 = -(x0 - event.latlng.lng)/m + event.latlng.lat
+
+					let d = Math.sqrt((x0 - event.latlng.lng)**2 + (y0 - event.latlng.lat)**2)
+					if (x0 > Math.min(first.lng, second.lng) && x0 < Math.max(first.lng, second.lng) && y0 > Math.min(first.lat, second.lat) && y0 < Math.max(first.lat, second.lat)) {
+						return [d, true]
+					} else {
+						return [d, false]
+					}
+				}
+
+				let min = 0;
+				let inBox = getPerpendicularDistance(0)[1]
+				for (let i = 0; i < get.length-1; i++) {
+					let [d, _in] = getPerpendicularDistance(i)
+					if (_in && !inBox) {
+						min = i
+						inBox = true
+					} else if ((!_in && !inBox) || (_in && inBox)) {
+						if (d < getPerpendicularDistance(min)[0]) {
+							min = i
+						}
+					}
+				}
+
+				let path = get.slice()
+				path.splice(min + 1, 0, { lat: event.latlng.lat, lng: event.latlng.lng, opacity: 0.5 })
+				set(path)
+			}
+			if (props.saved && props.mode !== "disabled") {
+				props.setSaved(false)
 			}
 		}
 	}
@@ -175,6 +229,13 @@ const FlightPlanMap = props => {
 		}
 		return arr.concat([arr[0]])
 	}
+
+	const ClickLocation = () => {
+		useMapEvent("click", (e) => {
+			handleClick(e);
+		});
+		return null;
+	};
 
 	return (
 		<div>
@@ -188,8 +249,10 @@ const FlightPlanMap = props => {
 			>
 				<TileLayer
 					attribution='&amp;copy <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-					url={online ? "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" : "/map/{z}/{x}/{y}.png"}
+					url={"/map/{z}/{x}/{y}.png"}
+					ref={tileRef}
 				/>
+				<ClickLocation />
 				<LayersControl position="topright">
 					{ /* Need for Auvsi Suas: waypoints, obstacles, geofence, ugv drop 
 						ugv drive, ugv fence, odlc search grid, off axis odlc */ }
@@ -213,9 +276,9 @@ const FlightPlanMap = props => {
 						<LayerGroup>
 							{props.getters.obstacles.map((obstacle) => {
 								return (
-									<Circle center={[obstacle.latitude, obstacle.longitude]} color="#FF0000" radius={obstacle.radius/3.281}>
+									<Circle center={[obstacle.latitude, obstacle.longitude]} color="#FF0000" radius={obstacle.radius / 3.281}>
 										<Tooltip>
-											Obstacle ({ obstacle.latitude.toFixed(5) }, { obstacle.longitude.toFixed(5) })
+											Obstacle ({obstacle.latitude.toFixed(5)}, {obstacle.longitude.toFixed(5)})
 										</Tooltip>
 									</Circle>
 								)
@@ -249,7 +312,7 @@ const FlightPlanMap = props => {
 								<RotatedMarker icon={icons.uavDirection} position={props.getters.uav.latlng} rotationAngle={props.getters.uav.heading} rotationOrigin={"50% 100%"} />
 								<Marker icon={icons.uav} position={props.getters.uav.latlng}>
 									<Tooltip>
-										UAV ({ props.getters.uav.latlng.lat.toFixed(5) }, { props.getters.uav.latlng.lng.toFixed(5) })
+										UAV ({props.getters.uav.latlng.lat.toFixed(5)}, {props.getters.uav.latlng.lng.toFixed(5)})
 									</Tooltip>
 								</Marker>
 								<RotatedMarker icon={icons.uavDirectionOutline} position={props.getters.uav.latlng} rotationAngle={props.getters.uav.heading} rotationOrigin={"50% 100%"} />
@@ -262,12 +325,54 @@ const FlightPlanMap = props => {
 								<RotatedMarker icon={icons.ugvDirection} position={props.getters.ugv.latlng} rotationAngle={props.getters.ugv.heading} rotationOrigin={"50% 100%"} />
 								<Marker icon={icons.ugv} position={props.getters.ugv.latlng}>
 									<Tooltip>
-										UGV ({ props.getters.ugv.latlng.lat.toFixed(5) }, { props.getters.ugv.latlng.lng.toFixed(5) })
+										UGV ({props.getters.ugv.latlng.lat.toFixed(5)}, {props.getters.ugv.latlng.lng.toFixed(5)})
 									</Tooltip>
 								</Marker>
 								<RotatedMarker icon={icons.ugvDirectionOutline} position={props.getters.ugv.latlng} rotationAngle={props.getters.ugv.heading} rotationOrigin={"50% 100%"} />
 							</LayerGroup>
 						)}
+					</LayersControl.Overlay>
+					<LayersControl.Overlay checked name="Mission Path">
+						<LayerGroup>
+							<Polyline positions={props.getters.path} color="#10336B" />
+							{props.getters.path.map((marker, i) => {
+								return popup(marker, i, "path", (
+									<div>
+										Altitude (feet)
+										<Box style={{ "width": "12em", "margin-right": "4em", "height": "3em" }} editable={true} content={marker.altitude} onChange={v => {
+											let path = props.getters.path;
+											if (!Number.isNaN(Number(v)) && v.length > 0) {
+												if (v.endsWith(".")) {
+													props.setters.path([...path.slice(0, i), { ...marker, alt: null }, ...path.slice(i + 1)])
+												} else {
+													props.setters.path([...path.slice(0, i), { ...marker, alt: Number(v) }, ...path.slice(i + 1)])
+												}
+												return v
+											} else if (v.substring(0, v.length - 1).endsWith(".")) {
+												return v.substring(0, v.length - 1)
+											} else if (v.length === 0) {
+												props.setters.path([...path.slice(0, i), { ...marker, alt: null }, ...path.slice(i + 1)])
+												return v
+											} else if (v.substring(0, Math.max(v.length - 1, 1)) === "-") {
+												props.setters.path([...path.slice(0, i), { ...marker, alt: null }, ...path.slice(i + 1)])
+												return v.substring(0, Math.max(v.length - 1, 1))
+											} else if (Number.isNaN(parseFloat(v))) {
+												return ""
+											}
+
+											return marker.altitude
+										}} />
+										<Button style={{ "margin-top": "0.5em" }} color={red} onClick={() => {
+											let path = props.getters.path.slice()
+											path.splice(i, 1)
+											props.setters.path(path)
+										}}>
+											Delete
+										</Button>
+									</div>
+								))
+							})}
+						</LayerGroup>
 					</LayersControl.Overlay>
 				</LayersControl>
 			</MapContainer>
