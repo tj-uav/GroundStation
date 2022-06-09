@@ -25,7 +25,9 @@ TODO: Display list highlighting (and vice versa)
 */
 
 const FlightData = () => {
-	const [mode, setMode] = useState("waypoints")
+	const [mode, setMode] = useState("push")
+	const [saved, setSaved] = useState(true)
+
 	const [waypoints, setWaypoints] = useState([])
 	const [commands, setCommands] = useState([])
 	const [fence, setFence] = useState([])
@@ -35,6 +37,8 @@ const FlightData = () => {
 	const [obstacles, setObstacles] = useState([])
 	const [offAxis, setOffAxis] = useState({})
 	const [searchGrid, setSearchGrid] = useState([])
+	const [path, setPath] = useState([])
+	const [pathSave, setPathSave] = useState([]) // only used for discarding changes
 	const [uav, setUav] = useState({})
 	const [ugv, setUgv] = useState({})
 
@@ -48,6 +52,8 @@ const FlightData = () => {
 		obstacles: obstacles,
 		offAxis: offAxis,
 		searchGrid: searchGrid,
+		path: path,
+		pathSave: pathSave,
 		uav: uav,
 		ugv: ugv
 	}
@@ -62,6 +68,8 @@ const FlightData = () => {
 		obstacles: setObstacles,
 		offAxis: setOffAxis,
 		searchGrid: setSearchGrid,
+		path: setPath,
+		pathSave: setPathSave,
 		uav: setUav,
 		ugv: setUgv
 	}
@@ -76,6 +84,7 @@ const FlightData = () => {
 		obstacles: "Obstacles",
 		offAxis: "Off Axis ODLC",
 		searchGrid: "ODLC Search Grid",
+		path: "Mission Path",
 		uav: "UAV",
 		ugv: "UGV"
 	}
@@ -118,6 +127,8 @@ const FlightData = () => {
 					getters={getters}
 					setters={setters}
 					mode={mode}
+					saved={saved}
+					setSaved={setSaved}
 					setMode={setMode}
 					tabName={"Map"}
 				/>
@@ -128,6 +139,8 @@ const FlightData = () => {
 				getters={getters}
 				setters={setters}
 				mode={mode}
+				saved={saved}
+				setSaved={setSaved}
 				setMode={setMode}
 			/>
 		</div>
