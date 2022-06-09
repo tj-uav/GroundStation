@@ -80,6 +80,7 @@ class InteropHandler:
         self.telemetry_json = {}
         self.odlc_queued_data = []
         self.odlc_submission_ids = []
+        self.file_extension = "jpg" if self.config["uav"]["images"]["quality"] > 0 else "png"
         self.map_image = None
         self.submitted_map = None
 
@@ -223,7 +224,7 @@ class InteropHandler:
         description: str = None,
     ):
         try:
-            with open(f"assets/odlc_images/{len(self.odlc_queued_data)}.png", "wb") as file:
+            with open(f"assets/odlc_images/{len(self.odlc_queued_data)}.{self.file_extension}", "wb") as file:
                 file.write(image)
             base_obj = {
                 "created": datetime.now(),
@@ -271,7 +272,7 @@ class InteropHandler:
             raise InvalidRequestError("Missing required fields in request")
         try:
             if image:
-                with open(f"assets/odlc_images/{id_}.png", "wb") as file:
+                with open(f"assets/odlc_images/{id_}.{self.file_extension}", "wb") as file:
                     file.write(base64.decodebytes(bytes(image, "utf-8")))
             old_obj = self.odlc_queued_data[id_]
             old_obj["type"] = int(type_) if type_ else old_obj["type"]
@@ -319,7 +320,7 @@ class InteropHandler:
             if self.odlc_queued_data[id_]["status"] is True:
                 raise InvalidStateError("ODLC Already Submitted")
             obj_data = self.odlc_queued_data[id_]
-            with open(f"assets/odlc_images/{id_}.png", "rb") as image:
+            with open(f"assets/odlc_images/{id_}.{self.file_extension}", "rb") as image:
                 image_data = image.read()
             submission = interop.Odlc()
             submission.mission = self.mission_id
@@ -367,9 +368,9 @@ class InteropHandler:
 
     def map_add(self, name: str, image: str):
         try:
-            if os.path.isfile(f"assets/map_images/{name}.png"):
+            if os.path.isfile(f"assets/map_images/{name}.{self.file_extension}"):
                 raise InvalidStateError("Map with this name already exists")
-            with open(f"assets/map_images/{name}.png", "wb") as file:
+            with open(f"assets/map_images/{name}.{self.file_extension}", "wb") as file:
                 file.write(base64.decodebytes(bytes(image, "utf-8")))
             self.map_image = image
             return {}
@@ -384,9 +385,9 @@ class InteropHandler:
                 self.submitted_map = base64.decodebytes(bytes(self.map_image, "utf-8"))
                 self.client.put_map_image(self.mission_id, self.submitted_map)
             else:
-                if not os.path.isfile(f"assets/map_images/{name}.png"):
+                if not os.path.isfile(f"assets/map_images/{name}.{self.file_extension}"):
                     raise InvalidStateError("Map not found")
-                with open(f"assets/map_images/{name}.png", "rb") as file:
+                with open(f"assets/map_images/{name}.{self.file_extension}", "rb") as file:
                     self.submitted_map = file.read()
                     self.client.put_map_image(self.mission_id, self.submitted_map)
             return {}
