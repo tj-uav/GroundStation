@@ -15,7 +15,7 @@ const FlightPlanMap = props => {
 
 	let mapRef = createRef()
 	const [icons, setIcons] = useState({})
-	const [online, setOnline] = useState(false)
+	const tileRef = useRef(null)
 
 	useEffect(() => {
 		httpget("/interop/mission", response => {
@@ -86,12 +86,10 @@ const FlightPlanMap = props => {
 		})
 
 		window.addEventListener("offline", () => {
-			setOnline(false)
+			tileRef.current.setUrl("/map/{z}/{x}/{y}.png")
 		})
 
-		window.addEventListener("online", () => {
-			setOnline(true)
-		})
+		checkInternet()
 
 	}, [])
 
@@ -100,12 +98,12 @@ const FlightPlanMap = props => {
 			fetch("https://g.co", {
 				mode: "no-cors"
 			}).then(() => {
-				setOnline(true)
+				tileRef.current.setUrl("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png")
 			}).catch(() => {
-				setOnline(false)
+				tileRef.current.setUrl("/map/{z}/{x}/{y}.png")
 			})
 		} else {
-			setOnline(false)
+			tileRef.current.setUrl("/map/{z}/{x}/{y}.png")
 		}
 	}
 	useInterval(5000, checkInternet)
