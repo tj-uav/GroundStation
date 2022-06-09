@@ -21,7 +21,7 @@ const SubmissionEditor = ({ data: [data, setData], active: [active, setActive], 
 
 	useEffect(() => {
 		setFormData(data[active])
-	}, [data, active])
+	}, [active, data[active]?.status])
 
 	const accept = () => {
 		if (form.current === null) return

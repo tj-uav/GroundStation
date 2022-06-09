@@ -34,7 +34,7 @@ const Submissions = () => {
 		return undefined
 	}
 
-	useInterval(1000, () => {
+	useInterval(3000, () => {
 		httpget("/interop/odlc/list", async (response) => {
 			const odlcsEqual = (a, b) => {
 				if (a.alphanumeric === b.alphnumeric ||
