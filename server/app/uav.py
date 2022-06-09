@@ -110,8 +110,8 @@ def uav_view_commands_file():
 @uav_commands.route("/export")
 def uav_export_commands_file():
     waypoints = []
-    with open("handlers/uav/uav_mission.txt", "w") as f:
-        for line in f.readlines():
+    with open("handlers/uav/uav_mission.txt", "r", encoding="utf-8") as f:
+        for line in f.readlines()[1:]:
             spl = line.split("\t")
             waypoints.append({
                 "lat": float(spl[8]),
@@ -126,10 +126,13 @@ def uav_generate_commands_file():
     f = request.json
     if not all(field in f for field in ["waypoints"]):
         raise InvalidRequestError("Missing required fields in request")
-    with open("handlers/uav/uav_mission.txt", "w") as file:
+    with open("handlers/uav/uav_mission.txt", "w", encoding="utf-8") as file:
+        file.write("QGC WPL 110\n")
         counter = 1
         for waypoint in f.get("waypoints"):
             file.write(f"{counter}\t0\t3\t16\t0.0\t0.0\t0.0\t0.0\t{waypoint.get('lat')}\t{waypoint.get('lon')}\t{waypoint.get('alt')}\t1\n")
+            counter += 1
+    return {}
 
 
 @uav_commands.route("/clear", methods=["POST"])

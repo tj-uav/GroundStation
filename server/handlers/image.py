@@ -45,8 +45,9 @@ class ImageHandler:
     def dummy_retreive_image(self):
         # Retrieves Image from UAV
         if random() < 1:  # Every image (until CV implementation)
-            with open("assets/odlc_images/sample.png", "rb") as image_file:
-                img = base64.b64encode(image_file.read())
+            file_extension = "jpg" if self.config["uav"]["images"]["quality"] > 0 else "png"
+            with open(f"assets/odlc_images/sample.png", "rb") as image_file:
+                img = image_file.read()
             if self.process_image(img):  # Dummy Image
                 self.logger.info("[Image] Successfully identified ODLC from Image")
                 return True
