@@ -1,4 +1,5 @@
 import base64
+import json
 
 from flask import Blueprint, current_app as app, request
 
@@ -65,7 +66,10 @@ def odlc_filter(status):
 
 @interop_odlc.route("/image/<int:id_>")
 def odlc_get_image(id_):
-    with open(f"assets/odlc_images/{id_}.png", "rb") as image_file:
+    with open("config.json", "r", encoding="utf-8") as f:
+        config = json.load(f)
+    file_extension = "jpg" if config["uav"]["images"]["quality"] > 0 else "png"
+    with open(f"assets/odlc_images/{id_}.{file_extension}", "rb") as image_file:
         encoded_string = base64.b64encode(image_file.read())
     return {"image": encoded_string.decode("utf-8")}
 
