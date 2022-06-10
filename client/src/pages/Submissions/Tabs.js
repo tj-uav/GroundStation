@@ -3,13 +3,15 @@ import styled from "styled-components"
 import { darker, darkest, darkdark } from "theme/Colors"
 
 import { Box, Checkbox } from "components/UIElements"
-import { Row, Column } from "components/Containers"
+import { Row } from "components/Containers"
 
 import { shapes, colors, standard } from "./constants"
 
-const ViewRow = ({ checkboxes, info, i, active: [active, setActive], data: [data, setData], images: [images, setImages], accept, reject }) => {
+import { FixedSizeList } from "react-window"
+
+const ViewRow = ({ checkboxes, info, i, active: [active, setActive], images: [images, setImages], accept, reject, style }) => {
 	return (
-		<ViewRowContainer checkboxes={checkboxes} clicked={active === i} onClick={() => setActive(i)}>
+		<ViewRowContainer style={style} checkboxes={checkboxes} clicked={active === i} onClick={() => setActive(i)}>
 			{checkboxes ? (
 				<>
 					<Checkbox
@@ -53,7 +55,7 @@ const ViewRowContainer = styled.div`
 	--padding: 0.5rem;
 
 	display: grid;
-	height: calc(9rem + 2 * var(--padding));
+	height: 10rem;
 	gap: 1rem;
 	grid-auto-flow: column;
 	grid-template-columns: ${props => props.checkboxes ? "3rem 9rem auto" : "9rem calc(100% - 10rem)"};
@@ -62,7 +64,10 @@ const ViewRowContainer = styled.div`
 		"accept image upper"
 		"decline image lower";
 	background: ${({ clicked }) => (clicked ? "#00000015" : darker)};
-	padding: ${({ clicked }) => (clicked ? "var(--padding)" : "0px")};
+	padding-right: ${({ clicked }) => (clicked ? "var(--padding)" : "0px")};
+	padding-left: ${({ clicked }) => (clicked ? "var(--padding)" : "0px")};
+	padding-bottom: 0.3em;
+	padding-top: 0.3em;
 	transition: padding 0.1s cubic-bezier(0.1, 0.05, 0.46, 0.01);
 `
 
@@ -74,6 +79,8 @@ const View = ({ data: [data, setData], active: [active, setActive], images: [ima
 		}
 	}
 
+	let view = data.map((o, i) => ({ ...o, i: i })).filter(o => o.status === null)
+
 	return (
 		<div
 			style={{
@@ -82,22 +89,21 @@ const View = ({ data: [data, setData], active: [active, setActive], images: [ima
 				height: "calc(100vh - 9.5rem)",
 			}}
 		>
-			<Container>
-				{data.map((row, i) => (
-					row.status === null ? (
+			<Container height={1137} itemCount={view.length} itemSize={180} width={592}>
+				{({ index, style }) => {
+					return (
 						<ViewRow
-                            checkboxes={true}
-							key={i}
-							i={i}
-							info={row}
+							style={style}
+							checkboxes={true}
+							i={view[index].i}
+							info={view[index]}
 							active={[active, setActive]}
-							data={[data, setData]}
 							images={[images, setImages]}
 							accept={accept}
 							reject={reject}
 						/>
-					) : (null)
-				))}
+					)
+				}}
 			</Container>
 		</div>
 	)
@@ -111,6 +117,8 @@ const Submitted = ({ data: [data, setData], active: [active, setActive], images:
 		}
 	}
 
+	let submitted = data.map((o, i) => ({ ...o, i: i })).filter(o => o.status === "submitted")
+
 	return (
 		<div
 			style={{
@@ -119,19 +127,21 @@ const Submitted = ({ data: [data, setData], active: [active, setActive], images:
 				height: "calc(100vh - 9.5rem)",
 			}}
 		>
-			<Container>
-				{data.map((row, i) => (
-					row.status === "submitted" ? (
+			<Container height={1137} itemCount={submitted.length} itemSize={180} width={592}>
+				{({ index, style }) => {
+					return (
 						<ViewRow
-							key={i}
-							i={i}
-							info={row}
+							style={style}
+							checkboxes={false}
+							i={submitted[index].i}
+							info={submitted[index]}
 							active={[active, setActive]}
-							data={[data, setData]}
 							images={[images, setImages]}
+							accept={accept}
+							reject={reject}
 						/>
-					) : (null)
-				))}
+					)
+				}}
 			</Container>
 		</div>
 	)
@@ -145,6 +155,8 @@ const Rejected = ({ data: [data, setData], active: [active, setActive], images: 
 		}
 	}
 
+	let rejected = data.map((o, i) => ({ ...o, i: i })).filter(o => o.status === false)
+
 	return (
 		<div
 			style={{
@@ -153,32 +165,31 @@ const Rejected = ({ data: [data, setData], active: [active, setActive], images: 
 				height: "calc(100vh - 9.5rem)",
 			}}
 		>
-			<Container>
-				{data.map((row, i) => (
-					row.status === false ? (
+			<Container height={1137} itemCount={rejected.length} itemSize={180} width={592}>
+				{({ index, style }) => {
+					return (
 						<ViewRow
-                            checkboxes={true}
-							key={i}
-							i={i}
-							info={row}
+							style={style}
+							checkboxes={true}
+							i={rejected[index].i}
+							info={rejected[index]}
 							active={[active, setActive]}
-							data={[data, setData]}
 							images={[images, setImages]}
 							accept={accept}
 							reject={reject}
 						/>
-					) : (null)
-				))}
+					)
+				}}
 			</Container>
 		</div>
 	)
 }
 
-const Container = styled(Column).attrs({
-	height: "unset",
+const Container = styled(FixedSizeList).attrs({
 	gap: "2rem",
 })`
 	overflow-y: auto;
+	margin-top: -0.5em;
 	margin-bottom: 2rem;
 
 	&::-webkit-scrollbar {
