@@ -47,9 +47,11 @@ const FlightPlanMap = props => {
 		})
 
 		httpget("/uav/commands/export", response => {
-			props.setters.path(response.data.waypoints.map((marker) => {
+			let points = response.data.waypoints.map((marker) => {
 				return { lat: marker.lat, lng: marker.lon, alt: marker.alt }
-			}))
+			})
+			props.setters.path(points)
+			props.setters.pathSave(points)
 		})
 
 		var MarkerIcon = L.Icon.extend({
