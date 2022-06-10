@@ -3,7 +3,8 @@
         "telemetry": {
             "type": "dummy",
             "port": "tcp:127.0.0.1:5760",
-            "serial": false
+            "serial": false,
+            "log": true
         },
         "images": {
             "type": "dummy",
@@ -23,6 +24,5 @@
         "username": "testuser",
         "password": "testpass",
         "mission_id": 1
-    },
-    "debug_log": false
+    }
 }

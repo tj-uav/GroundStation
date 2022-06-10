@@ -4,7 +4,7 @@ import sys
 import traceback
 from io import StringIO
 
-from flask import Flask, jsonify, Response
+from flask import Flask, jsonify, Response, send_file
 from flask_cors import CORS
 
 from app import interop, uav, ugv
@@ -46,7 +46,11 @@ logger.setLevel(logging.DEBUG)
 autopilot = logging.getLogger("autopilot")
 autopilot.setLevel(logging.DEBUG)
 
-formatter = logging.Formatter("[%(levelname)-9s] (%(name)s) %(asctime)s  %(message)-500s")
+telemetry = logging.getLogger("telemetry")
+telemetry.setLevel(logging.INFO)
+
+formatter = logging.Formatter("[%(levelname)-9s] (%(name)-13s) %(asctime)s  %(message)-500s")
+telem_formatter = logging.Formatter("%(asctime)s;%(message)s")
 
 # console_handler = logging.StreamHandler(sys.stdout)
 # console_handler.setLevel(logging.IMPORTANT)
@@ -65,6 +69,11 @@ debug_file_handler.setFormatter(formatter)
 logger.addHandler(debug_file_handler)
 autopilot.addHandler(debug_file_handler)
 
+telem_file_handler = logging.FileHandler("logs/telem.log", mode="w")
+telem_file_handler.setLevel(logging.INFO)
+telem_file_handler.setFormatter(telem_formatter)
+telemetry.addHandler(telem_file_handler)
+
 LOG_STREAM = StringIO()
 string_handler = logging.StreamHandler(LOG_STREAM)
 string_handler.setLevel(logging.DEBUG)
@@ -72,11 +81,11 @@ string_handler.setFormatter(formatter)
 logger.addHandler(string_handler)
 autopilot.addHandler(string_handler)
 
-LOG_STREAM = StringIO()
-string_handler = logging.StreamHandler(LOG_STREAM)
-string_handler.setLevel(logging.DEBUG)
-string_handler.setFormatter(formatter)
-logger.addHandler(string_handler)
+TELEM_STREAM = StringIO()
+telem_string_handler = logging.StreamHandler(TELEM_STREAM)
+telem_string_handler.setLevel(logging.INFO)
+telem_string_handler.setFormatter(telem_formatter)
+telemetry.addHandler(telem_string_handler)
 
 logger.info("STARTED LOGGING")
 
@@ -201,6 +210,26 @@ def favicon():
 @app.route("/logs")
 def logs():
     return {"result": LOG_STREAM.getvalue().split("\n")}
+
+
+@app.route("/telemetry")
+def telemetry_data():
+    return {"result": TELEM_STREAM.getvalue().split("\n")}
+
+
+@app.route("/file/infolog")
+def logfile():
+    return send_file("logs/info.log")
+
+
+@app.route("/file/debuglog")
+def debuglogfile():
+    return send_file("logs/debug.log")
+
+
+@app.route("/file/telemlog")
+def telemlogfile():
+    return send_file("logs/telem.log")
 
 
 if __name__ == "__main__":
