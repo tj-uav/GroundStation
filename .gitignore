@@ -154,5 +154,3 @@ cython_debug/
 /server/handlers/ugv/ugv_mission.txt
 /client/public/map/*/*/*
 odlc.json
-log.txt
-debug_log.txt
