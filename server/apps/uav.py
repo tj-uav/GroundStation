@@ -114,8 +114,6 @@ def uav_view_commands_file():
     return send_file(os.path.join(os.getcwd(), "assets", "missions", "plane.txt"))
 
 
-<<<<<<< HEAD:server/apps/uav.py
-<<<<<<< HEAD:server/apps/uav.py
 @uav_commands.route("/export")
 def uav_export_commands_file():
     waypoints = []
