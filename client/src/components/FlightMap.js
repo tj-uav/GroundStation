@@ -48,7 +48,7 @@ const FlightPlanMap = props => {
 
 		httpget("/uav/commands/export", response => {
 			let points = response.data.waypoints.map((marker) => {
-				return { lat: marker.lat, lng: marker.lon, alt: marker.alt }
+				return { lat: marker.lat, lng: marker.lon, alt: marker.alt * 3.281 } // convert altitude from meters to feet
 			})
 			props.setters.path(points)
 			props.setters.pathSave(points)
@@ -193,11 +193,21 @@ const FlightPlanMap = props => {
 					let x0 = (event.latlng.lng/m + event.latlng.lat - second.lat + m*second.lng)/(m + 1/m) // projection of event point on line
 					let y0 = -(x0 - event.latlng.lng)/m + event.latlng.lat
 
-					let d = Math.sqrt((x0 - event.latlng.lng)**2 + (y0 - event.latlng.lat)**2)
-					if (x0 > Math.min(first.lng, second.lng) && x0 < Math.max(first.lng, second.lng) && y0 > Math.min(first.lat, second.lat) && y0 < Math.max(first.lat, second.lat)) {
-						return [d, true]
+					if (m === -Infinity || m === Infinity) {
+						let d = Math.abs(event.latlng.lng - first.lng)
+						let lat = event.latlng.lat
+						return [d, (lat > first.lat && lat < second.lat) || (lat > second.lat && lat < first.lat)]
+					} else if (m == 0) {
+						let d = Math.abs(event.latlng.lat - first.lat)
+						let lng = event.latlng.lng
+						return [d, (lng > first.lng && lng < second.lng) || (lng > second.lng && lng < first.lng)]
 					} else {
-						return [d, false]
+						let d = Math.sqrt((x0 - event.latlng.lng)**2 + (y0 - event.latlng.lat)**2)
+						if (x0 > Math.min(first.lng, second.lng) && x0 < Math.max(first.lng, second.lng) && y0 > Math.min(first.lat, second.lat) && y0 < Math.max(first.lat, second.lat)) {
+							return [d, true]
+						} else {
+							return [d, false]
+						}
 					}
 				}
 
@@ -341,7 +351,7 @@ const FlightPlanMap = props => {
 								return popup(marker, i, "path", (
 									<div>
 										Altitude (feet)
-										<Box style={{ "width": "12em", "margin-right": "4em", "height": "3em" }} editable={true} content={marker.altitude} onChange={v => {
+										<Box style={{ "width": "12em", "margin-right": "4em", "height": "3em" }} editable={true} content={marker.alt} onChange={v => {
 											let path = props.getters.path;
 											if (!Number.isNaN(Number(v)) && v.length > 0) {
 												if (v.endsWith(".")) {
@@ -368,6 +378,7 @@ const FlightPlanMap = props => {
 											let path = props.getters.path.slice()
 											path.splice(i, 1)
 											props.setters.path(path)
+											props.setSaved(false)
 										}}>
 											Delete
 										</Button>
