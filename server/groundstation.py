@@ -14,6 +14,7 @@ from handlers import Interop, Image
 class GroundStation:
     def __init__(self):
         self.logger = logging.getLogger("groundstation")
+        self.telem_logger = logging.getLogger("telemetry")
         with open("config.json", "r", encoding="utf-8") as file:
             self.config = json.load(file)
 
@@ -82,15 +83,15 @@ class GroundStation:
     def uav_thread(self):
         while True:
             run = self.uav.update()
-            if run:
-                self.logger.debug("[UAV] %s", run)
+            self.logger.debug("[UAV] %s", run)
+            if self.config["uav"]["telemetry"]["log"]:
+                self.telem_logger.info(json.dumps(self.uav.stats()))
             time.sleep(0.1)
 
     def ugv_thread(self):
         while True:
             run = self.ugv.update()
-            if run:
-                self.logger.debug("[UGV] %s", run)
+            self.logger.debug("[UGV] %s", run)
             time.sleep(0.1)
 
     def image_thread(self):
