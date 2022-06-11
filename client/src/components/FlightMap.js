@@ -13,7 +13,7 @@ import { red } from "theme/Colors"
 
 const FlightPlanMap = props => {
 	const [state, setState] = useState({
-		latlng: { lat: 38.1458611, lng: -76.428038 },
+		latlng: { lat: 38.528967, lng: -77.735695 },
 	})
 
 	let mapRef = createRef()
@@ -110,7 +110,7 @@ const FlightPlanMap = props => {
 			fetch("https://g.co", {
 				mode: "no-cors"
 			}).then(() => {
-				tileRef.current.setUrl("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png")
+				tileRef.current.setUrl("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}")
 			}).catch(() => {
 				tileRef.current.setUrl("/map/{z}/{x}/{y}.png")
 			})

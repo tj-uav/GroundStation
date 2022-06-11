@@ -341,7 +341,7 @@ class UAVHandler:
         except ValueError as e:
             raise InvalidRequestError("Parameter Value cannot be converted to float") from e
         try:
-            self.vehicle.parameters[key] = value
+            self.vehicle.parameters[key] = float(value)
             return {}
         except Exception as e:
             raise GeneralError(str(e)) from e
@@ -499,12 +499,13 @@ class UAVHandler:
     def arm(self):
         try:
             if not self.vehicle.is_armable:
-                raise InvalidStateError("Vehicle is not armable")
+                self.logger.important("Vehicle is not armable")
             self.vehicle.armed = True  # Motors can be started
             return {}
         except InvalidStateError as e:
             raise InvalidStateError(str(e)) from e
         except Exception as e:
+                # raise InvalidStateError("Vehicle is not armable")
             raise GeneralError(str(e)) from e
 
     def disarm(self):

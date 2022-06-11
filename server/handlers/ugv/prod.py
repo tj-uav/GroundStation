@@ -15,8 +15,7 @@ from handlers.utils import decorate_all_functions, log
 if typing.TYPE_CHECKING:
     from groundstation import GroundStation
 
-SERIAL_PORT = "/dev/ttyACM0"
-BAUDRATE = 115200
+BAUDRATE = 57600
 
 COMMANDS = {
     # Takeoff will be initiated using a Flight Mode
