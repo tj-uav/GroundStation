@@ -60,6 +60,11 @@ def uav_disarm():
     return app.gs.uav.disarm()
 
 
+@uav.route("/terminate", methods=["POST"])
+def uav_terminate():
+    return app.gs.uav.set_param("AFS_TERMINATE", 1)
+
+
 # Commands
 uav_commands = Blueprint("uav_commands", __name__)
 uav.register_blueprint(uav_commands, url_prefix="/commands")
@@ -114,6 +119,12 @@ def uav_export_commands_file():
         for line in f.readlines()[1:]:
             spl = line.split("\t")
             waypoints.append({
+                "num": float(spl[0]),
+                "cmd": float(spl[3]),
+                "p1": float(spl[4]),
+                "p2": float(spl[5]),
+                "p3": float(spl[6]),
+                "p4": float(spl[7]),
                 "lat": float(spl[8]),
                 "lon": float(spl[9]),
                 "alt": float(spl[10])
@@ -128,9 +139,20 @@ def uav_generate_commands_file():
         raise InvalidRequestError("Missing required fields in request")
     with open("handlers/uav/uav_mission.txt", "w", encoding="utf-8") as file:
         file.write("QGC WPL 110\n")
-        counter = 1
+        counter = f.get("waypoints")
         for waypoint in f.get("waypoints"):
-            file.write(f"{counter}\t0\t3\t16\t0.0\t0.0\t0.0\t0.0\t{waypoint.get('lat')}\t{waypoint.get('lon')}\t{waypoint.get('alt')}\t1\n")
+            file.write(
+                f"{waypoint.get('num') if waypoint.get('num') else counter}\t"
+                f"0\t"
+                f"3\t"
+                f"{waypoint.get('cmd') if waypoint.get('cmd') else '16'}\t"
+                f"{waypoint.get('p1') if waypoint.get('p1') else '0.0'}\t"
+                f"{waypoint.get('p2') if waypoint.get('p2') else '0.0'}\t"
+                f"{waypoint.get('p3') if waypoint.get('p3') else '0.0'}\t"
+                f"{waypoint.get('p4') if waypoint.get('p4') else '0.0'}\t"
+                f"{waypoint.get('lat')}\t{waypoint.get('lon')}\t{waypoint.get('alt')}\t"
+                f"1\n"
+            )
             counter += 1
     return {}
 

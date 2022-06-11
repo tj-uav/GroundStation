@@ -76,7 +76,7 @@ telemetry.addHandler(telem_file_handler)
 
 LOG_STREAM = StringIO()
 string_handler = logging.StreamHandler(LOG_STREAM)
-string_handler.setLevel(logging.DEBUG)
+string_handler.setLevel(logging.INFO)
 string_handler.setFormatter(formatter)
 logger.addHandler(string_handler)
 autopilot.addHandler(string_handler)
@@ -96,7 +96,7 @@ app.gs = gs
 @app.errorhandler(Exception)
 def handle_error(e):
     logger.error(type(e).__name__)
-    logger.debug("Traceback of %s : ", type(e).__name__, exc_info=e)
+    logger.info("Traceback of %s : ", type(e).__name__, exc_info=e)
     return (
         jsonify(
             {
@@ -113,7 +113,7 @@ def handle_error(e):
 @app.errorhandler(InvalidRequestError)
 def handle_400(e):
     logger.error(type(e).__name__)
-    logger.debug("Traceback of %s : ", type(e).__name__, exc_info=e)
+    logger.info("Traceback of %s : ", type(e).__name__, exc_info=e)
     return (
         jsonify(
             {
@@ -130,7 +130,7 @@ def handle_400(e):
 @app.errorhandler(InvalidStateError)
 def handle_409(e):
     logger.error(type(e).__name__)
-    logger.debug("Traceback of %s : ", type(e).__name__, exc_info=e)
+    logger.info("Traceback of %s : ", type(e).__name__, exc_info=e)
     return (
         jsonify(
             {
@@ -147,7 +147,7 @@ def handle_409(e):
 @app.errorhandler(GeneralError)
 def handle_500(e):
     logger.error(type(e).__name__)
-    logger.debug("Traceback of %s : ", type(e).__name__, exc_info=e)
+    logger.info("Traceback of %s : ", type(e).__name__, exc_info=e)
     return (
         jsonify(
             {
@@ -164,7 +164,7 @@ def handle_500(e):
 @app.errorhandler(ServiceUnavailableError)
 def handle_503(e):
     logger.error(type(e).__name__)
-    logger.debug("Traceback of %s : ", type(e).__name__, exc_info=e)
+    logger.info("Traceback of %s : ", type(e).__name__, exc_info=e)
     return (
         jsonify(
             {
