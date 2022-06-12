@@ -25,8 +25,9 @@ TODO: Display list highlighting (and vice versa)
 */
 
 const FlightData = () => {
-	const [mode, setMode] = useState("push")
+	const [mode, setMode] = useState("disabled")
 	const [saved, setSaved] = useState(true)
+	const [defaultAlt, setDefaultAlt] = useState(100)
 
 	const [waypoints, setWaypoints] = useState([])
 	const [commands, setCommands] = useState([])
@@ -55,7 +56,8 @@ const FlightData = () => {
 		path: path,
 		pathSave: pathSave,
 		uav: uav,
-		ugv: ugv
+		ugv: ugv,
+		defaultAlt: defaultAlt
 	}
 
 	const setters = {
@@ -71,7 +73,8 @@ const FlightData = () => {
 		path: setPath,
 		pathSave: setPathSave,
 		uav: setUav,
-		ugv: setUgv
+		ugv: setUgv,
+		defaultAlt: setDefaultAlt
 	}
 
 	const display = {
