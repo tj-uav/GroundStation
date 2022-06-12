@@ -2,9 +2,11 @@ import React, { useState, useEffect, useRef } from "react"
 import styled from "styled-components"
 import { Button, CheckboxList } from "components/UIElements"
 import { Column, Row } from "components/Containers"
-import { httpget } from "backend"
+import { getUrl, httpget } from "backend"
 import { dark, darkest, darkdark, red } from "theme/Colors"
 import { useInterval } from "../../../util"
+
+import { VariableSizeList } from "react-window"
 
 const colors = {
 	DEBUG: darkdark,
@@ -17,11 +19,9 @@ const colors = {
 
 const Logs = () => {
 	const [logs, setLogs] = useState([])
-	const [autoScroll, setAutoScroll] = useState(true)
+	const [autoScroll, setAutoScroll] = useState(false)
 	const [filters, setFilters] = useState(["[INFO     ]", "[IMPORTANT]", "[WARNING  ]", "[ERROR    ]", "[CRITICAL ]"])
-	const [types, setTypes] = useState(["(groundstation)", "(autopilot)"])
 	const autoScrollRef = useRef()
-	const scrollDiv = useRef()
 	const container = useRef()
 	const logsRef = useRef()
 	const filtersRef = useRef()
@@ -29,29 +29,29 @@ const Logs = () => {
 	logsRef.current = logs
 	filtersRef.current = filters
 
+	const filtered = logs.filter((log) => {
+		for (let filter of filters) {
+			if (log.includes(filter)) {
+				return true
+			}
+		}
+	})
+
 	const scrollToBottom = () => {
-		scrollDiv.current.scrollIntoView()
+		container.current.scrollToItem(filtered.length - 1)
 	}
 
-	useInterval(1000, () => {
+	useInterval(3000, () => {
 		httpget("/logs", (response) => {
 			setLogs(response.data.result)
-			checkScrolling(true)
 		})
 	})
 
-	const checkScrolling = (shouldScroll) => {
-		let scrollTop = container.current.scrollTop
-		let windowHeight = container.current.clientHeight
-		let scrollHeight = container.current.scrollHeight
-		if (scrollTop < scrollHeight - windowHeight && shouldScroll && autoScrollRef.current) {
+	useEffect(() => {
+		if (autoScroll) {
 			scrollToBottom()
-		} else if (Math.ceil(scrollTop) < scrollHeight - windowHeight && !shouldScroll) {
-			setAutoScroll(false)
-		} else if (Math.ceil(scrollTop) === scrollHeight - windowHeight) {
-			setAutoScroll(true)
 		}
-	}
+	})
 
 	useEffect(() => {
 		if (window.sessionStorage.getItem("logs")) {
@@ -60,7 +60,7 @@ const Logs = () => {
 		if (window.sessionStorage.getItem("filters")) {
 			setFilters(window.sessionStorage.getItem("filters").split("|||"))
 		}
-		if (window.sessionStorage.getItem("autoScroll")) {
+		if (window.sessionStorage.getItem("autoScroll") === "true") {
 			setAutoScroll(true)
 			scrollToBottom()
 		}
@@ -72,13 +72,9 @@ const Logs = () => {
 			window.sessionStorage.setItem("filters", filtersRef.length > 0 ? "" : filtersRef.current.reduce((p, n) => {
 				return p + "|||" + n
 			}))
-			if (autoScrollRef.current) {
-				window.sessionStorage.setItem("autoScroll", true)
-			}
+			window.sessionStorage.setItem("autoScroll", autoScrollRef.current)
 		}
 	}, [])
-
-	useEffect(() => { checkScrolling(false) })
 
 	return (
 		<StyledContainer>
@@ -107,35 +103,48 @@ const Logs = () => {
 						<CheckboxList.Option checked={filters.includes("[CRITICAL ]")} value="[CRITICAL ]" color={colors.CRITICAL}>Critical</CheckboxList.Option>
 					</Column>
 					<Column gap="0em">
-						<ScrollButton href="http://localhost:5000/logs" newTab={true}>Open Log File</ScrollButton>
-						<ScrollButton onChange={() => { scrollDiv.current.scrollIntoView(); setAutoScroll(true) }}>Scroll To End</ScrollButton>
+						<ScrollButton href={getUrl() + "/logs"} newTab={true}>Open Log File</ScrollButton>
+						<ScrollButton onChange={() => { setAutoScroll(!autoScroll) }}>{autoScroll ? "Turn Off Autoscroll" : "Turn On Autoscroll"}</ScrollButton>
 					</Column>
 				</Row>
 			</CheckboxList>
-			<StyledLogsContainer ref={container}>
-				{logs?.filter((log) => {
-					for (let filter of filters) {
-						if (log.includes(filter)) {
-							return true
+			<div style={{ "padding-top": "1em" }}>
+				<StyledLogsContainer
+					ref={container}
+					height={1100}
+					itemCount={filtered.length}
+					itemSize={(i) => {
+						if (filtered.length === 0) {
+							return 56
 						}
-					}
-				}).map((log) => {
-					return (
-						<StyledLog content={log} />
-					)
-				})}
-				<div ref={scrollDiv} />
-			</StyledLogsContainer>
+						return (i === 0 ? 32 : 16) + 24 * Math.ceil(getTextWidth(filtered[i].replace(/\[.*?\]/, "[" + filtered[i].replace(/\].*/, "").slice(1).trim() + "]").trim()) / 360)
+					}}
+					width={592}
+				>
+					{({ index, style }) => {
+						return (
+							<StyledLog style={style} content={filtered[index]} index={index} />
+						)
+					}}
+				</StyledLogsContainer>
+			</div>
 		</StyledContainer>
 	)
 }
 
-const StyledLog = ({ content }) => {
+const getTextWidth = (s) => {
+	const canvas = getTextWidth.canvas || (getTextWidth.canvas = document.createElement("canvas"))
+	const context = canvas.getContext("2d")
+	const metrics = context.measureText(s)
+	return metrics.width
+}
+
+const StyledLog = ({ content, style, index }) => {
 	let type = content.replace(/\].*/, "").slice(1).trim()
 	content = content.replace(/\[.*?\]/, "[" + type + "]")
 
 	return (
-		<StyledLogContainer color={colors[type]}>
+		<StyledLogContainer index={index} style={{ ...style, height: style.height - (index === 0 ? 32 : 16), width: "99%" }} color={colors[type]}>
 			<StyledLogText color={colors[type]}>{content}</StyledLogText>
 		</StyledLogContainer>
 	)
@@ -157,10 +166,13 @@ const StyledLogText = styled.p`
 
 const StyledLogContainer = styled.div`
 	border-left: 5px solid ${props => props.color};
+	margin-top: ${props => props.index === 0 ? "16px" : "0"};
+	margin-left: 8px;
 	padding-left: 7px;
+	margin-bottom: 16px;
 `
 
-const StyledLogsContainer = styled.div`
+const StyledLogsContainer = styled(VariableSizeList)`
 	background: ${dark};
 	margin-top: 0.5em;
 	padding: 1em 1em 1em 0.5em;
