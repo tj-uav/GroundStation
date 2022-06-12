@@ -3,7 +3,7 @@ import { useLeafletContext } from "@react-leaflet/core"
 import L from "leaflet"
 import "leaflet-polylinedecorator"
 
-const PolylineDecorator = ({ color, positions, layer, ...props }) => {
+const PolylineDecorator = ({ color, decoratorColor, positions, layer, ...props }) => {
 	const context = useLeafletContext()
 
 	const arrow = [
@@ -11,9 +11,9 @@ const PolylineDecorator = ({ color, positions, layer, ...props }) => {
 			offset: "50%",
 			repeat: 0,
 			symbol: L.Symbol.arrowHead({
-				pixelSize: 20,
+				pixelSize: 15,
 				polygon: false,
-				pathOptions: { stroke: true, color: props.color },
+				pathOptions: { stroke: true, color: decoratorColor ?? color },
 			}),
 		},
 	]
