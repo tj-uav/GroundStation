@@ -110,7 +110,7 @@ const FlightPlanMap = props => {
 			fetch("https://g.co", {
 				mode: "no-cors"
 			}).then(() => {
-				tileRef.current.setUrl("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png")
+				tileRef.current.setUrl("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}")
 			}).catch(() => {
 				tileRef.current.setUrl("/map/{z}/{x}/{y}.png")
 			})
@@ -260,7 +260,7 @@ const FlightPlanMap = props => {
 				style={{ height: "100%" }}
 			>
 				<TileLayer
-					attribution='&amp;copy <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+					attribution="Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community"
 					url={"/map/{z}/{x}/{y}.png"}
 					ref={tileRef}
 				/>
