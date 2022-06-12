@@ -3,8 +3,6 @@ import os
 import requests
 import time
 
-# https://tile.openstreetmap.org/{z}/{x}/{y}.png
-
 # window position and zoom for the auvsi suas base, webster field
 # zoom 17
 # top lat: 38.15163
@@ -45,13 +43,13 @@ def main():
                         os.makedirs(f"./map/{i}/{j}")
 
                     print("Downloading: [x: " + str(j) + ", y: " + str(k) + ", zoom: " + str(i) + "]")
-                    url = f"https://tile.openstreetmap.org/{i}/{j}/{k}.png"
+                    url = f"https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{i}/{j}/{k}.png"
                     r = requests.get(url, allow_redirects=False)
                     file = open(f"./map/{i}/{j}/{k}.png", "wb")
                     file.write(r.content)
                     file.close()
 
-                    time.sleep(1/1000)
+                    time.sleep(1/2000)
 
 def convert_to_slippy(lat, lon, zoom):
     x = lon*math.pi/180
