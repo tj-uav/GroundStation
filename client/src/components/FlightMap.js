@@ -270,7 +270,7 @@ const FlightPlanMap = props => {
 						ugv drive, ugv fence, odlc search grid, off axis odlc */ }
 					<LayersControl.Overlay checked name="Waypoints">
 						<LayerGroup>
-							<PolylineDecorator layer="Waypoints" positions={props.getters.waypoints} color="#00AA00" />
+							<PolylineDecorator layer="Waypoints" positions={props.getters.waypoints} color="#00AA00" decoratorColor="#1fd11f" />
 							{props.getters.waypoints.map((marker, index) => {
 								return popup(marker, index, "waypoints")
 							})}
@@ -346,7 +346,7 @@ const FlightPlanMap = props => {
 					</LayersControl.Overlay>
 					<LayersControl.Overlay checked name="Mission Path">
 						<LayerGroup>
-							<Polyline positions={props.getters.path} color="#10336B" />
+							<PolylineDecorator layer="Mission Path" positions={props.getters.path} color="#10336B" decoratorColor="#1d5cc2" />
 							{props.getters.path.map((marker, i) => {
 								return popup(marker, i, "path", (
 									<div>
