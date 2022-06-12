@@ -143,7 +143,7 @@ const FlightPlanMap = props => {
 		props.setSaved(false)
 	}
 
-	const popup = (latlng, key, datatype, popupMenu) => {
+	const popup = (latlng, key, datatype, popupMenu, draggable) => {
 		return (
 			<Marker
 				icon={icons[datatype]}
@@ -152,7 +152,7 @@ const FlightPlanMap = props => {
 					dragend: (event) => { handleMove(event, key, datatype) }
 				}}
 				onkeydown={event => handleKeyPress(event, key)}
-				draggable={true}
+				draggable={draggable}
 				datatype={datatype}
 				opacity={latlng.opacity}
 			>
@@ -383,7 +383,7 @@ const FlightPlanMap = props => {
 											Delete
 										</Button>
 									</div>
-								))
+								), true)
 							})}
 						</LayerGroup>
 					</LayersControl.Overlay>
