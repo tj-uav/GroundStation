@@ -270,6 +270,7 @@ class UAVHandler:
             cmds.download()
             cmds.wait_ready()
             self.vehicle.home_location = self.vehicle.location.global_frame
+            cmds.upload()
             return {}
         except Exception as e:
             raise GeneralError(str(e)) from e
@@ -298,6 +299,12 @@ class UAVHandler:
             )  # ailerons right, elevator up, rudder right, throttle cut
             self.vehicle.send_mavlink(msg)
             return {}
+        except Exception as e:
+            raise GeneralError(str(e)) from e
+
+    def channels(self):
+        try:
+            return {"result": self.vehicle.channels}
         except Exception as e:
             raise GeneralError(str(e)) from e
 
@@ -500,7 +507,7 @@ class UAVHandler:
         try:
             if not self.vehicle.is_armable:
                 self.logger.important("Vehicle is not armable")
-            self.vehicle.armed = True  # Motors can be started
+            self.vehicle.arm(wait=True)  # Motors can be started
             return {}
         except InvalidStateError as e:
             raise InvalidStateError(str(e)) from e
@@ -510,7 +517,7 @@ class UAVHandler:
 
     def disarm(self):
         try:
-            self.vehicle.armed = False
+            self.vehicle.disarm(wait=True)
             return {}
         except Exception as e:
             raise GeneralError(str(e)) from e
