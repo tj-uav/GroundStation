@@ -48,7 +48,7 @@ const FlightPlanMap = props => {
 
 		httpget("/uav/commands/export", response => {
 			let points = response.data.waypoints.map((marker) => {
-				return { lat: marker.lat, lng: marker.lon, alt: marker.alt * 3.281 } // convert altitude from meters to feet
+				return { num: marker.num, cmd: marker.cmd, p1: marker.p1, p2: marker.p2, lat: marker.lat, lng: marker.lon, alt: marker.alt * 3.281 } // convert altitude from meters to feet
 			})
 			props.setters.path(points)
 			props.setters.pathSave(points)
@@ -89,6 +89,7 @@ const FlightPlanMap = props => {
 			offAxis: new MarkerIcon({ iconUrl: "../assets/icon-offAxis.png" }),
 			searchGrid: new MarkerIcon({ iconUrl: "../assets/icon-searchGrid.png" }),
 			path: new MarkerIcon({ iconUrl: "../assets/icon-path.png" }),
+			home: new MarkerIcon({ iconUrl: "../assets/icon-home.png" }),
 			uav: new VehicleIcon({ iconUrl: "../assets/uav.svg" }),
 			uavDirection: new DirectionPointerIcon({ iconUrl: "../assets/pointer.svg" }),
 			uavDirectionOutline: new DirectionPointerIcon({ iconUrl: "../assets/pointer-outline.svg" }),
@@ -137,7 +138,7 @@ const FlightPlanMap = props => {
 		let get = props.getters["path"]
 		let set = props.setters["path"]
 		let temp = get.slice()
-		let loc = { lat: event.target.getLatLng().lat, lng: event.target.getLatLng().lng, alt: props.getters[datatype][idx].alt, opacity: 0.5 }
+		let loc = { ...props.getters[datatype][idx], lat: event.target.getLatLng().lat, lng: event.target.getLatLng().lng, opacity: 0.5 }
 		temp[idx] = loc
 		set(temp)
 		props.setSaved(false)
@@ -149,7 +150,7 @@ const FlightPlanMap = props => {
 				icon={icons[datatype]}
 				position={latlng}
 				eventHandlers={{
-					dragend: (event) => { handleMove(event, key, datatype) }
+					dragend: (event) => { handleMove(event, key - (props.getters.path[0].num === 0 ? 0 : 1), datatype) }
 				}}
 				onkeydown={event => handleKeyPress(event, key)}
 				draggable={draggable}
@@ -157,7 +158,7 @@ const FlightPlanMap = props => {
 				opacity={latlng.opacity}
 			>
 				<Tooltip>
-					{props.display[datatype] + " " + (key + 1)} ({latlng.lat.toFixed(5)}, {latlng.lng.toFixed(5)}{latlng.alt ? ", " + latlng.alt + " ft" : null})
+					{props.display[datatype] + " " + (key)} ({latlng.lat.toFixed(5)}, {latlng.lng.toFixed(5)}{latlng.alt ? ", " + latlng.alt + " ft" : null})
 				</Tooltip>
 				{popupMenu ?
 					<Popup>
@@ -168,11 +169,11 @@ const FlightPlanMap = props => {
 		)
 	}
 
-	const singlePopup = (type) => {
+	const singlePopup = (marker, type, draggable) => {
 		return (
-			<Marker icon={icons[type]} position={props.getters[type]} draggable={true} opacity={props.getters[type].opacity}>
+			<Marker icon={icons[type]} position={marker} draggable={draggable} opacity={marker.opacity}>
 				<Tooltip>
-					{props.display[type]} ({props.getters[type].lat.toFixed(5)}, {props.getters[type].lng.toFixed(5)})
+					{props.display[type]} ({marker.lat.toFixed(5)}, {marker.lng.toFixed(5)})
 				</Tooltip>
 			</Marker>)
 	}
@@ -183,12 +184,25 @@ const FlightPlanMap = props => {
 			let set = props.setters["path"]
 			if (props.mode === "push" || (props.mode === "insert" && get.length < 2)) {
 				let temp = get.slice()
-				temp.push({ lat: event.latlng.lat, lng: event.latlng.lng, opacity: 0.5 })
+				let point = { lat: event.latlng.lat, lng: event.latlng.lng, opacity: 0.5, num: get.length + (get[0]?.num === 0 ? -1 : 1) }
+				if (temp[temp.length - 1]?.cmd === 177) {
+					temp = [...temp.slice(0, temp.length - 1), point, temp[temp.length - 1]]
+				} else {
+					temp.push(point)
+				}
 				set(temp)
 			} else if (props.mode === "insert") {
 				const getPerpendicularDistance = (i) => {
-					let first = get[i]
-					let second = get[i + 1]
+					let first
+					let second
+					if (get[i]?.cmd === 177) {
+						first = get[i - 1]
+						second = get[get[i].p1 - (get[0].num === 0 ? 0 : 1)]
+					} else {
+						first = get[i]
+						second = get[(i + 1) % get.length]
+					}
+
 					let m = (second.lat - first.lat)/(second.lng - first.lng)
 					let x0 = (event.latlng.lng/m + event.latlng.lat - second.lat + m*second.lng)/(m + 1/m) // projection of event point on line
 					let y0 = -(x0 - event.latlng.lng)/m + event.latlng.lat
@@ -211,9 +225,9 @@ const FlightPlanMap = props => {
 					}
 				}
 
-				let min = 0;
+				let min = get[0]?.num === 0 ? 1 : 0
 				let inBox = getPerpendicularDistance(0)[1]
-				for (let i = 0; i < get.length-1; i++) {
+				for (let i = 0; i < get.length; i++) {
 					let [d, _in] = getPerpendicularDistance(i)
 					if (_in && !inBox) {
 						min = i
@@ -226,7 +240,11 @@ const FlightPlanMap = props => {
 				}
 
 				let path = get.slice()
-				path.splice(min + 1, 0, { lat: event.latlng.lat, lng: event.latlng.lng, opacity: 0.5 })
+				if (get[min]?.cmd === 177) {
+					path = [...path.slice(0, min), { num: min, lat: event.latlng.lat, lng: event.latlng.lng, opacity: 0.5 }, ...(path.slice(min).map(point => ({ ...point, num: point.num + 1 })))]
+				} else {
+					path = [...path.slice(0, min + 1), { num: min + (get[0]?.num === 0 ? 1 : 2), lat: event.latlng.lat, lng: event.latlng.lng, opacity: 0.5 }, ...(path.slice(min + 1).map(point => ({ ...point, num: point.num + 1 })))]
+				}
 				set(path)
 			}
 			if (props.saved && props.mode !== "disabled") {
@@ -300,8 +318,8 @@ const FlightPlanMap = props => {
 					<LayersControl.Overlay checked name="UGV Points">
 						<LayerGroup>
 							<Polyline positions={circle(props.getters.ugvFence)} color="#6e0d9a" />
-							{props.getters.ugvDrop.lat == null ? null : singlePopup("ugvDrop")}
-							{props.getters.ugvDrive.lat == null ? null : singlePopup("ugvDrive")}
+							{props.getters.ugvDrop.lat == null ? null : singlePopup(props.getters.ugvDrop, "ugvDrop")}
+							{props.getters.ugvDrive.lat == null ? null : singlePopup(props.getters.ugvDrive, "ugvDrive")}
 							{props.getters.ugvFence.map((marker, index) => {
 								return popup(marker, index, "ugvFence")
 							})}
@@ -316,7 +334,7 @@ const FlightPlanMap = props => {
 						</LayerGroup>
 					</LayersControl.Overlay>
 					<LayersControl.Overlay checked name="Off Axis ODLC">
-						{props.getters.offAxis.lat == null ? null : singlePopup("offAxis")}
+						{props.getters.offAxis.lat == null ? null : singlePopup(props.getters.offAxis, "offAxis")}
 					</LayersControl.Overlay>
 					<LayersControl.Overlay checked name="UAV">
 						{props.getters.uav.heading == null ? null : (
@@ -346,9 +364,15 @@ const FlightPlanMap = props => {
 					</LayersControl.Overlay>
 					<LayersControl.Overlay checked name="Mission Path">
 						<LayerGroup>
-							<PolylineDecorator layer="Mission Path" positions={props.getters.path} color="#10336B" decoratorColor="#1d5cc2" />
+							<PolylineDecorator layer="Mission Path" positions={props.getters.path.filter(marker => (marker.num !== 0) && (marker.cmd !== 177))} color="#10336B" decoratorColor="#1d5cc2" />
 							{props.getters.path.map((marker, i) => {
-								return popup(marker, i, "path", (
+								if (marker.num === 0) {
+									return singlePopup(marker, "home")
+								} else if (marker.cmd === 177) {
+									return <PolylineDecorator layer="Mission Path" positions={[props.getters.path[i-1], props.getters.path[marker.p1]]} color="#17e3cb" decoratorColor="#61e8d9" />
+								}
+
+								return popup(marker, marker.num, "path", (
 									<div>
 										Altitude (feet)
 										<Box style={{ "width": "12em", "margin-right": "4em", "height": "3em" }} editable={true} content={marker.alt} onChange={v => {

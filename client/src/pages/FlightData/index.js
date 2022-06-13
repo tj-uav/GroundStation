@@ -89,7 +89,8 @@ const FlightData = () => {
 		searchGrid: "ODLC Search Grid",
 		path: "Mission Path",
 		uav: "UAV",
-		ugv: "UGV"
+		ugv: "UGV",
+		home: "Home Waypoint"
 	}
 
 	useInterval(500, () => {
