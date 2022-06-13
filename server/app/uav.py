@@ -65,6 +65,11 @@ def uav_terminate():
     return app.gs.uav.set_param("AFS_TERMINATE", 1)
 
 
+@uav.route("/channels")
+def uav_channels():
+    return app.gs.uav.channels()
+
+
 # Commands
 uav_commands = Blueprint("uav_commands", __name__)
 uav.register_blueprint(uav_commands, url_prefix="/commands")
