@@ -184,8 +184,8 @@ const FlightPlanMap = props => {
 			let set = props.setters["path"]
 			if (props.mode === "push" || (props.mode === "insert" && get.length < 2)) {
 				let temp = get.slice()
-				let point = { lat: event.latlng.lat, lng: event.latlng.lng, opacity: 0.5, num: get.length + (get[0].num === 0 ? -1 : 1) }
-				if (temp[temp.length - 1].cmd === 177) {
+				let point = { lat: event.latlng.lat, lng: event.latlng.lng, opacity: 0.5, num: get.length + (get[0]?.num === 0 ? -1 : 1) }
+				if (temp[temp.length - 1]?.cmd === 177) {
 					temp = [...temp.slice(0, temp.length - 1), point, temp[temp.length - 1]]
 				} else {
 					temp.push(point)
@@ -195,7 +195,7 @@ const FlightPlanMap = props => {
 				const getPerpendicularDistance = (i) => {
 					let first
 					let second
-					if (get[i].cmd === 177) {
+					if (get[i]?.cmd === 177) {
 						first = get[i - 1]
 						second = get[get[i].p1 - (get[0].num === 0 ? 0 : 1)]
 					} else {
@@ -225,7 +225,7 @@ const FlightPlanMap = props => {
 					}
 				}
 
-				let min = get[0].num === 0 ? 1 : 0
+				let min = get[0]?.num === 0 ? 1 : 0
 				let inBox = getPerpendicularDistance(0)[1]
 				for (let i = 0; i < get.length; i++) {
 					let [d, _in] = getPerpendicularDistance(i)
@@ -240,10 +240,10 @@ const FlightPlanMap = props => {
 				}
 
 				let path = get.slice()
-				if (get[min].cmd === 177) {
+				if (get[min]?.cmd === 177) {
 					path = [...path.slice(0, min), { num: min, lat: event.latlng.lat, lng: event.latlng.lng, opacity: 0.5 }, ...(path.slice(min).map(point => ({ ...point, num: point.num + 1 })))]
 				} else {
-					path = [...path.slice(0, min + 1), { num: min + (get[0].num === 0 ? 1 : 2), lat: event.latlng.lat, lng: event.latlng.lng, opacity: 0.5 }, ...(path.slice(min + 1).map(point => ({ ...point, num: point.num + 1 })))]
+					path = [...path.slice(0, min + 1), { num: min + (get[0]?.num === 0 ? 1 : 2), lat: event.latlng.lat, lng: event.latlng.lng, opacity: 0.5 }, ...(path.slice(min + 1).map(point => ({ ...point, num: point.num + 1 })))]
 				}
 				set(path)
 			}
