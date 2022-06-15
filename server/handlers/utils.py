@@ -4,7 +4,16 @@ from functools import wraps
 from logging import Logger
 from typing import Callable
 
-log_exempt = ("update", "stats", "quick", "get_armed", "submit_telemetry", "odlc_get_queue", "odlc_add_to_queue", "process_image")
+log_exempt = (
+    "update",
+    "stats",
+    "quick",
+    "get_armed",
+    "submit_telemetry",
+    "odlc_get_queue",
+    "odlc_add_to_queue",
+    "process_image",
+)
 
 
 def log(func: Callable, logger: Logger) -> Callable:
@@ -20,7 +29,9 @@ def log(func: Callable, logger: Logger) -> Callable:
             aargs = ", ".join(repr(x) for x in args[1:])
             kkwargs = ", ".join(f"{k}={v}" for k, v in kwargs.items())
             all_args = aargs + ", " + kkwargs if (aargs and kkwargs) else aargs + kkwargs
-            logger.debug("{:<60}".format(f"{class_}.{func.__name__}({all_args})") + f"  -->  {res}")
+            logger.debug(
+                "{:<60}".format(f"{class_}.{func.__name__}({all_args})") + f"  -->  {res}"
+            )
         return res
 
     return wrapper

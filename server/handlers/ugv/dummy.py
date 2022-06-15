@@ -122,8 +122,8 @@ class DummyUGVHandler:
                 self.droppos = self.gs.interop.get_data("ugv")
                 self.droppos = self.droppos["result"]
             if not self.lat:
-                self.lat = self.droppos["drop"]["latitude"]# + (random.random() - 0.5) / 2000
-                self.lon = self.droppos["drop"]["longitude"]# + (random.random() - 0.5) / 2000
+                self.lat = self.droppos["drop"]["latitude"]  # + (random.random() - 0.5) / 2000
+                self.lon = self.droppos["drop"]["longitude"]  # + (random.random() - 0.5) / 2000
             self.lat += (random.random() - 0.5) / 80000
             self.lon += (random.random() - 0.5) / 80000
             # ^^ remove after frr

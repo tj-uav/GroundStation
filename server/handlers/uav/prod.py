@@ -27,7 +27,7 @@ COMMANDS = {
 
 
 def pixhawk_stats(vehicle):
-    vehicle.wait_ready('autopilot_version')
+    vehicle.wait_ready("autopilot_version")
     print("\nGet all vehicle attribute values:")
     print(" Autopilot Firmware version: %s" % vehicle.version)
     print("   Major version number: %s" % vehicle.version.major)
@@ -44,15 +44,21 @@ def pixhawk_stats(vehicle):
     print("   Supports PARAM_UNION message type: %s" % vehicle.capabilities.param_union)
     print("   Supports ftp for file transfers: %s" % vehicle.capabilities.ftp)
     print(
-        "   Supports commanding attitude offboard: %s" % vehicle.capabilities.set_attitude_target)
+        "   Supports commanding attitude offboard: %s" % vehicle.capabilities.set_attitude_target
+    )
     print(
-        "   Supports commanding position and velocity targets in local NED frame: %s" % vehicle.capabilities.set_attitude_target_local_ned)
+        "   Supports commanding position and velocity targets in local NED frame: %s"
+        % vehicle.capabilities.set_attitude_target_local_ned
+    )
     print(
-        "   Supports set position + velocity targets in global scaled integers: %s" % vehicle.capabilities.set_altitude_target_global_int)
+        "   Supports set position + velocity targets in global scaled integers: %s"
+        % vehicle.capabilities.set_altitude_target_global_int
+    )
     print("   Supports terrain protocol / data handling: %s" % vehicle.capabilities.terrain)
     print("   Supports direct actuator control: %s" % vehicle.capabilities.set_actuator_target)
     print(
-        "   Supports the flight termination command: %s" % vehicle.capabilities.flight_termination)
+        "   Supports the flight termination command: %s" % vehicle.capabilities.flight_termination
+    )
     print("   Supports mission_float message type: %s" % vehicle.capabilities.mission_float)
     print("   Supports onboard compass calibration: %s" % vehicle.capabilities.compass_calibration)
     print(" Global Location: %s" % vehicle.location.global_frame)
@@ -527,7 +533,7 @@ class UAVHandler:
         except InvalidStateError as e:
             raise InvalidStateError(str(e)) from e
         except Exception as e:
-                # raise InvalidStateError("Vehicle is not armable")
+            # raise InvalidStateError("Vehicle is not armable")
             raise GeneralError(str(e)) from e
 
     def disarm(self):
