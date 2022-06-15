@@ -151,6 +151,8 @@ class UAVHandler:
         self.update_thread = None
         self.vehicle: Optional[Vehicle] = None
         self.altitude = (
+            self.altitude_global
+        ) = (
             self.orientation
         ) = (
             self.ground_speed
@@ -181,7 +183,7 @@ class UAVHandler:
     def connect(self):
         try:
             if self.serial:
-                self.vehicle = connect(self.port, wait_ready=True, baud=BAUDRATE)
+                self.vehicle = connect(self.port, baud=BAUDRATE)
             else:
                 self.vehicle = connect(self.port, wait_ready=True)
             pixhawk_stats(self.vehicle)
@@ -199,6 +201,7 @@ class UAVHandler:
             rpy = self.vehicle.attitude  # Roll, Pitch, Yaw
             battery = self.vehicle.battery
             self.altitude = loc.alt * self.ft
+            self.altitude_global = self.vehicle.location.global_frame.alt * self.ft
             self.orientation = dict(
                 yaw=rpy.yaw * 180 / math.pi,
                 roll=rpy.roll * 180 / math.pi,
@@ -238,6 +241,7 @@ class UAVHandler:
             return {
                 "result": {
                     "altitude": self.altitude,
+                    "altitude_global": self.altitude_global,
                     "orientation": self.orientation,
                     "lat": self.lat,
                     "lon": self.lon,
@@ -288,16 +292,7 @@ class UAVHandler:
 
     def restart(self):
         try:
-            return {}
-        except Exception as e:
-            raise GeneralError(str(e)) from e
-
-    def abort(self):
-        try:
-            msg = self.vehicle.message_factory.hil_controls_encode(
-                0, 1, 1, 1, 0, 1, 1, 1, 1, 220, 220
-            )  # ailerons right, elevator up, rudder right, throttle cut
-            self.vehicle.send_mavlink(msg)
+            self.vehicle.reboot()
             return {}
         except Exception as e:
             raise GeneralError(str(e)) from e
@@ -409,26 +404,46 @@ class UAVHandler:
             cmds = self.vehicle.commands
             cmds.download()
             cmds.wait_ready()
-            new_cmd = Command(
-                0,
-                0,
-                0,
-                uavutil.mavlink.MAV_FRAME_GLOBAL_RELATIVE_ALT,
-                COMMANDS[command],
-                0,
-                0,
-                0,
-                0,
-                0,
-                0,
-                lat,
-                lon,
-                alt,
-            )
-            cmds.add(new_cmd)
-            cmds.upload()
             if command == "LAND":
+                home = self.vehicle.home_location
+                new_cmd = Command(
+                    0,
+                    0,
+                    0,
+                    uavutil.mavlink.MAV_FRAME_GLOBAL_RELATIVE_ALT,
+                    COMMANDS[command],
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    home.lat,
+                    home.lon,
+                    home.alt,
+                )
+                cmds.add(new_cmd)
+                cmds.upload()
                 self.jump_to_command(cmds.count)
+            else:
+                new_cmd = Command(
+                    0,
+                    0,
+                    0,
+                    uavutil.mavlink.MAV_FRAME_GLOBAL_RELATIVE_ALT,
+                    COMMANDS[command],
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    lat,
+                    lon,
+                    alt,
+                )
+                cmds.add(new_cmd)
+                cmds.upload()
             return {}
         except Exception as e:
             raise GeneralError(str(e)) from e

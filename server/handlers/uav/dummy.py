@@ -200,9 +200,6 @@ class DummyUAVHandler:
     def restart(self):
         return {}
 
-    def abort(self):
-        return {}
-
     # Flight Mode
 
     def set_flight_mode(self, flightmode):

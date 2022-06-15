@@ -13,9 +13,12 @@ const Quick = () => {
 	const [Aorientation, setAorientation] = useState({ "yaw": 0, "pitch": 0, "roll": 0 })
 	const [AlatLong, setAlatLong] = useState({ "lat": 0, "lon": 0 })
 	const [Aaltitude, setAaltitude] = useState(0)
+	const [AaltitudeGlobal, setAaltitudeGlobal] = useState(0)
+	const [AaltitudeIsGlobal, setAaltitudeIsGlobal] = useState(false)
 	const [Abattery, setAbattery] = useState(16)
 	const [AgroundSpeed, setAgroundSpeed] = useState(0)
 	const [Aairspeed, setAairspeed] = useState(0)
+	const [AspeedIsInKnots, setAspeedIsInKnots] = useState(false)
 	const [Astatus, setAstatus] = useState("")
 	const [Amode, setAmode] = useState("")
 	const [Awaypoint, setAwaypoint] = useState([1, 0])
@@ -39,6 +42,7 @@ const Quick = () => {
 			setAorientation({"yaw": data.result.quick.orientation.yaw, "roll": data.result.quick.orientation.roll, "pitch": data.result.quick.orientation.pitch })
 			setAlatLong({"lat": data.result.quick.lat, "lon": data.result.quick.lon})
 			setAaltitude(data.result.quick.altitude)
+			setAaltitudeGlobal(data.result.quick.altitude_global)
 			setAbattery(data.result.quick.battery)
 			setAgroundSpeed(data.result.quick.ground_speed)
 			setAairspeed(data.result.quick.air_speed)
@@ -91,14 +95,23 @@ const Quick = () => {
 						<Box label="Longitude" content={AlatLong.lon.toFixed(7) + "\u00B0"} />
 					</Row>
 					<Row>
-						<Box label="Altitude" content={Aaltitude.toFixed(2) + " ft"} />
+						<Box label="Altitude"
+							 content={AaltitudeIsGlobal ? AaltitudeGlobal.toFixed(2) + " ft MSL" : Aaltitude.toFixed(2) + " ft AGL"}
+							 onClick={() => {setAaltitudeIsGlobal(!AaltitudeIsGlobal)}}
+							style={{ cursor: "pointer" }} />
 						<Box label="Battery (6S)" content={Abattery.toFixed(2) + "V"} />
 					</Row>
 				</Row>
 				<Row style={{ gap: "1rem" }}>
 					<Row>
-						<Box label="Ground Speed" content={AgroundSpeed.toFixed(2) + " mph"} />
-						<Box label="Airspeed" content={Aairspeed.toFixed(2) + " mph"} />
+						<Box label="Ground Speed"
+							 content={((AspeedIsInKnots ? 0.868976 : 1) * AgroundSpeed).toFixed(2) + (AspeedIsInKnots ? " knots" : " mph")}
+							 onClick={() => {setAspeedIsInKnots(!AspeedIsInKnots)}}
+							 style={{ cursor: "pointer" }} />
+						<Box label="Airspeed"
+							 content={((AspeedIsInKnots ? 0.868976 : 1) * Aairspeed).toFixed(2) + (AspeedIsInKnots ? " knots" : " mph")}
+							 onClick={() => {setAspeedIsInKnots(!AspeedIsInKnots)}}
+							 style={{ cursor: "pointer" }} />
 					</Row>
 					<Row>
 						<Box label="Status" content={Astatus} />

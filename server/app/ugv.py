@@ -40,11 +40,6 @@ def uav_restart():
     return app.gs.ugv.restart()
 
 
-@ugv.route("/abort", methods=["POST"])
-def uav_abort():
-    return app.gs.ugv.abort()
-
-
 @ugv.route("/getarmed")
 def ugv_armed():
     return app.gs.ugv.get_armed()

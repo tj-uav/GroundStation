@@ -120,11 +120,10 @@ class UGVHandler:
     def connect(self):
         try:
             if self.serial:
-                self.vehicle = connect(self.port, wait_ready=True, baud=BAUDRATE)
+                self.vehicle = connect(self.port, baud=BAUDRATE)
             else:
                 self.vehicle = connect(self.port, wait_ready=True)
             self.update()
-            self.insert_command("WAYPOINT")
             print("╠ INITIALIZED UGV HANDLER")
             self.logger.info("INITIALIZED UGV HANDLER")
             return {}
@@ -201,12 +200,6 @@ class UGVHandler:
             raise GeneralError(str(e)) from e
 
     def restart(self):
-        try:
-            return {}
-        except Exception as e:
-            raise GeneralError(str(e)) from e
-
-    def abort(self):
         try:
             return {}
         except Exception as e:
