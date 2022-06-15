@@ -96,17 +96,21 @@ const Actions = () => {
 			</Column>
 			<Column>
 				<Row id="labels1" height="2rem" gap="0.5rem">
-					<Label columns={1}>Flight Modes</Label>
+					<Label columns={1}>Flight Mode</Label>
 				</Row>
 			</Column>
 
 			<Column style={{ marginBottom: "1rem" }}>
-				<Row height="2.5rem">
+				<Row height="3rem">
 					<Dropdown
 						initial={Modes.find(m => m.toUpperCase() === Amode)}
 						onChange={i => {
 							let m = Modes[i].toUpperCase()
-							httppost("/uav/mode/set", {"mode": m})
+							if (m === "LAND") {
+								httppost("/uav/commands/insert", { "command": "LAND", "lat": 0.0, "lon": 0.0, alt: 0.0 })
+							} else {
+								httppost("/uav/mode/set", { "mode": m })
+							}
 							setAmode(m)
 						}}
 					>
@@ -118,8 +122,8 @@ const Actions = () => {
 					</Dropdown>
 					<Button onClick={() => { setAmode("MANUAL"); httppost("/uav/mode/set", { "mode": "MANUAL" }) }}>Manual</Button>
 					<Button onClick={() => { setAmode("AUTO"); httppost("/uav/mode/set", { "mode": "AUTO" }) }}>Auto</Button>
-					<Button warning={true} color={darkred} onClick={() => { setAmode("TAKEOFF"); httppost("/uav/mode/set", { "mode": "TAKEOFF" }) }}>Takeoff</Button>
-					<Button warning={true} color={darkred} onClick={() => { httppost("/uav/commands/insert", { "command": "LAND", "lat": 38.14469, "lon": -76.42799, alt: 6.6 }) }}>Land</Button>
+					<Button onClick={() => { setAmode("RTL"); httppost("/uav/mode/set", { "mode": "RTL" }) }}>RTL</Button>
+					<Button onClick={() => { setAmode("LOITER"); httppost("/uav/mode/set", { "mode": "LOITER" }) }}>Loiter</Button>
 				</Row>
 			</Column>
 			<Column>
@@ -128,11 +132,11 @@ const Actions = () => {
 				</Row>
 			</Column>
 			<Column style={{ marginBottom: "1rem" }}>
-				<Row>
-					<Button warning={true} color={darkred} onClick={() => httppost("/uav/sethome")}>Set home?</Button>
+				<Row height="2.5rem">
+					<Button warning={true} color={darkred} onClick={() => httppost("/uav/sethome")}>Set home</Button>
 					<Button warning={true} color={darkred} onClick={() => httppost("/uav/calibrate")}>Calibration?</Button>
 					<Button warning={true} color={darkred} onClick={() => httppost(Aarmed === "ARMED" ? "/uav/disarm" : "/uav/arm")}>{Aarmed === "ARMED" ? "Disarm" : "Arm"}</Button>
-					<Button warning={true} color={darkred} onClick={() => httppost("/uav/restart")}>Restart?</Button>
+					<Button warning={true} color={darkred} onClick={() => httppost("/uav/restart")}>Restart</Button>
 				</Row>
 			</Column>
 			<Column>
@@ -141,7 +145,7 @@ const Actions = () => {
 				</Row>
 			</Column>
 			<Column style={{ marginBottom: "1rem" }}>
-				<Row>
+				<Row height="2.5rem">
 					<Row>
 						<Box
 							content=""
@@ -168,8 +172,8 @@ const Actions = () => {
 								e.stopPropagation()
 							}}
 							placeholder="#"
-							style={{ textAlign: "center", height: "2rem" }}
-							line="200%"
+							style={{ textAlign: "center", height: "2.5rem" }}
+							line="250%"
 							editable
 						/>
 						<Button onClick={() => httppost("/uav/commands/jump", { "command": waypointNum })}>Go!</Button>
@@ -185,35 +189,59 @@ const Actions = () => {
 				</Row>
 			</Column>
 			<Column style={{ marginBottom: "1rem" }}>
-				<Row>
+				<Row height="2.5rem">
 					<Button href="http://localhost:5000/uav/commands/view" newTab={true}>View</Button>
 					<Button onClick={() => httppost("/uav/commands/write")}>Write</Button>
 					<Button onClick={() => httppost("/uav/commands/load")}>Load</Button>
 					<Button onClick={() => httppost("/uav/commands/clear")}>Clear</Button>
-					<Button warning={true} color={darkred} onClick={() => httppost("/uav/abort")}>Abort?</Button>
+					<Button warning={true} color={darkred} onClick={() => httppost("/uav/terminate")}>Terminate</Button>
 				</Row>
 			</Column>
-			<StyledDiv style={{ marginTop: "0em" }}>
+			<StyledDiv style={{ marginTop: "1.5rem" }}>
 				<Label className="paragraph" style={{"font-size": "2em", "color": "black"}}>UGV</Label>
 				<UGV />
 			</StyledDiv>
 			<Column style={{ marginBottom: "1rem", gap: "0.5rem" }}>
 				<Row style={{ gap: "1rem" }}>
 					<Row>
-						<Box label="Yaw" content={(Gyaw.toFixed(2))  + "\u00B0"} />
-						<Box label="Ground Speed" content={GgroundSpeed.toFixed(2) + " mph"} />
-					</Row>
-					<Row>
+						<Column>
+							<Row>
+								<Box label="Yaw" content={(Gyaw.toFixed(2))  + "\u00B0"} />
+								<Box label="Speed" content={GgroundSpeed.toFixed(2) + " mph"} />
+							</Row>
+						</Column>
+						<Row>
 						<Column>
 							<Row id="labels1" height="0rem" gap="0.5rem">
-								<Label columns={1}>Flight Modes (Current: {Gmode})</Label>
+								<Label columns={1}>Mission</Label>
 							</Row>
 							<Row>
 								<Button onClick={() => window.open("http://localhost:5000/ugv/commands/view")}>View</Button>
-								<Button onClick={() => httppost("/ugv/commands/write")}>Reset</Button>
-								<Button warning={true} color={darkred} onClick={() => httppost("/ugv/abort")}>Abort?</Button>
+								<Button onClick={() => httppost("/ugv/commands/write")}>Load</Button>
 							</Row>
 						</Column>
+						<Column>
+							<Row id="labels1" height="0rem" gap="0.5rem">
+								<Label columns={1}>Flight Mode</Label>
+							</Row>
+							<Row height="3rem" style={{ marginTop: "1rem" }}>
+								<Dropdown
+									initial={Modes.find(m => m.toUpperCase() === Gmode)}
+									onChange={i => {
+										let m = Modes[i].toUpperCase()
+										httppost("/ugv/mode/set", {"mode": m})
+										setGmode(m)
+									}}
+								>
+									{Modes.map((v, i) => {
+										return (
+											<span value={i}>{v}</span>
+										)
+									})}
+								</Dropdown>
+							</Row>
+						</Column>
+						</Row>
 					</Row>
 				</Row>
 			</Column>
@@ -224,7 +252,7 @@ const Actions = () => {
 				</Row>
 			</Column>
 			<Column style={{ marginBottom: "1rem" }}>
-				<Row>
+				<Row height="2.5rem">
 					<Button warning={true} color={darkred} onClick={() => httppost("/ugv/sethome")}>Set home?</Button>
 					<Button warning={true} color={darkred} onClick={() => httppost("/ugv/calibrate")}>Calibration?</Button>
 					<Button warning={true} color={darkred} onClick={() => httppost(Garmed === "ARMED" ? "/ugv/disarm" : "/ugv/arm")}>{Garmed === "ARMED" ? "Disarm" : "Arm"}</Button>

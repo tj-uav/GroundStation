@@ -182,7 +182,7 @@ class InteropHandler:
             uav_quick = uav_quick["result"]
             telemetry.latitude = uav_quick["lat"]
             telemetry.longitude = uav_quick["lon"]
-            telemetry.altitude = uav_quick["altitude"]
+            telemetry.altitude = uav_quick["altitude_global"]
             telemetry.heading = uav_quick["orientation"]["yaw"]
             self.telemetry_json = json_format.MessageToDict(telemetry)
             self.client.post_telemetry(telemetry)

@@ -275,12 +275,16 @@ const FlightPlanMap = props => {
 				onClick={handleClick}
 				ref={mapRef}
 				zoom={16}
+				zoomSnap={0.5}
+				wheelPxPerZoomLevel={120}
 				style={{ height: "100%" }}
 			>
 				<TileLayer
 					attribution="Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community"
 					url={"/map/{z}/{x}/{y}.png"}
 					ref={tileRef}
+					maxNativeZoom={18}
+					maxZoom={22}
 				/>
 				<ClickLocation />
 				<LayersControl position="topright">
