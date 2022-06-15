@@ -118,17 +118,19 @@ def uav_export_commands_file():
     with open("handlers/uav/uav_mission.txt", "r", encoding="utf-8") as f:
         for line in f.readlines()[1:]:
             spl = line.split("\t")
-            waypoints.append({
-                "num": float(spl[0]),
-                "cmd": float(spl[3]),
-                "p1": float(spl[4]),
-                "p2": float(spl[5]),
-                "p3": float(spl[6]),
-                "p4": float(spl[7]),
-                "lat": float(spl[8]),
-                "lon": float(spl[9]),
-                "alt": float(spl[10])
-            })
+            waypoints.append(
+                {
+                    "num": float(spl[0]),
+                    "cmd": float(spl[3]),
+                    "p1": float(spl[4]),
+                    "p2": float(spl[5]),
+                    "p3": float(spl[6]),
+                    "p4": float(spl[7]),
+                    "lat": float(spl[8]),
+                    "lon": float(spl[9]),
+                    "alt": float(spl[10]),
+                }
+            )
     return {"waypoints": waypoints}
 
 

@@ -224,7 +224,9 @@ class InteropHandler:
         description: str = None,
     ):
         try:
-            with open(f"assets/odlc_images/{len(self.odlc_queued_data)}.{self.file_extension}", "wb") as file:
+            with open(
+                f"assets/odlc_images/{len(self.odlc_queued_data)}.{self.file_extension}", "wb"
+            ) as file:
                 file.write(image)
             base_obj = {
                 "created": datetime.now(),
