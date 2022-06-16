@@ -141,7 +141,7 @@ def uav_generate_commands_file():
         raise InvalidRequestError("Missing required fields in request")
     with open("handlers/uav/uav_mission.txt", "w", encoding="utf-8") as file:
         file.write("QGC WPL 110\n")
-        counter = f.get("waypoints")
+        counter = 1
         for waypoint in f.get("waypoints"):
             file.write(
                 f"{waypoint.get('num') if waypoint.get('num') else counter}\t"

@@ -103,6 +103,12 @@ const FlightPlanToolbar = props => {
 						<span style={{ color: red }}>You have unsaved points!</span>
 				</div>
 			)}
+			{props.getters.path.length === 0 ? (
+				<Button style={{ "width": "11.25em", "margin-top": "2em" }} onClick={() => {
+					props.setters.path(props.getters.waypoints.slice())
+					props.setSaved(false)
+				}}>Use Mission Waypoints As Path</Button>
+			) : null}
 		</div>
 	)
 }
