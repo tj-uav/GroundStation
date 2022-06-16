@@ -13,7 +13,7 @@ import { red } from "theme/Colors"
 
 const FlightPlanMap = props => {
 	const [state, setState] = useState({
-		latlng: { lat: 38.528967, lng: -77.735695 },
+		latlng: { lat: 38.315339, lng: -76.548108 },
 	})
 
 	let mapRef = createRef()

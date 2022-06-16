@@ -43,7 +43,7 @@ def main():
                         os.makedirs(f"./map/{i}/{j}")
 
                     print("Downloading: [x: " + str(j) + ", y: " + str(k) + ", zoom: " + str(i) + "]")
-                    url = f"https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{i}/{j}/{k}.png"
+                    url = f"https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{i}/{k}/{j}.png"
                     r = requests.get(url, allow_redirects=False)
                     file = open(f"./map/{i}/{j}/{k}.png", "wb")
                     file.write(r.content)
