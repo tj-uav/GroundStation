@@ -2,11 +2,12 @@ import React, { useState, useEffect, useRef } from "react"
 import styled from "styled-components"
 import { Button, CheckboxList } from "components/UIElements"
 import { Column, Row } from "components/Containers"
-import { getUrl, httpget } from "backend"
+import { httpget } from "backend"
 import { dark, darkest, darkdark, red } from "theme/Colors"
 import { useInterval } from "../../../util"
 
 import { VariableSizeList } from "react-window"
+import { useBackendConnection } from "../../../GlobalSettings"
 
 const colors = {
 	DEBUG: darkdark,
@@ -37,12 +38,14 @@ const Logs = () => {
 		}
 	})
 
+	const url = useBackendConnection().backendConnection
+
 	const scrollToBottom = () => {
 		container.current.scrollToItem(filtered.length - 1)
 	}
 
 	useInterval(3000, () => {
-		httpget("/logs", (response) => {
+		httpget(url, "/logs", (response) => {
 			setLogs(response.data.result)
 		})
 	})
@@ -103,7 +106,7 @@ const Logs = () => {
 						<CheckboxList.Option checked={filters.includes("[CRITICAL ]")} value="[CRITICAL ]" color={colors.CRITICAL}>Critical</CheckboxList.Option>
 					</Column>
 					<Column gap="0em">
-						<ScrollButton href={getUrl() + "/logs"} newTab={true}>Open Log File</ScrollButton>
+						<ScrollButton href={url + "/logs"} newTab={true}>Open Log File</ScrollButton>
 						<ScrollButton onChange={() => { setAutoScroll(!autoScroll) }}>{autoScroll ? "Turn Off Autoscroll" : "Turn On Autoscroll"}</ScrollButton>
 					</Column>
 				</Row>

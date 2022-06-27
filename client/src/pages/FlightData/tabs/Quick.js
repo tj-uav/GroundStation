@@ -7,6 +7,7 @@ import { ReactComponent as RawUGV } from "icons/ugv.svg"
 import { ReactComponent as RawUAV } from "icons/uav.svg"
 import { httpget } from "../../../backend"
 import { useInterval } from "../../../util"
+import { useBackendConnection } from "../../../GlobalSettings"
 
 const Quick = () => {
 	const [Aarmed, setAarmed] = useState("")
@@ -34,8 +35,10 @@ const Quick = () => {
 	const [Gbattery, setGbattery] = useState(16)
 	const [Gconnection, setGconnection] = useState([95, 0, 95])
 
+	const url = useBackendConnection().backendConnection
+
 	useInterval(400, () => {
-		httpget("/uav/stats", response => {
+		httpget(url, "/uav/stats", response => {
 			let data = response.data
 
 			setAarmed(data.result.armed)
@@ -51,7 +54,7 @@ const Quick = () => {
 			setAwaypoint(data.result.quick.waypoint)
 			setAconnection(data.result.quick.connection)
 		})
-		httpget("/ugv/stats", response => {
+		httpget(url, "/ugv/stats", response => {
 			let data = response.data
 
 			setGarmed(data.result.armed)

@@ -7,6 +7,7 @@ import styled from "styled-components"
 import { ReactComponent as RawUGV } from "icons/ugv.svg"
 import { ReactComponent as RawUAV } from "icons/uav.svg"
 import { useInterval } from "../../../util"
+import { useBackendConnection } from "../../../GlobalSettings"
 
 const actions = {
 	waypoint: [0, 1, 2, 3, 4]
@@ -38,8 +39,10 @@ const Actions = () => {
 	const [Gbattery, setGbattery] = useState(16)
 	const [Gconnection, setGconnection] = useState([95, 0, 95])
 
+	const url = useBackendConnection().backendConnection
+
 	useInterval(250, () => {
-		httpget("/uav/stats", ({ data }) => {
+		httpget(url, "/uav/stats", ({ data }) => {
 			setAaltitude(data.result.quick.altitude)
 			// setAthrottle(data.result.quick.throttle)
 			setAorientation({"yaw": data.result.quick.orientation.yaw, "roll": data.result.quick.orientation.roll, "pitch": data.result.quick.orientation.pitch })
@@ -54,7 +57,7 @@ const Actions = () => {
 			setAwaypoint(data.result.quick.waypoint)
 			// setAconnection(data.result.quick.connection)
 		})
-		httpget("/ugv/stats", ({ data }) => {
+		httpget(url, "/ugv/stats", ({ data }) => {
 			setGarmed(data.result.armed)
 			setGgroundSpeed(data.result.quick.ground_speed)
 			setGyaw(data.result.quick.yaw)

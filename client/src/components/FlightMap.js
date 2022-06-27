@@ -10,6 +10,7 @@ import RotatedMarker from "./RotatedMarker.js"
 import { useInterval } from "../util"
 import { Box, Button } from "components/UIElements"
 import { red } from "theme/Colors"
+import { useBackendConnection } from "../GlobalSettings"
 
 const FlightPlanMap = props => {
 	const [state, setState] = useState({
@@ -19,9 +20,10 @@ const FlightPlanMap = props => {
 	let mapRef = createRef()
 	const [icons, setIcons] = useState({})
 	const tileRef = useRef(null)
+	const url = useBackendConnection().backendConnection
 
 	useEffect(() => {
-		httpget("/interop/mission", response => {
+		httpget(url, "/interop/mission", response => {
 			setState(response.data.result.mapCenterPos)
 
 			let waypoints = []
@@ -46,7 +48,7 @@ const FlightPlanMap = props => {
 			props.setters.obstacles(response.data.result.stationaryObstacles)
 		})
 
-		httpget("/uav/commands/export", response => {
+		httpget(url, "/uav/commands/export", response => {
 			let points = response.data.waypoints.map((marker) => {
 				return { num: marker.num, cmd: marker.cmd, p1: marker.p1, p2: marker.p2, lat: marker.lat, lng: marker.lon, alt: marker.alt * 3.281 } // convert altitude from meters to feet
 			})
