@@ -1,10 +1,8 @@
 import axios from "axios"
 
-// there will be a connection page which will be able to change this
-// for now it stays constant
-var url = "http://localhost:5000"
+import { useBackendConnection } from "./GlobalSettings"
 
-const httpget = async (endpoint, func, error) => {
+const httpget = async (url, endpoint, func, error) => {
     try {
         const response = await axios.get(url + endpoint, {
             headers: { "Content-Type": "application/json", Accept: "application/json" },
@@ -18,18 +16,10 @@ const httpget = async (endpoint, func, error) => {
     }
 }
 
-const httppost = async (endpoint, data, func) => {
+const httppost = async (url, endpoint, data, func) => {
     const response = await axios.post(url + endpoint, data)
     if (func) func(response)
     return response
 }
 
-const getUrl = () => {
-    return url
-}
-
-const setUrl = (u) => {
-    url = u;
-}
-
-export { httpget, httppost, getUrl, setUrl }
+export { httpget, httppost }

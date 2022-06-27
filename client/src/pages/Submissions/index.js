@@ -5,6 +5,7 @@ import TabBar from "components/TabBar"
 import { View, Submitted, Rejected } from "pages/Submissions/Tabs"
 import { httpget, httppost } from "backend"
 import { useInterval } from "../../util"
+import { useBackendConnection } from "../../GlobalSettings"
 
 export const SubmitContext = createContext()
 
@@ -25,6 +26,8 @@ const Submissions = () => {
 	activeRef.current = active
 	imagesRef.current = images
 
+	const url = useBackendConnection().backendConnection
+
 	const newActive = (d) => {
 		for (let i = 0; i < d.length; i++) {
 			if (d[i].status === null) {
@@ -35,7 +38,7 @@ const Submissions = () => {
 	}
 
 	useInterval(3000, () => {
-		httpget("/interop/odlc/list", async (response) => {
+		httpget(url, "/interop/odlc/list", async (response) => {
 			const odlcsEqual = (a, b) => {
 				if (a.alphanumeric === b.alphnumeric ||
 					a.alphanumeric_color === b.alphanumeric_color ||
@@ -74,7 +77,7 @@ const Submissions = () => {
 
 				let imagesData = []
 				for (let i = 0; i < resData.length; i++) {
-					await httpget("/interop/odlc/image/"+i, (res) => {
+					await httpget(url, "/interop/odlc/image/"+i, (res) => {
 						imagesData.push(res.data.image)
 					})
 				}

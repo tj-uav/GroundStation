@@ -3,7 +3,7 @@ import { Row, Modal, ModalBody, ModalHeader } from "components/Containers"
 import { darker } from "theme/Colors"
 import styled from "styled-components"
 import { Box, Button } from "./UIElements"
-import { getUrl, setUrl } from "../backend"
+import { useBackendConnection } from "../GlobalSettings"
 
 const NavContainer = styled.div`
 	background: ${darker};
@@ -33,6 +33,9 @@ const ConnectionButton = (props) => {
 	const [open, setOpen] = useState(false)
 	const boxRef = useRef(null)
 
+	const url = useBackendConnection().backendConnection
+	const setUrl = useBackendConnection().setBackendConnection
+
 	useEffect(() => {
 		boxRef.current?.focus()
 	}, [])
@@ -49,8 +52,8 @@ const ConnectionButton = (props) => {
 				<ModalBody>
 					<div style={{ "display": "flex" }}>
 						<div style={{ "display": "flex", "align-items": "center" }}>Query URL:</div>
-						<Box style={{ "margin-left": "1em", "width": "25em" }} ref={boxRef} editable={true} content={getUrl()}>hi</Box>
-						<Button style={{ "width": "10em", "height": "3em", "margin-left": "0" }} onChange={() => {
+						<Box style={{ "margin-left": "1em", "width": "25em" }} ref={boxRef} editable={true} content={url}>url</Box>
+						<Button style={{ "width": "10em", "height": "3em", "margin-left": "0" }} onClick={() => {
 							setUrl(boxRef.current.value)
 						}}>Set URL</Button>
 					</div>

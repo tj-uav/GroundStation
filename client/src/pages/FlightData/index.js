@@ -9,6 +9,7 @@ import Quick from "./tabs/Quick"
 import Actions from "./tabs/Actions"
 import Logs from "./tabs/Logs"
 import { useInterval } from "../../util"
+import { useBackendConnection } from "../../GlobalSettings"
 
 /*
 TODO: Home icon
@@ -77,6 +78,8 @@ const FlightData = () => {
 		defaultAlt: setDefaultAlt
 	}
 
+	const url = useBackendConnection().backendConnection
+
 	const display = {
 		commands: "Command",
 		waypoints: "Waypoint",
@@ -94,14 +97,14 @@ const FlightData = () => {
 	}
 
 	useInterval(500, () => {
-		httpget("/uav/quick", response => setUav({
+		httpget(url, "/uav/quick", response => setUav({
 			latlng: {
 				lat: response.data.result.lat,
 				lng: response.data.result.lon
 			},
 			heading: response.data.result.orientation.yaw
 		}))
-		httpget("/ugv/quick", response => setUgv({
+		httpget(url, "/ugv/quick", response => setUgv({
 			latlng: {
 				lat: response.data.result.lat,
 				lng: response.data.result.lon
