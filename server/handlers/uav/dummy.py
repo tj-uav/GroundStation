@@ -78,7 +78,7 @@ class DummyUAVHandler:
         self.port = self.config["uav"]["telemetry"]["port"]
         self.serial = self.config["uav"]["telemetry"]["serial"]
         self.update_thread = None
-        self.altitude = (
+        self.altitude = self.altitude_global = (
             self.orientation
         ) = (
             self.ground_speed
@@ -124,6 +124,7 @@ class DummyUAVHandler:
     def update(self):
         try:
             self.altitude = random.random() * 250 + 150
+            self.altitude_global = self.altitude + 150
             self.ground_speed = random.random() * 30 + 45
             self.air_speed = random.random() * 30 + 45
             self.battery = random.random() * 2 + 14
@@ -167,6 +168,7 @@ class DummyUAVHandler:
         return {
             "result": {
                 "altitude": self.altitude,
+                "altitude_global": self.altitude_global,
                 "orientation": self.orientation,
                 "lat": self.lat,
                 "lon": self.lon,
