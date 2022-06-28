@@ -74,6 +74,7 @@ class GroundStation:
                     "[Telemetry] Lost connection to Interop Server, attempting to "
                     "re-initiate connection every second"
                 )
+                time.sleep(1)
                 continue
 
             if run:
