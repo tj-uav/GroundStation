@@ -258,18 +258,6 @@ class DummyUAVHandler:
         except Exception as e:
             raise GeneralError(str(e)) from e
 
-    def load_params(self):
-        try:
-            with open(
-                os.path.join(os.path.dirname(os.path.abspath(__file__)), "uav_params.json"),
-                "r",
-                encoding="utf-8",
-            ) as file:
-                self.params = json.load(file)
-            return {}
-        except Exception as e:
-            raise GeneralError(str(e)) from e
-
     # Commands (Mission)
 
     def get_commands(self):

@@ -143,6 +143,15 @@ def download_mission(vehicle):
     return missionlist
 
 
+def wait_for_param_download(f: callable):
+    def wrapper(*args):
+        vehicle = args[0].vehicle
+        if "parameters" in vehicle._ready_attrs:
+            return f(*args, proceed=True)
+        return f(*args, proceed=False)
+    return wrapper
+
+
 @decorate_all_functions(log, logging.getLogger("groundstation"))
 class UAVHandler:
     mph = 2.23694
@@ -177,6 +186,7 @@ class UAVHandler:
         ) = (
             self.waypoint
         ) = self.waypoints = self.waypoint_index = self.temperature = self.params = self.gps = None
+        self.params_proceedable = False
         self.mode = VehicleMode("MANUAL")
         self.commands = []
         self.armed = False
@@ -190,6 +200,7 @@ class UAVHandler:
         try:
             if self.serial:
                 self.vehicle = connect(self.port, baud=BAUDRATE)
+                self.vehicle.wait_ready("gps_0", "armed", "mode", "altitude")
             else:
                 self.vehicle = connect(self.port, wait_ready=True)
             pixhawk_stats(self.vehicle)
@@ -327,13 +338,21 @@ class UAVHandler:
 
     # Parameters
 
-    def get_param(self, key):
+    @wait_for_param_download
+    def get_param(self, key, proceed=None):
+        if not proceed:
+            return {"result": False}
+        self.params_proceedable = True
         try:
             return {"result": self.vehicle.parameters[key]}
         except Exception as e:
             raise GeneralError(str(e)) from e
 
-    def get_params(self):
+    @wait_for_param_download
+    def get_params(self, proceed=None):
+        if not proceed:
+            return {"result": False}
+        self.params_proceedable = True
         try:
             return {
                 "result": dict(
@@ -343,7 +362,11 @@ class UAVHandler:
         except Exception as e:
             raise GeneralError(str(e)) from e
 
-    def set_param(self, key, value):
+    @wait_for_param_download
+    def set_param(self, key, value, proceed=None):
+        if not proceed:
+            return {"result": False}
+        self.params_proceedable = True
         try:
             print(float(value))
         except ValueError as e:
@@ -354,14 +377,18 @@ class UAVHandler:
         except Exception as e:
             raise GeneralError(str(e)) from e
 
-    def set_params(self, **kwargs):
+    @wait_for_param_download
+    def set_params(self, proceed=None, **kwargs):
+        if not proceed:
+            return {"result": False}
+        self.params_proceedable = True
         try:
             for key, value in kwargs.items():
                 try:
                     float(value)
                 except ValueError as e:
                     raise InvalidRequestError(
-                        "Parameter Value cannot be converted to float"
+                        f"Parameter {key} Value cannot be converted to float"
                     ) from e
                 self.vehicle.parameters[key] = value
             return {}
@@ -376,18 +403,6 @@ class UAVHandler:
                 encoding="utf-8",
             ) as file:
                 json.dump(self.vehicle.parameters, file)
-            return {}
-        except Exception as e:
-            raise GeneralError(str(e)) from e
-
-    def load_params(self):
-        try:
-            with open(
-                os.path.join(os.path.dirname(os.path.abspath(__file__)), "uav_params.json"),
-                "r",
-                encoding="utf-8",
-            ) as file:
-                self.vehicle.parameters = json.load(file)
             return {}
         except Exception as e:
             raise GeneralError(str(e)) from e

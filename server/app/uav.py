@@ -213,8 +213,3 @@ def uav_set_params():
 @uav_params.route("/save", methods=["POST"])
 def uav_save_params():
     return app.gs.uav.save_params()
-
-
-@uav_params.route("/load", methods=["POST"])
-def uav_load_params():
-    return app.gs.uav.load_params()
