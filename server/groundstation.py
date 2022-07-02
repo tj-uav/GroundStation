@@ -18,7 +18,7 @@ class GroundStation:
         with open("config.json", "r", encoding="utf-8") as file:
             self.config = json.load(file)
 
-        print("╔══ CREATING HANDLERS")
+        print("╔═══ CREATING HANDLERS")
         self.logger.info("CREATING HANDLERS")
 
         self.interop_telem_thread = (

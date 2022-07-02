@@ -2,3 +2,4 @@ flask
 flask-cors
 flask_socketio
 pymavlink
+requests
