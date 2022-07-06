@@ -178,15 +178,15 @@ export const Checkboxes = ({ accept, save, decline, vertical, disabled }) => (
 	<Row style={{ marginBottom: "1rem" }}>
 		{vertical ?
 				<Column width="4rem" gap="0.5rem">
-					<Checkbox type="accept" callback={accept} disabled={disabled} />
-					<Checkbox type="save" callback={save} disabled={disabled} />
-					<Checkbox type="decline" callback={decline} disabled={disabled} />
+					<Checkbox type="accept" callback={accept} disabled={disabled} title="Submit the ODLC to Interop." />
+					<Checkbox type="save" callback={save} disabled={disabled} title="Save changes to the ODLC, but don't submit." />
+					<Checkbox type="decline" callback={decline} disabled={disabled} title="Reject the ODLC; remove it from the queue." />
 				</Column>
 			:
 				<Row height="3rem" gap="0.5rem">
-					<Checkbox type="accept" callback={accept} disabled={disabled} />
-					<Checkbox type="save" callback={save} disabled={disabled} />
-					<Checkbox type="decline" callback={decline} disabled={disabled} />
+					<Checkbox type="accept" callback={accept} disabled={disabled} title="Submit the ODLC to Interop." />
+					<Checkbox type="save" callback={save} disabled={disabled} title="Save changes to the ODLC, but don't submit." />
+					<Checkbox type="decline" callback={decline} disabled={disabled} title="Reject the ODLC; remove it from the queue." />
 				</Row>
 		}
 	</Row>

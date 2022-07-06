@@ -96,37 +96,40 @@ const Quick = () => {
 					</Row>
 					<Row>
 						<Box label="Altitude"
-							 content={AaltitudeIsGlobal ? AaltitudeGlobal.toFixed(2) + " ft MSL" : Aaltitude.toFixed(2) + " ft AGL"}
-							 onClick={() => {setAaltitudeIsGlobal(!AaltitudeIsGlobal)}}
-							style={{ cursor: "pointer" }} />
+							content={AaltitudeIsGlobal ? AaltitudeGlobal.toFixed(2) + " ft MSL" : Aaltitude.toFixed(2) + " ft AGL"}
+							onClick={() => {setAaltitudeIsGlobal(!AaltitudeIsGlobal)}}
+							style={{ cursor: "pointer" }}
+							title="The plane's altitude. MSL refers to above mean sea level. AGL is the height from the home position's altitude." />
 						<Box label="Battery (6S)" content={Abattery.toFixed(2) + "V"} />
 					</Row>
 				</Row>
 				<Row style={{ gap: "1rem" }}>
 					<Row>
 						<Box label="Ground Speed"
-							 content={((AspeedIsInKnots ? 0.868976 : 1) * AgroundSpeed).toFixed(2) + (AspeedIsInKnots ? " knots" : " mph")}
-							 onClick={() => {setAspeedIsInKnots(!AspeedIsInKnots)}}
-							 style={{ cursor: "pointer" }} />
+							content={((AspeedIsInKnots ? 0.868976 : 1) * AgroundSpeed).toFixed(2) + (AspeedIsInKnots ? " knots" : " mph")}
+							onClick={() => {setAspeedIsInKnots(!AspeedIsInKnots)}}
+							style={{ cursor: "pointer" }}
+							title="Speed from GPS." />
 						<Box label="Airspeed"
-							 content={((AspeedIsInKnots ? 0.868976 : 1) * Aairspeed).toFixed(2) + (AspeedIsInKnots ? " knots" : " mph")}
-							 onClick={() => {setAspeedIsInKnots(!AspeedIsInKnots)}}
-							 style={{ cursor: "pointer" }} />
+							content={((AspeedIsInKnots ? 0.868976 : 1) * Aairspeed).toFixed(2) + (AspeedIsInKnots ? " knots" : " mph")}
+							onClick={() => {setAspeedIsInKnots(!AspeedIsInKnots)}}
+							style={{ cursor: "pointer" }}
+							title="Speed measured from plane sensors." />
 					</Row>
 					<Row>
 						<Box label="Status" content={Astatus} />
-						<Box label="Mode" content={Amode} />
+						<Box label="Mode" content={Amode} title="The flight mode the plane is in, including RTL, Auto, and Manual." />
 					</Row>
 				</Row>
 				<Row style={{ gap: "1rem" }}>
 					<Row>
-						<Box label="Waypoint #" content={"#" + (Awaypoint[0] + 1).toFixed(0)} />
-						<Box label="Distance" content={Awaypoint[1].toFixed(2) + " ft"} />
+						<Box label="Waypoint #" content={"#" + (Awaypoint[0] + 1).toFixed(0)} title="The waypoint number the plane is traveling to." />
+						<Box label="Distance" content={Awaypoint[1].toFixed(2) + " ft"} title="The distance to the next waypoint." />
 					</Row>
 					<Row>
-						<Box label="GPS HDOP" content={Aconnection[0].toFixed(2)} />
-						<Box label="GPS VDOP" content={Aconnection[1].toFixed(2)} />
-						<Box label="Satellites" content={Aconnection[2].toFixed(0)} />
+						<Box label="GPS HDOP" content={Aconnection[0].toFixed(2)} title="Horizontal dilution of precision. The higher, the less accurate the GPS is." />
+						<Box label="GPS VDOP" content={Aconnection[1].toFixed(2)} title="Vertical dilution of precision. The higher, the less accurate the GPS is." />
+						<Box label="Satellites" content={Aconnection[2].toFixed(0)} title="The number of satellites the plane is using. 4 at a minimum, 6 is reasonable, 8 is good, and 10 is very accurate." />
 					</Row>
 				</Row>
 			</Column>
@@ -137,8 +140,8 @@ const Quick = () => {
 			<Column style={{ marginBottom: "1rem", gap: "0.5rem" }}>
 				<Row style={{ gap: "1rem" }}>
 					<Row>
-						<Box label="Ground Speed" content={GgroundSpeed.toFixed(2) + " mph"} />
-						<Box label="Yaw" content={Gyaw + "\u00B0"} />
+						<Box label="Ground Speed" content={GgroundSpeed.toFixed(2) + " mph"} title="Speed from GPS." />
+						<Box label="Yaw" content={Gyaw + "\u00B0"} title="The UGV's orientation on the earth." />
 					</Row>
 					<Row>
 						<Box label=" " content={Garmed} />
@@ -151,18 +154,18 @@ const Quick = () => {
 					</Row>
 					<Row>
 						<Box label="Status" content={Gstatus} />
-						<Box label="Mode" content={Gmode} />
+						<Box label="Mode" content={Gmode} title="The mode of mission the UGV is in, including RTL, and Auto mode." />
 					</Row>
 				</Row>
 				<Row style={{ gap: "1rem" }}>
 					<Row>
-						<Box label="To Destination" content={Gdestination.toFixed(2) + " ft"} />
+						<Box label="To Destination" content={Gdestination.toFixed(2) + " ft"} title="Distance to the UGV's next waypoint." />
 						<Box label="Battery" content={Gbattery.toFixed(2) + "V"} />
 					</Row>
 					<Row>
-						<Box label="GPS HDOP" content={Gconnection[0].toFixed(2)} />
-						<Box label="GPS VDOP" content={Gconnection[1].toFixed(2)} />
-						<Box label="Satellites" content={Gconnection[2].toFixed(0)} />
+						<Box label="GPS HDOP" content={Gconnection[0].toFixed(2)} title="Horizontal dilution of precision. The higher, the less accurate the GPS is." />
+						<Box label="GPS VDOP" content={Gconnection[1].toFixed(2)} title="Vertical dilution of precision. The higher, the less accurate the GPS is." />
+						<Box label="Satellites" content={Gconnection[2].toFixed(0)} title="The number of satellites the UGV is using. 4 at a minimum, 6 is reasonable, 8 is good, and 10 is very accurate." />
 					</Row>
 				</Row>
 			</Column>
