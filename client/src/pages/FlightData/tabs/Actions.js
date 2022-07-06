@@ -91,8 +91,9 @@ const Actions = () => {
 							label="Altitude"
 							content={AaltitudeIsGlobal ? AaltitudeGlobal.toFixed(2) + " ft MSL" : Aaltitude.toFixed(2) + " ft AGL"}
 							onClick={() => { setAaltitudeIsGlobal(!AaltitudeIsGlobal) }}
+							title="The plane's altitude. MSL refers to above mean sea level. AGL is the height from the ground where the plane is."
 						/>
-						<Box label="Ground Speed" content={AgroundSpeed.toFixed(2) + " mph"} />
+						<Box label="Ground Speed" content={AgroundSpeed.toFixed(2) + " mph"} title="Speed from GPS." />
 					</Row>
 					<Row>
 						<Box label="Roll" content={(Aorientation.roll.toFixed(2)) + "\u00B0"} />
@@ -127,10 +128,10 @@ const Actions = () => {
 							)
 						})}
 					</Dropdown>
-					<Button onClick={() => { setAmode("MANUAL"); httppost("/uav/mode/set", { "mode": "MANUAL" }) }}>Manual</Button>
-					<Button onClick={() => { setAmode("AUTO"); httppost("/uav/mode/set", { "mode": "AUTO" }) }}>Auto</Button>
-					<Button onClick={() => { setAmode("RTL"); httppost("/uav/mode/set", { "mode": "RTL" }) }}>RTL</Button>
-					<Button onClick={() => { setAmode("LOITER"); httppost("/uav/mode/set", { "mode": "LOITER" }) }}>Loiter</Button>
+					<Button onClick={() => { setAmode("MANUAL"); httppost("/uav/mode/set", { "mode": "MANUAL" }) }} title="Switch the plane mode to Manual.">Manual</Button>
+					<Button onClick={() => { setAmode("AUTO"); httppost("/uav/mode/set", { "mode": "AUTO" }) }} title="Switch the plane mode to Auto.">Auto</Button>
+					<Button onClick={() => { setAmode("RTL"); httppost("/uav/mode/set", { "mode": "RTL" }) }} title="Switch the plane mode to RTL.">RTL</Button>
+					<Button onClick={() => { setAmode("LOITER"); httppost("/uav/mode/set", { "mode": "LOITER" }) }} title="Switch the plane mode to Loiter.">Loiter</Button>
 				</Row>
 			</Column>
 			<Column>
@@ -140,10 +141,10 @@ const Actions = () => {
 			</Column>
 			<Column style={{ marginBottom: "1rem" }}>
 				<Row height="2.5rem">
-					<Button warning={true} color={darkred} onClick={() => httppost("/uav/sethome")}>Set home</Button>
+					<Button warning={true} color={darkred} onClick={() => httppost("/uav/sethome")} title="Set the plane home position.">Set home</Button>
 					<Button warning={true} color={darkred} onClick={() => httppost("/uav/calibrate")}>Calibration?</Button>
-					<Button warning={true} color={darkred} onClick={() => httppost(Aarmed === "ARMED" ? "/uav/disarm" : "/uav/arm")}>{Aarmed === "ARMED" ? "Disarm" : "Arm"}</Button>
-					<Button warning={true} color={darkred} onClick={() => httppost("/uav/restart")}>Restart</Button>
+					<Button warning={true} color={darkred} onClick={() => httppost(Aarmed === "ARMED" ? "/uav/disarm" : "/uav/arm")} title={Aarmed === "ARMED" ? "Disarm the plane." : "Arm the plane."}>{Aarmed === "ARMED" ? "Disarm" : "Arm"}</Button>
+					<Button warning={true} color={darkred} onClick={() => httppost("/uav/restart")} title="Restart the Pixhawk.">Restart</Button>
 				</Row>
 			</Column>
 			<Column>
@@ -197,11 +198,11 @@ const Actions = () => {
 			</Column>
 			<Column style={{ marginBottom: "1rem" }}>
 				<Row height="2.5rem">
-					<Button href="http://localhost:5000/uav/commands/view" newTab={true}>View</Button>
-					<Button onClick={() => httppost("/uav/commands/write")}>Write</Button>
-					<Button onClick={() => httppost("/uav/commands/load")}>Load</Button>
-					<Button onClick={() => httppost("/uav/commands/clear")}>Clear</Button>
-					<Button warning={true} color={darkred} onClick={() => httppost("/uav/terminate")}>Terminate</Button>
+					<Button href="http://localhost:5000/uav/commands/view" newTab={true} title="Open the plane Pixhawk mission file in a new tab.">View</Button>
+					<Button onClick={() => httppost("/uav/commands/write")} title="Write the Pixhawk mission file to the plane.">Write</Button>
+					<Button onClick={() => httppost("/uav/commands/load")} title="Load the Pixhawk mission file from the plane into the backend.">Load</Button>
+					<Button onClick={() => httppost("/uav/commands/clear")} title="Clear the mission file in the backend, but not the plane.">Clear</Button>
+					<Button warning={true} color={darkred} onClick={() => httppost("/uav/terminate")} title="Make the plane terminate (force it to crash), if configured.">Terminate</Button>
 				</Row>
 			</Column>
 			<StyledDiv style={{ marginTop: "1.5rem" }}>
@@ -223,8 +224,8 @@ const Actions = () => {
 								<Label columns={1}>Mission</Label>
 							</Row>
 							<Row>
-								<Button onClick={() => window.open("http://localhost:5000/ugv/commands/view")}>View</Button>
-								<Button onClick={() => httppost("/ugv/commands/write")}>Load</Button>
+								<Button href="http://localhost:5000/ugv/commands/view" newTab={true} title="Open the UGV Pixhawk mission file in a new tab.">View</Button>
+								<Button onClick={() => httppost("/ugv/commands/write")} title="Send destination to the UGV">Write</Button>
 							</Row>
 						</Column>
 						<Column>
@@ -260,10 +261,10 @@ const Actions = () => {
 			</Column>
 			<Column style={{ marginBottom: "1rem" }}>
 				<Row height="2.5rem">
-					<Button warning={true} color={darkred} onClick={() => httppost("/ugv/sethome")}>Set home?</Button>
+					<Button warning={true} color={darkred} onClick={() => httppost("/ugv/sethome")} title="Set the UGV home position.">Set home?</Button>
 					<Button warning={true} color={darkred} onClick={() => httppost("/ugv/calibrate")}>Calibration?</Button>
-					<Button warning={true} color={darkred} onClick={() => httppost(Garmed === "ARMED" ? "/ugv/disarm" : "/ugv/arm")}>{Garmed === "ARMED" ? "Disarm" : "Arm"}</Button>
-					<Button warning={true} color={darkred} onClick={() => httppost("/ugv/restart")}>Restart?</Button>
+					<Button warning={true} color={darkred} onClick={() => httppost(Garmed === "ARMED" ? "/ugv/disarm" : "/ugv/arm")} title={Aarmed === "ARMED" ? "Disarm the UGV." : "Arm the UGV."}>{Garmed === "ARMED" ? "Disarm" : "Arm"}</Button>
+					<Button warning={true} color={darkred} onClick={() => httppost("/ugv/restart")} title="Restart the UGV's Pixhawk.">Restart?</Button>
 				</Row>
 			</Column>
 		</div>

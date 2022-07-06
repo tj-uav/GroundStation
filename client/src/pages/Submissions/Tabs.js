@@ -18,11 +18,13 @@ const ViewRow = ({ checkboxes, info, i, active: [active, setActive], images: [im
 						style={{ gridArea: "accept" }}
 						type="accept"
 						callback={() => { accept(i) }}
+						title="Submit the ODLC to Interop."
 					/>
 					<Checkbox
 						style={{ gridArea: "decline" }}
 						type="decline"
                         callback={() => { reject(i) }}
+						title="Reject the ODLC; remove it from the queue."
 					/>
 				</>
 			) : null}
