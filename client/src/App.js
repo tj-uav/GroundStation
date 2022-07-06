@@ -3,7 +3,6 @@ import "./App.css"
 import FlightData from "pages/FlightData"
 import Params from "pages/Params"
 import Submissions from "pages/Submissions"
-import AntennaTracker from "pages/AntennaTracker.js"
 import "bootstrap/dist/css/bootstrap.min.css"
 import { darker } from "./theme/Colors"
 import { BrowserRouter as Router, Switch, Route, Redirect } from "react-router-dom"
@@ -32,10 +31,6 @@ const App = () => {
 
 					<Route path="/submissions">
 						<Submissions />
-					</Route>
-
-					<Route path="/antenna-tracker">
-						<AntennaTracker />
 					</Route>
 
 					<Route path="/">
