@@ -16,6 +16,8 @@ const Modes = ["Manual", "Auto", "Loiter", "RTL", "Takeoff", "Land", "Circle", "
 
 const Actions = () => {
 	const [Aaltitude, setAaltitude] = useState(0)
+	const [AaltitudeGlobal, setAaltitudeGlobal] = useState(0)
+	const [AaltitudeIsGlobal, setAaltitudeIsGlobal] = useState(false)
 	// const [Athrottle, setAthrottle] = useState(0)
 	const [Aorientation, setAorientation] = useState({ "yaw": 0, "pitch": 0, "roll": 0 })
 	// const [AlatLong, setAlatLong] = useState({ "lat": 0, "lon": 0 })
@@ -41,6 +43,7 @@ const Actions = () => {
 	useInterval(250, () => {
 		httpget("/uav/stats", ({ data }) => {
 			setAaltitude(data.result.quick.altitude)
+			setAaltitudeGlobal(data.result.quick.altitude_global)
 			// setAthrottle(data.result.quick.throttle)
 			setAorientation({"yaw": data.result.quick.orientation.yaw, "roll": data.result.quick.orientation.roll, "pitch": data.result.quick.orientation.pitch })
 			// setAlatLong({"lat": data.result.quick.lat, "lon": data.result.quick.lon})
@@ -84,7 +87,11 @@ const Actions = () => {
 			<Column style={{ marginBottom: "1rem", gap: "0.5rem" }}>
 				<Row style={{ gap: "1rem" }}>
 					<Row>
-						<Box label="Altitude" content={Aaltitude.toFixed(2) + " ft"} />
+						<Box
+							label="Altitude"
+							content={AaltitudeIsGlobal ? AaltitudeGlobal.toFixed(2) + " ft MSL" : Aaltitude.toFixed(2) + " ft AGL"}
+							onClick={() => { setAaltitudeIsGlobal(!AaltitudeIsGlobal) }}
+						/>
 						<Box label="Ground Speed" content={AgroundSpeed.toFixed(2) + " mph"} />
 					</Row>
 					<Row>
