@@ -68,7 +68,6 @@ const Header = () => {
 				<Link href="/">Flight Data</Link>
 				<Link href="/params">Params</Link>
 				<Link href="/submissions">Submissions</Link>
-				<Link href="/antenna-tracker">Antenna Tracker</Link>
 			</Row>
 			<ConnectionButton />
 		</NavContainer>
