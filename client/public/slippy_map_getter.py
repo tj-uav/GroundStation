@@ -8,6 +8,7 @@ import time
 # top lat: 38.15163
 # bot lat: 38.14177
 
+
 def main():
     lon = -76.428038
     lat = 38.1458611
@@ -31,7 +32,7 @@ def main():
 
     print()
     for i in range(9, 19):
-        zoom_deg = deg_distance * (2**(zoom - i))
+        zoom_deg = deg_distance * (2 ** (zoom - i))
         # assuming in northwest hemisphere
         x1, y1 = convert_to_slippy(lat + deg_distance, lon - deg_distance, i)
         x2, y2 = convert_to_slippy(lat - deg_distance, lon + deg_distance, i)
@@ -42,26 +43,30 @@ def main():
                     if not os.path.exists(f"./map/{i}/{j}"):
                         os.makedirs(f"./map/{i}/{j}")
 
-                    print("Downloading: [x: " + str(j) + ", y: " + str(k) + ", zoom: " + str(i) + "]")
+                    print(
+                        "Downloading: [x: " + str(j) + ", y: " + str(k) + ", zoom: " + str(i) + "]"
+                    )
                     url = f"https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{i}/{k}/{j}.png"
                     r = requests.get(url, allow_redirects=False)
                     file = open(f"./map/{i}/{j}/{k}.png", "wb")
                     file.write(r.content)
                     file.close()
 
-                    time.sleep(1/2000)
+                    time.sleep(1 / 2000)
+
 
 def convert_to_slippy(lat, lon, zoom):
-    x = lon*math.pi/180
-    y = math.log(math.tan(lat*math.pi/180) + 1/math.cos(lat*math.pi/180)) # natural log
+    x = lon * math.pi / 180
+    y = math.log(math.tan(lat * math.pi / 180) + 1 / math.cos(lat * math.pi / 180))  # natural log
 
-    x = (1 + x/math.pi)/2
-    y = (1 - y/math.pi)/2
+    x = (1 + x / math.pi) / 2
+    y = (1 - y / math.pi) / 2
 
     x = int(x * (2**zoom))
     y = int(y * (2**zoom))
 
     return (x, y)
+
 
 if __name__ == "__main__":
     main()
