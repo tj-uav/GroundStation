@@ -78,7 +78,9 @@ class DummyUAVHandler:
         self.port = self.config["uav"]["telemetry"]["port"]
         self.serial = self.config["uav"]["telemetry"]["serial"]
         self.update_thread = None
-        self.altitude = self.altitude_global = (
+        self.altitude = (
+            self.altitude_global
+        ) = (
             self.orientation
         ) = (
             self.ground_speed
