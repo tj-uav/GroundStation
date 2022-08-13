@@ -79,15 +79,19 @@ class DummyUGVHandler:
         self.port = self.config["ugv"]["telemetry"]["port"]
         self.serial = self.config["ugv"]["telemetry"]["serial"]
         self.update_thread = None
-        self.yaw = (
-            self.ground_speed
-        ) = (
-            self.droppos
-        ) = (
-            self.dest
-        ) = (
-            self.dist_to_dest
-        ) = self.battery = self.lat = self.lon = self.connection = self.mode = self.gps = None
+        (
+            self.yaw,
+            self.ground_speed,
+            self.droppos,
+            self.dest,
+            self.dist_to_dest,
+            self.battery,
+            self.lat,
+            self.lon,
+            self.connection,
+            self.mode,
+            self.gps,
+        ) = [None] * 11
         with open(
             os.path.join(os.path.dirname(os.path.abspath(__file__)), "ugv_params.json"),
             "r",

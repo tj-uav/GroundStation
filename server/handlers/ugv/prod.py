@@ -10,7 +10,7 @@ from dronekit import connect, Command, VehicleMode, Vehicle
 from pymavlink import mavutil as uavutil
 
 from errors import GeneralError, InvalidRequestError, InvalidStateError
-from handlers.utils import decorate_all_functions, log
+from handlers.utils import decorate_all_functions, log, wait_for_param_load
 
 if typing.TYPE_CHECKING:
     from groundstation import GroundStation
@@ -91,6 +91,8 @@ class UGVHandler:
     mph = 2.23694
     ft = 3.28084
 
+    wait_for = ("gps_0", "armed", "mode", "attitude")  # params
+
     def __init__(self, gs, config):
         self.logger = logging.getLogger("groundstation")
         self.gs: GroundStation = gs
@@ -99,15 +101,19 @@ class UGVHandler:
         self.serial = self.config["ugv"]["telemetry"]["serial"]
         self.update_thread = None
         self.vehicle: Optional[Vehicle] = None
-        self.yaw = (
-            self.ground_speed
-        ) = (
-            self.droppos
-        ) = (
-            self.dest
-        ) = (
-            self.dist_to_dest
-        ) = self.battery = self.lat = self.lon = self.connection = self.mode = self.gps = None
+        (
+            self.yaw,
+            self.ground_speed,
+            self.droppos,
+            self.dest,
+            self.dist_to_dest,
+            self.battery,
+            self.lat,
+            self.lon,
+            self.connection,
+            self.mode,
+            self.gps,
+        ) = [None] * 11
         self.mode = VehicleMode("MANUAL")
         self.commands = []
         self.armed = False
@@ -120,9 +126,9 @@ class UGVHandler:
     def connect(self):
         try:
             if self.serial:
-                self.vehicle = connect(self.port, baud=BAUDRATE)
+                self.vehicle = connect(self.port, wait_ready=self.wait_for, baud=BAUDRATE)
             else:
-                self.vehicle = connect(self.port, wait_ready=True)
+                self.vehicle = connect(self.port, wait_ready=self.wait_for)
             self.update()
             print("╠ INITIALIZED UGV HANDLER")
             self.logger.info("INITIALIZED UGV HANDLER")
@@ -235,12 +241,14 @@ class UGVHandler:
 
     # Parameters
 
+    @wait_for_param_load
     def get_param(self, key):
         try:
             return {"result": self.vehicle.parameters[key]}
         except Exception as e:
             raise GeneralError(str(e)) from e
 
+    @wait_for_param_load
     def get_params(self):
         try:
             return {
@@ -251,6 +259,7 @@ class UGVHandler:
         except Exception as e:
             raise GeneralError(str(e)) from e
 
+    @wait_for_param_load
     def set_param(self, key, value):
         try:
             print(float(value))
@@ -262,6 +271,7 @@ class UGVHandler:
         except Exception as e:
             raise GeneralError(str(e)) from e
 
+    @wait_for_param_load
     def set_params(self, **kwargs):
         try:
             for key, value in kwargs.items():
@@ -276,6 +286,7 @@ class UGVHandler:
         except Exception as e:
             raise GeneralError(str(e)) from e
 
+    @wait_for_param_load
     def save_params(self):
         try:
             with open(
@@ -288,6 +299,7 @@ class UGVHandler:
         except Exception as e:
             raise GeneralError(str(e)) from e
 
+    @wait_for_param_load
     def load_params(self):
         try:
             with open(

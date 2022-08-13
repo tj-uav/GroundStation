@@ -4,6 +4,10 @@ from functools import wraps
 from logging import Logger
 from typing import Callable
 
+from dronekit import Vehicle
+
+from errors import InvalidStateError
+
 log_exempt = (
     "update",
     "stats",
@@ -45,6 +49,17 @@ def decorate_all_functions(function_decorator, *args, **kwargs):
         return cls
 
     return decorator
+
+
+def wait_for_param_load(f: Callable):
+    def wrapper(*args, **kwargs):
+        try:
+            args[0].vehicle.wait_ready("parameters")
+            return f(*args, **kwargs)
+        except TimeoutError as e:
+            raise InvalidStateError(str(e)) from e
+
+    return wrapper
 
 
 def get_class_that_defined_method(meth):
