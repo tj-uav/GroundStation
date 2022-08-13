@@ -29,58 +29,52 @@ COMMANDS = {
 def pixhawk_stats(vehicle):
     vehicle.wait_ready("autopilot_version")
     print("\nGet all vehicle attribute values:")
-    print(" Autopilot Firmware version: %s" % vehicle.version)
-    print("   Major version number: %s" % vehicle.version.major)
-    print("   Minor version number: %s" % vehicle.version.minor)
-    print("   Patch version number: %s" % vehicle.version.patch)
-    print("   Release type: %s" % vehicle.version.release_type())
-    print("   Release version: %s" % vehicle.version.release_version())
-    print("   Stable release?: %s" % vehicle.version.is_stable())
+    print(f" Autopilot Firmware version: {vehicle.version}")
+    print(f"   Major version number: {vehicle.version.major}")
+    print(f"   Minor version number: {vehicle.version.minor}")
+    print(f"   Patch version number: {vehicle.version.patch}")
+    print(f"   Release type: {vehicle.version.release_type()}")
+    print(f"   Release version: {vehicle.version.release_version()}")
+    print(f"   Stable release?: {vehicle.version.is_stable()}")
     print(" Autopilot capabilities")
-    print("   Supports MISSION_FLOAT message type: %s" % vehicle.capabilities.mission_float)
-    print("   Supports PARAM_FLOAT message type: %s" % vehicle.capabilities.param_float)
-    print("   Supports MISSION_INT message type: %s" % vehicle.capabilities.mission_int)
-    print("   Supports COMMAND_INT message type: %s" % vehicle.capabilities.command_int)
-    print("   Supports PARAM_UNION message type: %s" % vehicle.capabilities.param_union)
-    print("   Supports ftp for file transfers: %s" % vehicle.capabilities.ftp)
+    print(f"   Supports MISSION_FLOAT message type: {vehicle.capabilities.mission_float}")
+    print(f"   Supports PARAM_FLOAT message type: {vehicle.capabilities.param_float}")
+    print(f"   Supports MISSION_INT message type: {vehicle.capabilities.mission_int}")
+    print(f"   Supports COMMAND_INT message type: {vehicle.capabilities.command_int}")
+    print(f"   Supports PARAM_UNION message type: {vehicle.capabilities.param_union}")
+    print(f"   Supports ftp for file transfers: {vehicle.capabilities.ftp}")
+    print(f"   Supports commanding attitude offboard: {vehicle.capabilities.set_attitude_target}")
     print(
-        "   Supports commanding attitude offboard: %s" % vehicle.capabilities.set_attitude_target
+        f"   Supports commanding position and velocity targets in local NED frame: {vehicle.capabilities.set_attitude_target_local_ned}"
     )
     print(
-        "   Supports commanding position and velocity targets in local NED frame: %s"
-        % vehicle.capabilities.set_attitude_target_local_ned
+        f"   Supports set position + velocity targets in global scaled integers: {vehicle.capabilities.set_altitude_target_global_int}"
     )
-    print(
-        "   Supports set position + velocity targets in global scaled integers: %s"
-        % vehicle.capabilities.set_altitude_target_global_int
-    )
-    print("   Supports terrain protocol / data handling: %s" % vehicle.capabilities.terrain)
-    print("   Supports direct actuator control: %s" % vehicle.capabilities.set_actuator_target)
-    print(
-        "   Supports the flight termination command: %s" % vehicle.capabilities.flight_termination
-    )
-    print("   Supports mission_float message type: %s" % vehicle.capabilities.mission_float)
-    print("   Supports onboard compass calibration: %s" % vehicle.capabilities.compass_calibration)
-    print(" Global Location: %s" % vehicle.location.global_frame)
-    print(" Global Location (relative altitude): %s" % vehicle.location.global_relative_frame)
-    print(" Local Location: %s" % vehicle.location.local_frame)
-    print(" Attitude: %s" % vehicle.attitude)
-    print(" Velocity: %s" % vehicle.velocity)
-    print(" GPS: %s" % vehicle.gps_0)
-    print(" Gimbal status: %s" % vehicle.gimbal)
-    print(" Battery: %s" % vehicle.battery)
-    print(" EKF OK?: %s" % vehicle.ekf_ok)
-    print(" Last Heartbeat: %s" % vehicle.last_heartbeat)
-    print(" Rangefinder: %s" % vehicle.rangefinder)
-    print(" Rangefinder distance: %s" % vehicle.rangefinder.distance)
-    print(" Rangefinder voltage: %s" % vehicle.rangefinder.voltage)
-    print(" Heading: %s" % vehicle.heading)
-    print(" Is Armable?: %s" % vehicle.is_armable)
-    print(" System status: %s" % vehicle.system_status.state)
-    print(" Groundspeed: %s" % vehicle.groundspeed)  # settable
-    print(" Airspeed: %s" % vehicle.airspeed)  # settable
-    print(" Mode: %s" % vehicle.mode.name)  # settable
-    print(" Armed: %s" % vehicle.armed)  # settable
+    print(f"   Supports terrain protocol / data handling: {vehicle.capabilities.terrain}")
+    print(f"   Supports direct actuator control: {vehicle.capabilities.set_actuator_target}")
+    print(f"   Supports the flight termination command: {vehicle.capabilities.flight_termination}")
+    print(f"   Supports mission_float message type: {vehicle.capabilities.mission_float}")
+    print(f"   Supports onboard compass calibration: {vehicle.capabilities.compass_calibration}")
+    print(f" Global Location: {vehicle.location.global_frame}")
+    print(f" Global Location (relative altitude): {vehicle.location.global_relative_frame}")
+    print(f" Local Location: {vehicle.location.local_frame}")
+    print(f" Attitude: {vehicle.attitude}")
+    print(f" Velocity: {vehicle.velocity}")
+    print(f" GPS: {vehicle.gps_0}")
+    print(f" Gimbal status: {vehicle.gimbal}")
+    print(f" Battery: {vehicle.battery}")
+    print(f" EKF OK?: {vehicle.ekf_ok}")
+    print(f" Last Heartbeat: {vehicle.last_heartbeat}")
+    print(f" Rangefinder: {vehicle.rangefinder}")
+    print(f" Rangefinder distance: {vehicle.rangefinder.distance}")
+    print(f" Rangefinder voltage: {vehicle.rangefinder.voltage}")
+    print(f" Heading: {vehicle.heading}")
+    print(f" Is Armable?: {vehicle.is_armable}")
+    print(f" System status: {vehicle.system_status.state}")
+    print(f" Groundspeed: {vehicle.groundspeed}")  # settable
+    print(f" Airspeed: {vehicle.airspeed}")  # settable
+    print(f" Mode: {vehicle.mode.name}")  # settable
+    print(f" Armed: {vehicle.armed}")  # settable
 
 
 def readmission(filename):
@@ -457,6 +451,7 @@ class UAVHandler:
     def jump_to_command(self, command: int):
         try:
             self.vehicle.commands.next = command
+            self.vehicle.commands.upload()
             return {}
         except Exception as e:
             raise GeneralError(str(e)) from e
@@ -473,7 +468,7 @@ class UAVHandler:
             cmds.clear()
             for command in missionlist:
                 cmds.add(command)
-            self.vehicle.commands.upload()
+            cmds.upload()
             return {}
         except Exception as e:
             raise GeneralError(str(e)) from e
@@ -528,8 +523,10 @@ class UAVHandler:
         try:
             if not self.vehicle.is_armable:
                 self.logger.important("Vehicle is not armable")
-            self.vehicle.arm(wait=True)  # Motors can be started
+            self.vehicle.arm(wait=True, timeout=15)  # Motors can be started
             return {}
+        except TimeoutError as e:
+            raise TimeoutError("Vehicle arming timed out") from e
         except InvalidStateError as e:
             raise InvalidStateError(str(e)) from e
         except Exception as e:
@@ -538,8 +535,10 @@ class UAVHandler:
 
     def disarm(self):
         try:
-            self.vehicle.disarm(wait=True)
+            self.vehicle.disarm(wait=True, timeout=15)
             return {}
+        except TimeoutError as e:
+            raise TimeoutError("Vehicle disarming timed out") from e
         except Exception as e:
             raise GeneralError(str(e)) from e
 
