@@ -78,27 +78,24 @@ class DummyUAVHandler:
         self.port = self.config["uav"]["telemetry"]["port"]
         self.serial = self.config["uav"]["telemetry"]["serial"]
         self.update_thread = None
-        self.altitude = (
-            self.altitude_global
-        ) = (
-            self.orientation
-        ) = (
-            self.ground_speed
-        ) = (
-            self.air_speed
-        ) = (
-            self.dist_to_wp
-        ) = (
-            self.battery
-        ) = (
-            self.lat
-        ) = (
-            self.lon
-        ) = (
-            self.connection
-        ) = (
-            self.waypoint
-        ) = self.waypoints = self.waypoint_index = self.temperature = self.params = self.gps = None
+        (
+            self.altitude,
+            self.altitude_global,
+            self.orientation,
+            self.ground_speed,
+            self.air_speed,
+            self.dist_to_wp,
+            self.battery,
+            self.lat,
+            self.lon,
+            self.connection,
+            self.waypoint,
+            self.waypoints,
+            self.waypoint_index,
+            self.temperature,
+            # self.params,
+            self.gps,
+        ) = [None] * 15
         with open(
             os.path.join(os.path.dirname(os.path.abspath(__file__)), "uav_params.json"),
             "r",

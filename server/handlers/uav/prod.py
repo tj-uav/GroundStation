@@ -10,7 +10,7 @@ from dronekit import connect, Command, VehicleMode, Vehicle
 from pymavlink import mavutil as uavutil
 
 from errors import GeneralError, InvalidRequestError, InvalidStateError
-from handlers.utils import decorate_all_functions, log
+from handlers.utils import decorate_all_functions, log, wait_for_param_load
 
 if typing.TYPE_CHECKING:
     from groundstation import GroundStation
@@ -142,6 +142,8 @@ class UAVHandler:
     mph = 2.23694
     ft = 3.28084
 
+    wait_for = ("gps_0", "armed", "mode", "attitude")  # params
+
     def __init__(self, gs, config):
         self.logger = logging.getLogger("groundstation")
         self.gs: GroundStation = gs
@@ -150,27 +152,24 @@ class UAVHandler:
         self.serial = self.config["uav"]["telemetry"]["serial"]
         self.update_thread = None
         self.vehicle: Optional[Vehicle] = None
-        self.altitude = (
-            self.altitude_global
-        ) = (
-            self.orientation
-        ) = (
-            self.ground_speed
-        ) = (
-            self.air_speed
-        ) = (
-            self.dist_to_wp
-        ) = (
-            self.battery
-        ) = (
-            self.lat
-        ) = (
-            self.lon
-        ) = (
-            self.connection
-        ) = (
-            self.waypoint
-        ) = self.waypoints = self.waypoint_index = self.temperature = self.params = self.gps = None
+        (
+            self.altitude,
+            self.altitude_global,
+            self.orientation,
+            self.ground_speed,
+            self.air_speed,
+            self.dist_to_wp,
+            self.battery,
+            self.lat,
+            self.lon,
+            self.connection,
+            self.waypoint,
+            self.waypoints,
+            self.waypoint_index,
+            self.temperature,
+            self.params,
+            self.gps,
+        ) = [None] * 16
         self.mode = VehicleMode("MANUAL")
         self.commands = []
         self.armed = False
@@ -183,9 +182,9 @@ class UAVHandler:
     def connect(self):
         try:
             if self.serial:
-                self.vehicle = connect(self.port, baud=BAUDRATE)
+                self.vehicle = connect(self.port, wait_ready=self.wait_for, baud=BAUDRATE)
             else:
-                self.vehicle = connect(self.port, wait_ready=True)
+                self.vehicle = connect(self.port, wait_ready=self.wait_for)
             pixhawk_stats(self.vehicle)
             self.update()
             print("╠ INITIALIZED UAV HANDLER")
@@ -321,12 +320,14 @@ class UAVHandler:
 
     # Parameters
 
+    @wait_for_param_load
     def get_param(self, key):
         try:
             return {"result": self.vehicle.parameters[key]}
         except Exception as e:
             raise GeneralError(str(e)) from e
 
+    @wait_for_param_load
     def get_params(self):
         try:
             return {
@@ -337,6 +338,7 @@ class UAVHandler:
         except Exception as e:
             raise GeneralError(str(e)) from e
 
+    @wait_for_param_load
     def set_param(self, key, value):
         try:
             print(float(value))
@@ -348,6 +350,7 @@ class UAVHandler:
         except Exception as e:
             raise GeneralError(str(e)) from e
 
+    @wait_for_param_load
     def set_params(self, **kwargs):
         try:
             for key, value in kwargs.items():
@@ -362,6 +365,7 @@ class UAVHandler:
         except Exception as e:
             raise GeneralError(str(e)) from e
 
+    @wait_for_param_load
     def save_params(self):
         try:
             with open(
@@ -374,6 +378,7 @@ class UAVHandler:
         except Exception as e:
             raise GeneralError(str(e)) from e
 
+    @wait_for_param_load
     def load_params(self):
         try:
             with open(
