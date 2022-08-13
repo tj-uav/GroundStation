@@ -189,6 +189,11 @@ class UGVHandler:
 
     def set_home(self):
         try:
+            cmds = self.vehicle.commands
+            cmds.download()
+            cmds.wait_ready()
+            self.vehicle.home_location = self.vehicle.location.global_frame
+            cmds.upload()
             return {}
         except Exception as e:
             raise GeneralError(str(e)) from e
@@ -201,7 +206,14 @@ class UGVHandler:
 
     def restart(self):
         try:
+            self.vehicle.reboot()
             return {}
+        except Exception as e:
+            raise GeneralError(str(e)) from e
+
+    def channels(self):
+        try:
+            return {"result": self.vehicle.channels}
         except Exception as e:
             raise GeneralError(str(e)) from e
 
@@ -299,17 +311,32 @@ class UGVHandler:
         except Exception as e:
             raise GeneralError(str(e)) from e
 
-    def write_commands(self):
+    def write_command(self, lat, lon, alt):
         """
-        Upload a mission from a file.
+        Set the mission coordinates.
         """
         try:
-            missionlist = readmission("handlers/pixhawk/uav/uav_mission.txt")
             cmds = self.vehicle.commands
             cmds.clear()
-            for command in missionlist:
-                cmds.add(command)
-            self.vehicle.commands.upload()
+            cmds.add(
+                Command(
+                    0,
+                    0,
+                    0,
+                    uavutil.mavlink.MAV_FRAME_GLOBAL_RELATIVE_ALT,
+                    uavutil.mavlink.MAV_CMD_NAV_WAYPOINT,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    lat,
+                    lon,
+                    alt,
+                )
+            )
+            cmds.upload()
             return {}
         except Exception as e:
             raise GeneralError(str(e)) from e
@@ -339,8 +366,10 @@ class UGVHandler:
         try:
             if not self.vehicle.is_armable:
                 raise InvalidStateError("Vehicle is not armable")
-            self.vehicle.armed = True  # Motors can be started
+            self.vehicle.arm(wait=True, timeout=15)
             return {}
+        except TimeoutError as e:
+            raise TimeoutError("Vehicle arming timed out") from e
         except InvalidStateError as e:
             raise InvalidStateError(str(e)) from e
         except Exception as e:
@@ -348,8 +377,10 @@ class UGVHandler:
 
     def disarm(self):
         try:
-            self.vehicle.armed = False
+            self.vehicle.disarm(wait=True, timeout=15)
             return {}
+        except TimeoutError as e:
+            raise TimeoutError("Vehicle disarming timed out") from e
         except Exception as e:
             raise GeneralError(str(e)) from e
 

@@ -30,7 +30,7 @@ class ImageHandler:
         print("╠ INITIALIZED IMAGE HANDLER")
         self.logger.info("INITIALIZED IMAGE HANDLER")
 
-    def retreive_image(self, img_cnt):
+    def retrieve_image(self, img_cnt):
         for i in range(self.img_count, img_cnt):
             self.logger.info("Retreiving image %s", i)
             img_res = requests.get(self.config["uav"]["images"]["url"] + f"/image/{i}")
@@ -39,7 +39,7 @@ class ImageHandler:
             time.sleep(1)
         self.img_count = img_cnt
 
-    def dummy_retreive_image(self):
+    def dummy_retrieve_image(self):
         # Retrieves Image from UAV
         if random() < 1:  # Every image (until CV implementation)
             file_extension = "jpg" if self.config["uav"]["images"]["quality"] > 0 else "png"
