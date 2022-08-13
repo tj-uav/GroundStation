@@ -66,8 +66,11 @@ def ugv_get_commands():
 
 
 @ugv_commands.route("/write", methods=["POST"])
-def uav_write_commands():
-    return app.gs.ugv.write_commands()
+def uav_write_command():
+    f = request.json
+    if not all(field in f for field in ["lat", "lon", "alt"]):
+        raise InvalidRequestError("Missing required fields in request")
+    return app.gs.ugv.write_command(f.get("lat"), f.get("lon"), f.get("alt"))
 
 
 @ugv_commands.route("/view")

@@ -23,7 +23,7 @@ class GroundStation:
 
         self.interop_telem_thread = (
             self.plane_thread
-        ) = self.rover_thread = self.retreive_image_thread = None
+        ) = self.rover_thread = self.retrieve_image_thread = None
 
         self.interop = Interop(self, config=self.config)
         self.image = Image(self, self.config)
@@ -109,16 +109,16 @@ class GroundStation:
                     continue
                 if res.status_code != 200:
                     self.logger.error(
-                        "[Image] Unable to retreive image count, retrying in 5 seconds"
+                        "[Image] Unable to retrieve image count, retrying in 5 seconds"
                     )
                     time.sleep(4)
                     continue
                 img_cnt = res.json()["result"]
                 if img_cnt != self.image.img_count:
-                    self.image.retreive_image(img_cnt)
+                    self.image.retrieve_image(img_cnt)
         else:  # Use a dummy connection
             while True:
-                self.image.dummy_retreive_image()
+                self.image.dummy_retrieve_image()
                 time.sleep(2)
 
     def async_calls(self):
@@ -136,9 +136,9 @@ class GroundStation:
         self.rover_thread.name = "UGVThread"
         self.rover_thread.daemon = True
 
-        self.retreive_image_thread = Thread(target=self.image_thread)
-        self.retreive_image_thread.name = "ImageThread"
-        self.retreive_image_thread.daemon = True
+        self.retrieve_image_thread = Thread(target=self.image_thread)
+        self.retrieve_image_thread.name = "ImageThread"
+        self.retrieve_image_thread.daemon = True
 
         self.interop_telem_thread.start()
         print("╠ STARTED TELEMETRY THREAD")
@@ -152,7 +152,7 @@ class GroundStation:
         print("╠ STARTED UGV THREAD")
         self.logger.info("STARTED UGV THREAD")
 
-        self.retreive_image_thread.start()
+        self.retrieve_image_thread.start()
         print("╠ STARTED IMAGE THREAD")
         self.logger.info("STARTED IMAGE THREAD")
 
