@@ -25,7 +25,7 @@ def json_serial(obj):
 
 
 @decorate_all_functions(log, logging.getLogger("groundstation"))
-class InteropHandler:
+class DummyInteropHandler:
     ODLC_KEY = {
         "type": {"standard": interop.Odlc.STANDARD, "emergent": interop.Odlc.EMERGENT},
         "shape": {
@@ -63,21 +63,18 @@ class InteropHandler:
         self.gs: GroundStation = gs
         self.config = config
         self.mission_id = self.config["interop"]["mission_id"]
-        self.login_status = False
-        self.client = None
-        self.mission = (
-            self.teams
-        ) = (
-            self.waypoints
-        ) = (
-            self.search_grid
-        ) = self.lost_comms_pos = self.odlc_points = self.ugv_points = self.obstacles = None
-        self.mission_dict = (
-            self.teams_dict
-        ) = (
-            self.waypoints_dict
-        ) = self.search_grid_dict = self.lost_comms_pos_dict = self.obstacles_dict = None
-        self.telemetry_json = {}
+        self.login_status = True
+        (
+            self.mission_dict,
+            self.waypoints_dict,
+            self.obstacles_dict,
+            self.teams_dict,
+            self.search_grid_dict,
+            self.ugv_points,
+            self.odlc_points,
+            self.lost_comms_pos_dict,
+            self.telemetry_json,
+        ) = [{}] * 9
         self.odlc_queued_data = []
         self.odlc_submission_ids = []
         self.file_extension = "jpg" if self.config["uav"]["images"]["quality"] > 0 else "png"
@@ -86,34 +83,220 @@ class InteropHandler:
 
     def initialize(self):
         try:
-            self.mission = self.client.get_mission(self.mission_id)
-            self.mission_dict = json_format.MessageToDict(self.mission)
-            self.teams = self.client.get_teams()
-            self.teams_dict = [json_format.MessageToDict(t) for t in self.teams]
-            self.waypoints = self.mission.waypoints
-            self.waypoints_dict = [json_format.MessageToDict(w) for w in self.waypoints]
-            self.search_grid = self.mission.search_grid_points
-            self.search_grid_dict = [json_format.MessageToDict(sg) for sg in self.search_grid]
-            self.lost_comms_pos = self.mission.lost_comms_pos
-            self.lost_comms_pos_dict = json_format.MessageToDict(self.lost_comms_pos)
-            self.odlc_points = {
-                "emergent": json_format.MessageToDict(self.mission.emergent_last_known_pos),
-                "off_axis": json_format.MessageToDict(self.mission.off_axis_odlc_pos),
-            }
-            self.ugv_points = {
-                "drop": json_format.MessageToDict(self.mission.air_drop_pos),
-                "drop_boundary": [
-                    json_format.MessageToDict(a) for a in self.mission.air_drop_boundary_points
+            self.mission_dict = {
+                "id": 1,
+                "lostCommsPos": {"latitude": 38.144778, "longitude": -76.429417},
+                "flyZones": [
+                    {
+                        "altitudeMin": 100.0,
+                        "altitudeMax": 750.0,
+                        "boundaryPoints": [
+                            {"latitude": 38.1462694444444, "longitude": -76.4281638888889},
+                            {"latitude": 38.151625, "longitude": -76.4286833333333},
+                            {"latitude": 38.1518888888889, "longitude": -76.4314666666667},
+                            {"latitude": 38.1505944444444, "longitude": -76.4353611111111},
+                            {"latitude": 38.1475666666667, "longitude": -76.4323416666667},
+                            {"latitude": 38.1446666666667, "longitude": -76.4329472222222},
+                            {"latitude": 38.1432555555556, "longitude": -76.4347666666667},
+                            {"latitude": 38.1404638888889, "longitude": -76.4326361111111},
+                            {"latitude": 38.1407194444444, "longitude": -76.4260138888889},
+                            {"latitude": 38.1437611111111, "longitude": -76.4212055555556},
+                            {"latitude": 38.1473472222222, "longitude": -76.4232111111111},
+                            {"latitude": 38.1461305555556, "longitude": -76.4266527777778},
+                        ],
+                    }
                 ],
-                "drive": json_format.MessageToDict(self.mission.ugv_drive_pos),
+                "waypoints": [
+                    {
+                        "latitude": 38.1446916666667,
+                        "longitude": -76.4279944444445,
+                        "altitude": 200.0,
+                    },
+                    {
+                        "latitude": 38.1461944444444,
+                        "longitude": -76.4237138888889,
+                        "altitude": 300.0,
+                    },
+                    {"latitude": 38.1438972222222, "longitude": -76.42255, "altitude": 400.0},
+                    {
+                        "latitude": 38.1417722222222,
+                        "longitude": -76.4251083333333,
+                        "altitude": 400.0,
+                    },
+                    {"latitude": 38.14535, "longitude": -76.428675, "altitude": 300.0},
+                    {
+                        "latitude": 38.1508972222222,
+                        "longitude": -76.4292972222222,
+                        "altitude": 300.0,
+                    },
+                    {
+                        "latitude": 38.1514944444444,
+                        "longitude": -76.4313833333333,
+                        "altitude": 300.0,
+                    },
+                    {"latitude": 38.1505333333333, "longitude": -76.434175, "altitude": 300.0},
+                    {
+                        "latitude": 38.1479472222222,
+                        "longitude": -76.4316055555556,
+                        "altitude": 200.0,
+                    },
+                    {
+                        "latitude": 38.1443333333333,
+                        "longitude": -76.4322888888889,
+                        "altitude": 200.0,
+                    },
+                    {
+                        "latitude": 38.1433166666667,
+                        "longitude": -76.4337111111111,
+                        "altitude": 300.0,
+                    },
+                    {
+                        "latitude": 38.1410944444444,
+                        "longitude": -76.4321555555556,
+                        "altitude": 400.0,
+                    },
+                    {
+                        "latitude": 38.1415777777778,
+                        "longitude": -76.4252472222222,
+                        "altitude": 400.0,
+                    },
+                    {
+                        "latitude": 38.1446083333333,
+                        "longitude": -76.4282527777778,
+                        "altitude": 200.0,
+                    },
+                ],
+                "searchGridPoints": [
+                    {"latitude": 38.1444444444444, "longitude": -76.4280916666667},
+                    {"latitude": 38.1459444444444, "longitude": -76.4237944444445},
+                    {"latitude": 38.1439305555556, "longitude": -76.4227444444444},
+                    {"latitude": 38.1417138888889, "longitude": -76.4253805555556},
+                    {"latitude": 38.1412111111111, "longitude": -76.4322361111111},
+                    {"latitude": 38.1431055555556, "longitude": -76.4335972222222},
+                    {"latitude": 38.1441805555556, "longitude": -76.4320111111111},
+                    {"latitude": 38.1452611111111, "longitude": -76.4289194444444},
+                    {"latitude": 38.1444444444444, "longitude": -76.4280916666667},
+                ],
+                "offAxisOdlcPos": {"latitude": 38.146747, "longitude": -76.422131},
+                "emergentLastKnownPos": {"latitude": 38.145111, "longitude": -76.427861},
+                "airDropBoundaryPoints": [
+                    {"latitude": 38.14616666666666, "longitude": -76.42666666666668},
+                    {"latitude": 38.14636111111111, "longitude": -76.42616666666667},
+                    {"latitude": 38.14558333333334, "longitude": -76.42608333333334},
+                    {"latitude": 38.14541666666667, "longitude": -76.42661111111111},
+                ],
+                "airDropPos": {"latitude": 38.145848, "longitude": -76.426374},
+                "ugvDrivePos": {"latitude": 38.146152, "longitude": -76.426396},
+                "stationaryObstacles": [
+                    {
+                        "latitude": 38.146689,
+                        "longitude": -76.426475,
+                        "radius": 150.0,
+                        "height": 750.0,
+                    },
+                    {
+                        "latitude": 38.142914,
+                        "longitude": -76.430297,
+                        "radius": 300.0,
+                        "height": 300.0,
+                    },
+                    {
+                        "latitude": 38.149504,
+                        "longitude": -76.43311,
+                        "radius": 100.0,
+                        "height": 750.0,
+                    },
+                    {
+                        "latitude": 38.148711,
+                        "longitude": -76.429061,
+                        "radius": 300.0,
+                        "height": 750.0,
+                    },
+                    {
+                        "latitude": 38.144203,
+                        "longitude": -76.426155,
+                        "radius": 50.0,
+                        "height": 400.0,
+                    },
+                    {
+                        "latitude": 38.146003,
+                        "longitude": -76.430733,
+                        "radius": 225.0,
+                        "height": 500.0,
+                    },
+                ],
+                "mapCenterPos": {"latitude": 38.14468, "longitude": -76.428022},
+                "mapHeight": 1200.0,
             }
-            self.obstacles = self.mission.stationary_obstacles
-            self.obstacles_dict = [json_format.MessageToDict(o) for o in self.obstacles]
+            self.waypoints_dict = [
+                {"latitude": 38.1446916666667, "longitude": -76.4279944444445, "altitude": 200.0},
+                {"latitude": 38.1461944444444, "longitude": -76.4237138888889, "altitude": 300.0},
+                {"latitude": 38.1438972222222, "longitude": -76.42255, "altitude": 400.0},
+                {"latitude": 38.1417722222222, "longitude": -76.4251083333333, "altitude": 400.0},
+                {"latitude": 38.14535, "longitude": -76.428675, "altitude": 300.0},
+                {"latitude": 38.1508972222222, "longitude": -76.4292972222222, "altitude": 300.0},
+                {"latitude": 38.1514944444444, "longitude": -76.4313833333333, "altitude": 300.0},
+                {"latitude": 38.1505333333333, "longitude": -76.434175, "altitude": 300.0},
+                {"latitude": 38.1479472222222, "longitude": -76.4316055555556, "altitude": 200.0},
+                {"latitude": 38.1443333333333, "longitude": -76.4322888888889, "altitude": 200.0},
+                {"latitude": 38.1433166666667, "longitude": -76.4337111111111, "altitude": 300.0},
+                {"latitude": 38.1410944444444, "longitude": -76.4321555555556, "altitude": 400.0},
+                {"latitude": 38.1415777777778, "longitude": -76.4252472222222, "altitude": 400.0},
+                {"latitude": 38.1446083333333, "longitude": -76.4282527777778, "altitude": 200.0},
+            ]
+            self.obstacles_dict = [
+                {"latitude": 38.146689, "longitude": -76.426475, "radius": 150.0, "height": 750.0},
+                {"latitude": 38.142914, "longitude": -76.430297, "radius": 300.0, "height": 300.0},
+                {"latitude": 38.149504, "longitude": -76.43311, "radius": 100.0, "height": 750.0},
+                {"latitude": 38.148711, "longitude": -76.429061, "radius": 300.0, "height": 750.0},
+                {"latitude": 38.144203, "longitude": -76.426155, "radius": 50.0, "height": 400.0},
+                {"latitude": 38.146003, "longitude": -76.430733, "radius": 225.0, "height": 500.0},
+            ]
+            self.teams_dict = [
+                {
+                    "team": {"id": 2, "username": "testuser", "name": "", "university": ""},
+                    "inAir": False,
+                    "telemetry": {
+                        "latitude": 54.6939479,
+                        "longitude": -2.3977821,
+                        "altitude": 472.5065768,
+                        "heading": 252.97946661217355,
+                    },
+                    "telemetryId": "2821588",
+                    "telemetryAgeSec": 506.303088,
+                    "telemetryTimestamp": "2022-08-13T17:37:05.248478+00:00",
+                }
+            ]
+            self.search_grid_dict = [
+                {"latitude": 38.1444444444444, "longitude": -76.4280916666667},
+                {"latitude": 38.1459444444444, "longitude": -76.4237944444445},
+                {"latitude": 38.1439305555556, "longitude": -76.4227444444444},
+                {"latitude": 38.1417138888889, "longitude": -76.4253805555556},
+                {"latitude": 38.1412111111111, "longitude": -76.4322361111111},
+                {"latitude": 38.1431055555556, "longitude": -76.4335972222222},
+                {"latitude": 38.1441805555556, "longitude": -76.4320111111111},
+                {"latitude": 38.1452611111111, "longitude": -76.4289194444444},
+                {"latitude": 38.1444444444444, "longitude": -76.4280916666667},
+            ]
+            self.ugv_points = {
+                "drop": {"latitude": 38.145848, "longitude": -76.426374},
+                "drop_boundary": [
+                    {"latitude": 38.14616666666666, "longitude": -76.42666666666668},
+                    {"latitude": 38.14636111111111, "longitude": -76.42616666666667},
+                    {"latitude": 38.14558333333334, "longitude": -76.42608333333334},
+                    {"latitude": 38.14541666666667, "longitude": -76.42661111111111},
+                ],
+                "drive": {"latitude": 38.146152, "longitude": -76.426396},
+            }
+            self.odlc_points = {
+                "emergent": {"latitude": 38.145111, "longitude": -76.427861},
+                "off_axis": {"latitude": 38.146747, "longitude": -76.422131},
+            }
+            self.lost_comms_pos_dict = {"latitude": 38.144778, "longitude": -76.429417}
             print("╠ INITIALIZED INTEROP HANDLER")
             self.logger.info("INITIALIZED INTEROP HANDLER")
             return {}
         except RequestsCE as e:
-            self.login_status = False
             self.login()
             raise ServiceUnavailableError(
                 "Interop connection lost, attempted to re-initiate"
@@ -122,21 +305,12 @@ class InteropHandler:
             raise GeneralError(str(e)) from e
 
     def login(self):
-        if self.login_status and self.client:
-            raise InvalidStateError("Already Logged In")
         try:
-            self.client: client.Client = client.Client(
-                url=self.config["interop"]["url"],
-                username=self.config["interop"]["username"],
-                password=self.config["interop"]["password"],
-            )
-            self.login_status = True
             self.initialize()
             return {}
         except InvalidStateError as e:
             raise InvalidStateError(str(e)) from e
         except RequestsCE as e:
-            self.login_status = False
             raise ServiceUnavailableError("Could not establish connection to Interop") from e
         except Exception as e:
             raise GeneralError(str(e)) from e
@@ -157,7 +331,6 @@ class InteropHandler:
                 return {"result": key_map[key]}
             return {"result": key_map["mission"]}
         except RequestsCE as e:
-            self.login_status = False
             self.login()
             raise ServiceUnavailableError(
                 "Interop connection lost, attempted to re-initiate"
@@ -172,23 +345,9 @@ class InteropHandler:
             raise GeneralError(str(e)) from e
 
     def submit_telemetry(self):
-        if self.client is None:
-            self.login_status = False
-            self.login()
-            raise ServiceUnavailableError("Interop connection lost, attempted to re-initiate")
         try:
-            telemetry = interop.Telemetry()
-            uav_quick = self.gs.uav.quick()
-            uav_quick = uav_quick["result"]
-            telemetry.latitude = uav_quick["lat"]
-            telemetry.longitude = uav_quick["lon"]
-            telemetry.altitude = uav_quick["altitude_global"]
-            telemetry.heading = uav_quick["orientation"]["yaw"]
-            self.telemetry_json = json_format.MessageToDict(telemetry)
-            self.client.post_telemetry(telemetry)
             return {}
         except RequestsCE as e:
-            self.login_status = False
             self.login()
             raise ServiceUnavailableError(
                 "Interop connection lost, attempted to re-initiate"
@@ -321,24 +480,6 @@ class InteropHandler:
                 raise InvalidStateError("Invalid ODLC ID")
             if self.odlc_queued_data[id_]["status"] is True:
                 raise InvalidStateError("ODLC Already Submitted")
-            obj_data = self.odlc_queued_data[id_]
-            with open(f"assets/odlc_images/{id_}.{self.file_extension}", "rb") as image:
-                image_data = image.read()
-            submission = interop.Odlc()
-            submission.mission = self.mission_id
-            submission.type = obj_data["type"]
-            submission.latitude = obj_data["latitude"]
-            submission.longitude = obj_data["longitude"]
-            if obj_data["type"] == interop.Odlc.STANDARD:
-                submission.orientation = obj_data["orientation"]
-                submission.shape = obj_data["shape"]
-                submission.shape_color = obj_data["shape_color"]
-                submission.alphanumeric = obj_data["alphanumeric"]
-                submission.alphanumeric_color = obj_data["alphanumeric_color"]
-            else:
-                submission.description = obj_data["description"]
-            odlc = self.client.post_odlc(submission)
-            self.client.put_odlc_image(odlc.id, image_data)
             self.odlc_queued_data[id_]["status"] = status
             return {}
         except InvalidStateError as e:
@@ -383,15 +524,9 @@ class InteropHandler:
 
     def map_submit(self, name=None):
         try:
-            if not name:
-                self.submitted_map = base64.decodebytes(bytes(self.map_image, "utf-8"))
-                self.client.put_map_image(self.mission_id, self.submitted_map)
-            else:
+            if name:
                 if not os.path.isfile(f"assets/map_images/{name}.{self.file_extension}"):
                     raise InvalidStateError("Map not found")
-                with open(f"assets/map_images/{name}.{self.file_extension}", "rb") as file:
-                    self.submitted_map = file.read()
-                    self.client.put_map_image(self.mission_id, self.submitted_map)
             return {}
         except InvalidStateError as e:
             raise InvalidStateError(str(e)) from e
