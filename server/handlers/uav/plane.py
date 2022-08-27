@@ -1,5 +1,5 @@
 """
-This is decigned to subclass Dronekit"s Vehicle class, to allow for extra values to be collected
+This is designed to subclass Dronekit"s Vehicle class, to allow for extra values to be collected
 This is not currently implemented into the code, as the Pixhawk is not yet configured to send
 these values
 However, this code is kept in the repository for future use and maintenance purposes
