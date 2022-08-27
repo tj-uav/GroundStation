@@ -8,7 +8,8 @@ import requests
 import errors
 from handlers import DummyUAV, ProdUAV
 from handlers import DummyUGV, ProdUGV
-from handlers import Interop, Image
+from handlers import DummyInterop, ProdInterop
+from handlers import Image
 
 
 class GroundStation:
@@ -25,7 +26,10 @@ class GroundStation:
             self.plane_thread
         ) = self.rover_thread = self.retrieve_image_thread = None
 
-        self.interop = Interop(self, config=self.config)
+        interopconfig = self.config["interop"]["type"]
+        self.interop = DummyInterop if interopconfig == "dummy" else ProdInterop
+        self.interop: ProdInterop = self.interop(self, self.config)
+
         self.image = Image(self, self.config)
 
         uavconfig = self.config["uav"]["telemetry"]["type"]
