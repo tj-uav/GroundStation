@@ -9,7 +9,7 @@ import typing
 from dronekit import Command
 from pymavlink import mavutil as uavutil
 
-from errors import GeneralError, ServiceUnavailableError, InvalidRequestError
+from utils.errors import GeneralError, ServiceUnavailableError, InvalidRequestError
 from handlers.utils import decorate_all_functions, log
 
 if typing.TYPE_CHECKING:
