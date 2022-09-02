@@ -1,6 +1,6 @@
 from flask import Blueprint, current_app as app, request, send_file
 
-from errors import InvalidRequestError
+from utils.errors import InvalidRequestError
 
 uav = Blueprint("uav", __name__)
 

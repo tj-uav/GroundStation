@@ -5,7 +5,7 @@ from threading import Thread
 
 import requests
 
-import errors
+from utils import errors
 from handlers import DummyUAV, ProdUAV
 from handlers import DummyUGV, ProdUGV
 from handlers import DummyInterop, ProdInterop
@@ -13,11 +13,14 @@ from handlers import Image
 
 
 class GroundStation:
-    def __init__(self):
+    def __init__(self, config=None):
         self.logger = logging.getLogger("groundstation")
         self.telem_logger = logging.getLogger("telemetry")
-        with open("config.json", "r", encoding="utf-8") as file:
-            self.config = json.load(file)
+
+        self.config = config
+        if not self.config:
+            with open("config.json", "r", encoding="utf-8") as file:
+                self.config = json.load(file)
 
         print("╔══ CREATING HANDLERS")
         self.logger.info("CREATING HANDLERS")

@@ -9,7 +9,7 @@ from typing import Optional
 from dronekit import connect, Command, VehicleMode, Vehicle
 from pymavlink import mavutil as uavutil
 
-from errors import GeneralError, InvalidRequestError, InvalidStateError
+from utils.errors import GeneralError, InvalidRequestError, InvalidStateError
 from handlers.utils import decorate_all_functions, log, wait_for_param_load
 
 if typing.TYPE_CHECKING:
