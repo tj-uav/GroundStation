@@ -11,7 +11,12 @@ from auvsi_suas.proto import interop_api_pb2 as interop
 from google.protobuf import json_format
 from requests.exceptions import ConnectionError as RequestsCE
 
-from errors import InvalidRequestError, InvalidStateError, GeneralError, ServiceUnavailableError
+from utils.errors import (
+    InvalidRequestError,
+    InvalidStateError,
+    GeneralError,
+    ServiceUnavailableError,
+)
 from handlers.utils import decorate_all_functions, log
 
 if typing.TYPE_CHECKING:

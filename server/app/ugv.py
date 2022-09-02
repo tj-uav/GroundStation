@@ -1,6 +1,6 @@
 from flask import Blueprint, current_app as app, request, send_file
 
-from errors import InvalidRequestError
+from utils.errors import InvalidRequestError
 
 ugv = Blueprint("ugv", __name__)
 

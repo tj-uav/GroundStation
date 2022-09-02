@@ -4,9 +4,7 @@ from functools import wraps
 from logging import Logger
 from typing import Callable
 
-from dronekit import Vehicle
-
-from errors import InvalidStateError
+from utils.errors import InvalidStateError
 
 log_exempt = (
     "update",
