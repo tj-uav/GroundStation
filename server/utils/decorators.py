@@ -1,5 +1,6 @@
 import functools
 import inspect
+import logging
 from functools import wraps
 from logging import Logger
 from typing import Callable
@@ -49,17 +50,6 @@ def decorate_all_functions(function_decorator, *args, **kwargs):
     return decorator
 
 
-def wait_for_param_load(f: Callable):
-    def wrapper(*args, **kwargs):
-        try:
-            args[0].vehicle.wait_ready("parameters")
-            return f(*args, **kwargs)
-        except TimeoutError as e:
-            raise InvalidStateError(str(e)) from e
-
-    return wrapper
-
-
 def get_class_that_defined_method(meth):
     if isinstance(meth, functools.partial):
         return get_class_that_defined_method(meth.func)
@@ -81,3 +71,16 @@ def get_class_that_defined_method(meth):
         if isinstance(cls, type):
             return cls
     return getattr(meth, "__objclass__", None)  # handle special descriptor objects
+
+
+def wait_for_param_load(f: Callable):
+    def wrapper(*args, **kwargs):
+        try:
+            if "parameters" in args[0].vehicle._ready_attrs:
+                return f(*args, **kwargs)
+            else:
+                raise InvalidStateError("Parameters not loaded")
+        except TimeoutError as e:
+            raise InvalidStateError(str(e)) from e
+
+    return wrapper

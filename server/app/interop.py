@@ -66,7 +66,7 @@ def odlc_filter(status):
 
 @interop_odlc.route("/image/<int:id_>")
 def odlc_get_image(id_):
-    file_extension = "jpg" if app.config["uav"]["images"]["quality"] > 0 else "png"
+    file_extension = "jpg" if app.gs_config["uav"]["images"]["quality"] > 0 else "png"
     with open(f"assets/odlc_images/{id_}.{file_extension}", "rb") as image_file:
         encoded_string = base64.b64encode(image_file.read())
     return {"image": encoded_string.decode("utf-8")}

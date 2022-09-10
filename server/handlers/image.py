@@ -3,12 +3,12 @@ import logging
 import string
 import time
 import typing
-from random import random, randint, choice
+from random import random, choice
 
 import requests
 from dotenv import load_dotenv
 
-from handlers.utils import decorate_all_functions, log
+from utils.decorators import decorate_all_functions, log
 
 load_dotenv()
 
