@@ -10,7 +10,7 @@ from dronekit import Command
 from pymavlink import mavutil as uavutil
 
 from utils.errors import GeneralError, ServiceUnavailableError, InvalidRequestError
-from handlers.utils import decorate_all_functions, log
+from utils.decorators import decorate_all_functions, log
 
 if typing.TYPE_CHECKING:
     from groundstation import GroundStation

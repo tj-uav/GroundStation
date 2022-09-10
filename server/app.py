@@ -6,13 +6,13 @@ from flask import Flask, jsonify, send_file
 from flask_cors import CORS
 
 from app import interop, uav, ugv
+from groundstation import GroundStation
 from utils.errors import (
     InvalidRequestError,
     InvalidStateError,
     GeneralError,
     ServiceUnavailableError,
 )
-from groundstation import GroundStation
 from utils.logging_setup import LOG_STREAM, TELEM_STREAM
 
 log = logging.getLogger("werkzeug")
@@ -33,7 +33,7 @@ logger = logging.getLogger("groundstation")
 
 gs = GroundStation(config=config)
 app.gs = gs
-app.config = config
+app.gs_config = config
 
 
 @app.errorhandler(Exception)

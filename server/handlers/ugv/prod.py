@@ -10,7 +10,7 @@ from dronekit import connect, Command, VehicleMode, Vehicle
 from pymavlink import mavutil as uavutil
 
 from utils.errors import GeneralError, InvalidRequestError, InvalidStateError
-from handlers.utils import decorate_all_functions, log, wait_for_param_load
+from utils.decorators import decorate_all_functions, log, wait_for_param_load
 
 if typing.TYPE_CHECKING:
     from groundstation import GroundStation
