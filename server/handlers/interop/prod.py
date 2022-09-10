@@ -17,7 +17,7 @@ from utils.errors import (
     GeneralError,
     ServiceUnavailableError,
 )
-from handlers.utils import decorate_all_functions, log
+from utils.decorators import decorate_all_functions, log
 
 if typing.TYPE_CHECKING:
     from groundstation import GroundStation
