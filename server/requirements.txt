@@ -1,6 +1,6 @@
 python-dotenv
 requests
-protobuf
+protobuf<=3.20.0
 pylint
 
 # Flask Webserver
