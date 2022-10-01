@@ -152,8 +152,8 @@ def favicon() -> str:
 
 
 @app.route("/logs")
-def logs() -> dict:
-    return {"result": LOG_STREAM.getvalue().split("\n")}
+def logs():
+    return {"result": LOG_STREAM.getvalue().split("\n")[::-1]}
 
 
 @app.route("/telemetry")
