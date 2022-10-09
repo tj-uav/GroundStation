@@ -13,11 +13,11 @@ from handlers import Image
 
 
 class GroundStation:
-    def __init__(self, config=None):
-        self.logger = logging.getLogger("groundstation")
-        self.telem_logger = logging.getLogger("telemetry")
+    def __init__(self, config: dict[str] = None):
+        self.logger: logging.Logger = logging.getLogger("groundstation")
+        self.telem_logger: logging.Logger = logging.getLogger("telemetry")
 
-        self.config = config
+        self.config: dict = config
         if not self.config:
             with open("config.json", "r", encoding="utf-8") as file:
                 self.config = json.load(file)
@@ -25,23 +25,30 @@ class GroundStation:
         print("╔══ CREATING HANDLERS")
         self.logger.info("CREATING HANDLERS")
 
-        self.interop_telem_thread = (
-            self.plane_thread
-        ) = self.rover_thread = self.retrieve_image_thread = None
+        self.interop_telem_thread: Thread | None = None
+        self.plane_thread: Thread | None = None
+        self.rover_thread: Thread | None = None
+        self.retrieve_image_thread: Thread | None = None
 
-        interopconfig = self.config["interop"]["type"]
-        self.interop = DummyInterop if interopconfig == "dummy" else ProdInterop
-        self.interop: ProdInterop = self.interop(self, self.config)
+        uav_config = self.config["uav"]["telemetry"]["type"]
+        if uav_config == "dummy":
+            self.uav: DummyUAV = DummyUAV(self, self.config)
+        else:
+            self.uav: ProdUAV = ProdUAV(self, self.config)  # type: ignore
 
-        self.image = Image(self, self.config)
+        ugv_config = self.config["ugv"]["telemetry"]["type"]
+        if ugv_config == "dummy":
+            self.ugv: DummyUGV = DummyUGV(self, self.config)
+        else:
+            self.ugv: ProdUGV = ProdUGV(self, self.config)  # type: ignore
 
-        uavconfig = self.config["uav"]["telemetry"]["type"]
-        self.uav = DummyUAV if uavconfig == "dummy" else ProdUAV
-        self.uav: ProdUAV = self.uav(self, self.config)
+        interop_config: str = self.config["interop"]["type"]
+        if interop_config == "dummy":
+            self.interop: DummyInterop = DummyInterop(self, self.config)
+        else:
+            self.interop: ProdInterop = ProdInterop(self, self.config)  # type: ignore
 
-        ugvconfig = self.config["ugv"]["telemetry"]["type"]
-        self.ugv = DummyUGV if ugvconfig == "dummy" else ProdUGV
-        self.ugv: ProdUGV = self.ugv(self, self.config)
+        self.image: Image = Image(self, self.config)
 
         print("╚═══ CREATED HANDLERS\n")
         self.logger.info("CREATED HANDLERS\n")
@@ -58,7 +65,7 @@ class GroundStation:
 
         self.async_calls()
 
-    def telemetry_thread(self):
+    def telemetry_thread(self) -> None:
         while True:
             if not self.interop.login_status:  # Connection to Interop Server is already lost
                 try:
@@ -88,47 +95,52 @@ class GroundStation:
                 self.logger.debug("[Telemetry] %s", run)
             time.sleep(0.1)
 
-    def uav_thread(self):
+    def uav_thread(self) -> None:
         while True:
-            run = self.uav.update()
-            self.logger.debug("[UAV] %s", run)
+            self.uav.update()
+            # self.logger.debug("[UAV] %s", self.uav.update())
             if self.config["uav"]["telemetry"]["log"]:
                 self.telem_logger.info(json.dumps(self.uav.stats()))
             time.sleep(0.1)
 
-    def ugv_thread(self):
+    def ugv_thread(self) -> None:
         while True:
-            run = self.ugv.update()
-            self.logger.debug("[UGV] %s", run)
+            self.ugv.update()
+            # self.logger.debug("[UGV] %s", self.ugv.update())
             time.sleep(0.1)
 
-    def image_thread(self):
+    def image_thread(self) -> None:
         if self.config["uav"]["images"]["type"] == "prod":  # Initialize a socket connection
             while True:
                 time.sleep(1)
                 try:
-                    res = requests.get(f"{self.config['uav']['images']['url']}/last_image")
-                except Exception:
-                    self.logger.error(
-                        "[Image] Cannot connect to FlightSoftware, retrying in 5 seconds"
+                    res: requests.Response = requests.get(
+                        f"{self.config['uav']['images']['url']}/last_image"
+                    )
+                except (
+                    requests.exceptions.ConnectionError,
+                    requests.exceptions.Timeout,
+                    requests.exceptions.HTTPError,
+                    requests.exceptions.RequestException,
+                ) as e:
+                    self.logger.info(
+                        "[Image] Unable to connect to image server, %s", type(e).__name__
                     )
                     time.sleep(4)
                     continue
-                if res.status_code != 200:
-                    self.logger.error(
-                        "[Image] Unable to retrieve image count, retrying in 5 seconds"
-                    )
+                if res.status_code == 200:
+                    img_cnt: int = res.json()["result"]
+                    if img_cnt != self.image.img_count:
+                        self.image.retrieve_image(img_cnt)
+                else:
                     time.sleep(4)
                     continue
-                img_cnt = res.json()["result"]
-                if img_cnt != self.image.img_count:
-                    self.image.retrieve_image(img_cnt)
         else:  # Use a dummy connection
             while True:
                 self.image.dummy_retrieve_image()
                 time.sleep(2)
 
-    def async_calls(self):
+    def async_calls(self) -> None:
         print("╔═══ STARTING ASYNC THREADS")
         self.logger.info("STARTING ASYNC THREADS")
         self.interop_telem_thread = Thread(target=self.telemetry_thread)

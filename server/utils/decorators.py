@@ -1,13 +1,12 @@
 import functools
 import inspect
-import logging
 from functools import wraps
 from logging import Logger
-from typing import Callable
+from typing import Callable, Any
 
 from utils.errors import InvalidStateError
 
-log_exempt = (
+log_exempt: tuple = (
     "update",
     "stats",
     "quick",
@@ -50,7 +49,7 @@ def decorate_all_functions(function_decorator, *args, **kwargs):
     return decorator
 
 
-def get_class_that_defined_method(meth):
+def get_class_that_defined_method(meth: Callable) -> Any:
     if isinstance(meth, functools.partial):
         return get_class_that_defined_method(meth.func)
     if inspect.ismethod(meth) or (
@@ -76,7 +75,7 @@ def get_class_that_defined_method(meth):
 def wait_for_param_load(f: Callable):
     def wrapper(*args, **kwargs):
         try:
-            if "parameters" in args[0].vehicle._ready_attrs:
+            if "parameters" in args[0].vehicle._ready_attrs:  # pylint: disable=protected-access
                 return f(*args, **kwargs)
             else:
                 raise InvalidStateError("Parameters not loaded")
