@@ -5,7 +5,7 @@ import traceback
 from flask import Flask, jsonify, send_file
 from flask_cors import CORS
 
-from app import interop, uav, ugv
+from apps import interop, uav, ugv
 from groundstation import GroundStation
 from utils.errors import (
     InvalidRequestError,
