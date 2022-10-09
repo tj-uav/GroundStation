@@ -7,3 +7,10 @@ repos:
         language_version: python3.10
         verbose: true
         exclude: .*auvsi_suas.*
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: ''
+    hooks:
+      - id: mypy
+        exclude: .*auvsi_suas.*
+        verbose: true
+        args: ["--ignore-missing-imports", "--show-error-codes"]
