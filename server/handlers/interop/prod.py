@@ -8,8 +8,8 @@ from datetime import datetime, timedelta, date
 
 from auvsi_suas.client import client
 from auvsi_suas.proto import interop_api_pb2 as interop
-from google.protobuf import json_format
-from requests.exceptions import ConnectionError as RequestsCE
+from google.protobuf import json_format  # type: ignore[import]
+from requests.exceptions import ConnectionError as RequestsCE  # type: ignore[import]
 
 from utils.errors import (
     InvalidRequestError,

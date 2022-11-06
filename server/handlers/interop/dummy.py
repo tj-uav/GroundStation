@@ -7,7 +7,7 @@ import typing
 from datetime import datetime, timedelta, date
 
 from auvsi_suas.proto import interop_api_pb2 as interop
-from requests.exceptions import ConnectionError as RequestsCE
+from requests.exceptions import ConnectionError as RequestsCE  # type: ignore[import]
 
 from utils.errors import (
     InvalidRequestError,
@@ -374,10 +374,10 @@ class DummyInteropHandler:
 
     def odlc_add_to_queue(
         self,
-        image: bytes = None,
-        type_: str = None,
-        lat: float = None,
-        lon: float = None,
+        image: bytes,
+        type_: str,
+        lat: float,
+        lon: float,
         orientation: int = None,
         shape: str = None,
         shape_color: str = None,

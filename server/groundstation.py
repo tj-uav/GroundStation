@@ -3,7 +3,7 @@ import logging
 import time
 from threading import Thread
 
-import requests
+import requests  # type: ignore[import]
 
 from utils import errors
 from handlers import DummyUAV, ProdUAV
@@ -17,7 +17,7 @@ class GroundStation:
         self.logger: logging.Logger = logging.getLogger("groundstation")
         self.telem_logger: logging.Logger = logging.getLogger("telemetry")
 
-        self.config: dict = config
+        self.config: dict | None = config
         if not self.config:
             with open("config.json", "r", encoding="utf-8") as file:
                 self.config = json.load(file)

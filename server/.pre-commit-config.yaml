@@ -6,11 +6,11 @@ repos:
         args: [-l, '99']
         language_version: python3.10
         verbose: true
-        exclude: .*auvsi_suas.*
+        exclude: ^server/auvsi_suas.*
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: ''
     hooks:
       - id: mypy
-        exclude: .*auvsi_suas.*
+        exclude: ^(server/auvsi_suas.*|server/utils/(params|decorators).py)$
         verbose: true
-        args: ["--ignore-missing-imports", "--show-error-codes"]
+        args: ["--ignore-missing-imports", "--show-error-codes", "--follow-imports", "skip"]
