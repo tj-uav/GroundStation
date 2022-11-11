@@ -14,3 +14,6 @@ repos:
         exclude: ^(server/auvsi_suas.*|server/utils/(params|decorators).py)$
         verbose: true
         args: ["--ignore-missing-imports", "--show-error-codes", "--follow-imports", "skip"]
+
+ci:
+  autofix_prs: false
