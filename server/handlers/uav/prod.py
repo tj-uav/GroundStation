@@ -215,9 +215,10 @@ class UAVHandler:
             self.lat = loc.lat
             self.lon = loc.lon
             if not self.waypoints:
-                self.waypoints = self.gs.interop.get_data("waypoints")
-                self.waypoints = self.waypoints["result"]
-                self.waypoint_index = 1 % len(self.waypoints)
+                self.waypoint = [-1, 0]
+                self.mode = self.vehicle.mode
+                self.armed = self.vehicle.armed
+                return {}
             x_dist = self.waypoints[self.waypoint_index]["latitude"] - self.lat
             y_dist = self.waypoints[self.waypoint_index]["longitude"] - self.lon
             dist = math.sqrt(x_dist**2 + y_dist**2)  # Angular distance

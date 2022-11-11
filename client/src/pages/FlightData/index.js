@@ -5,8 +5,7 @@ import { httpget } from "backend"
 
 import FlightPlanMap from "components/FlightMap"
 import FlightPlanToolbar from "./tabs/FlightPlan/FlightPlanToolbar"
-import Quick from "./tabs/Quick"
-import Actions from "./tabs/Actions"
+import Main from "./tabs/Main"
 import Logs from "./tabs/Logs"
 import { useInterval } from "../../util"
 
@@ -41,7 +40,6 @@ const FlightData = () => {
 	const [path, setPath] = useState([])
 	const [pathSave, setPathSave] = useState([]) // only used for discarding changes
 	const [uav, setUav] = useState({})
-	const [ugv, setUgv] = useState({})
 
 	const getters = {
 		commands: commands,
@@ -56,7 +54,6 @@ const FlightData = () => {
 		path: path,
 		pathSave: pathSave,
 		uav: uav,
-		ugv: ugv,
 		defaultAlt: defaultAlt
 	}
 
@@ -73,7 +70,6 @@ const FlightData = () => {
 		path: setPath,
 		pathSave: setPathSave,
 		uav: setUav,
-		ugv: setUgv,
 		defaultAlt: setDefaultAlt
 	}
 
@@ -89,7 +85,6 @@ const FlightData = () => {
 		searchGrid: "ODLC Search Grid",
 		path: "Mission Path",
 		uav: "UAV",
-		ugv: "UGV",
 		home: "Home Waypoint"
 	}
 
@@ -100,13 +95,6 @@ const FlightData = () => {
 				lng: response.data.result.lon
 			},
 			heading: response.data.result.orientation.yaw
-		}))
-		httpget("/ugv/quick", response => setUgv({
-			latlng: {
-				lat: response.data.result.lat,
-				lng: response.data.result.lon
-			},
-			heading: response.data.result.yaw
 		}))
 	})
 
@@ -123,9 +111,7 @@ const FlightData = () => {
 			}}
 		>
 			<TabBar>
-				<Quick />
-				<Actions />
-				{/*<Servo />*/}
+				<Main />
 				<FlightPlanToolbar
 					display={display}
 					getters={getters}

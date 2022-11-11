@@ -1,12 +1,11 @@
 import json
 import logging
 import traceback
-from typing import Type
 
 from flask import Flask, jsonify, send_file, Response
 from flask_cors import CORS
 
-from apps import interop, uav, ugv
+from apps import uav
 from groundstation import GroundStation
 from utils.errors import (
     InvalidRequestError,
@@ -26,9 +25,7 @@ app: Flask = Flask(__name__)
 app.config["JSONIFY_PRETTYPRINT_REGULAR"] = True
 CORS(app)
 
-app.register_blueprint(interop, url_prefix="/interop")
 app.register_blueprint(uav, url_prefix="/uav")
-app.register_blueprint(ugv, url_prefix="/ugv")
 
 logger: logging.Logger = logging.getLogger("groundstation")
 

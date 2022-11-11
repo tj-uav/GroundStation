@@ -21,30 +21,6 @@ const FlightPlanMap = props => {
 	const tileRef = useRef(null)
 
 	useEffect(() => {
-		httpget("/interop/mission", response => {
-			setState(response.data.result.mapCenterPos)
-
-			let waypoints = []
-			response.data.result.waypoints.forEach(p => waypoints.push({ lat: p.latitude, lng: p.longitude }))
-			props.setters.waypoints(waypoints)
-
-			let fence = []
-			response.data.result.flyZones[0].boundaryPoints.forEach(p => fence.push({ lat: p.latitude, lng: p.longitude }))
-			props.setters.fence(fence)
-
-			let ugvFence = []
-			response.data.result.airDropBoundaryPoints.forEach(p => ugvFence.push({ lat: p.latitude, lng: p.longitude }))
-			props.setters.ugvFence(ugvFence)
-
-			let searchGrid = []
-			response.data.result.searchGridPoints.forEach(p => searchGrid.push({ lat: p.latitude, lng: p.longitude }))
-			props.setters.searchGrid(searchGrid)
-
-			props.setters.ugvDrive({ lat: response.data.result.ugvDrivePos.latitude, lng: response.data.result.ugvDrivePos.longitude })
-			props.setters.ugvDrop({ lat: response.data.result.airDropPos.latitude, lng: response.data.result.airDropPos.longitude })
-			props.setters.offAxis({ lat: response.data.result.offAxisOdlcPos.latitude, lng: response.data.result.offAxisOdlcPos.longitude })
-			props.setters.obstacles(response.data.result.stationaryObstacles)
-		})
 
 		httpget("/uav/commands/export", response => {
 			let points = response.data.waypoints.map((marker) => {
@@ -93,9 +69,6 @@ const FlightPlanMap = props => {
 			uav: new VehicleIcon({ iconUrl: "../assets/uav.svg" }),
 			uavDirection: new DirectionPointerIcon({ iconUrl: "../assets/pointer.svg" }),
 			uavDirectionOutline: new DirectionPointerIcon({ iconUrl: "../assets/pointer-outline.svg" }),
-			ugv: new VehicleIcon({ iconUrl: "../assets/ugv.svg" }),
-			ugvDirection: new DirectionPointerIcon({ iconUrl: "../assets/pointer.svg" }),
-			ugvDirectionOutline: new DirectionPointerIcon({ iconUrl: "../assets/pointer-outline.svg" }),
 		})
 
 		window.addEventListener("offline", () => {
@@ -350,19 +323,6 @@ const FlightPlanMap = props => {
 									</Tooltip>
 								</Marker>
 								<RotatedMarker icon={icons.uavDirectionOutline} position={props.getters.uav.latlng} rotationAngle={props.getters.uav.heading} rotationOrigin={"50% 100%"} />
-							</LayerGroup>
-						)}
-					</LayersControl.Overlay>
-					<LayersControl.Overlay checked name="UGV">
-						{props.getters.ugv.heading == null ? null : (
-							<LayerGroup>
-								<RotatedMarker icon={icons.ugvDirection} position={props.getters.ugv.latlng} rotationAngle={props.getters.ugv.heading} rotationOrigin={"50% 100%"} />
-								<Marker icon={icons.ugv} position={props.getters.ugv.latlng}>
-									<Tooltip>
-										UGV ({props.getters.ugv.latlng.lat.toFixed(5)}, {props.getters.ugv.latlng.lng.toFixed(5)})
-									</Tooltip>
-								</Marker>
-								<RotatedMarker icon={icons.ugvDirectionOutline} position={props.getters.ugv.latlng} rotationAngle={props.getters.ugv.heading} rotationOrigin={"50% 100%"} />
 							</LayerGroup>
 						)}
 					</LayersControl.Overlay>
