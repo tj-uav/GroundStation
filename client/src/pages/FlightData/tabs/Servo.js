@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react"
 import { Button, Box, Label } from "components/UIElements"
 import { Row, Column } from "components/Containers"
 
+// TODO: Update for servo output display
+
 const ServoRow = ({ number, port1, port2 }) => {
 	return (
 		<Row columns="minmax(0, 4fr) 16fr minmax(0, 4fr) minmax(0, 4fr)" height="3.6rem">

@@ -1,12 +1,12 @@
 import React, { useState } from "react"
-import { Button, Box, Label, Dropdown } from "components/UIElements"
+import { Box, Button, Dropdown, Label } from "components/UIElements"
 import { Row, Column } from "components/Containers"
-import { darkred } from "../../../theme/Colors"
-import { httpget, httppost } from "../../../backend"
+
 import styled from "styled-components"
-import { ReactComponent as RawUGV } from "icons/ugv.svg"
 import { ReactComponent as RawUAV } from "icons/uav.svg"
+import { httpget, httppost } from "../../../backend"
 import { useInterval } from "../../../util"
+import { darkred } from "../../../theme/Colors"
 
 const actions = {
 	waypoint: [0, 1, 2, 3, 4]
@@ -14,59 +14,38 @@ const actions = {
 
 const Modes = ["Manual", "Auto", "Loiter", "RTL", "Takeoff", "Land", "Circle", "Stabilize"]
 
-const Actions = () => {
+const Main = () => {
+	const [Aarmed, setAarmed] = useState("")
+	const [Aorientation, setAorientation] = useState({ "yaw": 0, "pitch": 0, "roll": 0 })
+	const [AlatLong, setAlatLong] = useState({ "lat": 0, "lon": 0 })
 	const [Aaltitude, setAaltitude] = useState(0)
 	const [AaltitudeGlobal, setAaltitudeGlobal] = useState(0)
 	const [AaltitudeIsGlobal, setAaltitudeIsGlobal] = useState(false)
-	// const [Athrottle, setAthrottle] = useState(0)
-	const [Aorientation, setAorientation] = useState({ "yaw": 0, "pitch": 0, "roll": 0 })
-	// const [AlatLong, setAlatLong] = useState({ "lat": 0, "lon": 0 })
-	const [Amode, setAmode] = useState("")
-	const [Aarmed, setAarmed] = useState("")
-	// const [Astatus, setAstatus] = useState("")
+	const [Abattery, setAbattery] = useState(16)
 	const [AgroundSpeed, setAgroundSpeed] = useState(0)
-	// const [Aairspeed, setAairspeed] = useState(0)
-	// const [Abattery, setAbattery] = useState(16)
+	const [Aairspeed, setAairspeed] = useState(0)
+	const [AspeedIsInKnots, setAspeedIsInKnots] = useState(false)
+	const [Astatus, setAstatus] = useState("")
+	const [Amode, setAmode] = useState("")
 	const [Awaypoint, setAwaypoint] = useState([1, 0])
-	// const [Aconnection, setAconnection] = useState([95, 0, 95])
+	const [Aconnection, setAconnection] = useState([95, 0, 95])
 
-	const [Garmed, setGarmed] = useState("")
-	const [GgroundSpeed, setGgroundSpeed] = useState(0)
-	const [Gyaw, setGyaw] = useState(0)
-	const [GlatLong, setGlatLong] = useState({ "lat": 0, "lon": 0 })
-	const [Gstatus, setGstatus] = useState("")
-	const [Gmode, setGmode] = useState("")
-	const [Gdestination, setGdestination] = useState(0)
-	const [Gbattery, setGbattery] = useState(16)
-	const [Gconnection, setGconnection] = useState([95, 0, 95])
+	useInterval(400, () => {
+		httpget("/uav/stats", response => {
+			let data = response.data
 
-	useInterval(250, () => {
-		httpget("/uav/stats", ({ data }) => {
+			setAarmed(data.result.armed)
+			setAorientation({"yaw": data.result.quick.orientation.yaw, "roll": data.result.quick.orientation.roll, "pitch": data.result.quick.orientation.pitch })
+			setAlatLong({"lat": data.result.quick.lat, "lon": data.result.quick.lon})
 			setAaltitude(data.result.quick.altitude)
 			setAaltitudeGlobal(data.result.quick.altitude_global)
-			// setAthrottle(data.result.quick.throttle)
-			setAorientation({"yaw": data.result.quick.orientation.yaw, "roll": data.result.quick.orientation.roll, "pitch": data.result.quick.orientation.pitch })
-			// setAlatLong({"lat": data.result.quick.lat, "lon": data.result.quick.lon})
-			setAmode(data.result.mode)
-			setAarmed(data.result.armed)
-			// setAstatus(data.result.status)
+			setAbattery(data.result.quick.battery)
 			setAgroundSpeed(data.result.quick.ground_speed)
-			// setAairspeed(data.result.quick.air_speed)
-			// setAbattery(data.result.quick.battery)
-			// setAtemperature(data.result.quick.temperature)
+			setAairspeed(data.result.quick.air_speed)
+			setAstatus(data.result.status)
+			setAmode(data.result.mode)
 			setAwaypoint(data.result.quick.waypoint)
-			// setAconnection(data.result.quick.connection)
-		})
-		httpget("/ugv/stats", ({ data }) => {
-			setGarmed(data.result.armed)
-			setGgroundSpeed(data.result.quick.ground_speed)
-			setGyaw(data.result.quick.yaw)
-			setGlatLong({"lat": data.result.quick.lat, "lon": data.result.quick.lon})
-			setGstatus(data.result.status)
-			setGmode(data.result.mode)
-			setGdestination(data.result.quick.destination[1])
-			setGbattery(data.result.quick.battery)
-			setGconnection(data.result.quick.connection)
+			setAconnection(data.result.quick.connection)
 		})
 	})
 
@@ -81,24 +60,61 @@ const Actions = () => {
 			}}
 		>
 			<StyledDiv>
-				<Label className="paragraph" style={{ "font-size": "2em", color: "black", "margin-top": "auto", "margin-bottom": 0 }}>UAV</Label>
+				<Label className="paragraph" style={{ "font-size": "2.1em", color: "black", "margin-top": "auto", "margin-bottom": 0 }}><b>UAV</b></Label>
 				<UAV />
 			</StyledDiv>
 			<Column style={{ marginBottom: "1rem", gap: "0.5rem" }}>
 				<Row style={{ gap: "1rem" }}>
 					<Row>
-						<Box
-							label="Altitude"
-							content={AaltitudeIsGlobal ? AaltitudeGlobal.toFixed(2) + " ft MSL" : Aaltitude.toFixed(2) + " ft AGL"}
-							onClick={() => { setAaltitudeIsGlobal(!AaltitudeIsGlobal) }}
-							title="The plane's altitude. MSL refers to above mean sea level. AGL is the height from the ground where the plane is."
-						/>
-						<Box label="Ground Speed" content={AgroundSpeed.toFixed(2) + " mph"} title="Speed from GPS." />
-					</Row>
-					<Row>
 						<Box label="Roll" content={(Aorientation.roll.toFixed(2)) + "\u00B0"} />
 						<Box label="Pitch" content={(Aorientation.pitch.toFixed(2)) + "\u00B0"} />
 						<Box label="Yaw" content={(Aorientation.yaw.toFixed(2))  + "\u00B0"} />
+					</Row>
+					<Row>
+						<Box label=" " content={Aarmed} />
+					</Row>
+				</Row>
+				<Row style={{ gap: "1rem" }}>
+					<Row>
+						<Box label="Latitude" content={AlatLong.lat.toFixed(7) + "\u00B0"} />
+						<Box label="Longitude" content={AlatLong.lon.toFixed(7) + "\u00B0"} />
+					</Row>
+					<Row>
+						<Box label="Altitude"
+							content={AaltitudeIsGlobal ? AaltitudeGlobal.toFixed(2) + " ft MSL" : Aaltitude.toFixed(2) + " ft AGL"}
+							onClick={() => {setAaltitudeIsGlobal(!AaltitudeIsGlobal)}}
+							style={{ cursor: "pointer" }}
+							title="The plane's altitude. MSL refers to above mean sea level. AGL is the height from the home position's altitude." />
+						<Box label="Battery (6S)" content={Abattery.toFixed(2) + "V"} />
+					</Row>
+				</Row>
+				<Row style={{ gap: "1rem" }}>
+					<Row>
+						<Box label="Ground Speed"
+							content={((AspeedIsInKnots ? 0.868976 : 1) * AgroundSpeed).toFixed(2) + (AspeedIsInKnots ? " knots" : " mph")}
+							onClick={() => {setAspeedIsInKnots(!AspeedIsInKnots)}}
+							style={{ cursor: "pointer" }}
+							title="Speed from GPS." />
+						<Box label="Airspeed"
+							content={((AspeedIsInKnots ? 0.868976 : 1) * Aairspeed).toFixed(2) + (AspeedIsInKnots ? " knots" : " mph")}
+							onClick={() => {setAspeedIsInKnots(!AspeedIsInKnots)}}
+							style={{ cursor: "pointer" }}
+							title="Speed measured from plane sensors." />
+					</Row>
+					<Row>
+						<Box label="Status" content={Astatus} />
+						<Box label="Mode" content={Amode} title="The flight mode the plane is in, including RTL, Auto, and Manual." />
+					</Row>
+				</Row>
+				<Row style={{ gap: "1rem" }}>
+					<Row>
+						<Box label="Waypoint #" content={"#" + (Awaypoint[0] + 1).toFixed(0)} title="The waypoint number the plane is traveling to." />
+						<Box label="Distance" content={Awaypoint[1].toFixed(2) + " ft"} title="The distance to the next waypoint." />
+					</Row>
+					<Row>
+						<Box label="GPS HDOP" content={Aconnection[0].toFixed(2)} title="Horizontal dilution of precision. The higher, the less accurate the GPS is." />
+						<Box label="GPS VDOP" content={Aconnection[1].toFixed(2)} title="Vertical dilution of precision. The higher, the less accurate the GPS is." />
+						<Box label="Satellites" content={Aconnection[2].toFixed(0)} title="The number of satellites the plane is using. 4 at a minimum, 6 is reasonable, 8 is good, and 10 is very accurate." />
 					</Row>
 				</Row>
 			</Column>
@@ -205,93 +221,21 @@ const Actions = () => {
 					<Button warning={true} color={darkred} onClick={() => httppost("/uav/terminate")} title="Make the plane terminate (force it to crash), if configured.">Terminate</Button>
 				</Row>
 			</Column>
-			<StyledDiv style={{ marginTop: "1.5rem" }}>
-				<Label className="paragraph" style={{"font-size": "2em", "color": "black"}}>UGV</Label>
-				<UGV />
-			</StyledDiv>
-			<Column style={{ marginBottom: "1rem", gap: "0.5rem" }}>
-				<Row style={{ gap: "1rem" }}>
-					<Row>
-						<Column>
-							<Row>
-								<Box label="Yaw" content={(Gyaw.toFixed(2))  + "\u00B0"} />
-								<Box label="Speed" content={GgroundSpeed.toFixed(2) + " mph"} />
-							</Row>
-						</Column>
-						<Row>
-						<Column>
-							<Row id="labels1" height="0rem" gap="0.5rem">
-								<Label columns={1}>Mission</Label>
-							</Row>
-							<Row>
-								<Button href="http://localhost:5000/ugv/commands/view" newTab={true} title="Open the UGV Pixhawk mission file in a new tab.">View</Button>
-								<Button onClick={() => httppost("/ugv/commands/write")} title="Send destination to the UGV">Write</Button>
-							</Row>
-						</Column>
-						<Column>
-							<Row id="labels1" height="0rem" gap="0.5rem">
-								<Label columns={1}>Flight Mode</Label>
-							</Row>
-							<Row height="3rem" style={{ marginTop: "1rem" }}>
-								<Dropdown
-									initial={Modes.find(m => m.toUpperCase() === Gmode)}
-									onChange={i => {
-										let m = Modes[i].toUpperCase()
-										httppost("/ugv/mode/set", {"mode": m})
-										setGmode(m)
-									}}
-								>
-									{Modes.map((v, i) => {
-										return (
-											<span value={i}>{v}</span>
-										)
-									})}
-								</Dropdown>
-							</Row>
-						</Column>
-						</Row>
-					</Row>
-				</Row>
-			</Column>
-			<Column>
-				<Row id="labels3" height="2rem" gap="0.5rem">
-					<Label columns={3}>Mission</Label>
-					<Label columns={3}>Configuration</Label>
-				</Row>
-			</Column>
-			<Column style={{ marginBottom: "1rem" }}>
-				<Row height="2.5rem">
-					<Button warning={true} color={darkred} onClick={() => httppost("/ugv/sethome")} title="Set the UGV home position.">Set home?</Button>
-					<Button warning={true} color={darkred} onClick={() => httppost("/ugv/calibrate")}>Calibration?</Button>
-					<Button warning={true} color={darkred} onClick={() => httppost(Garmed === "ARMED" ? "/ugv/disarm" : "/ugv/arm")} title={Aarmed === "ARMED" ? "Disarm the UGV." : "Arm the UGV."}>{Garmed === "ARMED" ? "Disarm" : "Arm"}</Button>
-					<Button warning={true} color={darkred} onClick={() => httppost("/ugv/restart")} title="Restart the UGV's Pixhawk.">Restart?</Button>
-				</Row>
-			</Column>
 		</div>
 	)
 }
 
 const UAV = styled(RawUAV)`
-	height: 6em;
-	width: 8em;
+	height: 5em;
+	width: 7em;
 	margin-right: 0;
 	margin-left: auto;
-	margin-bottom: -0.9em;
-`
-
-const UGV = styled(RawUGV)`
-	height: 3em;
-	width: 5em;
-	margin-right: 0;
-	margin-left: auto;
-	margin-top: auto;
-	margin-bottom: -0.25em;
+	margin-bottom: -2em;
 `
 
 const StyledDiv = styled.div`
- 	display: flex;
-	margin-top: -0.5em;
- 	margin-bottom: 1em;
+	display: flex;
+	margin-bottom: 1em;
 `
 
-export default Actions
+export default Main

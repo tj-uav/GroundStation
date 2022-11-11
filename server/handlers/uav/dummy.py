@@ -130,11 +130,7 @@ class DummyUAVHandler:
             self.connection = [random.random(), random.random(), random.random() * 100]
             # simulates the plane flying over waypoints
             if not self.waypoints:
-                self.waypoints = self.gs.interop.get_data("waypoints")
-                self.waypoints = self.waypoints["result"]
-                self.waypoint_index = 1 % len(self.waypoints)
-                self.lat = self.waypoints[self.waypoint_index]["latitude"]
-                self.lon = self.waypoints[self.waypoint_index]["longitude"]
+                return {}
             x_dist = self.waypoints[self.waypoint_index]["latitude"] - self.lat
             y_dist = self.waypoints[self.waypoint_index]["longitude"] - self.lon
             dist = math.sqrt(x_dist**2 + y_dist**2)
