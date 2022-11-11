@@ -403,11 +403,11 @@ class DummyInteropHandler:
                 data_obj = {"description": description}
             else:
                 data_obj = {
-                    "orientation": int(orientation / 45) + 1,
-                    "shape": self.ODLC_KEY["shape"][shape],
-                    "shape_color": self.ODLC_KEY["color"][shape_color],
+                    "orientation": int(orientation / 45) + 1,  # type: ignore[dict-item, operator]
+                    "shape": self.ODLC_KEY["shape"][shape],  # type: ignore[index]
+                    "shape_color": self.ODLC_KEY["color"][shape_color],  # type: ignore[index]
                     "alphanumeric": alpha,
-                    "alphanumeric_color": self.ODLC_KEY["color"][alpha_color],
+                    "alphanumeric_color": self.ODLC_KEY["color"][alpha_color],  # type: ignore[index]
                 }
             self.odlc_queued_data.append(
                 {**base_obj, **data_obj}

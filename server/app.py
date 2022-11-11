@@ -136,7 +136,7 @@ def create_log(type_: str) -> str:
     elif type_ == "warning":
         logger.warning("This is a warning")
     elif type_ == "important":
-        logger.important("This is important")
+        logger.important("This is important")  # type: ignore[attr-defined]
     elif type_ == "error":
         logger.error("This is an error")
     elif type_ == "critical":

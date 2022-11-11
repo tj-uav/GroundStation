@@ -2,6 +2,7 @@ import json
 import logging
 import time
 from threading import Thread
+from typing import Any
 
 import requests  # type: ignore[import]
 
@@ -13,7 +14,7 @@ from handlers import Image
 
 
 class GroundStation:
-    def __init__(self, config: dict[str] = None):
+    def __init__(self, config: dict = None):
         self.logger: logging.Logger = logging.getLogger("groundstation")
         self.telem_logger: logging.Logger = logging.getLogger("telemetry")
 
@@ -30,19 +31,19 @@ class GroundStation:
         self.rover_thread: Thread | None = None
         self.retrieve_image_thread: Thread | None = None
 
-        uav_config = self.config["uav"]["telemetry"]["type"]
+        uav_config = self.config["uav"]["telemetry"]["type"]  # type: ignore[index]
         if uav_config == "dummy":
             self.uav: DummyUAV = DummyUAV(self, self.config)
         else:
             self.uav: ProdUAV = ProdUAV(self, self.config)  # type: ignore
 
-        ugv_config = self.config["ugv"]["telemetry"]["type"]
+        ugv_config = self.config["ugv"]["telemetry"]["type"]  # type: ignore[index]
         if ugv_config == "dummy":
             self.ugv: DummyUGV = DummyUGV(self, self.config)
         else:
             self.ugv: ProdUGV = ProdUGV(self, self.config)  # type: ignore
 
-        interop_config: str = self.config["interop"]["type"]
+        interop_config: str = self.config["interop"]["type"]  # type: ignore[index]
         if interop_config == "dummy":
             self.interop: DummyInterop = DummyInterop(self, self.config)
         else:
@@ -70,7 +71,7 @@ class GroundStation:
             if not self.interop.login_status:  # Connection to Interop Server is already lost
                 try:
                     self.interop.login()  # Re-initiate connection
-                    self.logger.important(
+                    self.logger.important(  # type: ignore[attr-defined]
                         "[Telemetry] Re-initiated connection with Interop Server"
                     )
                 except errors.ServiceUnavailableError:
@@ -99,7 +100,7 @@ class GroundStation:
         while True:
             self.uav.update()
             # self.logger.debug("[UAV] %s", self.uav.update())
-            if self.config["uav"]["telemetry"]["log"]:
+            if self.config["uav"]["telemetry"]["log"]:  # type: ignore[index]
                 self.telem_logger.info(json.dumps(self.uav.stats()))
             time.sleep(0.1)
 
@@ -110,12 +111,12 @@ class GroundStation:
             time.sleep(0.1)
 
     def image_thread(self) -> None:
-        if self.config["uav"]["images"]["type"] == "prod":  # Initialize a socket connection
+        if self.config["uav"]["images"]["type"] == "prod":  # type: ignore[index]
             while True:
                 time.sleep(1)
                 try:
                     res: requests.Response = requests.get(
-                        f"{self.config['uav']['images']['url']}/last_image"
+                        f"{self.config['uav']['images']['url']}/last_image"  # type: ignore[index]
                     )
                 except (
                     requests.exceptions.ConnectionError,
