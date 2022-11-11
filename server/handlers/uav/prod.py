@@ -450,6 +450,7 @@ class UAVHandler:
                 )
                 cmds.add(new_cmd)
                 cmds.upload()
+            self.vehicle.flush()
             return {}
         except Exception as e:
             raise GeneralError(str(e)) from e
@@ -460,6 +461,7 @@ class UAVHandler:
         try:
             self.vehicle.commands.next = command
             self.vehicle.commands.upload()
+            self.vehicle.flush()
             return {}
         except Exception as e:
             raise GeneralError(str(e)) from e
@@ -477,6 +479,7 @@ class UAVHandler:
             for command in missionlist:
                 cmds.add(command)
             cmds.upload()
+            self.vehicle.flush()
             return {}
         except Exception as e:
             raise GeneralError(str(e)) from e
@@ -510,6 +513,7 @@ class UAVHandler:
         try:
             self.vehicle.commands.clear()
             self.vehicle.commands.upload()
+            self.vehicle.flush()
             return {}
         except Exception as e:
             raise GeneralError(str(e)) from e

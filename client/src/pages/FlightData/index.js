@@ -8,6 +8,7 @@ import FlightPlanToolbar from "./tabs/FlightPlan/FlightPlanToolbar"
 import Main from "./tabs/Main"
 import Logs from "./tabs/Logs"
 import { useInterval } from "../../util"
+import Servo from "./tabs/Servo"
 
 /*
 TODO: Home icon
@@ -122,6 +123,7 @@ const FlightData = () => {
 					setMode={setMode}
 					tabName={"Map"}
 				/>
+				<Servo />
 				<Logs />
 			</TabBar>
 			<FlightPlanMap
