@@ -5,7 +5,7 @@ import time
 import typing
 from random import random, choice
 
-import requests
+import requests  # type: ignore[import]
 from dotenv import load_dotenv
 
 from utils.decorators import decorate_all_functions, log

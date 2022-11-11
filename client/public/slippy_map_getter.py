@@ -1,6 +1,6 @@
 import math
 import os
-import requests
+import requests  # type: ignore[import]
 import time
 
 # window position and zoom for the auvsi suas base, webster field

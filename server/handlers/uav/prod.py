@@ -151,7 +151,7 @@ class UAVHandler:
         self.port = self.config["uav"]["telemetry"]["port"]
         self.serial = self.config["uav"]["telemetry"]["serial"]
         self.update_thread = None
-        self.vehicle: Optional[Vehicle] = None
+        self.vehicle: Vehicle | None = None
         (
             self.altitude,
             self.altitude_global,
@@ -454,6 +454,8 @@ class UAVHandler:
             raise GeneralError(str(e)) from e
 
     def jump_to_command(self, command: int):
+        if not self.vehicle:
+            raise InvalidRequestError("Vehicle not connected")
         try:
             self.vehicle.commands.next = command
             self.vehicle.commands.upload()
