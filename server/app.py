@@ -1,11 +1,12 @@
 import json
 import logging
 import traceback
+from typing import Type
 
-from flask import Flask, jsonify, send_file
+from flask import Flask, jsonify, send_file, Response
 from flask_cors import CORS
 
-from app import interop, uav, ugv
+from apps import interop, uav, ugv
 from groundstation import GroundStation
 from utils.errors import (
     InvalidRequestError,
@@ -15,13 +16,13 @@ from utils.errors import (
 )
 from utils.logging_setup import LOG_STREAM, TELEM_STREAM
 
-log = logging.getLogger("werkzeug")
+log: logging.Logger = logging.getLogger("werkzeug")
 log.setLevel(logging.ERROR)
 
 with open("config.json", "r", encoding="utf-8") as file:
-    config = json.load(file)
+    config: dict = json.load(file)
 
-app = Flask(__name__)
+app: Flask = Flask(__name__)
 app.config["JSONIFY_PRETTYPRINT_REGULAR"] = True
 CORS(app)
 
@@ -29,15 +30,15 @@ app.register_blueprint(interop, url_prefix="/interop")
 app.register_blueprint(uav, url_prefix="/uav")
 app.register_blueprint(ugv, url_prefix="/ugv")
 
-logger = logging.getLogger("groundstation")
+logger: logging.Logger = logging.getLogger("groundstation")
 
-gs = GroundStation(config=config)
+gs: GroundStation = GroundStation(config=config)
 app.gs = gs
 app.gs_config = config
 
 
 @app.errorhandler(Exception)
-def handle_error(e):
+def handle_error(e: Exception) -> tuple[Response, int]:
     logger.error(type(e).__name__)
     logger.info("Traceback of %s : ", type(e).__name__, exc_info=e)
     return (
@@ -54,7 +55,7 @@ def handle_error(e):
 
 
 @app.errorhandler(InvalidRequestError)
-def handle_400(e):
+def handle_400(e: InvalidRequestError) -> tuple[Response, int]:
     logger.error(type(e).__name__)
     logger.info("Traceback of %s : ", type(e).__name__, exc_info=e)
     return (
@@ -71,7 +72,7 @@ def handle_400(e):
 
 
 @app.errorhandler(InvalidStateError)
-def handle_409(e):
+def handle_409(e: InvalidStateError) -> tuple[Response, int]:
     logger.error(type(e).__name__)
     logger.info("Traceback of %s : ", type(e).__name__, exc_info=e)
     return (
@@ -88,7 +89,7 @@ def handle_409(e):
 
 
 @app.errorhandler(GeneralError)
-def handle_500(e):
+def handle_500(e: GeneralError) -> tuple[Response, int]:
     logger.error(type(e).__name__)
     logger.info("Traceback of %s : ", type(e).__name__, exc_info=e)
     return (
@@ -105,7 +106,7 @@ def handle_500(e):
 
 
 @app.errorhandler(ServiceUnavailableError)
-def handle_503(e):
+def handle_503(e: ServiceUnavailableError) -> tuple[Response, int]:
     logger.error(type(e).__name__)
     logger.info("Traceback of %s : ", type(e).__name__, exc_info=e)
     return (
@@ -122,12 +123,12 @@ def handle_503(e):
 
 
 @app.route("/")
-def index():
+def index() -> str:
     return "TJ UAV Ground Station Backend homepage"
 
 
 @app.route("/log/<string:type_>")
-def create_log(type_):
+def create_log(type_: str) -> str:
     if type_ == "debug":
         logger.debug("This is for debugging")
     elif type_ == "info":
@@ -135,7 +136,7 @@ def create_log(type_):
     elif type_ == "warning":
         logger.warning("This is a warning")
     elif type_ == "important":
-        logger.important("This is important")
+        logger.important("This is important")  # type: ignore[attr-defined]
     elif type_ == "error":
         logger.error("This is an error")
     elif type_ == "critical":
@@ -146,32 +147,32 @@ def create_log(type_):
 
 
 @app.route("/favicon.ico")
-def favicon():
+def favicon() -> str:
     return ""
 
 
 @app.route("/logs")
-def logs():
+def logs() -> dict:
     return {"result": LOG_STREAM.getvalue().split("\n")}
 
 
 @app.route("/telemetry")
-def telemetry_data():
+def telemetry_data() -> dict:
     return {"result": TELEM_STREAM.getvalue().split("\n")}
 
 
 @app.route("/file/infolog")
-def logfile():
+def logfile() -> Response:
     return send_file("logs/info.log")
 
 
 @app.route("/file/debuglog")
-def debuglogfile():
+def debuglogfile() -> Response:
     return send_file("logs/debug.log")
 
 
 @app.route("/file/telemlog")
-def telemlogfile():
+def telemlogfile() -> Response:
     return send_file("logs/telem.log")
 
 

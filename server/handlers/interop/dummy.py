@@ -7,7 +7,7 @@ import typing
 from datetime import datetime, timedelta, date
 
 from auvsi_suas.proto import interop_api_pb2 as interop
-from requests.exceptions import ConnectionError as RequestsCE
+from requests.exceptions import ConnectionError as RequestsCE  # type: ignore[import]
 
 from utils.errors import (
     InvalidRequestError,
@@ -374,10 +374,10 @@ class DummyInteropHandler:
 
     def odlc_add_to_queue(
         self,
-        image: bytes = None,
-        type_: str = None,
-        lat: float = None,
-        lon: float = None,
+        image: bytes,
+        type_: str,
+        lat: float,
+        lon: float,
         orientation: int = None,
         shape: str = None,
         shape_color: str = None,
@@ -403,11 +403,11 @@ class DummyInteropHandler:
                 data_obj = {"description": description}
             else:
                 data_obj = {
-                    "orientation": int(orientation / 45) + 1,
-                    "shape": self.ODLC_KEY["shape"][shape],
-                    "shape_color": self.ODLC_KEY["color"][shape_color],
+                    "orientation": int(orientation / 45) + 1,  # type: ignore[dict-item, operator]
+                    "shape": self.ODLC_KEY["shape"][shape],  # type: ignore[index]
+                    "shape_color": self.ODLC_KEY["color"][shape_color],  # type: ignore[index]
                     "alphanumeric": alpha,
-                    "alphanumeric_color": self.ODLC_KEY["color"][alpha_color],
+                    "alphanumeric_color": self.ODLC_KEY["color"][alpha_color],  # type: ignore[index]
                 }
             self.odlc_queued_data.append(
                 {**base_obj, **data_obj}
