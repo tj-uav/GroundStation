@@ -38,7 +38,7 @@ const Logs = () => {
 	})
 
 	const scrollToBottom = () => {
-		container.current.scrollToItem(filtered.length - 1)
+		container.current.scrollToItem(0)
 	}
 
 	useInterval(3000, () => {
@@ -104,14 +104,13 @@ const Logs = () => {
 					</Column>
 					<Column gap="0em">
 						<ScrollButton href={getUrl() + "/logs"} newTab={true}>Open Log File</ScrollButton>
-						<ScrollButton onChange={() => { setAutoScroll(!autoScroll) }}>{autoScroll ? "Turn Off Autoscroll" : "Turn On Autoscroll"}</ScrollButton>
 					</Column>
 				</Row>
 			</CheckboxList>
 			<div style={{ "padding-top": "1em" }}>
 				<StyledLogsContainer
 					ref={container}
-					height={1100}
+					height={window.innerHeight - 250}
 					itemCount={filtered.length}
 					itemSize={(i) => {
 						if (filtered.length === 0) {
@@ -179,7 +178,7 @@ const StyledLogsContainer = styled(VariableSizeList)`
 	height: 100%;
 	width: 100%;
 	overflow-y: scroll;
-
+	overflow-x: hidden !important;
 	&::-webkit-scrollbar {
 		width: 20px;
 	}
