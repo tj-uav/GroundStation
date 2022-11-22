@@ -25,7 +25,7 @@
 		"react-window": "^1.8.7",
 		"reactstrap": "^9.0.2",
 		"regex-parser": "^2.2.11",
-		"socket.io": "^3.0.3",
+		"socket.io": "^4.5.3",
 		"socket.io-client": "^3.0.3",
 		"styled-components": "^5.1.1"
 	},
