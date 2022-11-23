@@ -1,29 +1,14 @@
 {
     "uav": {
         "telemetry": {
-            "type": "dummy",
-            "port": "tcp:127.0.0.1:5760",
-            "serial": false,
+            "port": "/dev/ttyUSB0",
+            "serial": true,
             "log": true
         },
         "images": {
-            "type": "dummy",
-            "url": "http://192.168.1.99:4000",
+            "type": "prod",
+            "url": "http://192.168.1.49:4000",
             "quality": 95
         }
-    },
-    "ugv": {
-        "telemetry": {
-            "type": "dummy",
-            "port": "tcp:127.0.0.1:5760",
-            "serial": false
-        }
-    },
-    "interop": {
-        "type": "dummy",
-        "url": "http://localhost:8000",
-        "username": "testuser",
-        "password": "testpass",
-        "mission_id": 1
     }
 }
