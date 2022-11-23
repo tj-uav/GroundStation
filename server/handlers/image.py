@@ -1,5 +1,6 @@
 from __future__ import annotations
 import logging
+import os
 import string
 import time
 import typing
@@ -42,8 +43,9 @@ class ImageHandler:
     def dummy_retrieve_image(self):
         # Retrieves Image from UAV
         if random() < 1:  # Every image (until CV implementation)
-            file_extension = "jpg" if self.config["uav"]["images"]["quality"] > 0 else "png"
-            with open(f"assets/odlc_images/sample.png", "rb") as image_file:
+            with open(
+                os.path.join(os.getcwd(), "assets", "odlc", "sample.png"), "rb", encoding="utf-8"
+            ) as image_file:
                 img = image_file.read()
             if self.process_image(img):  # Dummy Image
                 self.logger.info("[Image] Successfully identified ODLC from Image")

@@ -1,4 +1,4 @@
-from .uav import DummyUAV, ProdUAV
-from .image import ImageHandler as Image
+from .uav import UAVHandler
+from .image import ImageHandler
 
-__all__ = ("DummyUAV", "ProdUAV", "Image")
+__all__ = ("UAVHandler", "ImageHandler")

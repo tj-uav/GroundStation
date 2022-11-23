@@ -4,7 +4,6 @@ import logging
 import math
 import os
 import typing
-from typing import Optional
 
 from dronekit import connect, Command, VehicleMode, Vehicle
 from pymavlink import mavutil as uavutil
@@ -18,11 +17,10 @@ if typing.TYPE_CHECKING:
 BAUDRATE = 57600
 
 COMMANDS = {
-    # Takeoff will be initiated using a Flight Mode
-    # "TAKEOFF": uavutil.mavlink.MAV_CMD_NAV_TAKEOFF,
     "WAYPOINT": uavutil.mavlink.MAV_CMD_NAV_WAYPOINT,
-    "LAND": uavutil.mavlink.MAV_CMD_NAV_LAND,
+    "MAV_CMD_NAV_WAYPOINT": uavutil.mavlink.MAV_CMD_NAV_WAYPOINT,
     "GEOFENCE": uavutil.mavlink.MAV_CMD_NAV_FENCE_POLYGON_VERTEX_INCLUSION,
+    "MAV_CMD_NAV_FENCE_POLYGON_VERTEX_INCLUSION": uavutil.mavlink.MAV_CMD_NAV_FENCE_POLYGON_VERTEX_INCLUSION,
 }
 
 
@@ -139,8 +137,8 @@ def download_mission(vehicle):
 
 @decorate_all_functions(log, logging.getLogger("groundstation"))
 class UAVHandler:
-    mph = 2.23694
-    ft = 3.28084
+    mps_to_mph = 2.23694
+    m_to_ft = 3.28084
 
     wait_for = ("gps_0", "armed", "mode", "attitude")  # params
 
@@ -159,6 +157,7 @@ class UAVHandler:
             self.ground_speed,
             self.air_speed,
             self.dist_to_wp,
+            self.dist_to_home,
             self.battery,
             self.lat,
             self.lon,
@@ -169,7 +168,7 @@ class UAVHandler:
             self.temperature,
             self.params,
             self.gps,
-        ) = [None] * 16
+        ) = [None] * 17
         self.mode = VehicleMode("MANUAL")
         self.commands = []
         self.armed = False
@@ -186,6 +185,8 @@ class UAVHandler:
             else:
                 self.vehicle = connect(self.port, wait_ready=self.wait_for)
             pixhawk_stats(self.vehicle)
+            self.vehicle.commands.download()
+            self.vehicle.commands.wait_ready()
             self.update()
             print("╠ INITIALIZED UAV HANDLER")
             self.logger.info("INITIALIZED UAV HANDLER")
@@ -199,36 +200,36 @@ class UAVHandler:
             loc = self.vehicle.location.global_relative_frame
             rpy = self.vehicle.attitude  # Roll, Pitch, Yaw
             battery = self.vehicle.battery
-            self.altitude = loc.alt * self.ft
-            self.altitude_global = self.vehicle.location.global_frame.alt * self.ft
+            self.altitude = loc.alt * self.m_to_ft
+            self.altitude_global = self.vehicle.location.global_frame.alt * self.m_to_ft
             self.orientation = dict(
                 yaw=rpy.yaw * 180 / math.pi,
                 roll=rpy.roll * 180 / math.pi,
                 pitch=rpy.pitch * 180 / math.pi,
             )
             self.orientation["yaw"] += 360 if self.orientation["yaw"] < 0 else 0
-            self.ground_speed = self.vehicle.groundspeed * self.mph
-            self.air_speed = self.vehicle.airspeed * self.mph
+            self.ground_speed = self.vehicle.groundspeed * self.mps_to_mph
+            self.air_speed = self.vehicle.airspeed * self.mps_to_mph
             self.battery = battery.voltage  # * 0.001  # Millivolts to volts?
             self.gps = self.vehicle.gps_0
             self.connection = [self.gps.eph, self.gps.epv, self.gps.satellites_visible]
             self.lat = loc.lat
             self.lon = loc.lon
-            if not self.waypoints:
-                self.waypoint = [-1, 0]
-                self.mode = self.vehicle.mode
-                self.armed = self.vehicle.armed
-                return {}
-            x_dist = self.waypoints[self.waypoint_index]["latitude"] - self.lat
-            y_dist = self.waypoints[self.waypoint_index]["longitude"] - self.lon
-            dist = math.sqrt(x_dist**2 + y_dist**2)  # Angular distance
-            # Conversion from decimal degrees to miles
-            x_dist_ft = x_dist * (math.cos(self.lat * math.pi / 180) * 69.172) * 5280
-            y_dist_ft = y_dist * 69.172 * 5280
-            self.dist_to_wp = math.sqrt(x_dist_ft**2 + y_dist_ft**2)  # Distance in miles
-            if dist <= 0.0001:  # Arbitrary value
-                self.waypoint_index = (self.waypoint_index + 1) % len(self.waypoints)
-            self.waypoint = [self.waypoint_index + 1, self.dist_to_wp]
+            self.waypoint_index = self.vehicle.commands.next - 1
+            self.waypoint = self.vehicle.commands[self.waypoint_index]
+            x_dist_to_wp = (
+                (self.waypoint.x - self.lat) * (math.cos(self.lat * math.pi / 180) * 69.172) * 5280
+            )
+            y_dist_to_wp = (self.waypoint.y - self.lon) * 69.172 * 5280
+            self.dist_to_wp = math.sqrt(x_dist_to_wp**2 + y_dist_to_wp**2)
+            x_dist_to_home = (
+                (self.vehicle.home_location.lat - self.lat)
+                * (math.cos(self.lat * math.pi / 180) * 69.172)
+                * 5280
+            )
+            y_dist_to_home = (self.vehicle.home_location.lon - self.lon) * 69.172 * 5280
+            self.dist_to_home = math.sqrt(x_dist_to_home**2 + y_dist_to_home**2)
+            self.waypoint = [self.waypoint_index, self.dist_to_wp]
             self.mode = self.vehicle.mode
             self.armed = self.vehicle.armed
             return {}
@@ -249,6 +250,7 @@ class UAVHandler:
                     "air_speed": self.air_speed,
                     "battery": self.battery,
                     "waypoint": self.waypoint,
+                    "dist_from_home": self.dist_to_home,
                     "connection": self.connection,
                 }
             }
@@ -260,7 +262,6 @@ class UAVHandler:
             "result": {
                 "quick": self.quick()["result"],
                 "mode": self.mode.name,
-                "commands": [cmd.to_dict() for cmd in self.vehicle.commands],
                 "armed": self.get_armed()["result"],
                 "status": self.vehicle.system_status.state,
             }
@@ -370,11 +371,16 @@ class UAVHandler:
     def save_params(self):
         try:
             with open(
-                os.path.join(os.path.dirname(os.path.abspath(__file__)), "uav_params.json"),
+                os.path.join(os.getcwd(), "assets", "params", "plane.json"),
                 "w",
                 encoding="utf-8",
             ) as file:
-                json.dump(self.vehicle.parameters, file)
+                json.dump(
+                    dict(
+                        (keys, values) for keys, values in tuple(self.vehicle.parameters.items())
+                    ),
+                    file,
+                )
             return {}
         except Exception as e:
             raise GeneralError(str(e)) from e
@@ -383,7 +389,7 @@ class UAVHandler:
     def load_params(self):
         try:
             with open(
-                os.path.join(os.path.dirname(os.path.abspath(__file__)), "uav_params.json"),
+                os.path.join(os.getcwd(), "assets", "params", "plane.json"),
                 "r",
                 encoding="utf-8",
             ) as file:
@@ -396,10 +402,9 @@ class UAVHandler:
 
     def get_commands(self):
         try:
-            cmds = self.vehicle.commands
-            cmds.download()
-            cmds.wait_ready()
-            return {"result": [cmd.to_dict() for cmd in cmds]}
+            self.vehicle.commands.download()
+            self.vehicle.commands.wait_ready()
+            return {"result": [cmd.to_dict() for cmd in self.vehicle.commands]}
         except Exception as e:
             raise GeneralError(str(e)) from e
 
@@ -407,31 +412,9 @@ class UAVHandler:
         if command not in COMMANDS:
             raise InvalidRequestError("Invalid Command Name")
         try:
-            cmds = self.vehicle.commands
-            cmds.download()
-            cmds.wait_ready()
-            if command == "LAND":
-                home = self.vehicle.home_location
-                new_cmd = Command(
-                    0,
-                    0,
-                    0,
-                    uavutil.mavlink.MAV_FRAME_GLOBAL_RELATIVE_ALT,
-                    COMMANDS[command],
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    0,
-                    home.lat,
-                    home.lon,
-                    home.alt,
-                )
-                cmds.add(new_cmd)
-                cmds.upload()
-                self.jump_to_command(cmds.count)
-            else:
+            if command in COMMANDS:
+                self.vehicle.commands.download()
+                self.vehicle.commands.wait_ready()
                 new_cmd = Command(
                     0,
                     0,
@@ -448,10 +431,12 @@ class UAVHandler:
                     lon,
                     alt,
                 )
-                cmds.add(new_cmd)
-                cmds.upload()
-            self.vehicle.flush()
-            return {}
+                self.vehicle.commands.add(new_cmd)
+                self.vehicle.commands.upload()
+                self.vehicle.flush()
+                return {}
+            else:
+                raise InvalidRequestError("Invalid Command Name")
         except Exception as e:
             raise GeneralError(str(e)) from e
 
@@ -471,14 +456,11 @@ class UAVHandler:
         Upload a mission from a file.
         """
         try:
-            missionlist = readmission(
-                os.path.join(os.path.dirname(os.path.abspath(__file__)), "uav_mission.txt")
-            )
-            cmds = self.vehicle.commands
-            cmds.clear()
+            missionlist = readmission(os.path.join(os.getcwd(), "assets", "missions", "plane.txt"))
+            self.vehicle.commands.clear()
             for command in missionlist:
-                cmds.add(command)
-            cmds.upload()
+                self.vehicle.commands.add(command)
+            self.vehicle.commands.upload()
             self.vehicle.flush()
             return {}
         except Exception as e:
@@ -500,7 +482,7 @@ class UAVHandler:
                 )
                 output += commandline
             with open(
-                os.path.join(os.path.dirname(os.path.abspath(__file__)), "uav_mission.txt"),
+                os.path.join(os.getcwd(), "assets", "missions", "plane.txt"),
                 "w",
                 encoding="utf-8",
             ) as file_:

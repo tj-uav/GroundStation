@@ -28,6 +28,7 @@ const Main = () => {
 	const [Astatus, setAstatus] = useState("")
 	const [Amode, setAmode] = useState("")
 	const [Awaypoint, setAwaypoint] = useState([1, 0])
+	const [AdistFromHome, setAdistFromHome] = useState(0)
 	const [Aconnection, setAconnection] = useState([95, 0, 95])
 
 	useInterval(400, () => {
@@ -45,6 +46,7 @@ const Main = () => {
 			setAstatus(data.result.status)
 			setAmode(data.result.mode)
 			setAwaypoint(data.result.quick.waypoint)
+			setAdistFromHome(data.result.quick.dist_from_home)
 			setAconnection(data.result.quick.connection)
 		})
 	})
@@ -71,6 +73,7 @@ const Main = () => {
 						<Box label="Yaw" content={(Aorientation.yaw.toFixed(2))  + "\u00B0"} />
 					</Row>
 					<Row>
+						<Box label=" " content={Astatus} />
 						<Box label=" " content={Aarmed} />
 					</Row>
 				</Row>
@@ -80,36 +83,36 @@ const Main = () => {
 						<Box label="Longitude" content={AlatLong.lon.toFixed(7) + "\u00B0"} />
 					</Row>
 					<Row>
-						<Box label="Altitude"
-							content={AaltitudeIsGlobal ? AaltitudeGlobal.toFixed(2) + " ft MSL" : Aaltitude.toFixed(2) + " ft AGL"}
-							onClick={() => {setAaltitudeIsGlobal(!AaltitudeIsGlobal)}}
-							style={{ cursor: "pointer" }}
-							title="The plane's altitude. MSL refers to above mean sea level. AGL is the height from the home position's altitude." />
-						<Box label="Battery (6S)" content={Abattery.toFixed(2) + "V"} />
+						<Box label="Ground Speed"
+							 content={((AspeedIsInKnots ? 0.868976 : 1) * AgroundSpeed).toFixed(2) + (AspeedIsInKnots ? " knots" : " mph")}
+							 onClick={() => {setAspeedIsInKnots(!AspeedIsInKnots)}}
+							 style={{ cursor: "pointer" }}
+							 title="Speed from GPS." />
+						<Box label="Airspeed"
+							 content={((AspeedIsInKnots ? 0.868976 : 1) * Aairspeed).toFixed(2) + (AspeedIsInKnots ? " knots" : " mph")}
+							 onClick={() => {setAspeedIsInKnots(!AspeedIsInKnots)}}
+							 style={{ cursor: "pointer" }}
+							 title="Speed measured from plane sensors." />
 					</Row>
 				</Row>
 				<Row style={{ gap: "1rem" }}>
 					<Row>
-						<Box label="Ground Speed"
-							content={((AspeedIsInKnots ? 0.868976 : 1) * AgroundSpeed).toFixed(2) + (AspeedIsInKnots ? " knots" : " mph")}
-							onClick={() => {setAspeedIsInKnots(!AspeedIsInKnots)}}
-							style={{ cursor: "pointer" }}
-							title="Speed from GPS." />
-						<Box label="Airspeed"
-							content={((AspeedIsInKnots ? 0.868976 : 1) * Aairspeed).toFixed(2) + (AspeedIsInKnots ? " knots" : " mph")}
-							onClick={() => {setAspeedIsInKnots(!AspeedIsInKnots)}}
-							style={{ cursor: "pointer" }}
-							title="Speed measured from plane sensors." />
+						<Box label="Altitude"
+							 content={AaltitudeIsGlobal ? AaltitudeGlobal.toFixed(2) + " ft MSL" : Aaltitude.toFixed(2) + " ft AGL"}
+							 onClick={() => {setAaltitudeIsGlobal(!AaltitudeIsGlobal)}}
+							 style={{ cursor: "pointer" }}
+							 title="The plane's altitude. MSL refers to above mean sea level. AGL is the height from the home position's altitude." />
+						<Box label="Distance" content={AdistFromHome.toFixed(2) + " ft"} title="The distance from the plane to its Home location." />
 					</Row>
 					<Row>
-						<Box label="Status" content={Astatus} />
+						<Box label="Battery (6S)" content={Abattery.toFixed(2) + "V"} />
 						<Box label="Mode" content={Amode} title="The flight mode the plane is in, including RTL, Auto, and Manual." />
 					</Row>
 				</Row>
 				<Row style={{ gap: "1rem" }}>
 					<Row>
 						<Box label="Waypoint #" content={"#" + (Awaypoint[0] + 1).toFixed(0)} title="The waypoint number the plane is traveling to." />
-						<Box label="Distance" content={Awaypoint[1].toFixed(2) + " ft"} title="The distance to the next waypoint." />
+						<Box label="Distance to WP" content={Awaypoint[1].toFixed(2) + " ft"} title="The distance to the next waypoint." />
 					</Row>
 					<Row>
 						<Box label="GPS HDOP" content={Aconnection[0].toFixed(2)} title="Horizontal dilution of precision. The higher, the less accurate the GPS is." />
