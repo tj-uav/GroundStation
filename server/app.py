@@ -1,5 +1,6 @@
 import json
 import logging
+import os.path
 import traceback
 
 from flask import Flask, jsonify, send_file, Response
@@ -18,7 +19,7 @@ from utils.logging_setup import LOG_STREAM, TELEM_STREAM
 log: logging.Logger = logging.getLogger("werkzeug")
 log.setLevel(logging.ERROR)
 
-with open("config.json", "r", encoding="utf-8") as file:
+with open(os.path.join(os.getcwd(), "config.json"), "r", encoding="utf-8") as file:
     config: dict = json.load(file)
 
 app: Flask = Flask(__name__)
@@ -160,17 +161,17 @@ def telemetry_data() -> dict:
 
 @app.route("/file/infolog")
 def logfile() -> Response:
-    return send_file("logs/info.log")
+    return send_file(os.path.join(os.getcwd(), "logs", "info.log"))
 
 
 @app.route("/file/debuglog")
 def debuglogfile() -> Response:
-    return send_file("logs/debug.log")
+    return send_file(os.path.join(os.getcwd(), "logs", "debug.log"))
 
 
 @app.route("/file/telemlog")
 def telemlogfile() -> Response:
-    return send_file("logs/telem.log")
+    return send_file(os.path.join(os.getcwd(), "logs", "telem.log"))
 
 
 if __name__ == "__main__":

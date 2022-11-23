@@ -1,12 +1,12 @@
 import json
 import logging
+import os
 import time
 from threading import Thread
 
 import requests  # type: ignore[import]
 
-from handlers import DummyUAV, ProdUAV
-from handlers import Image
+from handlers import UAVHandler, ImageHandler
 
 
 class GroundStation:
@@ -16,7 +16,7 @@ class GroundStation:
 
         self.config: dict | None = config
         if not self.config:
-            with open("config.json", "r", encoding="utf-8") as file:
+            with open(os.path.join(os.getcwd(), "config.json"), "r", encoding="utf-8") as file:
                 self.config = json.load(file)
 
         print("╔══ CREATING HANDLERS")
@@ -25,13 +25,9 @@ class GroundStation:
         self.plane_thread: Thread | None = None
         self.retrieve_image_thread: Thread | None = None
 
-        uav_config = self.config["uav"]["telemetry"]["type"]  # type: ignore[index]
-        if uav_config == "dummy":
-            self.uav: DummyUAV = DummyUAV(self, self.config)
-        else:
-            self.uav: ProdUAV = ProdUAV(self, self.config)  # type: ignore
+        self.uav: UAVHandler = UAVHandler(self, self.config)  # type: ignore
 
-        self.image: Image = Image(self, self.config)
+        self.image: ImageHandler = ImageHandler(self, self.config)
 
         print("╚═══ CREATED HANDLERS\n")
         self.logger.info("CREATED HANDLERS\n")

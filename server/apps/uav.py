@@ -1,3 +1,5 @@
+import os.path
+
 from flask import Blueprint, current_app as app, request, send_file
 
 from utils.errors import InvalidRequestError
@@ -109,13 +111,15 @@ def uav_load_commands():
 
 @uav_commands.route("/view")
 def uav_view_commands_file():
-    return send_file("handlers/uav/uav_mission.txt")
+    return send_file(os.path.join(os.getcwd(), "assets", "missions", "plane.txt"))
 
 
 @uav_commands.route("/export")
 def uav_export_commands_file():
     waypoints = []
-    with open("handlers/uav/uav_mission.txt", "r", encoding="utf-8") as f:
+    with open(
+        os.path.join(os.getcwd(), "assets", "missions", "plane.txt"), "r", encoding="utf-8"
+    ) as f:
         for line in f.readlines()[1:]:
             spl = line.split("\t")
             waypoints.append(
@@ -139,7 +143,9 @@ def uav_generate_commands_file():
     f = request.json
     if not all(field in f for field in ["waypoints"]):
         raise InvalidRequestError("Missing required fields in request")
-    with open("handlers/uav/uav_mission.txt", "w", encoding="utf-8") as file:
+    with open(
+        os.path.join(os.getcwd(), "assets", "missions", "plane.txt"), "w", encoding="utf-8"
+    ) as file:
         file.write("QGC WPL 110\n")
         counter = 1
         for waypoint in f.get("waypoints"):
