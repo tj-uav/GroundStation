@@ -6,4 +6,3 @@ repos:
         args: [-l, '99']
         language_version: python3.10
         verbose: true
-        exclude: .*auvsi_suas.*
