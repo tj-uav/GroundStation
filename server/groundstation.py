@@ -53,28 +53,11 @@ class GroundStation:
         if self.config["uav"]["images"]["type"] == "prod":  # type: ignore[index]
             while True:
                 time.sleep(1)
-                try:
-                    res: requests.Response = requests.get(
-                        f"{self.config['uav']['images']['url']}/last_image"  # type: ignore[index]
-                    )
-                except (
-                    requests.exceptions.ConnectionError,
-                    requests.exceptions.Timeout,
-                    requests.exceptions.HTTPError,
-                    requests.exceptions.RequestException,
-                ) as e:
-                    self.logger.info(
-                        "[Image] Unable to connect to image server, %s", type(e).__name__
-                    )
-                    time.sleep(4)
-                    continue
-                if res.status_code == 200:
-                    img_cnt: int = res.json()["result"]
-                    if img_cnt != self.image.img_count:
-                        self.image.retrieve_image(img_cnt)
+                img_cnt = self.image.get_img_count()
+                if img_cnt is not False:
+                    self.image.retrieve_image(img_cnt)
                 else:
-                    time.sleep(4)
-                    continue
+                    time.sleep(5)
         else:  # Use a dummy connection
             while True:
                 self.image.dummy_retrieve_image()
