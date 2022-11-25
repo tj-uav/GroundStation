@@ -6,7 +6,7 @@ import traceback
 from flask import Flask, jsonify, send_file, Response
 from flask_cors import CORS
 
-from apps import uav
+from apps import uav, image
 from groundstation import GroundStation
 from utils.errors import (
     InvalidRequestError,
@@ -27,6 +27,7 @@ app.config["JSONIFY_PRETTYPRINT_REGULAR"] = True
 CORS(app)
 
 app.register_blueprint(uav, url_prefix="/uav")
+app.register_blueprint(image, url_prefix="/image")
 
 logger: logging.Logger = logging.getLogger("groundstation")
 
