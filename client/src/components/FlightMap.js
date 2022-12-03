@@ -5,11 +5,41 @@ import { MapContainer, TileLayer, Tooltip, Marker, Polyline, Circle, LayersContr
 import { httpget } from "../backend.js"
 import L from "leaflet"
 
+import Commands from "../commands.js"
 import PolylineDecorator from "../pages/FlightData/tabs/FlightPlan/PolylineDecorator.js"
 import RotatedMarker from "./RotatedMarker.js"
 import { useInterval } from "../util"
 import { Box, Button } from "components/UIElements"
 import { red } from "theme/Colors"
+import { first, get } from "lodash"
+import { promiseImpl } from "ejs"
+import { hasSelectionSupport } from "@testing-library/user-event/dist/utils/index.js"
+
+// v is onChange value, value is validated value (i.e. your data because to have been set it must have been validated), set is setter
+const signedFloatValidation = (v, value, set) => {
+	if (!Number.isNaN(Number(v)) && v.length > 0) {
+		if (v.endsWith(".")) {
+			set(null)
+		} else {
+			set(Number(v))
+		}
+		return v
+	} else if (v.substring(0, v.length - 1).endsWith(".")) {
+		return v.substring(0, v.length - 1)
+	} else if (v.length === 0) {
+		set(null)
+		return v
+	} else if (v.substring(0, Math.max(v.length - 1, 1)) === "-") {
+		set(null)
+		return v.substring(0, Math.max(v.length - 1, 1))
+	} else if (Number.isNaN(parseFloat(v))) {
+		return ""
+	}
+
+	return value
+}
+
+const EMPTY_JUMP = -1
 
 const FlightPlanMap = props => {
 	const [state, setState] = useState({
@@ -19,6 +49,8 @@ const FlightPlanMap = props => {
 	let mapRef = createRef()
 	const [icons, setIcons] = useState({})
 	const tileRef = useRef(null)
+
+	const [firstJump, setFirstJump] = useState(EMPTY_JUMP)
 
 	useEffect(() => {
 		httpget("/interop/mission", response => {
@@ -51,7 +83,7 @@ const FlightPlanMap = props => {
 				return { num: marker.num, cmd: marker.cmd, p1: marker.p1, p2: marker.p2, lat: marker.lat, lng: marker.lon, alt: marker.alt * 3.281 } // convert altitude from meters to feet
 			})
 			props.setters.path(points)
-			props.setters.pathSave(points)
+			props.setters.pathSave(structuredClone(points))
 		})
 
 		var MarkerIcon = L.Icon.extend({
@@ -90,6 +122,10 @@ const FlightPlanMap = props => {
 			searchGrid: new MarkerIcon({ iconUrl: "../assets/icon-searchGrid.png" }),
 			path: new MarkerIcon({ iconUrl: "../assets/icon-path.png" }),
 			home: new MarkerIcon({ iconUrl: "../assets/icon-home.png" }),
+			unlim: new MarkerIcon({ iconUrl: "../assets/icon-unlim.png" }),
+			time: new MarkerIcon({ iconUrl: "../assets/icon-time.png" }),
+			turn: new MarkerIcon({ iconUrl: "../assets/icon-turn.png" }),
+			jump: new MarkerIcon({ iconUrl: "../assets/icon-waypoints.png" }),
 			uav: new VehicleIcon({ iconUrl: "../assets/uav.svg" }),
 			uavDirection: new DirectionPointerIcon({ iconUrl: "../assets/pointer.svg" }),
 			uavDirectionOutline: new DirectionPointerIcon({ iconUrl: "../assets/pointer-outline.svg" }),
@@ -105,6 +141,10 @@ const FlightPlanMap = props => {
 		checkInternet()
 
 	}, [])
+
+	useEffect(() => {
+		setFirstJump(EMPTY_JUMP)
+	}, [props.mode, props.placementMode])
 
 	const checkInternet = () => {
 		if (navigator.onLine) {
@@ -138,10 +178,44 @@ const FlightPlanMap = props => {
 		let get = props.getters["path"]
 		let set = props.setters["path"]
 		let temp = get.slice()
+		if (datatype == "unlim" || datatype == "time" || datatype == "turn") {
+			datatype = "path"
+		}
 		let loc = { ...props.getters[datatype][idx], lat: event.target.getLatLng().lat, lng: event.target.getLatLng().lng, opacity: 0.5 }
 		temp[idx] = loc
 		set(temp)
 		props.setSaved(false)
+	}
+
+	const jumpClick = (key, datatype) => {
+		if (props.placementMode === "disabled" || props.mode !== "jump") {
+			return
+		}
+		if (datatype === "unlim" || datatype === "turn" || datatype === "time" || datatype === "path") {
+			if (firstJump === -1) {
+				setFirstJump(key)
+			} else {
+				let path = props.getters.path.slice()
+				let point = { num: firstJump + 1, cmd: Commands.jump, p1: key + (key < firstJump ? 0 : 1), p2: 3 }
+				props.setSaved(false)
+				props.setters.path([...path.slice(0, firstJump).map(p => {
+					if (p.cmd == Commands.jump) {
+						if (p.p1 > firstJump) {
+							p.p1 += 1
+						}
+					}
+
+					return p
+				}), point, ...path.slice(firstJump, path.length).map(p => {
+					p.num += 1
+					if (p.p1 > firstJump) {
+						p.p1 += 1
+					}
+					return p
+				})])
+				setFirstJump(EMPTY_JUMP)
+			}
+		}
 	}
 
 	const popup = (latlng, key, datatype, popupMenu, draggable) => {
@@ -150,7 +224,10 @@ const FlightPlanMap = props => {
 				icon={icons[datatype]}
 				position={latlng}
 				eventHandlers={{
-					dragend: (event) => { handleMove(event, key - (props.getters.path[0].num === 0 ? 0 : 1), datatype) }
+					dragend: (event) => { handleMove(event, key - (props.getters.path[0].num === 0 ? 0 : 1), datatype) },
+					click: () => {
+						jumpClick(key, datatype)
+					}
 				}}
 				onkeydown={event => handleKeyPress(event, key)}
 				draggable={draggable}
@@ -179,23 +256,23 @@ const FlightPlanMap = props => {
 	}
 
 	const handleClick = event => {
+		if (props.placementMode === "disabled" || props.mode === "jump") {
+			return
+		}
 		if (props.mode) {
 			let get = props.getters["path"]
 			let set = props.setters["path"]
-			if (props.mode === "push" || (props.mode === "insert" && get.length < 2)) {
+
+			if (props.placementMode === "push" || (props.placementMode === "insert" && get.length < 2)) {
 				let temp = get.slice()
-				let point = { lat: event.latlng.lat, lng: event.latlng.lng, opacity: 0.5, num: get.length + (get[0]?.num === 0 ? -1 : 1) }
-				if (temp[temp.length - 1]?.cmd === 177) {
-					temp = [...temp.slice(0, temp.length - 1), point, temp[temp.length - 1]]
-				} else {
-					temp.push(point)
-				}
+				let point = { lat: event.latlng.lat, lng: event.latlng.lng, opacity: 0.5, num: get.length + (get[0]?.num === 0 ? -1 : 1), cmd: Commands[props.mode] }
+				temp.push(point)
 				set(temp)
-			} else if (props.mode === "insert") {
+			} else if (props.placementMode === "insert") {
 				const getPerpendicularDistance = (i) => {
 					let first
 					let second
-					if (get[i]?.cmd === 177) {
+					if (get[i]?.cmd === Commands.jump) {
 						first = get[i - 1]
 						second = get[get[i].p1 - (get[0].num === 0 ? 0 : 1)]
 					} else {
@@ -240,15 +317,12 @@ const FlightPlanMap = props => {
 				}
 
 				let path = get.slice()
-				if (get[min]?.cmd === 177) {
-					path = [...path.slice(0, min), { num: min, lat: event.latlng.lat, lng: event.latlng.lng, opacity: 0.5 }, ...(path.slice(min).map(point => ({ ...point, num: point.num + 1 })))]
+				if (get[min]?.cmd === Commands.jump) {
+					path = [...path.slice(0, min), { num: min, lat: event.latlng.lat, lng: event.latlng.lng, opacity: 0.5, cmd: Commands[props.mode] }, ...(path.slice(min).map(point => ({ ...point, num: point.num + 1 })))]
 				} else {
-					path = [...path.slice(0, min + 1), { num: min + (get[0]?.num === 0 ? 1 : 2), lat: event.latlng.lat, lng: event.latlng.lng, opacity: 0.5 }, ...(path.slice(min + 1).map(point => ({ ...point, num: point.num + 1 })))]
+					path = [...path.slice(0, min + 1), { num: min + (get[0]?.num === 0 ? 1 : 2), lat: event.latlng.lat, lng: event.latlng.lng, opacity: 0.5, cmd: Commands[props.mode] }, ...(path.slice(min + 1).map(point => ({ ...point, num: point.num + 1 })))]
 				}
 				set(path)
-			}
-			if (props.saved && props.mode !== "disabled") {
-				props.setSaved(false)
 			}
 		}
 	}
@@ -266,6 +340,67 @@ const FlightPlanMap = props => {
 		});
 		return null;
 	};
+
+	const MarkerPopup = ({ marker, i }) => {
+		return (
+			<div>
+				Altitude (feet)
+				<Box style={{ "width": "12em", "margin-right": "4em", "height": "3em" }} editable={true} content={marker?.alt} onChange={v => signedFloatValidation(v, marker.alt, (k) => {
+					let path = props.getters.path
+					props.setters.path([...path.slice(0, i), { ...marker, alt: k }, ...path.slice(i + 1)])
+				})} />
+				<Button style={{ "margin-top": "0.5em" }} color={red} onClick={() => {
+					const map = (p, j) => {
+						if (p == null) {
+							return null
+						}
+						if (p.cmd === Commands.jump) {
+							if (p.num == j + 2) { // if starting point of jump is at waypoint to be deleted
+								return null
+							} else if (p.p1 > j + 1) {
+								return { ...p, p1: p.p1 - 1, cmd: p.cmd, num: p.num - (p.num > j+1 ? 1 : 0) }
+							} else if (p.p1 == j + 1) { // if destination of jump is to waypoint to be deleted
+								return null // marked for deletion
+							}
+						}
+
+						return { ...p, num: (p.num > j+1 ? p.num - 1 : p.num) }
+					}
+
+					const _delete = (_p, k) => {
+						return [..._p.slice(0, k).map((p) => { return map(p, k) }), ..._p.slice(k + 1).map((p) => { return map(p, k) })]
+					}
+					let p = _delete(props.getters.path, i)
+
+					// check for nulls that need to be deleted
+					let hasNoNull = false
+					while (!hasNoNull) {
+						let hadNull = false
+						for (let j = 0; j < p.length; j++) {
+							if (p[j] == null) {
+								p = _delete(p, j)
+								let k = j
+								while (p[k]?.cmd == Commands.jump || p[k] == null) {
+									p = _delete(p, k)
+								}
+								hadNull = true
+								break
+							}
+						}
+
+						if (!hadNull) {
+							hasNoNull = true
+						}
+					}
+
+					props.setters.path(p)
+					props.setSaved(false)
+				}}>
+					Delete
+				</Button>
+			</div>
+		)
+	}
 
 	return (
 		<div>
@@ -319,7 +454,7 @@ const FlightPlanMap = props => {
 							})}
 						</LayerGroup>
 					</LayersControl.Overlay>
-					<LayersControl.Overlay checked name="UGV Points">
+					<LayersControl.Overlay checked name="UGV Mission">
 						<LayerGroup>
 							<Polyline positions={circle(props.getters.ugvFence)} color="#6e0d9a" />
 							{props.getters.ugvDrop.lat == null ? null : singlePopup(props.getters.ugvDrop, "ugvDrop")}
@@ -368,49 +503,52 @@ const FlightPlanMap = props => {
 					</LayersControl.Overlay>
 					<LayersControl.Overlay checked name="Mission Path">
 						<LayerGroup>
-							<PolylineDecorator layer="Mission Path" positions={props.getters.path.filter(marker => (marker.num !== 0) && (marker.cmd !== 177))} color="#10336B" decoratorColor="#1d5cc2" />
+							<PolylineDecorator layer="Mission Path" positions={props.getters.path.filter(marker => marker.cmd !== Commands.jump)} color="#10336B" decoratorColor="#1d5cc2" />
 							{props.getters.path.map((marker, i) => {
-								if (marker.num === 0) {
-									return singlePopup(marker, "home")
-								} else if (marker.cmd === 177) {
-									return <PolylineDecorator layer="Mission Path" positions={[props.getters.path[i-1], props.getters.path[marker.p1]]} color="#17e3cb" decoratorColor="#61e8d9" />
+
+								if (marker.cmd === Commands.jump) {
+									let j = i - 1
+									if (!props.getters.path[i - 1].lat) {
+										while (j >= 0 && !props.getters.path[j].lat) {
+											j--
+										}
+									}
+									return (
+										<>
+											<PolylineDecorator layer="Mission Path" positions={[props.getters.path[j], props.getters.path[marker.p1 - 1]]} color="#17e3cb" decoratorColor="#61e8d9" />
+											{popup({...marker, lng: (props.getters.path[j].lng + props.getters.path[marker.p1 - 1].lng)/2, lat: (props.getters.path[j].lat + props.getters.path[marker.p1 - 1].lat)/2}, marker.num, "jump", (
+												<div>
+													Jump from {i} to {marker.p1}
+													<MarkerPopup marker={marker} i={i} />
+												</div>
+											), true)}
+										</>
+									)
+								} else if (marker.cmd === Commands.unlimLoiter) {
+									return popup(marker, marker.num, "unlim", (
+										<div>
+											Unlimited Loiter Point
+											<MarkerPopup marker={marker} i={i} />
+										</div>
+									), true)
+								} else if (marker.cmd === Commands.turnLoiter) {
+									return popup(marker, marker.num, "turn", (
+										<div>
+											Turn Loiter
+											<MarkerPopup marker={marker} i={i} />
+										</div>
+									), true)
+								} else if (marker.cmd === Commands.timeLoiter) {
+									return popup(marker, marker.num, "time", (
+										<div>
+											Time Loiter
+											<MarkerPopup marker={marker} i={i} />
+										</div>
+									), true)
 								}
 
 								return popup(marker, marker.num, "path", (
-									<div>
-										Altitude (feet)
-										<Box style={{ "width": "12em", "margin-right": "4em", "height": "3em" }} editable={true} content={marker.alt} onChange={v => {
-											let path = props.getters.path;
-											if (!Number.isNaN(Number(v)) && v.length > 0) {
-												if (v.endsWith(".")) {
-													props.setters.path([...path.slice(0, i), { ...marker, alt: null }, ...path.slice(i + 1)])
-												} else {
-													props.setters.path([...path.slice(0, i), { ...marker, alt: Number(v) }, ...path.slice(i + 1)])
-												}
-												return v
-											} else if (v.substring(0, v.length - 1).endsWith(".")) {
-												return v.substring(0, v.length - 1)
-											} else if (v.length === 0) {
-												props.setters.path([...path.slice(0, i), { ...marker, alt: null }, ...path.slice(i + 1)])
-												return v
-											} else if (v.substring(0, Math.max(v.length - 1, 1)) === "-") {
-												props.setters.path([...path.slice(0, i), { ...marker, alt: null }, ...path.slice(i + 1)])
-												return v.substring(0, Math.max(v.length - 1, 1))
-											} else if (Number.isNaN(parseFloat(v))) {
-												return ""
-											}
-
-											return marker.altitude
-										}} />
-										<Button style={{ "margin-top": "0.5em" }} color={red} onClick={() => {
-											let path = props.getters.path.slice()
-											path.splice(i, 1)
-											props.setters.path(path)
-											props.setSaved(false)
-										}}>
-											Delete
-										</Button>
-									</div>
+									<MarkerPopup  marker={marker} i={i} />
 								), true)
 							})}
 						</LayerGroup>
