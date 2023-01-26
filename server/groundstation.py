@@ -6,7 +6,7 @@ from threading import Thread
 
 import requests  # type: ignore[import]
 
-from handlers import UAVHandler, ImageHandler
+from handlers import UAVHandler, DummyUAVHandler, ImageHandler
 
 
 class GroundStation:
@@ -25,7 +25,11 @@ class GroundStation:
         self.plane_thread: Thread | None = None
         self.retrieve_image_thread: Thread | None = None
 
-        self.uav: UAVHandler = UAVHandler(self, self.config)  # type: ignore
+        self.uav: UAVHandler = (
+            UAVHandler(self, self.config)
+            if self.config["uav"].get("port")
+            else DummyUAVHandler(self, self.config)
+        )
 
         self.image: ImageHandler = ImageHandler(self, self.config)
 
