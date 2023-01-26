@@ -148,6 +148,7 @@ cython_debug/
 /server/ardupilot/
 /server/assets/*
 !/server/assets/images/odlc/sample.png
+!/server/assets/missions/sample.txt
 !/server/assets/params/avalon.param
 !/server/assets/params/sample.param
 !/server/assets/params/avalon.json

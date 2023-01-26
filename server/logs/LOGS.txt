@@ -1,0 +1,5 @@
+This folder contains the following files:
+ - info.log
+ - debug.log
+ - telem.log
+ - LOGS.txt (so the folder gets added to git)

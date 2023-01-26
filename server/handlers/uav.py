@@ -3,9 +3,10 @@ import json
 import logging
 import math
 import os
+import random
 import typing
 
-from dronekit import connect, Command, VehicleMode, Vehicle
+from dronekit import connect, Channels, Command, VehicleMode, Vehicle
 from pymavlink import mavutil as uavutil
 
 from utils.errors import GeneralError, InvalidRequestError, InvalidStateError
@@ -142,7 +143,7 @@ class UAVHandler:
 
     wait_for = ("gps_0", "armed", "mode", "attitude")  # params
 
-    def __init__(self, gs, config):
+    def __init__(self, gs: GroundStation, config: dict):
         self.logger = logging.getLogger("groundstation")
         self.gs: GroundStation = gs
         self.config = config
@@ -306,7 +307,7 @@ class UAVHandler:
 
     # Flight Mode
 
-    def set_flight_mode(self, flightmode):
+    def set_flight_mode(self, flightmode: str):
         try:
             self.mode = self.vehicle.mode = VehicleMode(flightmode)
             return {}
@@ -323,7 +324,7 @@ class UAVHandler:
     # Parameters
 
     @wait_for_param_load
-    def get_param(self, key):
+    def get_param(self, key: str):
         try:
             return {"result": self.vehicle.parameters[key]}
         except Exception as e:
@@ -341,7 +342,7 @@ class UAVHandler:
             raise GeneralError(str(e)) from e
 
     @wait_for_param_load
-    def set_param(self, key, value):
+    def set_param(self, key: str, value: str | float | int):
         try:
             print(float(value))
         except ValueError as e:
@@ -408,7 +409,7 @@ class UAVHandler:
         except Exception as e:
             raise GeneralError(str(e)) from e
 
-    def insert_command(self, command, lat, lon, alt):
+    def insert_command(self, command: str, lat: float, lon: float, alt: float):
         if command not in COMMANDS:
             raise InvalidRequestError("Invalid Command Name")
         try:
@@ -538,3 +539,220 @@ class UAVHandler:
 
     def __repr__(self):
         return "UAV Handler"
+
+
+@decorate_all_functions(log, logging.getLogger("groundstation"))
+class DummyUAVHandler(UAVHandler):
+    def __init__(self, gs: GroundStation, config: dict):
+        super().__init__(gs, config)
+        assert self.port == ""
+        self.mode = VehicleMode("AUTO")
+        self.armed = True
+        self.vehicle = type(
+            "DummyVehicle",
+            (object,),
+            {"system_status": type("DummySystemStatus", (object,), {"state": "DUMMY"})},
+        )
+        self.altitude = random.randint(0, 100)
+        self.altitude_global = self.altitude + 250
+        self.orientation = {
+            "yaw": random.randint(0, 360),
+            "roll": random.randint(-20, 20),
+            "pitch": random.randint(-20, 20),
+        }
+        self.ground_speed = random.randint(0, 100)
+        self.air_speed = abs(self.ground_speed + random.randint(-10, 10))
+        self.battery = random.randint(14, 16)
+        self.connection = [
+            random.randint(100, 200),
+            random.randint(100, 200),
+            random.randint(4, 12),
+        ]
+        self.lat = random.randint(-90, 90)
+        self.lon = random.randint(-180, 180)
+        self.waypoint_index = random.randint(0, 10)
+        self.dist_to_wp = random.randint(0, 1000)
+        self.dist_to_home = random.randint(0, 1000)
+        self.waypoint = [self.waypoint_index, self.dist_to_wp]
+
+    # Basic Methods
+
+    def connect(self):
+        try:
+            print("╠ INITIALIZED (Dummy) UAV HANDLER")
+            self.logger.info("INITIALIZED (Dummy) UAV HANDLER")
+            return {}
+        except Exception as e:
+            raise GeneralError(str(e)) from e
+
+    def update(self):
+        try:
+            self.altitude = abs(self.altitude + random.randint(-5, 5))
+            self.altitude_global = self.altitude + 250
+            self.orientation["yaw"] = abs(self.orientation["yaw"] + random.randint(-5, 5))
+            self.orientation["roll"] += random.randint(-1, 1)
+            self.orientation["pitch"] += random.randint(-1, 1)
+            self.ground_speed = abs(self.ground_speed + random.randint(-5, 5))
+            self.air_speed = abs(self.ground_speed + random.randint(-10, 10))
+            self.battery = abs(self.battery + random.randint(-1, 1))
+            self.connection[0] = abs(self.connection[0] + random.randint(-10, 10))
+            self.connection[1] = abs(self.connection[1] + random.randint(-10, 10))
+            self.connection[2] = abs(self.connection[2] + random.randint(-1, 1))
+            self.lat += random.randint(-1, 1)
+            self.lon += random.randint(-1, 1)
+            self.waypoint_index = abs(self.waypoint_index + random.randint(-1, 1))
+            self.dist_to_wp = abs(self.dist_to_wp + random.randint(-10, 10))
+            self.dist_to_home = abs(self.dist_to_home + random.randint(-10, 10))
+            self.waypoint = [self.waypoint_index, self.dist_to_wp]
+            return {}
+        except Exception as e:
+            raise GeneralError(str(e)) from e
+
+    # Setup
+
+    def set_home(self):
+        try:
+            return {}
+        except Exception as e:
+            raise GeneralError(str(e)) from e
+
+    def calibrate(self):
+        try:
+            return {}
+        except Exception as e:
+            raise GeneralError(str(e)) from e
+
+    def restart(self):
+        try:
+            return {}
+        except Exception as e:
+            raise GeneralError(str(e)) from e
+
+    def channels(self):
+        try:
+            return {"result": Channels(None, 8)}
+        except Exception as e:
+            raise GeneralError(str(e)) from e
+
+    # Flight Mode
+
+    def set_flight_mode(self, flightmode: str):
+        try:
+            self.mode = VehicleMode(flightmode)
+            return {}
+        except Exception as e:
+            raise GeneralError(str(e)) from e
+
+    def get_flight_mode(self):
+        try:
+            return {"result": self.mode.name}
+        except Exception as e:
+            raise GeneralError(str(e)) from e
+
+    # Parameters
+
+    def get_param(self, key: str):
+        try:
+            return {"result": 0}
+        except Exception as e:
+            raise GeneralError(str(e)) from e
+
+    def get_params(self):
+        try:
+            return {"result": {}}
+        except Exception as e:
+            raise GeneralError(str(e)) from e
+
+    def set_param(self, key: str, value: str | float | int):
+        try:
+            return {}
+        except Exception as e:
+            raise GeneralError(str(e)) from e
+
+    def set_params(self, **kwargs):
+        try:
+            return {}
+        except Exception as e:
+            raise GeneralError(str(e)) from e
+
+    def save_params(self):
+        try:
+            with open(
+                os.path.join(os.getcwd(), "assets", "params", "plane.json"),
+                "w",
+                encoding="utf-8",
+            ) as file:
+                json.dump({}, file)
+            return {}
+        except Exception as e:
+            raise GeneralError(str(e)) from e
+
+    def load_params(self):
+        try:
+            return {}
+        except Exception as e:
+            raise GeneralError(str(e)) from e
+
+    # Commands (Mission)
+
+    def get_commands(self):
+        try:
+            return {"result": []}
+        except Exception as e:
+            raise GeneralError(str(e)) from e
+
+    def insert_command(self, command: str, lat: float, lon: float, alt: float):
+        try:
+            return {}
+        except Exception as e:
+            raise GeneralError(str(e)) from e
+
+    def jump_to_command(self, command: int):
+        try:
+            return {}
+        except Exception as e:
+            raise GeneralError(str(e)) from e
+
+    def write_commands(self):
+        try:
+            return {}
+        except Exception as e:
+            raise GeneralError(str(e)) from e
+
+    def load_commands(self):
+        try:
+            output = "QGC WPL 110\n"
+            with open(
+                os.path.join(os.getcwd(), "assets", "missions", "plane.txt"),
+                "w",
+                encoding="utf-8",
+            ) as file_:
+                file_.write(output)
+            return {}
+        except Exception as e:
+            raise GeneralError(str(e)) from e
+
+    # Armed
+
+    def get_armed(self):
+        try:
+            if self.armed:
+                return {"result": "ARMED"}
+            else:
+                return {"result": "DISARMED"}
+        except Exception as e:
+            raise GeneralError(str(e)) from e
+
+    def arm(self):
+        try:
+            self.armed = True
+            return {}
+        except Exception as e:
+            raise GeneralError(str(e)) from e
+
+    def disarm(self):
+        try:
+            self.armed = False
+            return {}
+        except Exception as e:
+            raise GeneralError(str(e)) from e
