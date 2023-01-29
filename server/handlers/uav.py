@@ -217,12 +217,17 @@ class UAVHandler:
             self.lat = loc.lat
             self.lon = loc.lon
             self.waypoint_index = self.vehicle.commands.next - 1
-            self.waypoint = self.vehicle.commands[self.waypoint_index]
-            x_dist_to_wp = (
-                (self.waypoint.x - self.lat) * (math.cos(self.lat * math.pi / 180) * 69.172) * 5280
-            )
-            y_dist_to_wp = (self.waypoint.y - self.lon) * 69.172 * 5280
-            self.dist_to_wp = math.sqrt(x_dist_to_wp**2 + y_dist_to_wp**2)
+            try:
+                self.waypoint = self.vehicle.commands[self.waypoint_index]
+                x_dist_to_wp = (
+                    (self.waypoint.x - self.lat)
+                    * (math.cos(self.lat * math.pi / 180) * 69.172)
+                    * 5280
+                )
+                y_dist_to_wp = (self.waypoint.y - self.lon) * 69.172 * 5280
+                self.dist_to_wp = math.sqrt(x_dist_to_wp**2 + y_dist_to_wp**2)
+            except IndexError:
+                self.dist_to_wp = -1
             x_dist_to_home = (
                 (self.vehicle.home_location.lat - self.lat)
                 * (math.cos(self.lat * math.pi / 180) * 69.172)

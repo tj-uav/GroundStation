@@ -27,7 +27,7 @@ class GroundStation:
 
         self.uav: UAVHandler = (
             UAVHandler(self, self.config)
-            if self.config["uav"].get("port")
+            if self.config["uav"]["telemetry"].get("port")
             else DummyUAVHandler(self, self.config)
         )
 
