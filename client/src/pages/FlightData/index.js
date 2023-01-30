@@ -86,7 +86,6 @@ const FlightData = () => {
 		obstacles: "Obstacles",
 		offAxis: "Off Axis ODLC",
 		searchGrid: "ODLC Search Grid",
-		loiter: "loiter",
 		path: "Mission Path",
 		unlim: "Unlimited Loiter",
 		turn: "Turn Loiter",
