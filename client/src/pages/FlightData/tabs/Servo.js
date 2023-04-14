@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react"
 import { Button, Box, Label } from "components/UIElements"
 import { Row, Column } from "components/Containers"
 import { httpget } from "../../../backend"
+import { useInterval } from "../../../util";
 
 // TODO: Update for servo output editing
 
@@ -69,14 +70,13 @@ const servoFunctionMap = {
 	110: "AirBrakes"
 }
 
-const ServoRow = ({ number, func, min, max, trim, reversed }) => {
+const ServoRow = ({ number, func, value, min, max, trim, reversed }) => {
 	return (
-		<Row columns="minmax(0, 4fr) minmax(0, 12fr) minmax(0, 4fr) minmax(0, 4fr) minmax(0, 4fr) minmax(0, 4fr)" height="3rem">
+		<Row columns="minmax(0, 2fr) minmax(0, 8fr) minmax(0, 4fr) minmax(0, 9fr) minmax(0, 3fr)" height="3rem">
 			<Box content={number} line="300%" />
 			<Box content={servoFunctionMap[func]} line="300%" />
-			<Box content={min} line="300%" />
-			<Box content={trim} line="300%" />
-			<Box content={max} line="300%" />
+			<Box content={value} line="300%" />
+			<Box content={min + " / " + trim + " / " + max} line="300%" />
 			<Box content={reversed ? "✅" : "❌"} line="300%" />
 		</Row>
 	)
@@ -84,6 +84,7 @@ const ServoRow = ({ number, func, min, max, trim, reversed }) => {
 
 const Servo = () => {
 	const [servos, setServos] = useState([])
+	const [servoVals, setServoVals] = useState([])
 
 	useEffect(() => {
 		httpget("/uav/params/getall", response => {
@@ -91,7 +92,7 @@ const Servo = () => {
 
 			setServos([])
 
-			for (let i = 1; i <= 10; i++) {
+			for (let i = 1; i < 10; i++) {
 				let func = data["SERVO" + i + "_FUNCTION"]
 				let min = data["SERVO" + i + "_MIN"]
 				let max = data["SERVO" + i + "_MAX"]
@@ -112,6 +113,12 @@ const Servo = () => {
 		})
 	}, [])
 
+	useInterval(200, () => {
+		httpget("/uav/servos", response => {
+			setServoVals(response.data.result)
+		})
+	})
+
 	return (
 		<div
 			style={{
@@ -120,17 +127,16 @@ const Servo = () => {
 				height: "calc(100vh - 9.5rem)",
 			}}
 		>
-			<Row columns="minmax(0, 4fr) minmax(0, 12fr) minmax(0, 4fr) minmax(0, 4fr) minmax(0, 4fr) minmax(0, 4fr)" height="2rem">
+			<Row columns="minmax(0, 2fr) minmax(0, 8fr) minmax(0, 4fr) minmax(0, 9fr) minmax(0, 3fr)" height="2rem">
 				<Label>Servo</Label>
 				<Label>Function</Label>
-				<Label>Min</Label>
-				<Label>Trim</Label>
-				<Label>Max</Label>
-				<Label>Reversed</Label>
+				<Label>Value</Label>
+				<Label>Min / Trim / Max</Label>
+				<Label>Reverse</Label>
 			</Row>
 			<Column style={{ marginBottom: "1rem" }}>
 				{servos.map((obj, index) => {
-					return <ServoRow key={index} number={obj.number} func={obj.func} min={obj.min} max={obj.max} trim={obj.trim} reversed={obj.reversed} />
+					return <ServoRow key={index} number={obj.number} func={obj.func} value={servoVals[index]} min={obj.min} max={obj.max} trim={obj.trim} reversed={obj.reversed} />
 				})}
 			</Column>
 		</div>
