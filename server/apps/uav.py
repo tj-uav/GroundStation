@@ -67,6 +67,11 @@ def uav_channels():
     return app.gs.uav.channels()
 
 
+@uav.route("/servos")
+def uav_servos():
+    return app.gs.uav.servos()
+
+
 # Commands
 uav_commands = Blueprint("uav_commands", __name__)
 uav.register_blueprint(uav_commands, url_prefix="/commands")

@@ -169,7 +169,8 @@ class UAVHandler:
             self.temperature,
             self.params,
             self.gps,
-        ) = [None] * 17
+            self.servo_outputs,
+        ) = [None] * 18
         self.mode = VehicleMode("MANUAL")
         self.commands = []
         self.armed = False
@@ -198,12 +199,27 @@ class UAVHandler:
 
     def make_listeners(self):
         self.battery = [0, 0]
+        self.servo_outputs = []
 
         @self.vehicle.on_message("BATTERY_STATUS")
         def battery_status_listener(_v, _n, message):
             battery_id = message.id
             battery_voltage = message.voltages[0]
             self.battery[battery_id] = battery_voltage * 0.001  # mV to V
+
+        @self.vehicle.on_message("SERVO_OUTPUT_RAW")
+        def servo_output_raw_listener(_v, _n, message):
+            self.servo_outputs = [
+                message.servo1_raw,
+                message.servo2_raw,
+                message.servo3_raw,
+                message.servo4_raw,
+                message.servo5_raw,
+                message.servo6_raw,
+                message.servo7_raw,
+                message.servo8_raw,
+                message.servo9_raw,
+            ]
 
     def update(self):
         try:
@@ -315,6 +331,12 @@ class UAVHandler:
     def channels(self):
         try:
             return {"result": self.vehicle.channels}
+        except Exception as e:
+            raise GeneralError(str(e)) from e
+
+    def servos(self):
+        try:
+            return {"result": self.servo_outputs}
         except Exception as e:
             raise GeneralError(str(e)) from e
 
