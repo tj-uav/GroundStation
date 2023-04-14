@@ -21,7 +21,8 @@ const Main = () => {
 	const [Aaltitude, setAaltitude] = useState(0)
 	const [AaltitudeGlobal, setAaltitudeGlobal] = useState(0)
 	const [AaltitudeIsGlobal, setAaltitudeIsGlobal] = useState(false)
-	const [Abattery, setAbattery] = useState(16)
+	const [AebayBattery, setAebayBattery] = useState(16.8)
+	const [AflightBattery, setAflightBattery] = useState(50.4)
 	const [AgroundSpeed, setAgroundSpeed] = useState(0)
 	const [Aairspeed, setAairspeed] = useState(0)
 	const [AspeedIsInKnots, setAspeedIsInKnots] = useState(false)
@@ -40,7 +41,8 @@ const Main = () => {
 			setAlatLong({"lat": data.result.quick.lat, "lon": data.result.quick.lon})
 			setAaltitude(data.result.quick.altitude)
 			setAaltitudeGlobal(data.result.quick.altitude_global)
-			setAbattery(data.result.quick.battery)
+			setAebayBattery(data.result.quick.battery[0])
+			setAflightBattery(data.result.quick.battery[1])
 			setAgroundSpeed(data.result.quick.ground_speed)
 			setAairspeed(data.result.quick.air_speed)
 			setAstatus(data.result.status)
@@ -105,7 +107,8 @@ const Main = () => {
 						<Box label="Distance" content={AdistFromHome.toFixed(2) + " ft"} title="The distance from the plane to its Home location." />
 					</Row>
 					<Row>
-						<Box label="Battery (6S)" content={Abattery.toFixed(2) + "V"} />
+						<Box label="Ebay Batt" content={AebayBattery.toFixed(2) + "V"} />
+						<Box label="Flight Batt" content={AflightBattery.toFixed(2) + "V"} />
 						<Box label="Mode" content={Amode} title="The flight mode the plane is in, including RTL, Auto, and Manual." />
 					</Row>
 				</Row>

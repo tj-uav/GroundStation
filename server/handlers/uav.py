@@ -188,6 +188,7 @@ class UAVHandler:
             pixhawk_stats(self.vehicle)
             self.vehicle.commands.download()
             self.vehicle.commands.wait_ready()
+            self.make_listeners()
             self.update()
             print("╠ INITIALIZED UAV HANDLER")
             self.logger.info("INITIALIZED UAV HANDLER")
@@ -195,12 +196,20 @@ class UAVHandler:
         except Exception as e:
             raise GeneralError(str(e)) from e
 
+    def make_listeners(self):
+        self.battery = [0, 0]
+
+        @self.vehicle.on_message("BATTERY_STATUS")
+        def battery_status_listener(_v, _n, message):
+            battery_id = message.id
+            battery_voltage = message.voltages[0]
+            self.battery[battery_id] = battery_voltage * 0.001  # mV to V
+
     def update(self):
         try:
             # Global Relative Frame uses absolute Latitude/Longitude and relative Altitude
             loc = self.vehicle.location.global_relative_frame
             rpy = self.vehicle.attitude  # Roll, Pitch, Yaw
-            battery = self.vehicle.battery
             self.altitude = loc.alt * self.m_to_ft
             self.altitude_global = self.vehicle.location.global_frame.alt * self.m_to_ft
             self.orientation = dict(
@@ -211,7 +220,6 @@ class UAVHandler:
             self.orientation["yaw"] += 360 if self.orientation["yaw"] < 0 else 0
             self.ground_speed = self.vehicle.groundspeed * self.mps_to_mph
             self.air_speed = self.vehicle.airspeed * self.mps_to_mph
-            self.battery = battery.voltage  # * 0.001  # Millivolts to volts?
             self.gps = self.vehicle.gps_0
             self.connection = [self.gps.eph, self.gps.epv, self.gps.satellites_visible]
             self.lat = loc.lat
