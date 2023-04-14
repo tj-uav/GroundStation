@@ -85,62 +85,74 @@ const ServoRow = ({ number, func, value, min, max, trim, reversed }) => {
 const Servo = () => {
 	const [servos, setServos] = useState([])
 	const [servoVals, setServoVals] = useState([])
-
-	useEffect(() => {
-		httpget("/uav/params/getall", response => {
-			let data = response.data.result
-
-			setServos([])
-
-			for (let i = 1; i < 10; i++) {
-				let func = data["SERVO" + i + "_FUNCTION"]
-				let min = data["SERVO" + i + "_MIN"]
-				let max = data["SERVO" + i + "_MAX"]
-				let trim = data["SERVO" + i + "_TRIM"]
-				let reversed = data["SERVO" + i + "_REVERSED"]
-
-				if (func) {
-					setServos(servos => [...servos, {
-						number: i,
-						func: func,
-						min: min,
-						max: max,
-						trim: trim,
-						reversed: reversed
-					}])
-				}
-			}
-		})
-	}, [])
+	const [servosReady, setServosReady] = useState(false)
 
 	useInterval(200, () => {
+		if (!servosReady) {
+			httpget("/uav/params/getall", response => {
+				if (response.error) {
+					setServosReady(false)
+					return
+				}
+				setServosReady(true)
+
+				let data = response.data.result
+
+				setServos([])
+
+				for (let i = 1; i < 10; i++) {
+					let func = data["SERVO" + i + "_FUNCTION"]
+					let min = data["SERVO" + i + "_MIN"]
+					let max = data["SERVO" + i + "_MAX"]
+					let trim = data["SERVO" + i + "_TRIM"]
+					let reversed = data["SERVO" + i + "_REVERSED"]
+
+					if (func) {
+						setServos(servos => [...servos, {
+							number: i,
+							func: func,
+							min: min,
+							max: max,
+							trim: trim,
+							reversed: reversed
+						}])
+					}
+				}
+			})
+		}
 		httpget("/uav/servos", response => {
 			setServoVals(response.data.result)
 		})
 	})
 
-	return (
-		<div
-			style={{
-				display: "flex",
-				flexDirection: "column",
-				height: "calc(100vh - 9.5rem)",
-			}}
-		>
-			<Row columns="minmax(0, 2fr) minmax(0, 8fr) minmax(0, 4fr) minmax(0, 9fr) minmax(0, 3fr)" height="2rem">
-				<Label>Servo</Label>
-				<Label>Function</Label>
-				<Label>Value</Label>
-				<Label>Min / Trim / Max</Label>
-				<Label>Reverse</Label>
-			</Row>
-			<Column style={{ marginBottom: "1rem" }}>
-				{servos.map((obj, index) => {
-					return <ServoRow key={index} number={obj.number} func={obj.func} value={servoVals[index]} min={obj.min} max={obj.max} trim={obj.trim} reversed={obj.reversed} />
-				})}
-			</Column>
-		</div>
-	)
+	if (servosReady) {
+		return (
+			<div
+				style={{
+					display: "flex",
+					flexDirection: "column",
+					height: "calc(100vh - 9.5rem)",
+				}}
+			>
+				<Row columns="minmax(0, 2fr) minmax(0, 8fr) minmax(0, 4fr) minmax(0, 9fr) minmax(0, 3fr)" height="2rem">
+					<Label>Servo</Label>
+					<Label>Function</Label>
+					<Label>Value</Label>
+					<Label>Min / Trim / Max</Label>
+					<Label>Reverse</Label>
+				</Row>
+				<Column style={{ marginBottom: "1rem" }}>
+					{servos.map((obj, index) => {
+						return <ServoRow key={index} number={obj.number} func={obj.func} value={servoVals[index]} min={obj.min} max={obj.max} trim={obj.trim} reversed={obj.reversed} />
+					})}
+				</Column>
+			</div>
+		)
+	} else {
+		return (
+			<Label>Loading parameters...</Label>
+		)
+	}
 }
 
 export default Servo
