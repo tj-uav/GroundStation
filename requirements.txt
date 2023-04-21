@@ -1,5 +1,21 @@
+python-dotenv
+requests
+protobuf<=3.20.0
+pylint
+mypy
 pre-commit
-flask
-flask-cors
-flask_socketio
+
+# Flask Webserver
+Flask
+Flask-Cors
+flask-socketio
+
+# UAV Handler
+dronekit
+dronekit-sitl
 pymavlink
+pySerial
+
+# Image Handler
+python-socketio
+eventlet
