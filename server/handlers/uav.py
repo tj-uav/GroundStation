@@ -597,7 +597,8 @@ class DummyUAVHandler(UAVHandler):
         }
         self.ground_speed = random.randint(0, 100)
         self.air_speed = abs(self.ground_speed + random.randint(-10, 10))
-        self.battery = random.randint(14, 16)
+        self.battery = [random.randint(14, 16), random.randint(42, 50)]
+        self.servo_outputs = []
         self.connection = [
             random.randint(100, 200),
             random.randint(100, 200),
@@ -629,7 +630,8 @@ class DummyUAVHandler(UAVHandler):
             self.orientation["pitch"] += random.randint(-1, 1)
             self.ground_speed = abs(self.ground_speed + random.randint(-5, 5))
             self.air_speed = abs(self.ground_speed + random.randint(-10, 10))
-            self.battery = abs(self.battery + random.randint(-1, 1))
+            self.battery[0] = abs(self.battery[0] + random.randint(-1, 1))
+            self.battery[1] = abs(self.battery[1] + random.randint(-1, 1))
             self.connection[0] = abs(self.connection[0] + random.randint(-10, 10))
             self.connection[1] = abs(self.connection[1] + random.randint(-10, 10))
             self.connection[2] = abs(self.connection[2] + random.randint(-1, 1))
