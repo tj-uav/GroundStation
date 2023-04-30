@@ -5,10 +5,10 @@ source "$HOME"/.zshrc  # to support nvm
 SCRIPT_DIR=${0:a:h}
 
 port_input=""
-vared -p "Enter port override (leave blank for default): " port_input
+vared -p "Enter port override (enter \".\" for default): " port_input
 
 # Set port config in server/config.json
-if [ "$port_input" != "" ]
+if [ "$port_input" != "." ]
 then
     port=$(printf '%s\n' "$port_input" | sed -e 's/[\/&]/\\&/g')  # escaped for sed
     sed -i "s/\"port\": \".*\",/\"port\": \"$port\",/" "$SCRIPT_DIR"/server/config.json
