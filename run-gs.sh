@@ -15,7 +15,7 @@ then
 fi
 
 # Run client in background
-npm run start --prefix "$SCRIPT_DIR"/client | cat &
+BROWSER=none npm run start --prefix "$SCRIPT_DIR"/client | cat &
 
 # Run server
 cd "$SCRIPT_DIR"/server || exit
