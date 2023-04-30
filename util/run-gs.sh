@@ -11,17 +11,17 @@ vared -p "Enter port override (enter \".\" for default): " port_input
 if [ "$port_input" != "." ]
 then
     port=$(printf '%s\n' "$port_input" | sed -e 's/[\/&]/\\&/g')  # escaped for sed
-    sed -i "s/\"port\": \".*\",/\"port\": \"$port\",/" "$SCRIPT_DIR"/server/config.json
+    sed -i "s/\"port\": \".*\",/\"port\": \"$port\",/" "$SCRIPT_DIR"/../server/config.json
 fi
 
 # Run client in background
-BROWSER=none npm run start --prefix "$SCRIPT_DIR"/client | cat &
+BROWSER=none npm run start --prefix "$SCRIPT_DIR"/../client | cat &
 
 # Run server
-cd "$SCRIPT_DIR"/server || exit
-export FLASK_APP="$SCRIPT_DIR"/server/app.py
+cd "$SCRIPT_DIR"/../server || exit
+export FLASK_APP="$SCRIPT_DIR"/../server/app.py
 export FLASK_ENV=development
 export FLASK_DEBUG=0
-"$SCRIPT_DIR"/server/venv/bin/python -m flask run
+"$SCRIPT_DIR"/../server/venv/bin/python -m flask run
 
 wait
