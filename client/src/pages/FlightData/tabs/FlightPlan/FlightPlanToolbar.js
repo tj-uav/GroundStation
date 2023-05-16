@@ -114,22 +114,6 @@ const FlightPlanToolbar = props => {
 						<span style={{ color: red }}>You have unsaved points!</span>
 					}
 			</div>
-			<Button disabled={props.getters.path.length === 0} title="This button may only be pressed when there are no path waypoints placed, for safety." style={{ "width": "11.25em", "margin-top": "2em" }} onClick={() => {
-				props.setters.path(props.getters.waypoints.slice())
-				props.setSaved(false)
-			}}>Use Mission Waypoints As Path</Button>
-			<div style={{ "margin-top": "2em", "display": "flex", "gap": "1em" }}>
-				<Button style={{ "width": "11em" }} active={props.mode === "ugvDestination"} onClick={() => {
-					props.setPreviousMode(props.mode)
-					props.setMode(props.mode === "ugvDestination" ? props.previousMode : "ugvDestination")
-				}}>Pick UGV Destination</Button>
-				<Button style={{ "width": "11em" }} onClick={() => {
-					props.setters.ugvDestination(props.getters.ugvDrive)
-					if (props.mode === "ugvDestination") {
-						props.setMode(props.previousMode)
-					}
-				}}>Use Interop UGV Destination</Button>
-			</div>
 		</div>
 	)
 }
