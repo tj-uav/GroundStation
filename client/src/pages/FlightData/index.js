@@ -29,7 +29,7 @@ const FlightData = () => {
 	const [placementMode, setPlacementMode] = useState("push")
 	const [previousMode, setPreviousMode] = useState("disabled")
 	const [saved, setSaved] = useState(true)
-	const [defaultAlt, setDefaultAlt] = useState(100)
+	const [defaultAlt, setDefaultAlt] = useState(125)
 
 	const [waypoints, setWaypoints] = useState([])
 	const [commands, setCommands] = useState([])

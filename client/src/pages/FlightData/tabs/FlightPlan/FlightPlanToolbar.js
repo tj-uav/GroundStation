@@ -65,7 +65,7 @@ const FlightPlanToolbar = props => {
 				<Box style={{ "width": "10em", "margin-left": "0.5em" }} editable={true} content={props.getters.defaultAlt} onChange={(v) => {
 					if (!Number.isNaN(Number(v)) && v.length > 0) {
 						if (v.endsWith(".")) {
-							props.setters.defaultAlt(100)
+							props.setters.defaultAlt(125)
 						} else {
 							props.setters.defaultAlt(Number(v))
 						}
@@ -73,10 +73,10 @@ const FlightPlanToolbar = props => {
 					} else if (v.substring(0, v.length - 1).endsWith(".")) {
 						return v.substring(0, v.length - 1)
 					} else if (v.length === 0) {
-						props.setters.defaultAlt(100)
+						props.setters.defaultAlt(125)
 						return v
 					} else if (v.substring(0, Math.max(v.length - 1, 1)) === "-") {
-						props.setters.defaultAlt(100)
+						props.setters.defaultAlt(125)
 						return v.substring(0, Math.max(v.length - 1, 1))
 					} else if (Number.isNaN(parseFloat(v))) {
 						return ""
@@ -88,7 +88,7 @@ const FlightPlanToolbar = props => {
 			<Button disabled={props.getters.path.length === 0} style={{ "margin-top": "1em", "width": "15em" }} onClick={() => {
 				props.setters.path([])
 				props.setSaved(false)
-			}}>Reset path</Button>
+			}}>Clear path</Button>
 			<div style={{ "display": "flex", "margin-top": "1em", "gap": "1em", "align-items": "center" }}>
 					<Button style={{ "width": "11.5em" }} disabled={props.saved} onClick={() => {
 						let miss = []
