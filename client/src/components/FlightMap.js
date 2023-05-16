@@ -396,17 +396,8 @@ const FlightPlanMap = props => {
 				/>
 				<ClickLocation />
 				<LayersControl position="topright">
-					{ /* Need for Auvsi Suas: waypoints, obstacles, geofence, ugv drop 
-						ugv drive, ugv fence, odlc search grid, off axis odlc */ }
-					<LayersControl.Overlay checked name="Waypoints">
-						<LayerGroup>
-							<PolylineDecorator layer="Waypoints" positions={props.getters.waypoints} color="#00AA00" decoratorColor="#1fd11f" />
-							{props.getters.waypoints.map((marker, index) => {
-								return popup(marker, index, "waypoints")
-							})}
-						</LayerGroup>
-					</LayersControl.Overlay>
-					<LayersControl.Overlay checked name="Geofence">
+					{ /* Need for SUAS: geofence, airdrop, uav, mission path */ }
+					<LayersControl.Overlay checked name="Mission Flight Boundary">
 						<LayerGroup>
 							<Polyline positions={circle(props.getters.fence)} color="#0000FF" />
 							{props.getters.fence.map((marker, index) => {
@@ -414,39 +405,13 @@ const FlightPlanMap = props => {
 							})}
 						</LayerGroup>
 					</LayersControl.Overlay>
-					<LayersControl.Overlay checked name="Obstacles">
-						<LayerGroup>
-							{props.getters.obstacles.map((obstacle) => {
-								return (
-									<Circle center={[obstacle.latitude, obstacle.longitude]} color="#FF0000" radius={obstacle.radius / 3.281}>
-										<Tooltip>
-											Obstacle ({obstacle.latitude.toFixed(5)}, {obstacle.longitude.toFixed(5)})
-										</Tooltip>
-									</Circle>
-								)
-							})}
-						</LayerGroup>
-					</LayersControl.Overlay>
-					<LayersControl.Overlay checked name="UGV Mission">
-						<LayerGroup>
-							<Polyline positions={circle(props.getters.ugvFence)} color="#6e0d9a" />
-							{props.getters.ugvDrop.lat == null ? null : singlePopup(props.getters.ugvDrop, "ugvDrop")}
-							{props.getters.ugvDrive.lat == null ? null : singlePopup(props.getters.ugvDrive, "ugvDrive")}
-							{props.getters.ugvFence.map((marker, index) => {
-								return popup(marker, index, "ugvFence")
-							})}
-						</LayerGroup>
-					</LayersControl.Overlay>
-					<LayersControl.Overlay checked name="Search Grid">
+					<LayersControl.Overlay checked name="Air Drop Boundary">
 						<LayerGroup>
 							<Polyline positions={circle(props.getters.searchGrid)} color="#ee7313" />
 							{props.getters.searchGrid.map((marker, index) => {
 								return popup(marker, index, "searchGrid")
 							})}
 						</LayerGroup>
-					</LayersControl.Overlay>
-					<LayersControl.Overlay checked name="Off Axis ODLC">
-						{props.getters.offAxis.lat == null ? null : singlePopup(props.getters.offAxis, "offAxis")}
 					</LayersControl.Overlay>
 					<LayersControl.Overlay checked name="UAV">
 						{props.getters.uav.heading == null ? null : (
