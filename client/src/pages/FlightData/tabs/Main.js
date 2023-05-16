@@ -4,6 +4,7 @@ import { Row, Column } from "components/Containers"
 
 import styled from "styled-components"
 import { ReactComponent as RawUAV } from "icons/uav.svg"
+import { ReactComponent as RawUAVbw } from "icons/uav-bw.svg"
 import { httpget, httppost } from "../../../backend"
 import { useInterval } from "../../../util"
 import { darkred } from "../../../theme/Colors"
@@ -65,7 +66,7 @@ const Main = () => {
 		>
 			<StyledDiv>
 				<Label className="paragraph" style={{ "font-size": "2.1em", color: "black", "margin-top": "auto", "margin-bottom": 0 }}><b>UAV</b></Label>
-				<UAV />
+				{Aarmed.includes("DISARMED") ? <UAVbw /> : <UAV />}
 			</StyledDiv>
 			<Column style={{ marginBottom: "1rem", gap: "0.5rem" }}>
 				<Row style={{ gap: "1rem" }}>
@@ -76,7 +77,7 @@ const Main = () => {
 					</Row>
 					<Row>
 						<Box label=" " content={Astatus} />
-						<Box label=" " content={Aarmed} />
+						<Box label=" " content={Amode} title="The flight mode the plane is in, including RTL, Auto, and Manual." />
 					</Row>
 				</Row>
 				<Row style={{ gap: "1rem" }}>
@@ -109,7 +110,6 @@ const Main = () => {
 					<Row>
 						<Box label="Ebay Batt" content={AebayBattery.toFixed(2) + "V"} />
 						<Box label="Flight Batt" content={AflightBattery.toFixed(2) + "V"} />
-						<Box label="Mode" content={Amode} title="The flight mode the plane is in, including RTL, Auto, and Manual." />
 					</Row>
 				</Row>
 				<Row style={{ gap: "1rem" }}>
@@ -232,6 +232,14 @@ const Main = () => {
 }
 
 const UAV = styled(RawUAV)`
+	height: 5em;
+	width: 7em;
+	margin-right: 0;
+	margin-left: auto;
+	margin-bottom: -2em;
+`
+
+const UAVbw = styled(RawUAVbw)`
 	height: 5em;
 	width: 7em;
 	margin-right: 0;
