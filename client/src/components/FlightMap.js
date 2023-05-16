@@ -95,7 +95,7 @@ const FlightPlanMap = props => {
 			ugvDrop: new MarkerIcon({ iconUrl: "../assets/icon-ugvDrop.png" }),
 			ugvDrive: new MarkerIcon({ iconUrl: "../assets/icon-ugvDrive.png" }),
 			offAxis: new MarkerIcon({ iconUrl: "../assets/icon-offAxis.png" }),
-			searchGrid: new MarkerIcon({ iconUrl: "../assets/icon-searchGrid.png" }),
+			airdropBoundary: new MarkerIcon({ iconUrl: "../assets/icon-airdropBoundary.png" }),
 			path: new MarkerIcon({ iconUrl: "../assets/icon-path.png" }),
 			home: new MarkerIcon({ iconUrl: "../assets/icon-home.png" }),
 			unlim: new MarkerIcon({ iconUrl: "../assets/icon-unlim.png" }),
@@ -117,7 +117,7 @@ const FlightPlanMap = props => {
 
 	useEffect(() => {
 		setFirstJump(EMPTY_JUMP)
-	}, [props.mode, props.placementMode])
+	}, [props.getters.mode, props.getters.placementMode])
 
 	const checkInternet = () => {
 		if (navigator.onLine) {
@@ -157,11 +157,11 @@ const FlightPlanMap = props => {
 		let loc = { ...props.getters[datatype][idx], lat: event.target.getLatLng().lat, lng: event.target.getLatLng().lng, opacity: 0.5 }
 		temp[idx] = loc
 		set(temp)
-		props.setSaved(false)
+		props.setters.pathSaved(false)
 	}
 
 	const jumpClick = (key, datatype) => {
-		if (props.placementMode === "disabled" || props.mode !== "jump") {
+		if (props.getters.placementMode === "disabled" || props.getters.mode !== "jump") {
 			return
 		}
 		if (datatype === "unlim" || datatype === "turn" || datatype === "time" || datatype === "path") {
@@ -170,7 +170,7 @@ const FlightPlanMap = props => {
 			} else {
 				let path = props.getters.path.slice()
 				let point = { num: firstJump + 1, cmd: Commands.jump, p1: key + (key < firstJump ? 0 : 1), p2: 3 }
-				props.setSaved(false)
+				props.setters.pathSaved(false)
 				props.setters.path([...path.slice(0, firstJump).map(p => {
 					if (p.cmd == Commands.jump) {
 						if (p.p1 > firstJump) {
@@ -229,19 +229,19 @@ const FlightPlanMap = props => {
 	}
 
 	const handleClick = event => {
-		if (props.placementMode === "disabled" || props.mode === "jump") {
+		if (props.getters.placementMode === "disabled" || props.getters.mode === "jump") {
 			return
 		}
-		if (props.mode) {
+		if (props.getters.mode) {
 			let get = props.getters["path"]
 			let set = props.setters["path"]
 
-			if (props.placementMode === "push" || (props.placementMode === "insert" && get.length < 2)) {
+			if (props.getters.placementMode === "push" || (props.getters.placementMode === "insert" && get.length < 2)) {
 				let temp = get.slice()
-				let point = { lat: event.latlng.lat, lng: event.latlng.lng, opacity: 0.5, num: get.length + (get[0]?.num === 0 ? -1 : 1), cmd: Commands[props.mode] }
+				let point = { lat: event.latlng.lat, lng: event.latlng.lng, opacity: 0.5, num: get.length + (get[0]?.num === 0 ? -1 : 1), cmd: Commands[props.getters.mode] }
 				temp.push(point)
 				set(temp)
-			} else if (props.placementMode === "insert") {
+			} else if (props.getters.placementMode === "insert") {
 				const getPerpendicularDistance = (i) => {
 					let first
 					let second
@@ -291,9 +291,9 @@ const FlightPlanMap = props => {
 
 				let path = get.slice()
 				if (get[min]?.cmd === Commands.jump) {
-					path = [...path.slice(0, min), { num: min, lat: event.latlng.lat, lng: event.latlng.lng, opacity: 0.5, cmd: Commands[props.mode] }, ...(path.slice(min).map(point => ({ ...point, num: point.num + 1 })))]
+					path = [...path.slice(0, min), { num: min, lat: event.latlng.lat, lng: event.latlng.lng, opacity: 0.5, cmd: Commands[props.getters.mode] }, ...(path.slice(min).map(point => ({ ...point, num: point.num + 1 })))]
 				} else {
-					path = [...path.slice(0, min + 1), { num: min + (get[0]?.num === 0 ? 1 : 2), lat: event.latlng.lat, lng: event.latlng.lng, opacity: 0.5, cmd: Commands[props.mode] }, ...(path.slice(min + 1).map(point => ({ ...point, num: point.num + 1 })))]
+					path = [...path.slice(0, min + 1), { num: min + (get[0]?.num === 0 ? 1 : 2), lat: event.latlng.lat, lng: event.latlng.lng, opacity: 0.5, cmd: Commands[props.getters.mode] }, ...(path.slice(min + 1).map(point => ({ ...point, num: point.num + 1 })))]
 				}
 				set(path)
 			}
@@ -367,7 +367,7 @@ const FlightPlanMap = props => {
 					}
 
 					props.setters.path(p)
-					props.setSaved(false)
+					props.setters.pathSaved(false)
 				}}>
 					Delete
 				</Button>
@@ -397,23 +397,23 @@ const FlightPlanMap = props => {
 				<ClickLocation />
 				<LayersControl position="topright">
 					{ /* Need for SUAS: geofence, airdrop, uav, mission path */ }
-					<LayersControl.Overlay checked name="Mission Flight Boundary">
+					<LayersControl.Overlay checked name={props.display.flightBoundary}>
 						<LayerGroup>
-							<Polyline positions={circle(props.getters.fence)} color="#0000FF" />
-							{props.getters.fence.map((marker, index) => {
+							<Polyline positions={circle(props.getters.flightBoundary)} color="#0000FF" />
+							{props.getters.flightBoundary.map((marker, index) => {
 								return popup(marker, index, "fence")
 							})}
 						</LayerGroup>
 					</LayersControl.Overlay>
-					<LayersControl.Overlay checked name="Air Drop Boundary">
+					<LayersControl.Overlay checked name={props.display.airdropBoundary}>
 						<LayerGroup>
-							<Polyline positions={circle(props.getters.searchGrid)} color="#ee7313" />
-							{props.getters.searchGrid.map((marker, index) => {
-								return popup(marker, index, "searchGrid")
+							<Polyline positions={circle(props.getters.airdropBoundary)} color="#ee7313" />
+							{props.getters.airdropBoundary.map((marker, index) => {
+								return popup(marker, index, "airdropBoundary")
 							})}
 						</LayerGroup>
 					</LayersControl.Overlay>
-					<LayersControl.Overlay checked name="UAV">
+					<LayersControl.Overlay checked name={props.display.uav}>
 						{props.getters.uav.heading == null ? null : (
 							<LayerGroup>
 								<RotatedMarker icon={icons.uavDirection} position={props.getters.uav.latlng} rotationAngle={props.getters.uav.heading} rotationOrigin={"50% 100%"} />
@@ -426,7 +426,7 @@ const FlightPlanMap = props => {
 							</LayerGroup>
 						)}
 					</LayersControl.Overlay>
-					<LayersControl.Overlay checked name="Mission Path">
+					<LayersControl.Overlay checked name={props.display.path}>
 						<LayerGroup>
 							<PolylineDecorator layer="Mission Path" positions={props.getters.path.filter(marker => marker.cmd !== Commands.jump)} color="#10336B" decoratorColor="#1d5cc2" />
 							{props.getters.path.map((marker, i) => {

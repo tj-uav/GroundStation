@@ -25,74 +25,55 @@ TODO: Display list highlighting (and vice versa)
 */
 
 const FlightData = () => {
-	const [mode, setMode] = useState("waypoint")
-	const [placementMode, setPlacementMode] = useState("push")
-	const [previousMode, setPreviousMode] = useState("disabled")
-	const [saved, setSaved] = useState(true)
-	const [defaultAlt, setDefaultAlt] = useState(125)
-
-	const [waypoints, setWaypoints] = useState([])
-	const [commands, setCommands] = useState([])
-	const [fence, setFence] = useState([])
-	const [ugvFence, setUgvFence] = useState([])
-	const [ugvDrop, setUgvDrop] = useState({})
-	const [ugvDrive, setUgvDrive] = useState({})
-	const [obstacles, setObstacles] = useState([])
-	const [offAxis, setOffAxis] = useState({})
-	const [searchGrid, setSearchGrid] = useState([])
-	const [path, setPath] = useState([])
-	const [pathSave, setPathSave] = useState([]) // only used for discarding changes
+	const [flightBoundary, setFlightBoundary] = useState([])
+	const [airdropBoundary, setAirdropBoundary] = useState([])
 	const [uav, setUav] = useState({})
 
+	const [path, setPath] = useState([])
+	const [pathSave, setPathSave] = useState([]) // only used for discarding changes
+	const [pathSaved, setPathSaved] = useState(true)
+
+	const [mode, setMode] = useState("waypoint")
+	const [previousMode, setPreviousMode] = useState("disabled")
+	const [placementMode, setPlacementMode] = useState("push")
+	const [defaultAlt, setDefaultAlt] = useState(125)
+
 	const getters = {
-		commands: commands,
-		waypoints: waypoints,
-		fence: fence,
-		ugvFence: ugvFence,
-		ugvDrop: ugvDrop,
-		ugvDrive: ugvDrive,
-		obstacles: obstacles,
-		offAxis: offAxis,
-		searchGrid: searchGrid,
+		flightBoundary: flightBoundary,
+		airdropBoundary: airdropBoundary,
+		uav: uav,
 		path: path,
 		pathSave: pathSave,
-		uav: uav,
+		pathSaved: pathSaved,
+		mode: mode,
+		previousMode: previousMode,
+		placementMode: placementMode,
 		defaultAlt: defaultAlt
 	}
 
 	const setters = {
-		commands: setCommands,
-		waypoints: setWaypoints,
-		fence: setFence,
-		ugvFence: setUgvFence,
-		ugvDrop: setUgvDrop,
-		ugvDrive: setUgvDrive,
-		obstacles: setObstacles,
-		offAxis: setOffAxis,
-		searchGrid: setSearchGrid,
+		flightBoundary: setFlightBoundary,
+		airdropBoundary: setAirdropBoundary,
+		uav: setUav,
 		path: setPath,
 		pathSave: setPathSave,
-		uav: setUav,
+		pathSaved: setPathSaved,
+		mode: setMode,
+		previousMode: setPreviousMode,
+		placementMode: setPlacementMode,
 		defaultAlt: setDefaultAlt
 	}
 
 	const display = {
-		commands: "Command",
-		waypoints: "Waypoint",
-		fence: "Geofence",
-		ugvFence: "UGV Fence",
-		ugvDrop: "UGV Drop",
-		ugvDrive: "UGV Drive",
-		obstacles: "Obstacles",
-		offAxis: "Off Axis ODLC",
-		searchGrid: "ODLC Search Grid",
+		flightBoundary: "Mission Flight Boundary",
+		airdropBoundary: "Air Drop Boundary",
 		path: "Mission Path",
+		home: "Home Waypoint",
 		unlim: "Unlimited Loiter",
 		turn: "Turn Loiter",
 		time: "Time Loiter",
 		jump: "Jump",
-		uav: "UAV",
-		home: "Home Waypoint"
+		uav: "UAV"
 	}
 
 	useInterval(500, () => {
@@ -123,14 +104,6 @@ const FlightData = () => {
 					display={display}
 					getters={getters}
 					setters={setters}
-					mode={mode}
-					setMode={setMode}
-					previousMode={previousMode}
-					setPreviousMode={setPreviousMode}
-					placementMode={placementMode}
-					setPlacementMode={setPlacementMode}
-					saved={saved}
-					setSaved={setSaved}
 					tabName={"Map"}
 				/>
 				<Servo />
@@ -140,14 +113,6 @@ const FlightData = () => {
 				display={display}
 				getters={getters}
 				setters={setters}
-				mode={mode}
-				saved={saved}
-				previousMode={previousMode}
-				setPreviousMode={setPreviousMode}
-				placementMode={placementMode}
-				setPlacementMode={setPlacementMode}
-				setSaved={setSaved}
-				setMode={setMode}
 			/>
 		</div>
 	)
