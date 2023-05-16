@@ -11,7 +11,7 @@ const FlightPlanToolbar = props => {
 	const [missing, setMissing] = useState([])
 
 	useEffect(() => {
-		let radio = document.getElementById(props.mode)
+		let radio = document.getElementById(props.getters.mode)
 		radio.checked = true
 	}, [])
 
@@ -23,8 +23,8 @@ const FlightPlanToolbar = props => {
 		}
 		props.setters.path(path)
 
-		props.setSaved(true)
 		props.setters.pathSave(path)
+		props.setters.pathSaved(true)
 
 		httppost("/uav/commands/generate", { "waypoints": path.map(waypoint => ({ ...waypoint, lat: waypoint.lat ?? 0.0, lon: waypoint.lng ?? 0.0, alt: (waypoint.alt ?? 0.0) / 3.281 })) }) // convert feet to meters for altitude
 	}
@@ -46,14 +46,14 @@ const FlightPlanToolbar = props => {
 			</Modal>
 			<div style={{ marginBottom: "1rem", width: "10em" }}>
 				<Dropdown initial={"Push"} onChange={(v) => {
-					props.setPlacementMode(v)
+					props.setters.placementMode(v)
 				}}>
 					<span value="disabled">Disable</span>
 					<span value="push">Push</span>
 					<span value="insert">Insert</span>
 				</Dropdown>
 			</div>
-			<RadioList onChange={event => { props.setMode(event.target.value); console.log(event.target.value) }} name="pointMode">
+			<RadioList onChange={event => { props.setters.mode(event.target.value); console.log(event.target.value) }} name="pointMode">
 				<RadioList.Option color="#10336B" value="waypoint">Waypoints</RadioList.Option>
 				<RadioList.Option color="#10336B" value="jump">Add Jump</RadioList.Option>
 				<RadioList.Option color="#10336B" value="unlimLoiter">Unlimited Loiter</RadioList.Option>
@@ -87,10 +87,10 @@ const FlightPlanToolbar = props => {
 			</div>
 			<Button disabled={props.getters.path.length === 0} style={{ "margin-top": "1em", "width": "15em" }} onClick={() => {
 				props.setters.path([])
-				props.setSaved(false)
+				props.setters.pathSaved(false)
 			}}>Clear path</Button>
 			<div style={{ "display": "flex", "margin-top": "1em", "gap": "1em", "align-items": "center" }}>
-					<Button style={{ "width": "11.5em" }} disabled={props.saved} onClick={() => {
+					<Button style={{ "width": "11.5em" }} disabled={props.getters.pathSaved} onClick={() => {
 						let miss = []
 						for (const [i, value] of props.getters.path.entries()) {
 							if (!value.alt && value.cmd !== Commands.jump) {
@@ -105,12 +105,12 @@ const FlightPlanToolbar = props => {
 
 						savePath(props.getters.path)
 					}}>Click to save</Button>
-					<Button style={{ "width": "11.5em" }} disabled={props.saved} onClick={() => {
+					<Button style={{ "width": "11.5em" }} disabled={props.getters.pathSaved} onClick={() => {
 						console.log(props.getters.pathSave)
 						props.setters.path(structuredClone(props.getters.pathSave))
-						props.setSaved(true)
+						props.setters.pathSaved(true)
 					}}>Discard Changes</Button>
-					{props.saved ? null :
+					{props.getters.pathSaved ? null :
 						<span style={{ color: red }}>You have unsaved points!</span>
 					}
 			</div>
