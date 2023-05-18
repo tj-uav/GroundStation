@@ -49,6 +49,7 @@ const FlightData = () => {
 		{lat: 38.31442311312976, lng: -76.54522971451763}
 	])
 	const [uav, setUav] = useState({})
+	const [homeLocation, setHomeLocation] = useState({})
 
 	const [path, setPath] = useState([])
 	const [pathSave, setPathSave] = useState([]) // only used for discarding changes
@@ -63,6 +64,7 @@ const FlightData = () => {
 		flightBoundary: flightBoundary,
 		airdropBoundary: airdropBoundary,
 		uav: uav,
+		homeLocation: homeLocation,
 		path: path,
 		pathSave: pathSave,
 		pathSaved: pathSaved,
@@ -76,6 +78,7 @@ const FlightData = () => {
 		flightBoundary: setFlightBoundary,
 		airdropBoundary: setAirdropBoundary,
 		uav: setUav,
+		homeLocation: setHomeLocation,
 		path: setPath,
 		pathSave: setPathSave,
 		pathSaved: setPathSaved,
@@ -98,13 +101,21 @@ const FlightData = () => {
 	}
 
 	useInterval(500, () => {
-		httpget("/uav/quick", response => setUav({
-			latlng: {
-				lat: response.data.result.lat,
-				lng: response.data.result.lon
-			},
-			heading: response.data.result.orientation.yaw
-		}))
+		httpget("/uav/quick", response => {
+			setUav({
+				latlng: {
+					lat: response.data.result.lat,
+					lng: response.data.result.lon
+				},
+				heading: response.data.result.orientation.yaw
+			})
+			setHomeLocation({
+				latlng: {
+					lat: response.data.result.home_location.lat,
+					lng: response.data.result.home_location.lon
+				}
+			})
+		})
 	})
 
 	return (

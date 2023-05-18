@@ -108,8 +108,8 @@ const Main = () => {
 						<Box label="Distance" content={AdistFromHome.toFixed(2) + " ft"} title="The distance from the plane to its Home location." />
 					</Row>
 					<Row>
-						<Box label="Ebay Batt" content={AebayBattery.toFixed(2) + "V"} />
-						<Box label="Flight Batt" content={AflightBattery.toFixed(2) + "V"} />
+						<Box label="Flight Battery" content={AflightBattery.toFixed(2) + "V"} />
+						<Box label="Ebay Battery" content={AebayBattery.toFixed(2) + "V"} />
 					</Row>
 				</Row>
 				<Row style={{ gap: "1rem" }}>
