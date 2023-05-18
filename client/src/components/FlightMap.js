@@ -315,7 +315,7 @@ const FlightPlanMap = props => {
 		return (
 			<div>
 				Altitude (feet)
-				<Box style={{ "width": "12em", "margin-right": "4em", "height": "3em" }} editable={true} content={marker?.alt} onChange={v => signedFloatValidation(v, marker.alt, (k) => {
+				<Box style={{ "width": "12em", "margin-right": "4em", "height": "3em" }} editable={true} placeholder={"---"} content={marker?.alt} onChange={v => signedFloatValidation(v, marker.alt, (k) => {
 					let path = props.getters.path
 					props.setters.path([...path.slice(0, i), { ...marker, alt: k }, ...path.slice(i + 1)])
 				})} />
@@ -441,7 +441,7 @@ const FlightPlanMap = props => {
 											{popup({...marker, lng: (props.getters.path[j].lng + props.getters.path[marker.p1 - 1].lng)/2, lat: (props.getters.path[j].lat + props.getters.path[marker.p1 - 1].lat)/2}, marker.num, "jump", (
 												<div>
 													Jump from {i} to {marker.p1}
-													<MarkerPopup marker={marker} i={i} />
+													{MarkerPopup({marker: marker, i: i})}
 												</div>
 											), true)}
 										</>
@@ -450,28 +450,26 @@ const FlightPlanMap = props => {
 									return popup(marker, marker.num, "unlim", (
 										<div>
 											Unlimited Loiter Point
-											<MarkerPopup marker={marker} i={i} />
+											{MarkerPopup({marker: marker, i: i})}
 										</div>
 									), true)
 								} else if (marker.cmd === Commands.turnLoiter) {
 									return popup(marker, marker.num, "turn", (
 										<div>
 											Turn Loiter
-											<MarkerPopup marker={marker} i={i} />
+											{MarkerPopup({marker: marker, i: i})}
 										</div>
 									), true)
 								} else if (marker.cmd === Commands.timeLoiter) {
 									return popup(marker, marker.num, "time", (
 										<div>
 											Time Loiter
-											<MarkerPopup marker={marker} i={i} />
+											{MarkerPopup({marker: marker, i: i})}
 										</div>
 									), true)
 								}
 
-								return popup(marker, marker.num, "path", (
-									<MarkerPopup  marker={marker} i={i} />
-								), true)
+								return popup(marker, marker.num, "path", MarkerPopup({marker: marker, i: i}), true)
 							})}
 						</LayerGroup>
 					</LayersControl.Overlay>
