@@ -89,19 +89,14 @@ const FlightPlanMap = props => {
 			}
 		})
 		setIcons({
-			waypoints: new MarkerIcon({ iconUrl: "../assets/icon-waypoints.png" }),
-			fence: new MarkerIcon({ iconUrl: "../assets/icon-fence.png" }),
-			ugvFence: new MarkerIcon({ iconUrl: "../assets/icon-ugvFence.png" }),
-			ugvDrop: new MarkerIcon({ iconUrl: "../assets/icon-ugvDrop.png" }),
-			ugvDrive: new MarkerIcon({ iconUrl: "../assets/icon-ugvDrive.png" }),
-			offAxis: new MarkerIcon({ iconUrl: "../assets/icon-offAxis.png" }),
+			flightBoundary: new MarkerIcon({ iconUrl: "../assets/icon-flightBoundary.png" }),
 			airdropBoundary: new MarkerIcon({ iconUrl: "../assets/icon-airdropBoundary.png" }),
-			path: new MarkerIcon({ iconUrl: "../assets/icon-path.png" }),
 			home: new MarkerIcon({ iconUrl: "../assets/icon-home.png" }),
 			unlim: new MarkerIcon({ iconUrl: "../assets/icon-unlim.png" }),
-			time: new MarkerIcon({ iconUrl: "../assets/icon-time.png" }),
 			turn: new MarkerIcon({ iconUrl: "../assets/icon-turn.png" }),
-			jump: new MarkerIcon({ iconUrl: "../assets/icon-waypoints.png" }),
+			time: new MarkerIcon({ iconUrl: "../assets/icon-time.png" }),
+			path: new MarkerIcon({ iconUrl: "../assets/icon-path.png" }),
+			jump: new MarkerIcon({ iconUrl: "../assets/icon-jump.png" }),
 			uav: new VehicleIcon({ iconUrl: "../assets/uav.svg" }),
 			uavDirection: new DirectionPointerIcon({ iconUrl: "../assets/pointer.svg" }),
 			uavDirectionOutline: new DirectionPointerIcon({ iconUrl: "../assets/pointer-outline.svg" }),
@@ -399,9 +394,9 @@ const FlightPlanMap = props => {
 					{ /* Need for SUAS: geofence, airdrop, uav, mission path */ }
 					<LayersControl.Overlay checked name={props.display.flightBoundary}>
 						<LayerGroup>
-							<Polyline positions={circle(props.getters.flightBoundary)} color="#0000FF" />
+							<Polyline positions={circle(props.getters.flightBoundary)} color="#000000" />
 							{props.getters.flightBoundary.map((marker, index) => {
-								return popup(marker, index, "fence")
+								return popup(marker, index, "flightBoundary")
 							})}
 						</LayerGroup>
 					</LayersControl.Overlay>

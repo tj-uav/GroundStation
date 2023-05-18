@@ -25,8 +25,29 @@ TODO: Display list highlighting (and vice versa)
 */
 
 const FlightData = () => {
-	const [flightBoundary, setFlightBoundary] = useState([])
-	const [airdropBoundary, setAirdropBoundary] = useState([])
+	const [flightBoundary, setFlightBoundary] = useState([
+		{lat: 38.31729702009844, lng: -76.55617670782419},
+		{lat: 38.31594832826572, lng: -76.55657341657302},
+		{lat: 38.31546739500083, lng: -76.55376201277696},
+		{lat: 38.31470980862425, lng: -76.54936361414539},
+		{lat: 38.31424154692598, lng: -76.54662761646904},
+		{lat: 38.31369801280048, lng: -76.54342380058223},
+		{lat: 38.31331079191371, lng: -76.54109648475954},
+		{lat: 38.31529941346197, lng: -76.54052104837133},
+		{lat: 38.31587643291039, lng: -76.54361305817427},
+		{lat: 38.31861642463319, lng: -76.54538594175376},
+		{lat: 38.31862683616554, lng: -76.55206138505936},
+		{lat: 38.31703471119464, lng: -76.55244787859773},
+		{lat: 38.31674255749409, lng: -76.55294546866578},
+		{lat: 38.31729702009844, lng: -76.55617670782419}
+	])
+	const [airdropBoundary, setAirdropBoundary] = useState([
+		{lat: 38.31442311312976, lng: -76.54522971451763},
+		{lat: 38.31421041772561, lng: -76.54400246436776},
+		{lat: 38.3144070396263, lng: -76.54394394383165},
+		{lat: 38.31461622313521, lng: -76.54516993186949},
+		{lat: 38.31442311312976, lng: -76.54522971451763}
+	])
 	const [uav, setUav] = useState({})
 
 	const [path, setPath] = useState([])

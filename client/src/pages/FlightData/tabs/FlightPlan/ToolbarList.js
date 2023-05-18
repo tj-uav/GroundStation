@@ -11,7 +11,7 @@ const getItemsList = (mode, data, display) => {
 	let ret = []
 	switch (mode) {
 		case "waypoints":
-		case "fence":
+		case "flightBoundary":
 			for (let idx in data) {
 				let sigfig = [data[idx][0].toFixed(3), data[idx][1].toFixed(3)]
 				let displayIdx = parseInt(idx) + 1
