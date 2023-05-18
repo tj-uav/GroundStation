@@ -231,6 +231,8 @@ const FlightPlanMap = props => {
 			let get = props.getters["path"]
 			let set = props.setters["path"]
 
+			props.setSaved(false);
+
 			if (props.getters.placementMode === "push" || (props.getters.placementMode === "insert" && get.length < 2)) {
 				let temp = get.slice()
 				let point = { lat: event.latlng.lat, lng: event.latlng.lng, opacity: 0.5, num: get.length + (get[0]?.num === 0 ? -1 : 1), cmd: Commands[props.getters.mode] }
