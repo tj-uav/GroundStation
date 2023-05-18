@@ -160,6 +160,7 @@ class UAVHandler:
             self.dist_to_wp,
             self.dist_to_home,
             self.battery,
+            self.home,
             self.lat,
             self.lon,
             self.connection,
@@ -170,7 +171,7 @@ class UAVHandler:
             self.params,
             self.gps,
             self.servo_outputs,
-        ) = [None] * 18
+        ) = [None] * 19
         self.mode = VehicleMode("MANUAL")
         self.commands = []
         self.armed = False
@@ -238,6 +239,7 @@ class UAVHandler:
             self.air_speed = self.vehicle.airspeed * self.mps_to_mph
             self.gps = self.vehicle.gps_0
             self.connection = [self.gps.eph, self.gps.epv, self.gps.satellites_visible]
+            self.home = {"lat": self.vehicle.home_location.lat, "lon": self.vehicle.home_location.lon}
             self.lat = loc.lat
             self.lon = loc.lon
             self.waypoint_index = self.vehicle.commands.next - 1
@@ -253,11 +255,11 @@ class UAVHandler:
             except IndexError:
                 self.dist_to_wp = -1
             x_dist_to_home = (
-                (self.vehicle.home_location.lat - self.lat)
+                (self.home[0] - self.lat)
                 * (math.cos(self.lat * math.pi / 180) * 69.172)
                 * 5280
             )
-            y_dist_to_home = (self.vehicle.home_location.lon - self.lon) * 69.172 * 5280
+            y_dist_to_home = (self.home[1] - self.lon) * 69.172 * 5280
             self.dist_to_home = math.sqrt(x_dist_to_home**2 + y_dist_to_home**2)
             self.waypoint = [self.waypoint_index, self.dist_to_wp]
             self.mode = self.vehicle.mode
@@ -274,6 +276,7 @@ class UAVHandler:
                     "altitude": self.altitude,
                     "altitude_global": self.altitude_global,
                     "orientation": self.orientation,
+                    "home_location": self.home,
                     "lat": self.lat,
                     "lon": self.lon,
                     "ground_speed": self.ground_speed,
