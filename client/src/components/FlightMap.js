@@ -190,6 +190,7 @@ const FlightPlanMap = props => {
 	const popup = (latlng, key, datatype, popupMenu, draggable) => {
 		return (
 			<Marker
+				datatype={datatype}
 				icon={icons[datatype]}
 				position={latlng}
 				eventHandlers={{
@@ -215,24 +216,15 @@ const FlightPlanMap = props => {
 		)
 	}
 
-	const singlePopup = (marker, type, draggable) => {
-		return (
-			<Marker icon={icons[type]} position={marker} draggable={draggable} opacity={marker.opacity}>
-				<Tooltip>
-					{props.display[type]} ({marker.lat.toFixed(5)}, {marker.lng.toFixed(5)})
-				</Tooltip>
-			</Marker>)
-	}
-
 	const handleClick = event => {
 		if (props.getters.placementMode === "disabled" || props.getters.mode === "jump") {
 			return
 		}
 		if (props.getters.mode) {
-			let get = props.getters["path"]
-			let set = props.setters["path"]
+			let get = props.getters.path
+			let set = props.setters.path
 
-			props.setSaved(false);
+			props.setters.pathSaved(false);
 
 			if (props.getters.placementMode === "push" || (props.getters.placementMode === "insert" && get.length < 2)) {
 				let temp = get.slice()
@@ -312,9 +304,10 @@ const FlightPlanMap = props => {
 		return null;
 	};
 
-	const MarkerPopup = ({ marker, i }) => {
+	const MarkerPopup = ({ marker, i, datatype }) => {
 		return (
 			<div>
+				<br />
 				Latitude
 				<Box style={{ "width": "12em", "margin-right": "4em", "height": "3em" }} editable={true} placeholder={"---"} content={marker?.lat} onChange={v => signedFloatValidation(v, marker.lat, (k) => {
 					let path = props.getters.path
@@ -431,7 +424,7 @@ const FlightPlanMap = props => {
 						{props.getters.uav.heading == null ? null : (
 							<LayerGroup>
 								<RotatedMarker icon={icons.uavDirection} position={props.getters.uav.latlng} rotationAngle={props.getters.uav.heading} rotationOrigin={"50% 100%"} />
-								<Marker icon={icons.uav} position={props.getters.uav.latlng}>
+								<Marker datatype="uav" icon={icons.uav} position={props.getters.uav.latlng}>
 									<Tooltip>
 										UAV ({props.getters.uav.latlng.lat.toFixed(5)}, {props.getters.uav.latlng.lng.toFixed(5)})
 									</Tooltip>
@@ -441,7 +434,7 @@ const FlightPlanMap = props => {
 						)}
 						{props.getters.home.lat == null ? null : (
 							<LayerGroup>
-								<Marker icon={icons.home} position={props.getters.home}>
+								<Marker datatype="home" icon={icons.home} position={props.getters.home}>
 									<Tooltip>
 										Home ({props.getters.home.lat.toFixed(5)}, {props.getters.home.lng.toFixed(5)})
 									</Tooltip>
@@ -450,7 +443,7 @@ const FlightPlanMap = props => {
 						)}
 						{props.getters.water.lat == null ? null : (
 							<LayerGroup>
-								<Marker icon={icons.water} position={props.getters.water}>
+								<Marker datatype="water" icon={icons.water} position={props.getters.water}>
 									<Tooltip>
 										Water ({props.getters.water.lat.toFixed(5)}, {props.getters.water.lng.toFixed(5)})
 									</Tooltip>
@@ -475,36 +468,41 @@ const FlightPlanMap = props => {
 											<PolylineDecorator layer="Mission Path" positions={[props.getters.path[j], props.getters.path[marker.p1 - 1]]} color="#17e3cb" decoratorColor="#61e8d9" />
 											{popup({...marker, lng: (props.getters.path[j].lng + props.getters.path[marker.p1 - 1].lng)/2, lat: (props.getters.path[j].lat + props.getters.path[marker.p1 - 1].lat)/2}, marker.num, "jump", (
 												<div>
-													Jump from {i} to {marker.p1}
-													{MarkerPopup({marker: marker, i: i})}
+													<h5>Jump from {i} to {marker.p1}</h5>
+													{MarkerPopup({marker: marker, i: i, datatype: "jump"})}
 												</div>
-											), true)}
+											), false)}
 										</>
 									)
 								} else if (marker.cmd === Commands.unlimLoiter) {
 									return popup(marker, marker.num, "unlim", (
 										<div>
-											Unlimited Loiter Point
-											{MarkerPopup({marker: marker, i: i})}
+											<h5>Unlimited Loiter {i}</h5>
+											{MarkerPopup({marker: marker, i: i, datatype: "unlim"})}
 										</div>
 									), true)
 								} else if (marker.cmd === Commands.turnLoiter) {
 									return popup(marker, marker.num, "turn", (
 										<div>
-											Turn Loiter
-											{MarkerPopup({marker: marker, i: i})}
+											<h5>Turn Loiter {i}</h5>
+											{MarkerPopup({marker: marker, i: i, datatype: "turn"})}
 										</div>
 									), true)
 								} else if (marker.cmd === Commands.timeLoiter) {
 									return popup(marker, marker.num, "time", (
 										<div>
-											Time Loiter
-											{MarkerPopup({marker: marker, i: i})}
+											<h5>Time Loiter {i}</h5>
+											{MarkerPopup({marker: marker, i: i, datatype: "time"})}
 										</div>
 									), true)
 								}
 
-								return popup(marker, marker.num, "path", MarkerPopup({marker: marker, i: i}), true)
+								return popup(marker, marker.num, "path", (
+									<div>
+										<h6>Mission Path Waypoint {i + 1}</h6>
+										{MarkerPopup({marker: marker, i: i, datatype: "path"})}
+									</div>
+								), true)
 							})}
 						</LayerGroup>
 					</LayersControl.Overlay>
