@@ -277,7 +277,7 @@ class UAVHandler:
                     "altitude": self.altitude,
                     "altitude_global": self.altitude_global,
                     "orientation": self.orientation,
-                    "home_location": self.home,
+                    "home": self.home,
                     "lat": self.lat,
                     "lon": self.lon,
                     "ground_speed": self.ground_speed,
@@ -610,6 +610,7 @@ class DummyUAVHandler(UAVHandler):
         ]
         self.lat = random.randint(-90, 90)
         self.lon = random.randint(-180, 180)
+        self.home = {"lat": self.lat, "lon": self.lon}
         self.waypoint_index = random.randint(0, 10)
         self.dist_to_wp = random.randint(0, 1000)
         self.dist_to_home = random.randint(0, 1000)
@@ -641,6 +642,8 @@ class DummyUAVHandler(UAVHandler):
             self.connection[2] = abs(self.connection[2] + random.randint(-1, 1))
             self.lat += random.randint(-1, 1)
             self.lon += random.randint(-1, 1)
+            self.home["lat"] += random.randint(-1, 1)
+            self.home["lon"] += random.randint(-1, 1)
             self.waypoint_index = abs(self.waypoint_index + random.randint(-1, 1))
             self.dist_to_wp = abs(self.dist_to_wp + random.randint(-10, 10))
             self.dist_to_home = abs(self.dist_to_home + random.randint(-10, 10))

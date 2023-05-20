@@ -49,7 +49,7 @@ const FlightData = () => {
 		{lat: 38.31442311312976, lng: -76.54522971451763}
 	])
 	const [uav, setUav] = useState({})
-	const [homeLocation, setHomeLocation] = useState({})
+	const [home, setHome] = useState({})
 
 	const [path, setPath] = useState([])
 	const [pathSave, setPathSave] = useState([]) // only used for discarding changes
@@ -64,7 +64,7 @@ const FlightData = () => {
 		flightBoundary: flightBoundary,
 		airdropBoundary: airdropBoundary,
 		uav: uav,
-		homeLocation: homeLocation,
+		home: home,
 		path: path,
 		pathSave: pathSave,
 		pathSaved: pathSaved,
@@ -78,7 +78,7 @@ const FlightData = () => {
 		flightBoundary: setFlightBoundary,
 		airdropBoundary: setAirdropBoundary,
 		uav: setUav,
-		homeLocation: setHomeLocation,
+		home: setHome,
 		path: setPath,
 		pathSave: setPathSave,
 		pathSaved: setPathSaved,
@@ -109,11 +109,9 @@ const FlightData = () => {
 				},
 				heading: response.data.result.orientation.yaw
 			})
-			setHomeLocation({
-				latlng: {
-					lat: response.data.result.home_location.lat,
-					lng: response.data.result.home_location.lon
-				}
+			setHome({
+				lat: response.data.result.home.lat,
+				lng: response.data.result.home.lon
 			})
 		})
 	})

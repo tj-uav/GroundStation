@@ -422,6 +422,15 @@ const FlightPlanMap = props => {
 								<RotatedMarker icon={icons.uavDirectionOutline} position={props.getters.uav.latlng} rotationAngle={props.getters.uav.heading} rotationOrigin={"50% 100%"} />
 							</LayerGroup>
 						)}
+						{props.getters.home.lat == null ? null : (
+							<LayerGroup>
+								<Marker icon={icons.home} position={props.getters.home}>
+									<Tooltip>
+										UAV ({props.getters.home.lat.toFixed(5)}, {props.getters.home.lng.toFixed(5)})
+									</Tooltip>
+								</Marker>
+							</LayerGroup>
+						)}
 					</LayersControl.Overlay>
 					<LayersControl.Overlay checked name={props.display.path}>
 						<LayerGroup>
