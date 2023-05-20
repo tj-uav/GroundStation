@@ -114,8 +114,8 @@ const FlightData = () => {
 				heading: response.data.result.orientation.yaw
 			})
 			setWater({
-				lat: 20.0,
-				lng: 20.0
+				lat: response.data.result.lat + 0.1 * response.data.result.ground_speed * Math.sin(response.data.result.orientation.yaw * Math.PI / 180),
+				lng: response.data.result.lon + 0.1 * response.data.result.ground_speed * Math.cos(response.data.result.orientation.yaw * Math.PI / 180)
 			})
 			setHome({
 				lat: response.data.result.home.lat,
