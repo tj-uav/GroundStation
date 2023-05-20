@@ -26,7 +26,12 @@ const FlightPlanToolbar = props => {
 		props.setters.pathSave(path)
 		props.setters.pathSaved(true)
 
-		httppost("/uav/commands/generate", { "waypoints": path.map(waypoint => ({ ...waypoint, lat: waypoint.lat ?? 0.0, lon: waypoint.lng ?? 0.0, alt: (waypoint.alt ?? 0.0) / 3.281 })) }) // convert feet to meters for altitude
+		httppost("/uav/commands/generate", {"waypoints": path.map(waypoint => ({
+				...waypoint,
+				lat: waypoint.lat ?? 0.0,
+				lon: waypoint.lng ?? 0.0,
+				alt: (waypoint.alt ?? 0.0) / 3.281
+		})) }) // convert feet to meters for altitude
 	}
 
 	return (

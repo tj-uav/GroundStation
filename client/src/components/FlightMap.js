@@ -165,8 +165,7 @@ const FlightPlanMap = props => {
 				setFirstJump(key)
 			} else {
 				let path = props.getters.path.slice()
-				let point = { num: firstJump + 1, cmd: Commands.jump, p1: key + (key < firstJump ? 0 : 1), p2: 3 }
-				props.setters.pathSaved(false)
+				let point = { num: firstJump + 1, cmd: Commands.jump, p1: key + (key < firstJump ? 0 : 1), p2: 999 }
 				props.setters.path([...path.slice(0, firstJump).map(p => {
 					if (p.cmd == Commands.jump) {
 						if (p.p1 > firstJump) {
@@ -183,6 +182,7 @@ const FlightPlanMap = props => {
 					return p
 				})])
 				setFirstJump(EMPTY_JUMP)
+				props.setters.pathSaved(false)
 			}
 		}
 	}
