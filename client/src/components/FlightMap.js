@@ -40,7 +40,6 @@ const signedFloatValidation = (v, value, set) => {
 }
 
 const positiveSignedIntValidation = (v, value, set) => {
-	console.log(v)
 	if (Number.isInteger(Number(v)) && v.length > 0 && !v.startsWith("-")) {
 		set(Number(v))
 		return v
@@ -345,10 +344,24 @@ const FlightPlanMap = props => {
 				</div>}
 				{datatype === "jump" && <div>
 					<br />
-					Waypoint to jump to
+					Jump From
+					<Box style={{ "width": "12em", "margin-right": "4em", "height": "3em" }} editable={false} placeholder={"---"} content={i} onChange={v => positiveSignedIntValidation(v, marker.p0, (k) => {
+						let path = props.getters.path
+						props.setters.path([...path.slice(0, i), {...marker, p0: k}, ...path.slice(i + 1)])
+						props.setters.pathSaved(false)
+					})} />
+					<br />
+					Jump To
 					<Box style={{ "width": "12em", "margin-right": "4em", "height": "3em" }} editable={true} placeholder={"---"} content={marker?.p1} onChange={v => positiveSignedIntValidation(v, marker.p1, (k) => {
 						let path = props.getters.path
 						props.setters.path([...path.slice(0, i), { ...marker, p1: k }, ...path.slice(i + 1)])
+						props.setters.pathSaved(false)
+					})} />
+					<br />
+					Repeat
+					<Box style={{ "width": "12em", "margin-right": "4em", "height": "3em" }} editable={true} placeholder={"---"} content={marker?.p2} onChange={v => positiveSignedIntValidation(v, marker.p2, (k) => {
+						let path = props.getters.path
+						props.setters.path([...path.slice(0, i), { ...marker, p2: k}, ...path.slice(i + 1)])
 						props.setters.pathSaved(false)
 					})} />
 				</div>}
@@ -492,7 +505,7 @@ const FlightPlanMap = props => {
 											<PolylineDecorator layer="Mission Path" positions={[props.getters.path[j], props.getters.path[marker.p1 - 1]]} color="#17e3cb" decoratorColor="#61e8d9" />
 											{popup({...marker, lng: (props.getters.path[j].lng + props.getters.path[marker.p1 - 1].lng)/2, lat: (props.getters.path[j].lat + props.getters.path[marker.p1 - 1].lat)/2}, marker.num, "jump", (
 												<div>
-													<h5>Jump from {i} to {marker.p1}</h5>
+													<h5>Jump</h5>
 													{MarkerPopup({marker: marker, i: i, datatype: "jump"})}
 												</div>
 											), false)}
