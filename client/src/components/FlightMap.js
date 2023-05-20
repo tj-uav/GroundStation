@@ -39,6 +39,19 @@ const signedFloatValidation = (v, value, set) => {
 	return value
 }
 
+const positiveSignedIntValidation = (v, value, set) => {
+	console.log(v)
+	if (Number.isInteger(Number(v)) && v.length > 0 && !v.startsWith("-")) {
+		set(Number(v))
+		return v
+	} else if (v.length === 0) {
+		set(null)
+		return v
+	}
+
+	return value
+}
+
 const EMPTY_JUMP = -1
 
 const FlightPlanMap = props => {
@@ -307,27 +320,38 @@ const FlightPlanMap = props => {
 	const MarkerPopup = ({ marker, i, datatype }) => {
 		return (
 			<div>
-				<br />
-				Latitude
-				<Box style={{ "width": "12em", "margin-right": "4em", "height": "3em" }} editable={true} placeholder={"---"} content={marker?.lat} onChange={v => signedFloatValidation(v, marker.lat, (k) => {
-					let path = props.getters.path
-					props.setters.path([...path.slice(0, i), { ...marker, lat: k }, ...path.slice(i + 1)])
-					props.setters.pathSaved(false)
-				})} />
-				<br />
-				Longitude
-				<Box style={{ "width": "12em", "margin-right": "4em", "height": "3em" }} editable={true} placeholder={"---"} content={marker?.lng} onChange={v => signedFloatValidation(v, marker.lng, (k) => {
-					let path = props.getters.path
-					props.setters.path([...path.slice(0, i), { ...marker, lng: k }, ...path.slice(i + 1)])
-					props.setters.pathSaved(false)
-				})} />
-				<br />
-				Altitude (feet)
-				<Box style={{ "width": "12em", "margin-right": "4em", "height": "3em" }} editable={true} placeholder={"---"} content={marker?.alt} onChange={v => signedFloatValidation(v, marker.alt, (k) => {
-					let path = props.getters.path
-					props.setters.path([...path.slice(0, i), { ...marker, alt: k }, ...path.slice(i + 1)])
-					props.setters.pathSaved(false)
-				})} />
+				{datatype !== "jump" && <div>
+					<br />
+					Latitude
+					<Box style={{ "width": "12em", "margin-right": "4em", "height": "3em" }} editable={true} placeholder={"---"} content={marker?.lat} onChange={v => signedFloatValidation(v, marker.lat, (k) => {
+						let path = props.getters.path
+						props.setters.path([...path.slice(0, i), { ...marker, lat: k }, ...path.slice(i + 1)])
+						props.setters.pathSaved(false)
+					})} />
+					<br />
+					Longitude
+					<Box style={{ "width": "12em", "margin-right": "4em", "height": "3em" }} editable={true} placeholder={"---"} content={marker?.lng} onChange={v => signedFloatValidation(v, marker.lng, (k) => {
+						let path = props.getters.path
+						props.setters.path([...path.slice(0, i), { ...marker, lng: k }, ...path.slice(i + 1)])
+						props.setters.pathSaved(false)
+					})} />
+					<br />
+					Altitude (feet)
+					<Box style={{ "width": "12em", "margin-right": "4em", "height": "3em" }} editable={true} placeholder={"---"} content={marker?.alt} onChange={v => signedFloatValidation(v, marker.alt, (k) => {
+						let path = props.getters.path
+						props.setters.path([...path.slice(0, i), { ...marker, alt: k }, ...path.slice(i + 1)])
+						props.setters.pathSaved(false)
+					})} />
+				</div>}
+				{datatype === "jump" && <div>
+					<br />
+					Waypoint to jump to
+					<Box style={{ "width": "12em", "margin-right": "4em", "height": "3em" }} editable={true} placeholder={"---"} content={marker?.p1} onChange={v => positiveSignedIntValidation(v, marker.p1, (k) => {
+						let path = props.getters.path
+						props.setters.path([...path.slice(0, i), { ...marker, p1: k }, ...path.slice(i + 1)])
+						props.setters.pathSaved(false)
+					})} />
+				</div>}
 				<br />
 				<Button style={{ "margin-top": "0.5em" }} color={red} onClick={() => {
 					const map = (p, j) => {
