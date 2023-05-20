@@ -50,6 +50,7 @@ const FlightData = () => {
 	])
 	const [uav, setUav] = useState({})
 	const [home, setHome] = useState({})
+	const [water, setWater] = useState({})
 
 	const [path, setPath] = useState([])
 	const [pathSave, setPathSave] = useState([]) // only used for discarding changes
@@ -67,6 +68,7 @@ const FlightData = () => {
 		home: home,
 		path: path,
 		pathSave: pathSave,
+		water: water,
 		pathSaved: pathSaved,
 		mode: mode,
 		previousMode: previousMode,
@@ -85,6 +87,7 @@ const FlightData = () => {
 		mode: setMode,
 		previousMode: setPreviousMode,
 		placementMode: setPlacementMode,
+		water: setWater,
 		defaultAlt: setDefaultAlt
 	}
 
@@ -97,7 +100,8 @@ const FlightData = () => {
 		turn: "Turn Loiter",
 		time: "Time Loiter",
 		jump: "Jump",
-		uav: "UAV"
+		uav: "UAV",
+		water: "Bottle Drop",
 	}
 
 	useInterval(500, () => {
@@ -108,6 +112,10 @@ const FlightData = () => {
 					lng: response.data.result.lon
 				},
 				heading: response.data.result.orientation.yaw
+			})
+			setWater({
+				lat: 20.0,
+				lng: 20.0
 			})
 			setHome({
 				lat: response.data.result.home.lat,

@@ -100,6 +100,7 @@ const FlightPlanMap = props => {
 			uav: new VehicleIcon({ iconUrl: "../assets/uav.svg" }),
 			uavDirection: new DirectionPointerIcon({ iconUrl: "../assets/pointer.svg" }),
 			uavDirectionOutline: new DirectionPointerIcon({ iconUrl: "../assets/pointer-outline.svg" }),
+			water: new VehicleIcon({ iconUrl: "../assets/water-drop.svg" }),
 		})
 
 		window.addEventListener("offline", () => {
@@ -426,7 +427,16 @@ const FlightPlanMap = props => {
 							<LayerGroup>
 								<Marker icon={icons.home} position={props.getters.home}>
 									<Tooltip>
-										UAV ({props.getters.home.lat.toFixed(5)}, {props.getters.home.lng.toFixed(5)})
+										Home ({props.getters.home.lat.toFixed(5)}, {props.getters.home.lng.toFixed(5)})
+									</Tooltip>
+								</Marker>
+							</LayerGroup>
+						)}
+						{props.getters.water.lat == null ? null : (
+							<LayerGroup>
+								<Marker icon={icons.water} position={props.getters.water}>
+									<Tooltip>
+										Water ({props.getters.water.lat.toFixed(5)}, {props.getters.water.lng.toFixed(5)})
 									</Tooltip>
 								</Marker>
 							</LayerGroup>
