@@ -315,11 +315,27 @@ const FlightPlanMap = props => {
 	const MarkerPopup = ({ marker, i }) => {
 		return (
 			<div>
+				Latitude
+				<Box style={{ "width": "12em", "margin-right": "4em", "height": "3em" }} editable={true} placeholder={"---"} content={marker?.lat} onChange={v => signedFloatValidation(v, marker.lat, (k) => {
+					let path = props.getters.path
+					props.setters.path([...path.slice(0, i), { ...marker, lat: k }, ...path.slice(i + 1)])
+					props.setters.pathSaved(false)
+				})} />
+				<br />
+				Longitude
+				<Box style={{ "width": "12em", "margin-right": "4em", "height": "3em" }} editable={true} placeholder={"---"} content={marker?.lng} onChange={v => signedFloatValidation(v, marker.lng, (k) => {
+					let path = props.getters.path
+					props.setters.path([...path.slice(0, i), { ...marker, lng: k }, ...path.slice(i + 1)])
+					props.setters.pathSaved(false)
+				})} />
+				<br />
 				Altitude (feet)
 				<Box style={{ "width": "12em", "margin-right": "4em", "height": "3em" }} editable={true} placeholder={"---"} content={marker?.alt} onChange={v => signedFloatValidation(v, marker.alt, (k) => {
 					let path = props.getters.path
 					props.setters.path([...path.slice(0, i), { ...marker, alt: k }, ...path.slice(i + 1)])
+					props.setters.pathSaved(false)
 				})} />
+				<br />
 				<Button style={{ "margin-top": "0.5em" }} color={red} onClick={() => {
 					const map = (p, j) => {
 						if (p == null) {
