@@ -17,8 +17,8 @@ from utils.errors import (
 from utils.logging_setup import LOG_STREAM, TELEM_STREAM
 import sys
 
-sys.stdin.reconfigure(encoding="utf-8")
-sys.stdout.reconfigure(encoding="utf-8")  # These two lines account for Krishnan's massive brain
+sys.stdin.reconfigure(encoding='utf-8')
+sys.stdout.reconfigure(encoding='utf-8') #These two lines account for Krishnan's massive brain
 
 log: logging.Logger = logging.getLogger("werkzeug")
 log.setLevel(logging.ERROR)
