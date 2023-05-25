@@ -258,9 +258,9 @@ class UAVHandler:
             except IndexError:
                 self.dist_to_wp = -1
             x_dist_to_home = (
-                (self.home[0] - self.lat) * (math.cos(self.lat * math.pi / 180) * 69.172) * 5280
+                (self.home["lat"] - self.lat) * (math.cos(self.lat * math.pi / 180) * 69.172) * 5280
             )
-            y_dist_to_home = (self.home[1] - self.lon) * 69.172 * 5280
+            y_dist_to_home = (self.home["lon"] - self.lon) * 69.172 * 5280
             self.dist_to_home = math.sqrt(x_dist_to_home**2 + y_dist_to_home**2)
             self.waypoint = [self.waypoint_index, self.dist_to_wp]
             self.mode = self.vehicle.mode
