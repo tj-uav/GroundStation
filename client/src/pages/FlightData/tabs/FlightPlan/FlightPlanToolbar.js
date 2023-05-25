@@ -50,7 +50,7 @@ const FlightPlanToolbar = props => {
 				}}>Set as default ({props.getters.defaultAlt} ft)</Button></ModalBody>
 			</Modal>
 			<div style={{ marginBottom: "1rem", width: "10em" }}>
-				<Dropdown initial={"Push"} onChange={(v) => {
+				<Dropdown initial={"Disabled"} onChange={(v) => {
 					props.setters.placementMode(v)
 				}}>
 					<span value="disabled">Disable</span>

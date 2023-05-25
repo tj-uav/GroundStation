@@ -58,7 +58,7 @@ const FlightData = () => {
 
 	const [mode, setMode] = useState("waypoint")
 	const [previousMode, setPreviousMode] = useState("disabled")
-	const [placementMode, setPlacementMode] = useState("push")
+	const [placementMode, setPlacementMode] = useState("disabled")
 	const [defaultAlt, setDefaultAlt] = useState(125)
 
 	const getters = {
