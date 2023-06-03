@@ -342,6 +342,24 @@ const FlightPlanMap = props => {
 						props.setters.pathSaved(false)
 					})} />
 					{datatype !== "path" && <div>
+						{datatype === "turn" && <div>
+							<br />
+							# of Turns
+							<Box style={{ "width": "12em", "margin-right": "4em", "height": "3em" }} editable={true} placeholder={"---"} content={marker?.p1} onChange={v => positiveSignedIntValidation(v, marker.p1, (k) => {
+								let path = props.getters.path
+								props.setters.path([...path.slice(0, i), { ...marker, p1: k }, ...path.slice(i + 1)])
+								props.setters.pathSaved(false)
+							})} />
+						</div>}
+						{datatype === "time" && <div>
+							<br />
+							Time (seconds)
+							<Box style={{ "width": "12em", "margin-right": "4em", "height": "3em" }} editable={true} placeholder={"---"} content={marker?.p1} onChange={v => positiveSignedIntValidation(v, marker.p1, (k) => {
+								let path = props.getters.path
+								props.setters.path([...path.slice(0, i), { ...marker, p1: k }, ...path.slice(i + 1)])
+								props.setters.pathSaved(false)
+							})} />
+						</div>}
 						<br />
 						Radius (feet)
 						<Box style={{ "width": "12em", "margin-right": "4em", "height": "3em" }} editable={true} placeholder={"---"} content={marker?.p3} onChange={v => signedFloatValidation(v, marker.p3, (k) => {
