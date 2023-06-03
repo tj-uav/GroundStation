@@ -65,10 +65,10 @@ const Main = () => {
 			}}
 		>
 			<StyledDiv>
-				<Label className="paragraph" style={{ "font-size": "2.1em", color: "black", "margin-top": "auto", "margin-bottom": 0 }}><b>UAV</b></Label>
-				{Aarmed.includes("DISARMED") ? <UAVbw /> : <UAV />}
+				<Label className="paragraph" style={{ "font-size": "2.1em", color: "black", "margin-top": "auto", "margin-bottom": 0 }}><b>UAV&emsp;</b></Label>
+				{Aarmed.includes("DISARMED") ? <UAVbw onClick={() => httppost("/uav/arm")} title="Disarmed - Click to Arm" /> : <UAV onClick={() => httppost("/uav/disarm")} title="Armed - Click to Disarm" />}
 			</StyledDiv>
-			<Column style={{ marginBottom: "1rem", gap: "0.5rem" }}>
+			<Column style={{ marginBottom: "1rem", gap: "1.5rem" }}>
 				<Row style={{ gap: "1rem" }}>
 					<Row>
 						<Box label="Roll" content={(Aorientation.roll.toFixed(2)) + "\u00B0"} />
@@ -77,7 +77,27 @@ const Main = () => {
 					</Row>
 					<Row>
 						<Box label=" " content={Astatus} />
-						<Box label=" " content={Amode} title="The flight mode the plane is in, including RTL, Auto, and Manual." />
+						<div>
+							<Label>&nbsp;</Label>
+							<Dropdown
+								initial={Modes.find(m => m.toUpperCase() === Amode)}
+								onChange={i => {
+									let m = Modes[i].toUpperCase()
+									if (m === "LAND") {
+										httppost("/uav/commands/insert", { "command": "LAND", "lat": 0.0, "lon": 0.0, alt: 0.0 })
+									} else {
+										httppost("/uav/mode/set", { "mode": m })
+									}
+									setAmode(m)
+								}}
+							>
+								{Modes.map((v, i) => {
+									return (
+										<span value={i}>{v}</span>
+									)
+								})}
+							</Dropdown>
+						</div>
 					</Row>
 				</Row>
 				<Row style={{ gap: "1rem" }}>
@@ -91,7 +111,7 @@ const Main = () => {
 							 onClick={() => {setAspeedIsInKnots(!AspeedIsInKnots)}}
 							 style={{ cursor: "pointer" }}
 							 title="Speed from GPS." />
-						<Box label="Airspeed"
+						<Box label="Air Speed"
 							 content={((AspeedIsInKnots ? 0.868976 : 1) * Aairspeed).toFixed(2) + (AspeedIsInKnots ? " knots" : " mph")}
 							 onClick={() => {setAspeedIsInKnots(!AspeedIsInKnots)}}
 							 style={{ cursor: "pointer" }}
@@ -118,113 +138,57 @@ const Main = () => {
 						<Box label="Distance to WP" content={Awaypoint[1].toFixed(2) + " ft"} title="The distance to the next waypoint." />
 					</Row>
 					<Row>
-						<Box label="GPS HDOP" content={Aconnection[0].toFixed(2)} title="Horizontal dilution of precision. The higher, the less accurate the GPS is." />
-						<Box label="GPS VDOP" content={Aconnection[1].toFixed(2)} title="Vertical dilution of precision. The higher, the less accurate the GPS is." />
-						<Box label="Satellites" content={Aconnection[2].toFixed(0)} title="The number of satellites the plane is using. 4 at a minimum, 6 is reasonable, 8 is good, and 10 is very accurate." />
+						<Row>
+							<Box label="GPS HDOP" content={(Aconnection[0] / 100).toFixed(2) + " m"} title="Horizontal dilution of precision. The higher, the less accurate the GPS is." />
+							<Box label="GPS VDOP" content={(Aconnection[1] / 100).toFixed(2) + " m"} title="Vertical dilution of precision. The higher, the less accurate the GPS is." />
+							<Box label="# Satellites" content={Aconnection[2].toFixed(0)} title="The number of satellites the plane is using. 4 at a minimum, 6 is reasonable, 8 is good, and 10 is very accurate." />
+						</Row>
 					</Row>
 				</Row>
-			</Column>
-			<Column>
-				<Row id="labels1" height="2rem" gap="0.5rem">
-					<Label columns={1}>Flight Mode</Label>
-				</Row>
-			</Column>
-
-			<Column style={{ marginBottom: "1rem" }}>
-				<Row height="3rem">
-					<Dropdown
-						initial={Modes.find(m => m.toUpperCase() === Amode)}
-						onChange={i => {
-							let m = Modes[i].toUpperCase()
-							if (m === "LAND") {
-								httppost("/uav/commands/insert", { "command": "LAND", "lat": 0.0, "lon": 0.0, alt: 0.0 })
-							} else {
-								httppost("/uav/mode/set", { "mode": m })
-							}
-							setAmode(m)
-						}}
-					>
-						{Modes.map((v, i) => {
-							return (
-								<span value={i}>{v}</span>
-							)
-						})}
-					</Dropdown>
-					<Button onClick={() => { setAmode("MANUAL"); httppost("/uav/mode/set", { "mode": "MANUAL" }) }} title="Switch the plane mode to Manual.">Manual</Button>
-					<Button onClick={() => { setAmode("AUTO"); httppost("/uav/mode/set", { "mode": "AUTO" }) }} title="Switch the plane mode to Auto.">Auto</Button>
-					<Button onClick={() => { setAmode("RTL"); httppost("/uav/mode/set", { "mode": "RTL" }) }} title="Switch the plane mode to RTL.">RTL</Button>
-					<Button onClick={() => { setAmode("LOITER"); httppost("/uav/mode/set", { "mode": "LOITER" }) }} title="Switch the plane mode to Loiter.">Loiter</Button>
-				</Row>
-			</Column>
-			<Column>
-				<Row id="labels4" height="2rem" gap="0.5rem">
-					<Label columns={1}>Configuration</Label>
-				</Row>
-			</Column>
-			<Column style={{ marginBottom: "1rem" }}>
-				<Row height="2.5rem">
-					<Button warning={true} color={darkred} onClick={() => httppost("/uav/sethome")} title="Set the plane home position.">Set home</Button>
-					<Button warning={true} color={darkred} onClick={() => httppost("/uav/calibrate")}>Calibration?</Button>
-					<Button warning={true} color={darkred} onClick={() => httppost(Aarmed === "ARMED" ? "/uav/disarm" : "/uav/arm")} title={Aarmed === "ARMED" ? "Disarm the plane." : "Arm the plane."}>{Aarmed === "ARMED" ? "Disarm" : "Arm"}</Button>
-					<Button warning={true} color={darkred} onClick={() => httppost("/uav/restart")} title="Restart the Pixhawk.">Restart</Button>
-				</Row>
-			</Column>
-			<Column>
-				<Row id="labels2" height="2rem" gap="0.5rem">
-					<Label columns={1}>Waypoints (Current: {Awaypoint[0] + 1})</Label>
-				</Row>
-			</Column>
-			<Column style={{ marginBottom: "1rem" }}>
-				<Row height="2.5rem">
+				<Row height="2.75rem" style={{ gap: "1rem" }}>
 					<Row>
-						<Box
-							content=""
-							onChange={v => {
-								let value = v
-								let newvalue = ""
-								if (value.length > 3) {
-									value = v.substring(0, 3)
-								}
-								console.log(value)
-								if (value.length >= 1) {
-									for (let i = 0; i < value.length; i++) {
-										let ascii = value.charCodeAt(i)
-										if (ascii >= 48 && ascii <= 57) {
-											newvalue += value[i]
+						<Row>
+							<div>
+								<Box
+									content=""
+									onChange={v => {
+										let value = v
+										let newvalue = ""
+										if (value.length > 3) {
+											value = v.substring(0, 3)
 										}
-									}
-								}
-								setWaypointNum(parseInt(newvalue))
-								return newvalue
-							}}
-							onKeyDown={e => {
-								if (e.nativeEvent.key === "Enter") e.preventDefault()
-								e.stopPropagation()
-							}}
-							placeholder="#"
-							style={{ textAlign: "center", height: "2.5rem" }}
-							line="250%"
-							editable
-						/>
-						<Button onClick={() => httppost("/uav/commands/jump", { "command": waypointNum })}>Go!</Button>
+										console.log(value)
+										if (value.length >= 1) {
+											for (let i = 0; i < value.length; i++) {
+												let ascii = value.charCodeAt(i)
+												if (ascii >= 48 && ascii <= 57) {
+													newvalue += value[i]
+												}
+											}
+										}
+										setWaypointNum(parseInt(newvalue))
+										return newvalue
+									}}
+									onKeyDown={e => {
+										if (e.nativeEvent.key === "Enter") e.preventDefault()
+										e.stopPropagation()
+									}}
+									placeholder="#"
+									style={{ textAlign: "center", height: "2.75rem" }}
+									line="275%"
+									editable
+								/>
+							</div>
+							<div>
+								<Button onClick={() => httppost("/uav/commands/jump", { "command": waypointNum })} style={{ height: "2.75rem" }}>Go!</Button>
+							</div>
+						</Row>
+						<Button onClick={() => httppost("/uav/commands/write")} title="Write the Pixhawk mission file to the plane.">Write Mission</Button>
 					</Row>
-					<Button onClick={() => httppost("/uav/commands/jump", { "command": 1 })}>Waypoints (#1?)</Button>
-					<Button onClick={() => httppost("/uav/commands/jump", { "command": 20 })}>Odlc (#20?)</Button>
-					<Button onClick={() => httppost("/uav/commands/jump", { "command": 50 })}>Map (#50?)</Button>
-				</Row>
-			</Column>
-			<Column>
-				<Row id="labels3" height="2rem" gap="0.5rem">
-					<Label columns={1}>Mission</Label>
-				</Row>
-			</Column>
-			<Column style={{ marginBottom: "1rem" }}>
-				<Row height="2.5rem">
-					<Button href="http://localhost:5000/uav/commands/view" newTab={true} title="Open the plane Pixhawk mission file in a new tab.">View</Button>
-					<Button onClick={() => httppost("/uav/commands/write")} title="Write the Pixhawk mission file to the plane.">Write</Button>
-					<Button onClick={() => httppost("/uav/commands/load")} title="Load the Pixhawk mission file from the plane into the backend.">Load</Button>
-					<Button onClick={() => httppost("/uav/commands/clear")} title="Clear the mission file in the backend, but not the plane.">Clear</Button>
-					<Button warning={true} color={darkred} onClick={() => httppost("/uav/terminate")} title="Make the plane terminate (force it to crash), if configured.">Terminate</Button>
+					<Row>
+						<Button onClick={() => httppost("/uav/commands/load")} title="Load the Pixhawk mission file from the plane into the backend.">Load Mission</Button>
+						<Button warning={true} color={darkred} style={{ maxWidth: "10rem" }} onClick={() => httppost("/uav/terminate")} title="Make the plane terminate (force it to crash), if configured.">Terminate</Button>
+					</Row>
 				</Row>
 			</Column>
 		</div>
@@ -237,6 +201,7 @@ const UAV = styled(RawUAV)`
 	margin-right: 0;
 	margin-left: auto;
 	margin-bottom: -2em;
+	cursor: pointer;
 `
 
 const UAVbw = styled(RawUAVbw)`
@@ -245,6 +210,7 @@ const UAVbw = styled(RawUAVbw)`
 	margin-right: 0;
 	margin-left: auto;
 	margin-bottom: -2em;
+	cursor: pointer;
 `
 
 const StyledDiv = styled.div`
