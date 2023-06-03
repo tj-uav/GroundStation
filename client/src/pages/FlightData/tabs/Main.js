@@ -171,7 +171,7 @@ const Main = () => {
 			</Column>
 			<Column>
 				<Row id="labels2" height="2rem" gap="0.5rem">
-					<Label columns={1}>Waypoints (Current: {Awaypoint[0]})</Label>
+					<Label columns={1}>Waypoints (Current: {Awaypoint[0] + 1})</Label>
 				</Row>
 			</Column>
 			<Column style={{ marginBottom: "1rem" }}>

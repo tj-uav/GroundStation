@@ -68,7 +68,7 @@ const FlightPlanMap = props => {
 
 		httpget("/uav/commands/export", response => {
 			let points = response.data.waypoints.map((marker) => {
-				return { num: marker.num, cmd: marker.cmd, p1: marker.p1, p2: marker.p2, lat: marker.lat, lng: marker.lon, alt: marker.alt * 3.281 } // convert altitude from meters to feet
+				return { num: marker.num, cmd: marker.cmd, p1: marker.p1, p2: marker.p2, p3: marker.p3 * 3.281, p4: marker.p4, lat: marker.lat, lng: marker.lon, alt: marker.alt * 3.281 } // convert altitude from meters to feet
 			})
 			props.setters.path(points)
 			props.setters.pathSave(structuredClone(points))
@@ -341,6 +341,15 @@ const FlightPlanMap = props => {
 						props.setters.path([...path.slice(0, i), { ...marker, alt: k }, ...path.slice(i + 1)])
 						props.setters.pathSaved(false)
 					})} />
+					{datatype !== "path" && <div>
+						<br />
+						Radius (feet)
+						<Box style={{ "width": "12em", "margin-right": "4em", "height": "3em" }} editable={true} placeholder={"---"} content={marker?.p3} onChange={v => signedFloatValidation(v, marker.p3, (k) => {
+							let path = props.getters.path
+							props.setters.path([...path.slice(0, i), { ...marker, p3: k }, ...path.slice(i + 1)])
+							props.setters.pathSaved(false)
+						})} />
+					</div>}
 				</div>}
 				{datatype === "jump" && <div>
 					<br />
@@ -505,7 +514,7 @@ const FlightPlanMap = props => {
 											<PolylineDecorator layer="Mission Path" positions={[props.getters.path[j], props.getters.path[marker.p1 - 1]]} color="#17e3cb" decoratorColor="#61e8d9" />
 											{popup({...marker, lng: (props.getters.path[j].lng + props.getters.path[marker.p1 - 1].lng)/2, lat: (props.getters.path[j].lat + props.getters.path[marker.p1 - 1].lat)/2}, marker.num, "jump", (
 												<div>
-													<h5>Jump</h5>
+													<h5>#{i + 1}: Jump</h5>
 													{MarkerPopup({marker: marker, i: i, datatype: "jump"})}
 												</div>
 											), false)}
@@ -514,21 +523,21 @@ const FlightPlanMap = props => {
 								} else if (marker.cmd === Commands.unlimLoiter) {
 									return popup(marker, marker.num, "unlim", (
 										<div>
-											<h5>Unlimited Loiter {i}</h5>
+											<h5>#{i + 1}: Unlimited Loiter</h5>
 											{MarkerPopup({marker: marker, i: i, datatype: "unlim"})}
 										</div>
 									), true)
 								} else if (marker.cmd === Commands.turnLoiter) {
 									return popup(marker, marker.num, "turn", (
 										<div>
-											<h5>Turn Loiter {i}</h5>
+											<h5>#{i + 1} Turn Loiter</h5>
 											{MarkerPopup({marker: marker, i: i, datatype: "turn"})}
 										</div>
 									), true)
 								} else if (marker.cmd === Commands.timeLoiter) {
 									return popup(marker, marker.num, "time", (
 										<div>
-											<h5>Time Loiter {i}</h5>
+											<h5>#{i + 1}: Time Loiter</h5>
 											{MarkerPopup({marker: marker, i: i, datatype: "time"})}
 										</div>
 									), true)
@@ -536,7 +545,7 @@ const FlightPlanMap = props => {
 
 								return popup(marker, marker.num, "path", (
 									<div>
-										<h6>Mission Path Waypoint {i + 1}</h6>
+										<h6>#{i + 1}: Mission Path Waypoint</h6>
 										{MarkerPopup({marker: marker, i: i, datatype: "path"})}
 									</div>
 								), true)
