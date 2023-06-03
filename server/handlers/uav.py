@@ -273,7 +273,6 @@ class UAVHandler:
 
     def quick(self):
         try:
-            self.update()
             return {
                 "result": {
                     "altitude": self.altitude,
