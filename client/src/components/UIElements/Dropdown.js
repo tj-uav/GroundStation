@@ -27,7 +27,7 @@ const Dropdown = forwardRef(
 		options.sort((a, b) => {return a.text > b.text})
 
 		return (
-			<div style={{ position: "relative" }} onMouseLeave={() => setActive(false)}>
+			<div style={{ position: "relative", height: "3rem" }} onMouseLeave={() => setActive(false)}>
 				<StyledDropdown
 					ref={ref}
 					style={{ height: "100%" }}

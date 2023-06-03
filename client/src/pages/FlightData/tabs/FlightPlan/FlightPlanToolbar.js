@@ -1,19 +1,14 @@
 import React, { useEffect, useState } from "react"
-import { Box, Button, Dropdown, RadioList } from "components/UIElements"
+import { Box, Button, Dropdown, RadioList, Label } from "components/UIElements"
 import { red } from "theme/Colors"
 import { httppost } from "backend"
 
-import { Modal, ModalHeader, ModalBody } from "components/Containers"
+import { Row, Column, Modal, ModalHeader, ModalBody } from "components/Containers"
 import Commands from "commands"
 
 const FlightPlanToolbar = props => {
 	const [open, setOpen] = useState(false)
 	const [missing, setMissing] = useState([])
-
-	useEffect(() => {
-		let radio = document.getElementById(props.getters.mode)
-		radio.checked = true
-	}, [])
 
 	const savePath = (path) => {
 		for (const [i, marker] of path.entries()) {
@@ -50,53 +45,77 @@ const FlightPlanToolbar = props => {
 					savePath(path)
 				}}>Set as default ({props.getters.defaultAlt} ft)</Button></ModalBody>
 			</Modal>
-			<div style={{ marginBottom: "1rem", width: "10em" }}>
-				<Dropdown initial={"Disabled"} onChange={(v) => {
-					props.setters.placementMode(v)
-				}}>
-					<span value="disabled">Disable</span>
-					<span value="push">Push</span>
-					<span value="insert">Insert</span>
-				</Dropdown>
-			</div>
-			<RadioList onChange={event => { props.setters.mode(event.target.value); console.log(event.target.value) }} name="pointMode">
-				<RadioList.Option color="#10336B" value="waypoint">Waypoints</RadioList.Option>
-				<RadioList.Option color="#10336B" value="jump">Add Jump</RadioList.Option>
-				<RadioList.Option color="#10336B" value="unlimLoiter">Unlimited Loiter</RadioList.Option>
-				<RadioList.Option color="#10336B" value="turnLoiter">Turn Loiter</RadioList.Option>
-				<RadioList.Option color="#10336B" value="timeLoiter">Time Loiter</RadioList.Option>
-			</RadioList>
-			<div style={{ "margin-top": "1em", "display": "flex", "align-items": "center" }}>
-				Default Altitude (ft):
-				<Box style={{ "width": "10em", "margin-left": "0.5em" }} editable={true} content={props.getters.defaultAlt} onChange={(v) => {
-					if (!Number.isNaN(Number(v)) && v.length > 0) {
-						if (v.endsWith(".")) {
-							props.setters.defaultAlt(125)
-						} else {
-							props.setters.defaultAlt(Number(v))
-						}
-						return v
-					} else if (v.substring(0, v.length - 1).endsWith(".")) {
-						return v.substring(0, v.length - 1)
-					} else if (v.length === 0) {
-						props.setters.defaultAlt(125)
-						return v
-					} else if (v.substring(0, Math.max(v.length - 1, 1)) === "-") {
-						props.setters.defaultAlt(125)
-						return v.substring(0, Math.max(v.length - 1, 1))
-					} else if (Number.isNaN(parseFloat(v))) {
-						return ""
-					}
 
-					return props.getters.defaultAlt
-				}} />
-			</div>
-			<Button disabled={props.getters.path.length === 0} style={{ "margin-top": "1em", "width": "15em" }} onClick={() => {
-				props.setters.path([])
-				props.setters.pathSaved(false)
-			}}>Clear path</Button>
-			<div style={{ "display": "flex", "margin-top": "1em", "gap": "1em", "align-items": "center" }}>
-					<Button style={{ "width": "11.5em" }} disabled={props.getters.pathSaved} onClick={() => {
+
+			<Column style={{ marginBottom: "1rem", gap: "1.5rem" }}>
+				<Row>
+					<Row>
+						<div style={{ "display": "flex", "alignItems": "center" }}>
+							<span>Mode: </span>
+						</div>
+						<Dropdown initial={"Disabled"} onChange={(v) => {
+							props.setters.placementMode(v)
+						}}>
+							<span value="disabled">Disabled</span>
+							<span value="push">Push</span>
+							<span value="insert">Insert</span>
+						</Dropdown>
+					</Row>
+					&nbsp;
+				</Row>
+				<Row>
+					<Row>
+						<div style={{ "display": "flex", "alignItems": "center" }}>
+							<span>Place: </span>
+						</div>
+						<Dropdown initial={"Waypoint"} onChange={(v) => {
+							props.setters.mode(v)
+						}}>
+							<span value="waypoint">Waypoint</span>
+							<span value="jump">Jump</span>
+							<span value="unlimLoiter">Unlimited Loiter</span>
+							<span value="turnLoiter">Turn Loiter</span>
+							<span value="timeLoiter">Time Loiter</span>
+						</Dropdown>
+					</Row>
+					&nbsp;
+				</Row>
+				<Row>
+					<Row>
+						<div style={{ "display": "flex", "alignItems": "center" }}>
+							<span>Default Altitude:</span>
+						</div>
+						<Box editable={true} content={props.getters.defaultAlt + " ft"} onChange={(v) => {
+							if (!Number.isNaN(Number(v)) && v.length > 0) {
+								if (v.endsWith(".")) {
+									props.setters.defaultAlt(125)
+								} else {
+									props.setters.defaultAlt(Number(v))
+								}
+								return v
+							} else if (v.substring(0, v.length - 1).endsWith(".")) {
+								return v.substring(0, v.length - 1)
+							} else if (v.length === 0) {
+								props.setters.defaultAlt(125)
+								return v
+							} else if (v.substring(0, Math.max(v.length - 1, 1)) === "-") {
+								props.setters.defaultAlt(125)
+								return v.substring(0, Math.max(v.length - 1, 1))
+							} else if (Number.isNaN(parseFloat(v))) {
+								return ""
+							}
+
+							return props.getters.defaultAlt
+						}} />
+					</Row>
+					&nbsp;
+				</Row>
+				<br />
+				{props.getters.pathSaved ? <br /> :
+					<span style={{ color: red }}>You have unsaved points!</span>
+				}
+				<Row height="2.75rem">
+					<Button disabled={props.getters.pathSaved} onClick={() => {
 						let miss = []
 						for (const [i, value] of props.getters.path.entries()) {
 							if (!value.alt && value.cmd !== Commands.jump) {
@@ -110,16 +129,26 @@ const FlightPlanToolbar = props => {
 						}
 
 						savePath(props.getters.path)
-					}}>Click to save</Button>
-					<Button style={{ "width": "11.5em" }} disabled={props.getters.pathSaved} onClick={() => {
+					}}>Save Path to Mission File</Button>
+					<Button disabled={props.getters.pathSaved} onClick={() => {
 						console.log(props.getters.pathSave)
 						props.setters.path(structuredClone(props.getters.pathSave))
 						props.setters.pathSaved(true)
-					}}>Discard Changes</Button>
-					{props.getters.pathSaved ? null :
-						<span style={{ color: red }}>You have unsaved points!</span>
-					}
-			</div>
+					}}>Reset to Mission File</Button>
+				</Row>
+				<Row height="2.75rem">
+					<Button href="http://localhost:5000/uav/commands/view" newTab={true} title="Open the plane Pixhawk mission file in a new tab.">View Mission File</Button>
+					<Button onClick={() => httppost("/uav/commands/clear")} title="Clear the mission file in the backend, but not the plane.">Clear Mission File</Button>
+				</Row>
+				<Row height="2.75rem">
+					<Button style={{ width: "auto" }} disabled={props.getters.path.length === 0} onClick={() => {
+						props.setters.path([])
+						props.setters.pathSaved(false)
+					}}>Clear All</Button>
+					&nbsp;
+					&nbsp;
+				</Row>
+			</Column>
 		</div>
 	)
 }
