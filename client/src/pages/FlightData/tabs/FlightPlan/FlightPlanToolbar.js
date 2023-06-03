@@ -28,10 +28,11 @@ const FlightPlanToolbar = props => {
 
 		httppost("/uav/commands/generate", {"waypoints": path.map(waypoint => ({
 				...waypoint,
-				lat: waypoint.lat ?? 0.0,
-				lon: waypoint.lng ?? 0.0,
-				alt: (waypoint.alt ?? 0.0) / 3.281
-		})) }) // convert feet to meters for altitude
+				lat: waypoint.lat ?? 0.0,  // if jump
+				lon: waypoint.lng ?? 0.0,  // if jump
+				alt: (waypoint.alt ?? 0.0) / 3.281,  // altitude to m
+				p3: (waypoint.p3 ?? 0.0) / 3.281,  // loiter radius to m
+		})) })
 	}
 
 	return (
