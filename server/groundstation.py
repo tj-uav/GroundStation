@@ -48,7 +48,7 @@ class GroundStation:
     def uav_thread(self) -> None:
         while True:
             self.uav.update()
-            # self.logger.debug("[UAV] %s", self.uav.update())
+            self.logger.debug("[UAV] Updated")
             if self.config["uav"]["telemetry"]["log"]:  # type: ignore[index]
                 self.telem_logger.info(json.dumps(self.uav.stats()))
             time.sleep(0.1)
