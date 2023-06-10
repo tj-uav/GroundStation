@@ -146,8 +146,8 @@ const Main = () => {
 				</Row>
 				<Row height="2.75rem" style={{ gap: "0.5rem" }}>
 					<Row>
-						<Box label="Waypoint #" content={"#" + (Awaypoint[0] + 1).toFixed(0)} title="The waypoint number the plane is traveling to." />
-						<Box label="Distance To WP" content={Awaypoint[1].toFixed(2) + " ft"} title="The distance to the next waypoint." />
+						<Box label="Waypoint #" content={(Awaypoint[0] === -1 ? "-" : "#" + (Awaypoint[0] + 1).toFixed(0))} title="The waypoint number the plane is traveling to." />
+						<Box label="Distance To WP" content={(Awaypoint[0] === -1 ? "-" : Awaypoint[1].toFixed(2) + " ft")} title="The distance to the next waypoint." />
 					</Row>
 					<Row style={{ gap: "1rem" }}>
 						<Row>
