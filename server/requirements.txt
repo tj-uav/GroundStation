@@ -1,5 +1,6 @@
 python-dotenv
 requests
+
 protobuf<=3.20.0
 pylint
 mypy
@@ -12,7 +13,6 @@ flask-socketio
 
 # UAV Handler
 dronekit
-dronekit-sitl
 pymavlink
 pySerial
 
