@@ -111,42 +111,62 @@ const FlightPlanToolbar = props => {
 					&nbsp;
 				</Row>
 				<br />
-				{props.getters.pathSaved ? <br /> :
+				{props.getters.pathSaved ? <span>&nbsp;</span> :
 					<span style={{ color: red }}>You have unsaved points!</span>
 				}
-				<Row height="2.75rem">
-					<Button disabled={props.getters.pathSaved} onClick={() => {
-						let miss = []
-						for (const [i, value] of props.getters.path.entries()) {
-							if (!value.alt && value.cmd !== Commands.jump) {
-								miss.push(i)
+				<Row>
+					<Row height="2.75rem"  columns="minmax(0, 4fr) minmax(0, 3fr) minmax(0, 3fr) minmax(0, 3fr) minmax(0, 3fr)">
+						<div style={{ "display": "flex", "alignItems": "center" }}>
+							<span>Current Path:</span>
+						</div>
+						<Button style={{ width: "auto" }} disabled={props.getters.path.length === 0} onClick={() => {
+							props.setters.path([])
+							props.setters.pathSaved(false)
+						}}>Clear</Button>
+						&nbsp;
+						&nbsp;
+						&nbsp;
+					</Row>
+				</Row>
+				<Row>
+					<Row height="2.75rem" columns="minmax(0, 4fr) minmax(0, 3fr) minmax(0, 3fr) minmax(0, 3fr) minmax(0, 3fr)">
+						<div style={{ "display": "flex", "alignItems": "center" }}>
+							<span>Mission File:</span>
+						</div>
+						<Button href="http://localhost:5000/uav/commands/view" newTab={true} title="Open the plane Pixhawk mission file in a new tab.">View</Button>
+						<Button disabled={props.getters.pathSaved} onClick={() => {
+							let miss = []
+							for (const [i, value] of props.getters.path.entries()) {
+								if (!value.alt && value.cmd !== Commands.jump) {
+									miss.push(i)
+								}
 							}
-						}
-						if (miss.length > 0) {
-							setMissing(miss)
-							setOpen(true)
-							return
-						}
+							if (miss.length > 0) {
+								setMissing(miss)
+								setOpen(true)
+								return
+							}
 
-						savePath(props.getters.path)
-					}}>Save Path to Mission File</Button>
-					<Button disabled={props.getters.pathSaved} onClick={() => {
-						console.log(props.getters.pathSave)
-						props.setters.path(structuredClone(props.getters.pathSave))
-						props.setters.pathSaved(true)
-					}}>Reset to Mission File</Button>
+							savePath(props.getters.path)
+						}}>Save</Button>
+						<Button disabled={props.getters.pathSaved} onClick={() => {
+							console.log(props.getters.pathSave)
+							props.setters.path(structuredClone(props.getters.pathSave))
+							props.setters.pathSaved(true)
+						}}>Reset To</Button>
+						<Button onClick={() => httppost("/uav/commands/clear")} title="Clear the mission file in the backend, but not the plane.">Clear</Button>
+					</Row>
 				</Row>
-				<Row height="2.75rem">
-					<Button href="http://localhost:5000/uav/commands/view" newTab={true} title="Open the plane Pixhawk mission file in a new tab.">View Mission File</Button>
-					<Button onClick={() => httppost("/uav/commands/clear")} title="Clear the mission file in the backend, but not the plane.">Clear Mission File</Button>
-				</Row>
-				<Row height="2.75rem">
-					<Button style={{ width: "auto" }} disabled={props.getters.path.length === 0} onClick={() => {
-						props.setters.path([])
-						props.setters.pathSaved(false)
-					}}>Clear All</Button>
-					&nbsp;
-					&nbsp;
+				<Row>
+					<Row height="2.75rem" columns="minmax(0, 4fr) minmax(0, 3fr) minmax(0, 3fr) minmax(0, 3fr) minmax(0, 3fr)">
+						<div style={{ "display": "flex", "alignItems": "center" }}>
+							<span>Plane: </span>
+						</div>
+						<Button onClick={() => httppost("/uav/commands/write")} title="Write the Pixhawk mission file to the plane.">Write To</Button>
+						<Button onClick={() => httppost("/uav/commands/load")} title="Load the Pixhawk mission file from the plane into the backend.">Load From</Button>
+						&nbsp;
+						&nbsp;
+					</Row>
 				</Row>
 			</Column>
 		</div>

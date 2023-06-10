@@ -105,51 +105,55 @@ const Main = () => {
 						<Box label="Latitude" content={AlatLong.lat.toFixed(7) + "\u00B0"} />
 						<Box label="Longitude" content={AlatLong.lon.toFixed(7) + "\u00B0"} />
 					</Row>
-					<Row>
-						<Box label="Ground Speed"
-							 content={((AspeedIsInKnots ? 0.868976 : 1) * AgroundSpeed).toFixed(2) + (AspeedIsInKnots ? " knots" : " mph")}
-							 onClick={() => {setAspeedIsInKnots(!AspeedIsInKnots)}}
-							 style={{ cursor: "pointer" }}
-							 title="Speed from GPS." />
-						<Box label="Air Speed"
-							 content={((AspeedIsInKnots ? 0.868976 : 1) * Aairspeed).toFixed(2) + (AspeedIsInKnots ? " knots" : " mph")}
-							 onClick={() => {setAspeedIsInKnots(!AspeedIsInKnots)}}
-							 style={{ cursor: "pointer" }}
-							 title="Speed measured from plane sensors." />
-					</Row>
-				</Row>
-				<Row style={{ gap: "1rem" }}>
-					<Row>
+					<Row style={{ gap: "0.1rem" }}>
 						<Box label="Altitude"
-							 content={AaltitudeIsGlobal ? AaltitudeGlobal.toFixed(2) + " ft MSL" : Aaltitude.toFixed(2) + " ft AGL"}
-							 onClick={() => {setAaltitudeIsGlobal(!AaltitudeIsGlobal)}}
-							 style={{ cursor: "pointer" }}
-							 title="The plane's altitude. MSL refers to above mean sea level. AGL is the height from the home position's altitude." />
-						<Box label="Distance" content={AdistFromHome.toFixed(2) + " ft"} title="The distance from the plane to its Home location." />
-					</Row>
-					<Row>
-						<Box label="Flight Battery" content={AflightBattery.toFixed(2) + "V"} />
-						<Box label="Ebay Battery" content={AebayBattery.toFixed(2) + "V"} />
+							 content={Aaltitude.toFixed(2) + " ft AGL"}
+							 title="The plane's altitude, from the home position's altitude." />
+						<Box label=" "
+							 content={AaltitudeGlobal.toFixed(2) + " ft MSL"}
+							 title="The plane's altitude, above mean sea level." />
 					</Row>
 				</Row>
 				<Row style={{ gap: "1rem" }}>
+					<Row style={{ gap: "0.1rem" }}>
+						<Box label="Ground Speed"
+							 content={AgroundSpeed.toFixed(2) + " mph"}
+							 title="Speed from GPS, in miles per hour." />
+						<Box label=" "
+							 content={(0.868976 * AgroundSpeed).toFixed(2) + " kn"}
+							 title="Speed from GPS, in knots." />
+					</Row>
+					<Row style={{ gap: "0.1rem" }}>
+						<Box label="Air Speed"
+							 content={Aairspeed.toFixed(2) + " mph"}
+							 title="Speed measured from plane sensors, in miles per hour." />
+						<Box label=" "
+							 content={(0.868976 * Aairspeed).toFixed(2) + " kn"}
+							 title="Speed measured from plane sensors, in knots." />
+					</Row>
+				</Row>
+				<Row style={{ gap: "1rem" }} columns="minmax(0, 2fr) minmax(0, 1.05fr)">
+					<Row columns="minmax(0, 3.5fr) minmax(0, 3fr) minmax(0, 3fr) minmax(0, 1.75fr)">
+						<Box label="From Home" content={AdistFromHome.toFixed(0) + " ft"} title="The distance from the plane to its Home location." />
+						<Box label="HDOP" content={(Aconnection[0] / 100).toFixed(2) + " m"} title="Horizontal dilution of precision. The higher, the less accurate the GPS is." />
+						<Box label="VDOP" content={(Aconnection[1] / 100).toFixed(2) + " m"} title="Vertical dilution of precision. The higher, the less accurate the GPS is." />
+						<Box label="# Sats" content={Aconnection[2].toFixed(0)} title="The number of satellites the plane is using. 4 at a minimum, 6 is reasonable, 8 is good, and 10 is very accurate." />
+					</Row>
+					<Row style={{ gap: "0.1rem" }}>
+						<Box label="Flight Batt" content={AflightBattery.toFixed(2) + "V"} />
+						<Box label="Ebay Batt" content={AebayBattery.toFixed(2) + "V"} />
+					</Row>
+				</Row>
+				<Row height="2.75rem" style={{ gap: "0.5rem" }}>
 					<Row>
 						<Box label="Waypoint #" content={"#" + (Awaypoint[0] + 1).toFixed(0)} title="The waypoint number the plane is traveling to." />
-						<Box label="Distance to WP" content={Awaypoint[1].toFixed(2) + " ft"} title="The distance to the next waypoint." />
+						<Box label="Distance To WP" content={Awaypoint[1].toFixed(2) + " ft"} title="The distance to the next waypoint." />
 					</Row>
-					<Row>
-						<Row>
-							<Box label="GPS HDOP" content={(Aconnection[0] / 100).toFixed(2) + " m"} title="Horizontal dilution of precision. The higher, the less accurate the GPS is." />
-							<Box label="GPS VDOP" content={(Aconnection[1] / 100).toFixed(2) + " m"} title="Vertical dilution of precision. The higher, the less accurate the GPS is." />
-							<Box label="# Satellites" content={Aconnection[2].toFixed(0)} title="The number of satellites the plane is using. 4 at a minimum, 6 is reasonable, 8 is good, and 10 is very accurate." />
-						</Row>
-					</Row>
-				</Row>
-				<Row height="2.75rem" style={{ gap: "1rem" }}>
-					<Row>
+					<Row style={{ gap: "1rem" }}>
 						<Row>
 							<div>
 								<Box
+									label="Jump"
 									content=""
 									onChange={v => {
 										let value = v
@@ -174,20 +178,22 @@ const Main = () => {
 										e.stopPropagation()
 									}}
 									placeholder="#"
-									style={{ textAlign: "center", height: "2.75rem" }}
-									line="275%"
+									style={{ textAlign: "center" }}
+									line="300%"
 									editable
 								/>
 							</div>
 							<div>
-								<Button onClick={() => httppost("/uav/commands/jump", { "command": waypointNum })} style={{ height: "2.75rem" }}>Go!</Button>
+								<Label>&nbsp;</Label>
+								<Button onClick={() => httppost("/uav/commands/jump", { "command": waypointNum })} style={{ height: "2.85rem" }}>Go!</Button>
 							</div>
 						</Row>
-						<Button onClick={() => httppost("/uav/commands/write")} title="Write the Pixhawk mission file to the plane.">Write Mission</Button>
-					</Row>
-					<Row>
-						<Button onClick={() => httppost("/uav/commands/load")} title="Load the Pixhawk mission file from the plane into the backend.">Load Mission</Button>
-						<Button warning={true} color={darkred} style={{ maxWidth: "10rem" }} onClick={() => httppost("/uav/terminate")} title="Make the plane terminate (force it to crash), if configured.">Terminate</Button>
+						<Row>
+							<div>
+								<Label>&nbsp;</Label>
+								<Button warning={true} color={darkred} style={{ height: "2.85rem" }} onClick={() => httppost("/uav/terminate")} title="Make the plane terminate (force it to crash), if configured.">Terminate</Button>
+							</div>
+						</Row>
 					</Row>
 				</Row>
 			</Column>
