@@ -85,7 +85,7 @@ const FlightPlanToolbar = props => {
 						<div style={{ "display": "flex", "alignItems": "center" }}>
 							<span>Default Altitude:</span>
 						</div>
-						<Box editable={true} content={props.getters.defaultAlt + " ft"} onChange={(v) => {
+						<Box editable={true} content={props.getters.defaultAlt} onChange={(v) => {
 							if (!Number.isNaN(Number(v)) && v.length > 0) {
 								if (v.endsWith(".")) {
 									props.setters.defaultAlt(125)
@@ -108,7 +108,12 @@ const FlightPlanToolbar = props => {
 							return props.getters.defaultAlt
 						}} />
 					</Row>
-					&nbsp;
+					<Row>
+						<div style={{ "display": "flex", "alignItems": "center" }}>
+							<span>ft</span>
+						</div>
+						&nbsp;
+					</Row>
 				</Row>
 				<br />
 				{props.getters.pathSaved ? <span>&nbsp;</span> :
@@ -148,7 +153,7 @@ const FlightPlanToolbar = props => {
 							}
 
 							savePath(props.getters.path)
-						}}>Save</Button>
+						}}>Save To</Button>
 						<Button disabled={props.getters.pathSaved} onClick={() => {
 							console.log(props.getters.pathSave)
 							props.setters.path(structuredClone(props.getters.pathSave))
