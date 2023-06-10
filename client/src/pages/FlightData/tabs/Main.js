@@ -120,7 +120,7 @@ const Main = () => {
 							 content={AgroundSpeed.toFixed(2) + " mph"}
 							 title="Speed from GPS, in miles per hour." />
 						<Box label=" "
-							 content={(0.868976 * AgroundSpeed).toFixed(2) + " kn"}
+							 content={(0.868976 * AgroundSpeed).toFixed(2) + " knots"}
 							 title="Speed from GPS, in knots." />
 					</Row>
 					<Row style={{ gap: "0.1rem" }}>
@@ -128,7 +128,7 @@ const Main = () => {
 							 content={Aairspeed.toFixed(2) + " mph"}
 							 title="Speed measured from plane sensors, in miles per hour." />
 						<Box label=" "
-							 content={(0.868976 * Aairspeed).toFixed(2) + " kn"}
+							 content={(0.868976 * Aairspeed).toFixed(2) + " knots"}
 							 title="Speed measured from plane sensors, in knots." />
 					</Row>
 				</Row>
