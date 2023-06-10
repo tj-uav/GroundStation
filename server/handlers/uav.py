@@ -4,6 +4,7 @@ import logging
 import math
 import os
 import random
+import time
 import typing
 
 from dronekit import connect, Channels, Command, VehicleMode, Vehicle
@@ -190,6 +191,15 @@ class UAVHandler:
             pixhawk_stats(self.vehicle)
             self.vehicle.commands.download()
             self.vehicle.commands.wait_ready()
+            while (
+                not self.vehicle.home_location
+                or not self.vehicle.attitude
+                or not self.vehicle.location.global_relative_frame
+                or self.vehicle.location.global_relative_frame.lat < 10
+            ):
+                self.logger.warning("Waiting for initialization...")
+                time.sleep(1)
+
             self.make_listeners()
             self.update()
             print("╠ INITIALIZED UAV HANDLER")
