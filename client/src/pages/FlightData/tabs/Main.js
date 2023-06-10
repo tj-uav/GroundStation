@@ -80,7 +80,10 @@ const Main = () => {
 						<li>Full Flaps Down</li>
 					</ul>
 					<br />
-					<Button warning={true} color={darkred} style={{ "width": "15em" }} onClick={() => {
+					<b>THE PLANE WILL CRASH!!!</b>
+					<br />
+					<br />
+					<Button warning={true} color={darkred} style={{ "width": "9rem", height: "2.85rem" }} onClick={() => {
 						httppost("/uav/terminate")
 						setOpen(false)
 					}}>TERMINATE</Button>
