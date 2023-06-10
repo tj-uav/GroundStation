@@ -1,6 +1,6 @@
 import React, { useState } from "react"
 import { Box, Button, Dropdown, Label } from "components/UIElements"
-import { Row, Column } from "components/Containers"
+import {Row, Column, Modal, ModalHeader, ModalBody} from "components/Containers"
 
 import styled from "styled-components"
 import { ReactComponent as RawUAV } from "icons/uav.svg"
@@ -16,6 +16,8 @@ const actions = {
 const Modes = ["Manual", "Auto", "Loiter", "RTL", "Takeoff", "Land", "Circle", "Stabilize"]
 
 const Main = () => {
+	const [open, setOpen] = useState(false)
+
 	const [Aarmed, setAarmed] = useState("")
 	const [Aorientation, setAorientation] = useState({ "yaw": 0, "pitch": 0, "roll": 0 })
 	const [AlatLong, setAlatLong] = useState({ "lat": 0, "lon": 0 })
@@ -64,6 +66,27 @@ const Main = () => {
 				height: "calc(100vh - 9.5rem)",
 			}}
 		>
+			<Modal open={open} setOpen={setOpen}>
+				<ModalHeader>Terminate?</ModalHeader>
+				<ModalBody>
+					Are you SURE you want to terminate the UAV? If configured properly, this will use AFS_TERMINATE to set:
+					<br />
+					<br />
+					<ul>
+						<li>Throttle Closed</li>
+						<li>Full Up Elevator</li>
+						<li>Full Right Rudder</li>
+						<li>Full Right/Left Aileron</li>
+						<li>Full Flaps Down</li>
+					</ul>
+					<br />
+					<Button warning={true} color={darkred} style={{ "width": "15em" }} onClick={() => {
+						httppost("/uav/terminate")
+						setOpen(false)
+					}}>TERMINATE</Button>
+				</ModalBody>
+			</Modal>
+
 			<StyledDiv>
 				<Label className="paragraph" style={{ "font-size": "2.1em", color: "black", "margin-top": "auto", "margin-bottom": 0 }}><b>UAV&emsp;</b></Label>
 				{Aarmed.includes("DISARMED") ? <UAVbw onClick={() => httppost("/uav/arm")} title="Disarmed - Click to Arm" /> : <UAV onClick={() => httppost("/uav/disarm")} title="Armed - Click to Disarm" />}
@@ -191,7 +214,7 @@ const Main = () => {
 						<Row>
 							<div>
 								<Label>&nbsp;</Label>
-								<Button warning={true} color={darkred} style={{ height: "2.85rem" }} onClick={() => httppost("/uav/terminate")} title="Make the plane terminate (force it to crash), if configured.">Terminate</Button>
+								<Button warning={true} color={darkred} style={{ height: "2.85rem" }} onClick={() => setOpen(true)} title="Make the plane terminate (force it to crash), if configured.">Terminate</Button>
 							</div>
 						</Row>
 					</Row>
