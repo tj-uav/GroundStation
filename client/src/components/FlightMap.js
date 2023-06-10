@@ -496,6 +496,8 @@ const FlightPlanMap = props => {
 								<RotatedMarker icon={icons.uavDirectionOutline} position={props.getters.uav.latlng} rotationAngle={props.getters.uav.heading} rotationOrigin={"50% 100%"} />
 							</LayerGroup>
 						)}
+					</LayersControl.Overlay>
+					<LayersControl.Overlay checked name={props.display.home}>
 						{props.getters.home.lat == null ? null : (
 							<LayerGroup>
 								<Marker datatype="home" icon={icons.home} position={props.getters.home}>
@@ -505,6 +507,8 @@ const FlightPlanMap = props => {
 								</Marker>
 							</LayerGroup>
 						)}
+					</LayersControl.Overlay>
+					<LayersControl.Overlay name={props.display.water}>
 						{props.getters.water.lat == null ? null : (
 							<LayerGroup>
 								<Marker datatype="water" icon={icons.water} position={props.getters.water}>
