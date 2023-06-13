@@ -134,10 +134,14 @@ const FlightPlanMap = props => {
 			}).then(() => {
 				tileRef.current.setUrl("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}")
 			}).catch(() => {
-				tileRef.current.setUrl("/map/{z}/{x}/{y}.png")
+				try {
+					tileRef.current.setUrl("/map/{z}/{x}/{y}.png")
+				} catch {}
 			})
 		} else {
-			tileRef.current.setUrl("/map/{z}/{x}/{y}.png")
+			try {
+				tileRef.current.setUrl("/map/{z}/{x}/{y}.png")
+			} catch {}
 		}
 	}
 	useInterval(5000, checkInternet)
