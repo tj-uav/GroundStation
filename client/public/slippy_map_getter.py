@@ -32,7 +32,7 @@ def main():
             deg_distance = float(deg_in)
 
     print()
-    for i in range(9, 19):
+    for i in range(0, 19):
         zoom_deg = deg_distance * (2 ** (zoom - i))
         # assuming in northwest hemisphere
         x1, y1 = convert_to_slippy(lat + deg_distance, lon - deg_distance, i)
