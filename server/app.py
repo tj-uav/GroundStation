@@ -1,12 +1,12 @@
 import json
 import logging
+import os.path
 import traceback
-from typing import Type
 
 from flask import Flask, jsonify, send_file, Response
 from flask_cors import CORS
 
-from apps import interop, uav, ugv
+from apps import uav, image
 from groundstation import GroundStation
 from utils.errors import (
     InvalidRequestError,
@@ -15,20 +15,23 @@ from utils.errors import (
     ServiceUnavailableError,
 )
 from utils.logging_setup import LOG_STREAM, TELEM_STREAM
+import sys
+
+sys.stdin.reconfigure(encoding="utf-8")
+sys.stdout.reconfigure(encoding="utf-8")  # These two lines account for Krishnan's massive brain
 
 log: logging.Logger = logging.getLogger("werkzeug")
 log.setLevel(logging.ERROR)
 
-with open("config.json", "r", encoding="utf-8") as file:
+with open(os.path.join(os.getcwd(), "config.json"), "r", encoding="utf-8") as file:
     config: dict = json.load(file)
 
 app: Flask = Flask(__name__)
 app.config["JSONIFY_PRETTYPRINT_REGULAR"] = True
 CORS(app)
 
-app.register_blueprint(interop, url_prefix="/interop")
 app.register_blueprint(uav, url_prefix="/uav")
-app.register_blueprint(ugv, url_prefix="/ugv")
+app.register_blueprint(image, url_prefix="/image")
 
 logger: logging.Logger = logging.getLogger("groundstation")
 
@@ -163,17 +166,17 @@ def telemetry_data() -> dict:
 
 @app.route("/file/infolog")
 def logfile() -> Response:
-    return send_file("logs/info.log")
+    return send_file(os.path.join(os.getcwd(), "logs", "info.log"))
 
 
 @app.route("/file/debuglog")
 def debuglogfile() -> Response:
-    return send_file("logs/debug.log")
+    return send_file(os.path.join(os.getcwd(), "logs", "debug.log"))
 
 
 @app.route("/file/telemlog")
 def telemlogfile() -> Response:
-    return send_file("logs/telem.log")
+    return send_file(os.path.join(os.getcwd(), "logs", "telem.log"))
 
 
 if __name__ == "__main__":

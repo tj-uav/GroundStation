@@ -15,6 +15,9 @@ const httpget = async (endpoint, func, error) => {
         if(error) {
             error(e)
         }
+        if (e.response) {
+            return {"error": e.response.status}
+        }
     }
 }
 

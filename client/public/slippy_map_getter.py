@@ -3,10 +3,11 @@ import os
 import requests  # type: ignore[import]
 import time
 
-# window position and zoom for the auvsi suas base, webster field
-# zoom 17
-# top lat: 38.15163
-# bot lat: 38.14177
+# useful locations
+# WebsterField=38.14469,-76.42799,6.6,315
+# StMarysField=38.314622,-76.545611,142,282.3122
+# AUVSI_SUAS=38.314622,-76.545611,142,282.3122
+# FARM_RC=38.529049,-77.736298,87,253
 
 
 def main():
@@ -31,7 +32,7 @@ def main():
             deg_distance = float(deg_in)
 
     print()
-    for i in range(9, 19):
+    for i in range(0, 19):
         zoom_deg = deg_distance * (2 ** (zoom - i))
         # assuming in northwest hemisphere
         x1, y1 = convert_to_slippy(lat + deg_distance, lon - deg_distance, i)

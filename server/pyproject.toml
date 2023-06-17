@@ -1,0 +1,31 @@
+[tool.poetry]
+name = "tj uav groundstation"
+version = "1.0.0"
+description = ""
+authors = ["Krishnan Shankar <krishnans2006@gmail.com>", "William Black <williamblack7586@gmail.com>", "Joshua Pikner <joshuapikner@gmail.com>"]
+readme = "../README.md"
+homepage = "https://tj-uav.github.io"
+repository = "https://github.com/tj-uav/GroundStation"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+python-dotenv = "^1.0.0"
+requests = "^2.31.0"
+Flask = "^2.3.2"
+Flask-Cors = "^3.0.10"
+Flask-SocketIO = "^5.3.4"
+dronekit = "^2.9.2"
+pymavlink = "^2.4.39"
+pyserial = "^3.5"
+python-socketio = "^5.8.0"
+eventlet = "^0.33.3"
+
+[tool.poetry.group.dev.dependencies]
+protobuf = "<=3.20.0"
+pylint = "^2.17.4"
+mypy = "^1.3.0"
+pre-commit = "^3.3.2"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

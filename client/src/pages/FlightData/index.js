@@ -5,10 +5,10 @@ import { httpget } from "backend"
 
 import FlightPlanMap from "components/FlightMap"
 import FlightPlanToolbar from "./tabs/FlightPlan/FlightPlanToolbar"
-import Quick from "./tabs/Quick"
-import Actions from "./tabs/Actions"
+import Main from "./tabs/Main"
 import Logs from "./tabs/Logs"
 import { useInterval } from "../../util"
+import Servo from "./tabs/Servo"
 
 /*
 TODO: Home icon
@@ -25,89 +25,103 @@ TODO: Display list highlighting (and vice versa)
 */
 
 const FlightData = () => {
-	const [mode, setMode] = useState("disabled")
-	const [saved, setSaved] = useState(true)
-	const [defaultAlt, setDefaultAlt] = useState(100)
+	const [flightBoundary, setFlightBoundary] = useState([
+		{lat: 38.31729702009844, lng: -76.55617670782419},
+		{lat: 38.31594832826572, lng: -76.55657341657302},
+		{lat: 38.31546739500083, lng: -76.55376201277696},
+		{lat: 38.31470980862425, lng: -76.54936361414539},
+		{lat: 38.31424154692598, lng: -76.54662761646904},
+		{lat: 38.31369801280048, lng: -76.54342380058223},
+		{lat: 38.31331079191371, lng: -76.54109648475954},
+		{lat: 38.31529941346197, lng: -76.54052104837133},
+		{lat: 38.31587643291039, lng: -76.54361305817427},
+		{lat: 38.31861642463319, lng: -76.54538594175376},
+		{lat: 38.31862683616554, lng: -76.55206138505936},
+		{lat: 38.31703471119464, lng: -76.55244787859773},
+		{lat: 38.31674255749409, lng: -76.55294546866578},
+		{lat: 38.31729702009844, lng: -76.55617670782419}
+	])
+	const [airdropBoundary, setAirdropBoundary] = useState([
+		{lat: 38.31442311312976, lng: -76.54522971451763},
+		{lat: 38.31421041772561, lng: -76.54400246436776},
+		{lat: 38.3144070396263, lng: -76.54394394383165},
+		{lat: 38.31461622313521, lng: -76.54516993186949},
+		{lat: 38.31442311312976, lng: -76.54522971451763}
+	])
+	const [uav, setUav] = useState({})
+	const [home, setHome] = useState({})
+	const [water, setWater] = useState({})
 
-	const [waypoints, setWaypoints] = useState([])
-	const [commands, setCommands] = useState([])
-	const [fence, setFence] = useState([])
-	const [ugvFence, setUgvFence] = useState([])
-	const [ugvDrop, setUgvDrop] = useState({})
-	const [ugvDrive, setUgvDrive] = useState({})
-	const [obstacles, setObstacles] = useState([])
-	const [offAxis, setOffAxis] = useState({})
-	const [searchGrid, setSearchGrid] = useState([])
 	const [path, setPath] = useState([])
 	const [pathSave, setPathSave] = useState([]) // only used for discarding changes
-	const [uav, setUav] = useState({})
-	const [ugv, setUgv] = useState({})
+	const [pathSaved, setPathSaved] = useState(true)
+
+	const [mode, setMode] = useState("waypoint")
+	const [previousMode, setPreviousMode] = useState("disabled")
+	const [placementMode, setPlacementMode] = useState("disabled")
+	const [defaultAlt, setDefaultAlt] = useState(125)
 
 	const getters = {
-		commands: commands,
-		waypoints: waypoints,
-		fence: fence,
-		ugvFence: ugvFence,
-		ugvDrop: ugvDrop,
-		ugvDrive: ugvDrive,
-		obstacles: obstacles,
-		offAxis: offAxis,
-		searchGrid: searchGrid,
+		flightBoundary: flightBoundary,
+		airdropBoundary: airdropBoundary,
+		uav: uav,
+		home: home,
 		path: path,
 		pathSave: pathSave,
-		uav: uav,
-		ugv: ugv,
+		water: water,
+		pathSaved: pathSaved,
+		mode: mode,
+		previousMode: previousMode,
+		placementMode: placementMode,
 		defaultAlt: defaultAlt
 	}
 
 	const setters = {
-		commands: setCommands,
-		waypoints: setWaypoints,
-		fence: setFence,
-		ugvFence: setUgvFence,
-		ugvDrop: setUgvDrop,
-		ugvDrive: setUgvDrive,
-		obstacles: setObstacles,
-		offAxis: setOffAxis,
-		searchGrid: setSearchGrid,
+		flightBoundary: setFlightBoundary,
+		airdropBoundary: setAirdropBoundary,
+		uav: setUav,
+		home: setHome,
 		path: setPath,
 		pathSave: setPathSave,
-		uav: setUav,
-		ugv: setUgv,
+		pathSaved: setPathSaved,
+		mode: setMode,
+		previousMode: setPreviousMode,
+		placementMode: setPlacementMode,
+		water: setWater,
 		defaultAlt: setDefaultAlt
 	}
 
 	const display = {
-		commands: "Command",
-		waypoints: "Waypoint",
-		fence: "Geofence",
-		ugvFence: "UGV Fence",
-		ugvDrop: "UGV Drop",
-		ugvDrive: "UGV Drive",
-		obstacles: "Obstacles",
-		offAxis: "Off Axis ODLC",
-		searchGrid: "ODLC Search Grid",
+		flightBoundary: "Mission Flight Boundary",
+		airdropBoundary: "Air Drop Boundary",
 		path: "Mission Path",
+		home: "Home Waypoint",
+		unlim: "Unlimited Loiter",
+		turn: "Turn Loiter",
+		time: "Time Loiter",
+		jump: "Jump",
 		uav: "UAV",
-		ugv: "UGV",
-		home: "Home Waypoint"
+		water: "Bottle Drop",
 	}
 
 	useInterval(500, () => {
-		httpget("/uav/quick", response => setUav({
-			latlng: {
-				lat: response.data.result.lat,
-				lng: response.data.result.lon
-			},
-			heading: response.data.result.orientation.yaw
-		}))
-		httpget("/ugv/quick", response => setUgv({
-			latlng: {
-				lat: response.data.result.lat,
-				lng: response.data.result.lon
-			},
-			heading: response.data.result.yaw
-		}))
+		httpget("/uav/quick", response => {
+			setUav({
+				latlng: {
+					lat: response.data.result.lat,
+					lng: response.data.result.lon
+				},
+				heading: response.data.result.orientation.yaw
+			})
+			setWater({
+				lat: response.data.result.lat + 0.1 * response.data.result.ground_speed * Math.sin(response.data.result.orientation.yaw * Math.PI / 180),
+				lng: response.data.result.lon + 0.1 * response.data.result.ground_speed * Math.cos(response.data.result.orientation.yaw * Math.PI / 180)
+			})
+			setHome({
+				lat: response.data.result.home.lat,
+				lng: response.data.result.home.lon
+			})
+		})
 	})
 
 	return (
@@ -123,29 +137,20 @@ const FlightData = () => {
 			}}
 		>
 			<TabBar>
-				<Quick />
-				<Actions />
-				{/*<Servo />*/}
+				<Main />
 				<FlightPlanToolbar
 					display={display}
 					getters={getters}
 					setters={setters}
-					mode={mode}
-					saved={saved}
-					setSaved={setSaved}
-					setMode={setMode}
 					tabName={"Map"}
 				/>
+				<Servo />
 				<Logs />
 			</TabBar>
 			<FlightPlanMap
 				display={display}
 				getters={getters}
 				setters={setters}
-				mode={mode}
-				saved={saved}
-				setSaved={setSaved}
-				setMode={setMode}
 			/>
 		</div>
 	)

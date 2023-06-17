@@ -1,18 +1,14 @@
 import React, { useEffect, useState } from "react"
-import { Box, Button, RadioList } from "components/UIElements"
+import { Box, Button, Dropdown, RadioList, Label } from "components/UIElements"
 import { red } from "theme/Colors"
 import { httppost } from "backend"
 
-import { Modal, ModalHeader, ModalBody } from "components/Containers"
+import { Row, Column, Modal, ModalHeader, ModalBody } from "components/Containers"
+import Commands from "commands"
 
 const FlightPlanToolbar = props => {
 	const [open, setOpen] = useState(false)
 	const [missing, setMissing] = useState([])
-
-	useEffect(() => {
-		let radio = document.getElementById(props.mode)
-		radio.checked = true
-	}, [])
 
 	const savePath = (path) => {
 		for (const [i, marker] of path.entries()) {
@@ -22,10 +18,16 @@ const FlightPlanToolbar = props => {
 		}
 		props.setters.path(path)
 
-		props.setSaved(true)
 		props.setters.pathSave(path)
+		props.setters.pathSaved(true)
 
-		httppost("/uav/commands/generate", { "waypoints": path.map(waypoint => ({ ...waypoint, lon: waypoint.lng, alt: waypoint.alt / 3.281 })) }) // convert feet to meters for altitude
+		httppost("/uav/commands/generate", {"waypoints": path.map(waypoint => ({
+				...waypoint,
+				lat: waypoint.lat ?? 0.0,  // if jump
+				lon: waypoint.lng ?? 0.0,  // if jump
+				alt: (waypoint.alt ?? 0.0) / 3.281,  // altitude to m
+				p3: (waypoint.p3 ?? 0.0) / 3.281,  // loiter radius to m
+		})) })
 	}
 
 	return (
@@ -43,48 +45,104 @@ const FlightPlanToolbar = props => {
 					savePath(path)
 				}}>Set as default ({props.getters.defaultAlt} ft)</Button></ModalBody>
 			</Modal>
-			<RadioList onChange={event => props.setMode(event.target.value)} name="pointMode">
-				<RadioList.Option color="#10336B" value="disabled">Don't make points</RadioList.Option>
-				<RadioList.Option color="#10336B" value="push">Push Mode</RadioList.Option>
-				<RadioList.Option color="#10336B" value="insert">Insertion Mode</RadioList.Option>
-			</RadioList>
-			<div style={{ "margin-top": "1em", "display": "flex", "align-items": "center" }}>
-				Default Altitude (ft):
-				<Box style={{ "width": "10em", "margin-left": "0.5em" }} editable={true} content={props.getters.defaultAlt} onChange={(v) => {
-					if (!Number.isNaN(Number(v)) && v.length > 0) {
-						if (v.endsWith(".")) {
-							props.setters.defaultAlt(100)
-						} else {
-							props.setters.defaultAlt(Number(v))
-						}
-						return v
-					} else if (v.substring(0, v.length - 1).endsWith(".")) {
-						return v.substring(0, v.length - 1)
-					} else if (v.length === 0) {
-						props.setters.defaultAlt(100)
-						return v
-					} else if (v.substring(0, Math.max(v.length - 1, 1)) === "-") {
-						props.setters.defaultAlt(100)
-						return v.substring(0, Math.max(v.length - 1, 1))
-					} else if (Number.isNaN(parseFloat(v))) {
-						return ""
-					}
 
-					return props.getters.defaultAlt
-				}} />
-			</div>
-			{props.getters.path.length === 0 ? null :
-				<Button style={{ "margin-top": "1em", "width": "15em" }} onClick={() => {
-					props.setters.path([])
-					props.setSaved(false)
-				}}>Reset path</Button>
-			}
-			{props.saved == true ? null : (
-				<div style={{ "display": "flex", "margin-top": "1em", "gap": "1em", "align-items": "center" }}>
-						<Button style={{ "width": "11.5em" }} onClick={() => {
+
+			<Column style={{ marginBottom: "1rem", gap: "1.5rem" }}>
+				<Row>
+					<Row>
+						<div style={{ "display": "flex", "alignItems": "center" }}>
+							<span>Mode: </span>
+						</div>
+						<Dropdown initial={"Disabled"} onChange={(v) => {
+							props.setters.placementMode(v)
+						}}>
+							<span value="disabled">Disabled</span>
+							<span value="push">Push</span>
+							<span value="insert">Insert</span>
+						</Dropdown>
+					</Row>
+					&nbsp;
+				</Row>
+				<Row>
+					<Row>
+						<div style={{ "display": "flex", "alignItems": "center" }}>
+							<span>Place: </span>
+						</div>
+						<Dropdown initial={"Waypoint"} onChange={(v) => {
+							props.setters.mode(v)
+						}}>
+							<span value="waypoint">Waypoint</span>
+							<span value="jump">Jump</span>
+							<span value="unlimLoiter">Unlimited Loiter</span>
+							<span value="turnLoiter">Turn Loiter</span>
+							<span value="timeLoiter">Time Loiter</span>
+						</Dropdown>
+					</Row>
+					&nbsp;
+				</Row>
+				<Row>
+					<Row>
+						<div style={{ "display": "flex", "alignItems": "center" }}>
+							<span>Default Altitude:</span>
+						</div>
+						<Box editable={true} content={props.getters.defaultAlt} onChange={(v) => {
+							if (!Number.isNaN(Number(v)) && v.length > 0) {
+								if (v.endsWith(".")) {
+									props.setters.defaultAlt(125)
+								} else {
+									props.setters.defaultAlt(Number(v))
+								}
+								return v
+							} else if (v.substring(0, v.length - 1).endsWith(".")) {
+								return v.substring(0, v.length - 1)
+							} else if (v.length === 0) {
+								props.setters.defaultAlt(125)
+								return v
+							} else if (v.substring(0, Math.max(v.length - 1, 1)) === "-") {
+								props.setters.defaultAlt(125)
+								return v.substring(0, Math.max(v.length - 1, 1))
+							} else if (Number.isNaN(parseFloat(v))) {
+								return ""
+							}
+
+							return props.getters.defaultAlt
+						}} />
+					</Row>
+					<Row>
+						<div style={{ "display": "flex", "alignItems": "center" }}>
+							<span>ft</span>
+						</div>
+						&nbsp;
+					</Row>
+				</Row>
+				<br />
+				{props.getters.pathSaved ? <span>&nbsp;</span> :
+					<span style={{ color: red }}>You have unsaved points!</span>
+				}
+				<Row>
+					<Row height="2.75rem"  columns="minmax(0, 4fr) minmax(0, 3fr) minmax(0, 3fr) minmax(0, 3fr) minmax(0, 3fr)">
+						<div style={{ "display": "flex", "alignItems": "center" }}>
+							<span>Current Path:</span>
+						</div>
+						<Button style={{ width: "auto" }} disabled={props.getters.path.length === 0} onClick={() => {
+							props.setters.path([])
+							props.setters.pathSaved(false)
+						}}>Clear</Button>
+						&nbsp;
+						&nbsp;
+						&nbsp;
+					</Row>
+				</Row>
+				<Row>
+					<Row height="2.75rem" columns="minmax(0, 4fr) minmax(0, 3fr) minmax(0, 3fr) minmax(0, 3fr) minmax(0, 3fr)">
+						<div style={{ "display": "flex", "alignItems": "center" }}>
+							<span>Mission File:</span>
+						</div>
+						<Button href="http://localhost:5000/uav/commands/view" newTab={true} title="Open the plane Pixhawk mission file in a new tab.">View</Button>
+						<Button disabled={props.getters.pathSaved} onClick={() => {
 							let miss = []
 							for (const [i, value] of props.getters.path.entries()) {
-								if (!value.alt) {
+								if (!value.alt && value.cmd !== Commands.jump) {
 									miss.push(i)
 								}
 							}
@@ -95,20 +153,27 @@ const FlightPlanToolbar = props => {
 							}
 
 							savePath(props.getters.path)
-						}}>Click to save</Button>
-						<Button style={{ "width": "11.5em" }} onClick={() => {
-							props.setters.path(props.getters.pathSave)
-							props.setSaved(true)
-						}}>Discard Changes</Button>
-						<span style={{ color: red }}>You have unsaved points!</span>
-				</div>
-			)}
-			{props.getters.path.length === 0 ? (
-				<Button style={{ "width": "11.25em", "margin-top": "2em" }} onClick={() => {
-					props.setters.path(props.getters.waypoints.slice())
-					props.setSaved(false)
-				}}>Use Mission Waypoints As Path</Button>
-			) : null}
+						}}>Save To</Button>
+						<Button disabled={props.getters.pathSaved} onClick={() => {
+							console.log(props.getters.pathSave)
+							props.setters.path(structuredClone(props.getters.pathSave))
+							props.setters.pathSaved(true)
+						}}>Reset To</Button>
+						<Button onClick={() => httppost("/uav/commands/clear")} title="Clear the mission file in the backend, but not the plane.">Clear</Button>
+					</Row>
+				</Row>
+				<Row>
+					<Row height="2.75rem" columns="minmax(0, 4fr) minmax(0, 3fr) minmax(0, 3fr) minmax(0, 3fr) minmax(0, 3fr)">
+						<div style={{ "display": "flex", "alignItems": "center" }}>
+							<span>Plane: </span>
+						</div>
+						<Button onClick={() => httppost("/uav/commands/write")} title="Write the Pixhawk mission file to the plane.">Write To</Button>
+						<Button onClick={() => httppost("/uav/commands/load")} title="Load the Pixhawk mission file from the plane into the backend.">Load From</Button>
+						&nbsp;
+						&nbsp;
+					</Row>
+				</Row>
+			</Column>
 		</div>
 	)
 }

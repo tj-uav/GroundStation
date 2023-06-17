@@ -1,5 +1,4 @@
 from .uav import uav
-from .ugv import ugv
-from .interop import interop
+from .image import image
 
-__all__ = ("uav", "ugv", "interop")
+__all__ = ("uav", "image")
