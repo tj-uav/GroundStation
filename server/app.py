@@ -14,7 +14,7 @@ from utils.errors import (
     GeneralError,
     ServiceUnavailableError,
 )
-from utils.logging_setup import LOG_STREAM, TELEM_STREAM
+from utils.logging_setup import ROLLING_LOGS
 import sys
 
 sys.stdin.reconfigure(encoding="utf-8")
@@ -154,14 +154,9 @@ def favicon() -> str:
     return ""
 
 
-@app.route("/logs")
-def logs():
-    return {"result": LOG_STREAM.getvalue().split("\n")[::-1]}
-
-
-@app.route("/telemetry")
-def telemetry_data() -> dict:
-    return {"result": TELEM_STREAM.getvalue().split("\n")}
+@app.route("/rollinglogs")
+def rollinglogs() -> Response:
+    return {"result": ROLLING_LOGS.getvalue()}
 
 
 @app.route("/file/infolog")
