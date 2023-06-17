@@ -1,6 +1,30 @@
+import collections
 import logging
-from io import StringIO
+from io import TextIOBase
 from typing import Any
+
+
+# https://stackoverflow.com/a/37952182/11317931
+class FIFOIO(TextIOBase):
+    def __init__(self, size, *args):
+        self.maxsize = size
+        TextIOBase.__init__(self, *args)
+        self.deque = collections.deque()
+
+    def getvalue(self):
+        return "".join(self.deque).split("\n")
+
+    def write(self, x):
+        self.deque.append(x)
+        self.shrink()
+
+    def shrink(self):
+        if self.maxsize is None:
+            return
+        size = len(self.deque)
+        while size > self.maxsize:
+            x = self.deque.popleft()
+            size -= len(x)
 
 
 def log_level(self, message: Any, *args, **kwargs):
@@ -55,17 +79,11 @@ telem_file_handler.setLevel(logging.INFO)
 telem_file_handler.setFormatter(telem_formatter)
 telemetry.addHandler(telem_file_handler)
 
-LOG_STREAM: StringIO = StringIO()
-string_handler: logging.StreamHandler = logging.StreamHandler(LOG_STREAM)
+ROLLING_LOGS: FIFOIO = FIFOIO(10)
+string_handler: logging.StreamHandler = logging.StreamHandler(ROLLING_LOGS)
 string_handler.setLevel(logging.INFO)
 string_handler.setFormatter(formatter)
 logger.addHandler(string_handler)
 autopilot.addHandler(string_handler)
-
-TELEM_STREAM: StringIO = StringIO()
-telem_string_handler: logging.StreamHandler = logging.StreamHandler(TELEM_STREAM)
-telem_string_handler.setLevel(logging.INFO)
-telem_string_handler.setFormatter(telem_formatter)
-telemetry.addHandler(telem_string_handler)
 
 logger.info("STARTED LOGGING")
