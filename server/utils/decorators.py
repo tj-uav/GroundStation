@@ -6,16 +6,7 @@ from typing import Callable, Any
 
 from utils.errors import InvalidStateError
 
-log_exempt: tuple = (
-    "update",
-    "stats",
-    "quick",
-    "get_armed",
-    "submit_telemetry",
-    "odlc_get_queue",
-    "odlc_add_to_queue",
-    "process_image",
-)
+log_exempt: tuple = ("update", "stats", "quick", "get_armed", "save_image")
 
 
 def log(func: Callable, logger: Logger) -> Callable:

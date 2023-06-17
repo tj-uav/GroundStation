@@ -103,7 +103,7 @@ const Logs = () => {
 						<CheckboxList.Option checked={filters.includes("[CRITICAL ]")} value="[CRITICAL ]" color={colors.CRITICAL}>Critical</CheckboxList.Option>
 					</Column>
 					<Column gap="0em">
-						<ScrollButton href={getUrl() + "/logs"} newTab={true}>Open Log File</ScrollButton>
+						<ScrollButton href={getUrl() + "/file/debuglog"} newTab={true}>Open Log File</ScrollButton>
 					</Column>
 				</Row>
 			</CheckboxList>

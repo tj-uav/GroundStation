@@ -270,8 +270,9 @@ generated-members=
 
 # Maximum number of characters on a single line.
 
-# Edit: Changed to 100 characters to allow for longer lines in code
-max-line-length=100
+# Edit: Changed to 99 characters to allow for longer lines in code
+# (and to be consistent with psf/black auto formatter-settings)
+max-line-length=99
 
 # TODO(https://github.com/PyCQA/pylint/issues/3352): Direct pylint to exempt
 # lines made too long by directives to pytype.
