@@ -12,7 +12,7 @@ class FIFOIO(TextIOBase):
         self.deque = collections.deque()
 
     def getvalue(self):
-        return "".join(self.deque).split("\n")
+        return list(filter(None, map(str.strip, "".join(self.deque).split("\n"))))[::-1]
 
     def write(self, x):
         self.deque.append(x)

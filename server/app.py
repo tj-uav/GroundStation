@@ -155,7 +155,7 @@ def favicon() -> str:
 
 
 @app.route("/rollinglogs")
-def rollinglogs() -> Response:
+def rollinglogs():
     return {"result": ROLLING_LOGS.getvalue()}
 
 
