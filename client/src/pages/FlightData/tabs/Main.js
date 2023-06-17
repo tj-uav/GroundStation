@@ -1,19 +1,29 @@
-import React, { useState } from "react"
+import React, {useEffect, useRef, useState} from "react"
 import { Box, Button, Dropdown, Label } from "components/UIElements"
-import {Row, Column, Modal, ModalHeader, ModalBody} from "components/Containers"
+import { Row, Column, Modal, ModalHeader, ModalBody } from "components/Containers"
 
 import styled from "styled-components"
 import { ReactComponent as RawUAV } from "icons/uav.svg"
 import { ReactComponent as RawUAVbw } from "icons/uav-bw.svg"
+import {dark, darkest, darkdark, red} from "theme/Colors"
 import { httpget, httppost } from "../../../backend"
 import { useInterval } from "../../../util"
 import { darkred } from "../../../theme/Colors"
+import { VariableSizeList } from "react-window";
 
 const actions = {
 	waypoint: [0, 1, 2, 3, 4]
 }
 
 const Modes = ["Manual", "Auto", "Loiter", "RTL", "Takeoff", "Land", "Circle", "Stabilize"]
+
+const colors = {
+	INFO: darkdark,
+	IMPORTANT: "#346CBC",
+	WARNING: "#F59505",
+	ERROR: red,
+	CRITICAL: "#B52F9A"
+}
 
 const Main = () => {
 	const [open, setOpen] = useState(false)
@@ -35,12 +45,19 @@ const Main = () => {
 	const [AdistFromHome, setAdistFromHome] = useState(0)
 	const [Aconnection, setAconnection] = useState([95, 0, 95])
 
+	const [logs, setLogs] = useState([])
+	const container = useRef()
+
 	useInterval(400, () => {
 		httpget("/uav/stats", response => {
 			let data = response.data
 
 			setAarmed(data.result.armed)
-			setAorientation({"yaw": data.result.quick.orientation.yaw, "roll": data.result.quick.orientation.roll, "pitch": data.result.quick.orientation.pitch })
+			setAorientation({
+				"yaw": data.result.quick.orientation.yaw,
+				"roll": data.result.quick.orientation.roll,
+				"pitch": data.result.quick.orientation.pitch
+			})
 			setAlatLong({"lat": data.result.quick.lat, "lon": data.result.quick.lon})
 			setAaltitude(data.result.quick.altitude)
 			setAaltitudeGlobal(data.result.quick.altitude_global)
@@ -53,6 +70,12 @@ const Main = () => {
 			setAwaypoint(data.result.quick.waypoint)
 			setAdistFromHome(data.result.quick.dist_from_home)
 			setAconnection(data.result.quick.connection)
+		})
+	})
+
+	useInterval(1000, () => {
+		httpget("/rollinglogs", response => {
+			setLogs(response.data.result)
 		})
 	})
 
@@ -94,7 +117,7 @@ const Main = () => {
 				<Label className="paragraph" style={{ "font-size": "2.1em", color: "black", "margin-top": "auto", "margin-bottom": 0 }}><b>UAV&emsp;</b></Label>
 				{Aarmed.includes("DISARMED") ? <UAVbw onClick={() => httppost("/uav/arm")} title="Disarmed - Click to Arm" /> : <UAV onClick={() => httppost("/uav/disarm")} title="Armed - Click to Disarm" />}
 			</StyledDiv>
-			<Column style={{ marginBottom: "1rem", gap: "1.5rem" }}>
+			<Column style={{ marginBottom: "1rem", gap: "1rem" }}>
 				<Row style={{ gap: "1rem" }}>
 					<Row>
 						<Box label="Roll" content={(Aorientation.roll.toFixed(2)) + "\u00B0"} />
@@ -223,8 +246,20 @@ const Main = () => {
 					</Row>
 				</Row>
 			</Column>
+			<div style={{ "padding-top": "1.5rem" }}>
+				<StyledLogsContainer>
+					{logs.map(log => <p>{log}</p>)}
+				</StyledLogsContainer>
+			</div>
 		</div>
 	)
+}
+
+const getTextWidth = (s) => {
+	const canvas = getTextWidth.canvas || (getTextWidth.canvas = document.createElement("canvas"))
+	const context = canvas.getContext("2d")
+	const metrics = context.measureText(s)
+	return metrics.width
 }
 
 const UAV = styled(RawUAV)`
@@ -248,6 +283,34 @@ const UAVbw = styled(RawUAVbw)`
 const StyledDiv = styled.div`
 	display: flex;
 	margin-bottom: 1em;
+`
+
+const StyledLogsContainer = styled.div`
+	background: ${dark};
+	margin-top: 0.5em;
+	padding: 1em 1em 1em 0.5em;
+	height: 100%;
+	width: 100%;
+	overflow-y: scroll;
+	overflow-x: hidden !important;
+	&::-webkit-scrollbar {
+		width: 20px;
+	}
+	&::-webkit-scrollbar-thumb {
+		background: ${darkest};
+		border: 6px solid rgba(0, 0, 0, 0);
+		border-radius: 1000px;
+		background-clip: padding-box;
+		width: 8px;
+	}
+	&::-webkit-scrollbar-thumb:hover {
+		background: ${darkdark};
+		background-clip: padding-box;
+		trasition: 0.5s;
+	}
+	&::-webkit-scrollbar-track {
+		border: 1px red;
+	}
 `
 
 export default Main
