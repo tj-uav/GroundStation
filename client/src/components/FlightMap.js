@@ -485,7 +485,7 @@ const FlightPlanMap = props => {
 					{ /* Need for SUAS: geofence, airdrop, uav, mission path */ }
 					<LayersControl.Overlay checked name={props.display.flightBoundary}>
 						<LayerGroup>
-							<Polyline positions={circle(props.getters.flightBoundary)} color="#000000" />
+							<Polyline positions={circle(props.getters.flightBoundary)} color="#000000" weight={4} />
 							{props.getters.flightBoundary.map((marker, index) => {
 								return popup(marker, index, "flightBoundary")
 							})}
@@ -493,7 +493,7 @@ const FlightPlanMap = props => {
 					</LayersControl.Overlay>
 					<LayersControl.Overlay checked name={props.display.airdropBoundary}>
 						<LayerGroup>
-							<Polyline positions={circle(props.getters.airdropBoundary)} color="#ee7313" />
+							<Polyline positions={circle(props.getters.airdropBoundary)} color="#ee7313" weight={3} />
 							{props.getters.airdropBoundary.map((marker, index) => {
 								return popup(marker, index, "airdropBoundary")
 							})}
