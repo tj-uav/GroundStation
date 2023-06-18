@@ -169,7 +169,7 @@ const FlightPlanToolbar = props => {
 						</div>
 						<Button onClick={() => httppost("/uav/commands/write")} title="Write the Pixhawk mission file to the plane.">Write To</Button>
 						<Button onClick={() => httppost("/uav/commands/load")} title="Load the Pixhawk mission file from the plane into the backend.">Load From</Button>
-						&nbsp;
+						<Button onClick={() => httppost("/uav/sethome")} title="Set the plane's home location to the competition requirement.">Set Home</Button>
 						&nbsp;
 					</Row>
 				</Row>
