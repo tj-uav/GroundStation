@@ -275,7 +275,14 @@ const UAVbw = styled(RawUAVbw)`
 
 const StyledLog = ({ content, style, index }) => {
 	let type = content.replace(/\].*/, "").slice(1).trim()
-	content = content.replace(/\[.*?\]/, "").replace(/\(groundstation\)/, "(gs)").replace(/\(autopilot\)/, "(plane)")
+	console.log(content)
+	let date = content.match(/(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}),\d{3}/)
+	if (date) {
+		date = new Date(date[1])
+		let difference = (new Date() - date) / 1000
+		content = content.replace(/\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3}/, difference.toFixed(0).toString() + "s ago")
+	}
+	content = content.replace(/\[.*?\]/, "").replace(/\(groundstation\)/, "[gs]").replace(/\(autopilot.*\)/, "[uav]")
 
 	return (
 		<StyledLogContainer index={index} style={{ ...style, height: style.height - (index === 0 ? 32 : 16), width: "99%" }} color={colors[type]}>
