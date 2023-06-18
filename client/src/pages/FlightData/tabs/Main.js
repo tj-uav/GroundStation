@@ -6,7 +6,7 @@ import styled from "styled-components"
 import { ReactComponent as RawUAV } from "icons/uav.svg"
 import { ReactComponent as RawUAVbw } from "icons/uav-bw.svg"
 import {dark, darkest, darkdark, red} from "theme/Colors"
-import { httpget, httppost } from "../../../backend"
+import {getUrl, httpget, httppost} from "../../../backend"
 import { useInterval } from "../../../util"
 import { darkred } from "../../../theme/Colors"
 import { VariableSizeList } from "react-window";
@@ -248,18 +248,11 @@ const Main = () => {
 			</Column>
 			<div style={{ "padding-top": "1.5rem" }}>
 				<StyledLogsContainer>
-					{logs.map(log => <p>{log}</p>)}
+					{logs.map((log, index) => <StyledLog content={log} index={index} style={{ height: getTextHeight(log) }} />)}
 				</StyledLogsContainer>
 			</div>
 		</div>
 	)
-}
-
-const getTextWidth = (s) => {
-	const canvas = getTextWidth.canvas || (getTextWidth.canvas = document.createElement("canvas"))
-	const context = canvas.getContext("2d")
-	const metrics = context.measureText(s)
-	return metrics.width
 }
 
 const UAV = styled(RawUAV)`
@@ -280,6 +273,50 @@ const UAVbw = styled(RawUAVbw)`
 	cursor: pointer;
 `
 
+const StyledLog = ({ content, style, index }) => {
+	let type = content.replace(/\].*/, "").slice(1).trim()
+	content = content.replace(/\[.*?\]/, "").replace(/\(groundstation\)/, "(gs)").replace(/\(autopilot\)/, "(plane)")
+
+	return (
+		<StyledLogContainer index={index} style={{ ...style, height: style.height - (index === 0 ? 32 : 16), width: "99%" }} color={colors[type]}>
+			<StyledLogText color={colors[type]}>{content}</StyledLogText>
+		</StyledLogContainer>
+	)
+}
+
+const getTextWidth = (s) => {
+	const canvas = getTextWidth.canvas || (getTextWidth.canvas = document.createElement("canvas"))
+	const context = canvas.getContext("2d")
+	const metrics = context.measureText(s)
+	return metrics.width
+}
+
+const getTextHeight = (s) => {
+	const canvas = getTextWidth.canvas || (getTextWidth.canvas = document.createElement("canvas"))
+	const context = canvas.getContext("2d")
+	const metrics = context.measureText(s)
+	return metrics.height
+}
+
+const ScrollButton = styled(Button)`
+	margin: 0.25em 0 0 2.5em;
+	width: 75%;
+	height: 2em;
+`
+
+const StyledLogText = styled.p`
+	color: ${props => props.color};
+	margin-bottom: 2px;
+`
+
+const StyledLogContainer = styled.div`
+	border-left: 5px solid ${props => props.color};
+	margin-top: ${props => props.index === 0 ? "16px" : "0"};
+	margin-left: 8px;
+	padding-left: 7px;
+	margin-bottom: 5px;
+`
+
 const StyledDiv = styled.div`
 	display: flex;
 	margin-bottom: 1em;
@@ -288,7 +325,7 @@ const StyledDiv = styled.div`
 const StyledLogsContainer = styled.div`
 	background: ${dark};
 	margin-top: 0.5em;
-	padding: 1em 1em 1em 0.5em;
+	padding: 0em 1em 1em 0.5em;
 	height: 100%;
 	width: 100%;
 	overflow-y: scroll;
