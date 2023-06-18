@@ -1,8 +1,8 @@
 [Desktop Entry]
 Name=Run TJUAV GS
-Icon=[GS_DIR]/util/tjuav_gs_run.png
+Icon=[GS_DIR]/scripts/tjuav_gs_run.png
 Comment=Run the TJUAV GroundStation
-Exec="[GS_DIR]/util/run-gs.sh"
+Exec="[GS_DIR]/scripts/run-gs.sh"
 Version=1.0
 Type=Application
 Terminal=true
