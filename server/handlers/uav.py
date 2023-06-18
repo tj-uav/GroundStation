@@ -7,7 +7,7 @@ import random
 import time
 import typing
 
-from dronekit import connect, Channels, Command, VehicleMode, Vehicle
+from dronekit import connect, Channels, Command, VehicleMode, Vehicle, LocationGlobal
 from pymavlink import mavutil as uavutil
 
 from utils.errors import GeneralError, InvalidRequestError, InvalidStateError
@@ -319,7 +319,11 @@ class UAVHandler:
             cmds = self.vehicle.commands
             cmds.download()
             cmds.wait_ready()
-            self.vehicle.home_location = self.vehicle.location.global_frame
+            self.vehicle.home_location = LocationGlobal(
+                self.config["uav"]["home"]["lat"],
+                self.config["uav"]["home"]["lon"],
+                self.config["uav"]["home"]["alt"],
+            )
             cmds.upload()
             return {}
         except Exception as e:
