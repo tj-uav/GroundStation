@@ -55,8 +55,10 @@ const EMPTY_JUMP = -1
 
 const FlightPlanMap = props => {
 	const [state, setState] = useState({
-		latlng: { lat: 38.528967, lng: -77.735695 },
+		latlng: { lat: 38.315339, lng: -76.548108 },
 	})
+
+	// latlng: { lat: 38.528967, lng: -77.735695 }
 
 	let mapRef = createRef()
 	const [icons, setIcons] = useState({})
@@ -457,7 +459,7 @@ const FlightPlanMap = props => {
 				length={4}
 				onClick={handleClick}
 				ref={mapRef}
-				zoom={16}
+				zoom={16.5}
 				zoomSnap={0.5}
 				wheelPxPerZoomLevel={120}
 				style={{ height: "100%" }}
