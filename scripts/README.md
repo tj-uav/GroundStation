@@ -1,4 +1,4 @@
-# TJUAV GroundStation Utility
+# TJUAV GroundStation Scripts
 
 ## Simulation
 
@@ -51,13 +51,13 @@ After reloading your shell (e.g. `source ~/.profile`), you can run `tjuav-sim [L
 ### Create a desktop entry
 
 1. Note the directory where you cloned `GroundStation`, which contains this README. This will be referred to as `[GS_DIR]`.
-2. Edit the `run-sim.sh` file in `[GS_DIR]/util` to replace part of the third line, specifying `ARDUPILOT_DIRECTORY`, with `[ARDUPILOT_DIR]` from above.
-3. Edit the `tjuav-sim-run.desktop` file in `[GS_DIR]/util` to replace `[GS_DIR]` with the directory you noted above.
-4. `cp [GS_DIR]/util/tjuav-sim-run.desktop ~/.local/share/applications/`
+2. Edit the `run-sim.sh` file in `[GS_DIR]/scripts` to replace part of the third line, specifying `ARDUPILOT_DIRECTORY`, with `[ARDUPILOT_DIR]` from above.
+3. Edit the `tjuav-sim-run.desktop` file in `[GS_DIR]/scripts` to replace `[GS_DIR]` with the directory you noted above.
+4. `cp [GS_DIR]/scripts/tjuav-sim-run.desktop ~/.local/share/applications/`
 5. Wait a few seconds, then use your desktop environment's application launcher to search for "Run Plane Simulation". Click on it to start the simulation.
 
 ## GroundStation
 
-1. Edit the `tjuav-gs-run.desktop` file in `[GS_DIR]/util` to replace `[GS_DIR]` with the absolute path of your `GroundStation` directory.
-2. `cp [GS_DIR]/util/tjuav-gs.desktop ~/.local/share/applications/`
+1. Edit the `tjuav-gs-run.desktop` file in `[GS_DIR]/scripts` to replace `[GS_DIR]` with the absolute path of your `GroundStation` directory.
+2. `cp [GS_DIR]/scripts/tjuav-gs.desktop ~/.local/share/applications/`
 3. Wait a few seconds, then use your desktop environment's application launcher to search for "Run TJUAV GS". Click on it to start the GroundStation.
