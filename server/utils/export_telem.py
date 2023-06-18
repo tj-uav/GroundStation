@@ -2,6 +2,9 @@ import os.path
 import shutil
 import sys
 
+if os.getcwd().endswith("utils"):
+    os.chdir("..")
+
 if not os.path.exists(os.path.join(os.getcwd(), "logs", "telem.log")):
     with open(os.path.join(os.getcwd(), "logs", "telem.log"), "x", encoding="utf-8") as f:
         pass
@@ -11,7 +14,7 @@ if not os.path.exists(os.path.join(os.getcwd(), "logs", "telem.log")):
 with open(os.path.join(os.getcwd(), "logs", "telem.log"), "r", encoding="utf-8") as file:
     line1: str = file.readline()
     if not line1:
-        print("telem.log is empty")
+        print("telem.log is empty - exiting")
         sys.exit()
     timestamp: str = (
         line1.split(";")[0].split(",")[0].replace(" ", "T").replace("-", "_").replace(":", ".")

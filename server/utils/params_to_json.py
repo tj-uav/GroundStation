@@ -1,6 +1,9 @@
 import json
 import os
 
+if os.getcwd().endswith("utils"):
+    os.chdir("..")
+
 filename = input("Enter filename to parse (in server/assets/params/): ")
 
 with open(

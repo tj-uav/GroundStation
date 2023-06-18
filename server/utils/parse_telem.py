@@ -1,6 +1,10 @@
 import json
+import os
 
-filename = input("Enter filename to parse: ")
+if os.getcwd().endswith("utils"):
+    os.chdir("..")
+
+filename = input("Enter filename to parse (in server/logs/): ")
 
 data = {
     "altitude": [float("inf"), 0, 0, 0],
@@ -14,7 +18,7 @@ data = {
     "satellites": [float("inf"), 0, 0, 0],
 }
 
-with open(filename, "r", encoding="utf-8") as telem_file:
+with open(os.path.join(os.getcwd(), "logs", filename), "r", encoding="utf-8") as telem_file:
     count = 0
     for line in telem_file:
         count += 1
