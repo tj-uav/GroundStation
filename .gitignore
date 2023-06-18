@@ -149,9 +149,7 @@ cython_debug/
 /server/assets/*
 !/server/assets/images/odlc/sample.png
 !/server/assets/missions/sample.txt
-!/server/assets/params/avalon.param
-!/server/assets/params/sample.param
-!/server/assets/params/avalon.json
-!/server/assets/params/sample.json
+!/server/assets/params/plane.param
+!/server/assets/params/plane.json
 /client/public/map/*/*/*
 odlc.json
