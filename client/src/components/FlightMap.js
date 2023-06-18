@@ -87,6 +87,15 @@ const FlightPlanMap = props => {
 				shadowAnchor: [12, 41],
 			},
 		})
+		var NoIcon = L.Icon.extend({
+			options: {
+				iconSize: [20, 20],
+                iconAnchor: [10, 10],
+				iconUrl: "../assets/icon-transparent.svg",
+				popupAnchor: [0, 0],
+				tooltipAnchor: [0, 0],
+			},
+		})
 		var VehicleIcon = L.Icon.extend({
 			options: {
 				iconSize: [50, 82],
@@ -103,8 +112,8 @@ const FlightPlanMap = props => {
 			}
 		})
 		setIcons({
-			flightBoundary: new MarkerIcon({ iconUrl: "../assets/icon-flightBoundary.png" }),
-			airdropBoundary: new MarkerIcon({ iconUrl: "../assets/icon-airdropBoundary.png" }),
+			flightBoundary: new NoIcon(),  // MarkerIcon({ iconUrl: "../assets/icon-flightBoundary.png" })
+			airdropBoundary: new NoIcon(),  // MarkerIcon({ iconUrl: "../assets/icon-airdropBoundary.png" })
 			home: new MarkerIcon({ iconUrl: "../assets/icon-home.png" }),
 			unlim: new MarkerIcon({ iconUrl: "../assets/icon-unlim.png" }),
 			turn: new MarkerIcon({ iconUrl: "../assets/icon-turn.png" }),
