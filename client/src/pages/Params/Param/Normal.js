@@ -9,16 +9,26 @@ import Content from "./Content"
 import Value from "./Value"
 import Submit from "./Submit"
 
-const Normal = ({ data, index, setActiveIndex, setModifiedIndexes, modified = false }) => {
+import { useParameters } from "../../Params"
+
+const Normal = ({ listRef, style, height, data, index, setActiveIndex, setModifiedIndexes, parametersSave, modified = false }) => {
+	const [parameters, setParameters] = useParameters()
+
 	return (
-		<Row height="2rem" columns={`min-content auto ${modified ? "3rem" : "6rem"}`}>
+		<Row style={style} height={height ?? "2rem"} columns={`min-content auto ${modified ? "3rem" : "6rem"}`}>
 			<Column height="2rem" style={{ overflow: "hidden" }}>
-				<Row columns="14rem 6rem">
+				<Row height="2rem" columns={modified ? "11.5rem 5rem 5rem" : "11.5rem 5rem"}>
 					<Content padded children={data.name} />
 					<Value
 						style={{ color: modified ? blue : "inherit" }}
 						hook={[data.value, null]}
 					/>
+					{modified ? (
+						<Value
+							style={{ color: modified ? blue : "inherit" }}
+							hook={[data.old.value, null]}
+						/>
+					) : null}
 				</Row>
 			</Column>
 			<Column height="2rem">
@@ -27,10 +37,17 @@ const Normal = ({ data, index, setActiveIndex, setModifiedIndexes, modified = fa
 			{modified ? (
 				<Submit
 					type="decline"
-					callback={() => setModifiedIndexes(prev => prev.filter(i => i !== index))}
+					callback={() => {
+						setModifiedIndexes(prev => prev.filter(i => i !== index))
+						parameters[index] = parametersSave[index]
+						setParameters(parameters)
+					}}
 				/>
 			) : (
-				<Button careful onClick={() => setActiveIndex(index)}>
+				<Button careful style={{ height: "94%" }} onClick={() => {
+					setActiveIndex(index)
+					listRef.current.resetAfterIndex(0);
+				}}>
 					Modify
 				</Button>
 			)}

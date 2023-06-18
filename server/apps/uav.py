@@ -218,7 +218,7 @@ def uav_set_params():
     f = request.json
     if not all(field in f for field in ["params"]):
         raise InvalidRequestError("Missing required fields in request")
-    return app.gs.uav.set_params(f.get("params"))  # {"param": "newvalue"}
+    return app.gs.uav.set_params(**f.get("params"))  # {"param": "newvalue"}
 
 
 @uav_params.route("/save", methods=["POST"])
