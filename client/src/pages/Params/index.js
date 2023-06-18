@@ -1,9 +1,13 @@
-import React, { useState, useEffect, useMemo, useRef, useCallback } from "react"
-import regexParse from "regex-parser"
+import React, { useState, useEffect, useMemo, useRef } from "react"
+import styled from "styled-components"
 
 import { Row, Column } from "components/Containers"
 import { Button, Box, Label } from "components/UIElements"
-import { red } from "theme/Colors"
+import { darkest, darkdark } from "theme/Colors"
+import { httpget, httppost } from "../../backend"
+
+import { VariableSizeList } from "react-window"
+import AutoSizer from "react-virtualized-auto-sizer"
 
 import Param from "./Param"
 /*
@@ -28,105 +32,71 @@ const INITIAL_PARAMS = Object.entries(require("parameters.json")).map(
 	})
 )
 
+let paramToIndex = {}
+INITIAL_PARAMS.forEach((val, i) => {
+	paramToIndex[val.name] = i
+})
+
 const ParametersContext = React.createContext(undefined)
 export function useParameters() {
 	const context = React.useContext(ParametersContext)
 	if (context === undefined)
 		throw new Error("Parameters context can only be called inside a child on `Params`.")
-	return context.current
+	return context
 }
 
-const increment = 50
-
 const Params = () => {
-	const [range, setRange] = useState([0, increment])
-	const [count, setCount] = useState(0)
-
-	const incrementRange = useCallback(() => {
-		return setRange(([low, high]) => [
-			Math.min(low + increment, count),
-			Math.min(high + increment, count),
-		])
-	}, [count])
-
-	const decrementRange = useCallback(() => {
-		return setRange(([low, high]) => [
-			Math.max(low - increment, 0),
-			Math.max(high - increment, 0),
-		])
-	}, [])
-
-	const [filter, setFilter] = useState(/.*/gi)
-	const [loading, setLoading] = useState(false)
-
-	const scrollArea = useRef(null)
-	const [incrementButton, setIncrement] = useState(null)
-	const [decrementButton, setDecrement] = useState(null)
-
-	const load = useCallback(
-		fn => {
-			setLoading(true)
-			const old = scrollArea.current.style.overflow
-			scrollArea.current.style.overflow = "hidden"
-			if (fn === undefined) {
-			} else if (fn === incrementRange) {
-				scrollArea.current.scrollTop = 48
-			} else if (fn === decrementRange) {
-				// hack to get scrollBottom equivalent
-				scrollArea.current.scrollTop = Number.MAX_SAFE_INTEGER
-				scrollArea.current.scrollTop -= 96
-			}
-			fn()
-			setLoading(false)
-			scrollArea.current.style.overflow = old
-		},
-		[incrementRange, decrementRange, scrollArea]
-	)
-
-	useEffect(() => {
-		const el = incrementButton
-		const observer = new IntersectionObserver(entries => {
-			const visible = entries[0].intersectionRatio > 0
-			if (visible) load(incrementRange)
-		})
-		if (el) observer.observe(el)
-		return () => observer.disconnect()
-	}, [incrementButton, load, incrementRange])
-
-	useEffect(() => {
-		const el = decrementButton
-		const observer = new IntersectionObserver(entries => {
-			const visible = entries[0].intersectionRatio > 0
-			if (visible) load(decrementRange)
-		})
-		if (el) observer.observe(el)
-		return () => observer.disconnect()
-	}, [decrementButton, load, decrementRange])
-
-	const [activeParamIndex, setActiveIndex] = useState()
+	const [activeParamIndex, setActiveIndex] = useState(-1)
 	const [modifiedIndexes, setModifiedIndexes] = useState([])
-	const parameters = useRef(new Array(INITIAL_PARAMS))
-	const paramsElementList = useMemo(() => {
-		const arr = INITIAL_PARAMS.filter(
-			p => filter.test(p.name) || filter.test(p.description)
-		).map((param, i) => (
-			<Param
-				key={i}
-				index={i}
-				data={param}
-				active={i === activeParamIndex}
-				setActiveIndex={setActiveIndex}
-				setModifiedIndexes={setModifiedIndexes}
-			/>
-		))
-		setCount(arr.length)
-		return arr.length <= increment * 2 ? arr : arr.slice(...range)
-	}, [range, filter, activeParamIndex])
+	const [parameters, setParameters] = useState(INITIAL_PARAMS)
+	const [parametersSave, setParametersSave] = useState(INITIAL_PARAMS.slice())
+
+	const [filter, setFilter] = useState("")
+	const parametersDisplay = useMemo(() => {
+		if (filter === "") {
+			return [...Array(INITIAL_PARAMS.length).keys()]
+		}
+
+		let dispMap = []
+		for (let index in parameters) {
+			let param = parameters[index]
+			if (param.name.includes(filter) || param.description.includes(filter)) {
+				dispMap.push(index)
+			}
+ 		}
+
+		return dispMap
+	}, [filter])
 
 	const inputBox = useRef(null)
+	const listRef = useRef(null)
+
+	const revertParameters = () => {
+		modifiedIndexes.forEach((val, i) => {
+			parameters[val] = parametersSave[val]
+		})
+		setParameters(parameters)
+		setModifiedIndexes([])
+	}
+
+	const fetch = (url) => {
+		httpget(url, response => {
+			let data = response.data.result
+			for (let param in data) {
+				parameters[paramToIndex[param]].value = data[param]
+			}
+			setParameters(parameters)
+			setParametersSave(parameters.slice())
+		})
+		revertParameters()
+	}
+
+	useEffect(() => {
+		fetch("/uav/params/getall")
+	}, [])
 
 	return (
-		<ParametersContext.Provider value={parameters}>
+		<ParametersContext.Provider value={[parameters, setParameters]}>
 			<div
 				style={{
 					display: "grid",
@@ -140,19 +110,44 @@ const Params = () => {
 			>
 				<div>
 					<Row height="3rem">
-						<Button>Read</Button>
 						<Button
+							title="Get params from server file"
 							onClick={() => {
-								// TODO send to the backend
-								console.log(
-									parameters.current.filter((_, i) => modifiedIndexes.includes(i))
-								)
+								fetch("/uav/params/getall")
 							}}
 						>
-							Write
+							Get
 						</Button>
-						<Button>Load</Button>
-						<Button>Save</Button>
+						<Button
+							title="Set params to server file"
+							onClick={() => {
+								let send = {}
+								for (let index of modifiedIndexes) {
+									send[parameters[index].name] = parseFloat(parameters[index].value)
+								}
+								httppost("/uav/params/setmultiple", { params: send })
+								setParametersSave(parameters.slice())
+								setModifiedIndexes([])
+							}}
+						>
+							Set
+						</Button>
+						<Button
+							title="Load params from plane"
+							onClick={() => {
+								fetch("/uav/params/load")
+							}}
+						>
+							Load
+						</Button>
+						<Button
+							title="Save params to plane"
+							onClick={() => {
+								httppost("/uav/params/save", {})
+							}}
+						>
+							Save
+						</Button>
 					</Row>
 					{modifiedIndexes.length > 0 && (
 						<Row
@@ -160,9 +155,10 @@ const Params = () => {
 							columns="min-content auto 6rem"
 							height="2rem"
 						>
-							<Row columns="14rem 6rem">
+							<Row columns="11.5rem 5rem 5rem">
 								<Label>Param Name</Label>
-								<Label>Value</Label>
+								<Label>New</Label>
+								<Label>Old</Label>
 							</Row>
 							<Label>Description</Label>
 						</Row>
@@ -176,17 +172,20 @@ const Params = () => {
 							overflow: "auto",
 						}}
 					>
-						{modifiedIndexes.map((mIndex, index) => (
-							<Param
-								key={index}
-								index={mIndex}
-								data={parameters.current[mIndex]}
-								active={false}
-								setActiveIndex={setActiveIndex}
-								setModifiedIndexes={setModifiedIndexes}
-								modified={true}
-							/>
-						))}
+						{modifiedIndexes.map((mIndex, index) => {
+							return (
+								<Param
+									key={index}
+									index={mIndex}
+									data={{ ...parameters[mIndex], old: parametersSave[mIndex] }}
+									active={false}
+									setActiveIndex={setActiveIndex}
+									setModifiedIndexes={setModifiedIndexes}
+									parametersSave={parametersSave}
+									modified={true}
+								/>
+							)
+						})}
 					</section>
 				</div>
 				<Column
@@ -201,73 +200,81 @@ const Params = () => {
 								e.stopPropagation()
 							}}
 							onChange={value => {
-								let regex
-								const element = inputBox.current
-								element.style.color = "unset"
-								try {
-									regex = regexParse(value)
-								} catch (e) {
-									regex = /.*/gi
-									if (value !== "") element.style.color = red
-								}
-								setFilter(regex)
-								setRange([0, increment])
-								scrollArea.current.scrollTop = 0
+								setFilter(value)
 							}}
-							placeholder="Enter search term or regular expression"
+							placeholder="Enter search term"
 							style={{ textAlign: "left" }}
 							editable
 						></Box>
 					</Row>
 					<Row
 						style={{ marginBottom: "-1rem" }}
-						columns="min-content auto 6rem"
 						height="2rem"
 					>
-						<Row columns="14rem 6rem">
+						<Row columns="11.5rem 5rem">
 							<Label>Param Name</Label>
 							<Label>Value</Label>
 						</Row>
 						<Label>Description</Label>
 					</Row>
-					<div ref={scrollArea} style={{ overflow: "auto" }}>
-						<div
-							style={{
-								display: "flex",
-								flexDirection: "column",
-								height: "100%",
-								gap: "1rem",
-							}}
-						>
-							{count > increment * 2 && range[0] > 0 && (
-								<Button
-									ref={setDecrement}
-									style={{ minHeight: "2rem" }}
-									onClick={() => load(decrementRange)}
-									careful
-								>
-									{loading ? "Loading..." : "Load More (Previous)"}
-								</Button>
-							)}
-
-							{paramsElementList}
-
-							{count > increment * 2 && range[1] <= count && (
-								<Button
-									ref={setIncrement}
-									style={{ minHeight: "2rem" }}
-									onClick={() => load(incrementRange)}
-									careful
-								>
-									{loading ? "Loading..." : "Load More (Next)"}
-								</Button>
-							)}
-						</div>
-					</div>
+					<AutoSizer>
+						{({ height, width }) => (
+							<Container
+								height={height - 96}
+								width={width}
+								itemCount={parametersDisplay.length}
+								ref={listRef}
+								itemSize={(index) => {
+									return activeParamIndex === parametersDisplay[index] ? 130 : 35
+								}}
+							>
+								{({ index, style }) => {
+									return (
+										<Param
+											style={style}
+											height={activeParamIndex === parametersDisplay[index] ? 130 : 35}
+											key={parametersDisplay[index]}
+											index={parametersDisplay[index]}
+											data={parameters[parametersDisplay[index]]}
+											active={parametersDisplay[index] === activeParamIndex}
+											setActiveIndex={setActiveIndex}
+											setModifiedIndexes={setModifiedIndexes}
+											parametersSave={parametersSave}
+											listRef={listRef}
+										/>
+									)
+								}}
+							</Container>
+						)}
+					</AutoSizer>
 				</Column>
 			</div>
 		</ParametersContext.Provider>
 	)
 }
+
+const Container = styled(VariableSizeList)`
+	overflow-y: auto;
+	margin-bottom: 2rem;
+
+	&::-webkit-scrollbar {
+		width: 20px;
+	}
+	&::-webkit-scrollbar-thumb {
+		background: ${darkest};
+		border: 6px solid rgba(0, 0, 0, 0);
+		border-radius: 1000px;
+		background-clip: padding-box;
+		width: 8px;
+	}
+	&::-webkit-scrollbar-thumb:hover {
+		background: ${darkdark};
+		background-clip: padding-box;
+		trasition: 0.5s;
+	}
+	&::-webkit-scrollbar-track {
+		border: 1px red;
+	}
+`
 
 export default Params

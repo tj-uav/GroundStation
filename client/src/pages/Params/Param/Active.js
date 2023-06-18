@@ -9,16 +9,16 @@ import Submit from "./Submit"
 
 import { useParameters } from "../../Params"
 
-const Active = ({ data, index, setActiveIndex, setModifiedIndexes }) => {
+const Active = ({ listRef, style, height, data, index, setActiveIndex, setModifiedIndexes, parametersSave }) => {
 	const [value, setValue] = useState(data.value)
 	const deactivate = () => setActiveIndex(-1)
-	const params = useParameters()
+	const [params, setParameters] = useParameters()
 
 	return (
 		<form onSubmit={e => handleSubmit(e, deactivate)}>
-			<Row style={{ maxHeight: "7rem" }} columns="min-content auto 6rem">
+			<Row style={{ ...style, height: height }} columns="min-content auto 6rem">
 				<div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-					<Row height="2rem" columns="14rem 6rem">
+					<Row height="2rem" columns="11.5rem 5rem">
 						<Content padded children={data.name} />
 						<Value editable hook={[value, setValue]} />
 					</Row>
@@ -29,31 +29,39 @@ const Active = ({ data, index, setActiveIndex, setModifiedIndexes }) => {
 						<Content padded children={data.options ?? "no options defined."} />
 					</Row>
 				</div>
-				<Column style={{ display: "flex", height: "100%", overflow: "scroll" }}>
-					<Content padded children={data.description} style={{ overflow: "scroll" }} />
+				<Column style={{ display: "flex", height: "96%" }}>
+					<Content padded children={data.description} />
 				</Column>
 				<aside
 					style={{
 						display: "flex",
 						flexDirection: "column",
 						rowGap: "1rem",
-						height: "100%",
+						height: "96%",
 					}}
 				>
 					<Submit
 						type="accept"
 						callback={() => {
-							params[index] = {
-								...data,
-								value,
+							if (value != parametersSave[index].value) {
+								params[index] = {
+									...data,
+									value,
+								}
+								setParameters(params)
+								setModifiedIndexes(prev => {
+									if (!prev.includes(index)) return [...prev, index]
+									else return prev
+								})
 							}
-							setModifiedIndexes(prev => {
-								if (!prev.includes(index)) return [...prev, index]
-								else return prev
-							})
+							setActiveIndex(-1)
+							listRef.current.resetAfterIndex(0);
 						}}
 					/>
-					<Submit type="decline" />
+					<Submit type="decline" callback={() => {
+						listRef.current.resetAfterIndex(0);
+						setActiveIndex(-1)
+					}} />
 				</aside>
 			</Row>
 		</form>
