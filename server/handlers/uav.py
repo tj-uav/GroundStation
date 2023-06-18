@@ -322,7 +322,7 @@ class UAVHandler:
             self.vehicle.home_location = LocationGlobal(
                 self.config["uav"]["home"]["lat"],
                 self.config["uav"]["home"]["lon"],
-                self.config["uav"]["home"]["alt"],
+                self.config["uav"]["home"]["alt"] / self.m_to_ft,
             )
             cmds.upload()
             return {}
