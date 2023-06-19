@@ -132,7 +132,7 @@ const FlightPlanMap = props => {
 
 	useEffect(() => {
 		props.setters.firstJump(-1)
-	}, [props.getters.mode, props.getters.placementMode])
+	}, [props.getters.placementType, props.getters.placementMode])
 
 	const checkInternet = () => {
 		if (navigator.onLine) {
@@ -179,8 +179,82 @@ const FlightPlanMap = props => {
 		props.setters.pathSaved(false)
 	}
 
+	const handleClick = event => {
+		if (props.getters.placementMode === "disabled" || props.getters.placementType === "jump") {
+			return
+		}
+		if (props.getters.placementType) {
+			let get = props.getters.path
+			let set = props.setters.path
+
+			props.setters.pathSaved(false);
+
+			if (props.getters.placementMode === "push" || (props.getters.placementMode === "insert" && get.length < 2)) {
+				let temp = get.slice()
+				let point = { lat: event.latlng.lat, lng: event.latlng.lng, opacity: 0.5, num: get.length + (get[0]?.num === 0 ? -1 : 1), cmd: Commands[props.getters.placementType] }
+				temp.push(point)
+				set(temp)
+			} else if (props.getters.placementMode === "insert") {
+				const getPerpendicularDistance = (i) => {
+					let first
+					let second
+					if (get[i]?.cmd === Commands.jump) {
+						first = get[i - 1]
+						second = get[get[i].p1 - (get[0].num === 0 ? 0 : 1)]
+					} else {
+						first = get[i]
+						second = get[(i + 1) % get.length]
+					}
+
+					let m = (second.lat - first.lat)/(second.lng - first.lng)
+					let x0 = (event.latlng.lng/m + event.latlng.lat - second.lat + m*second.lng)/(m + 1/m) // projection of event point on line
+					let y0 = -(x0 - event.latlng.lng)/m + event.latlng.lat
+
+					if (m === -Infinity || m === Infinity) {
+						let d = Math.abs(event.latlng.lng - first.lng)
+						let lat = event.latlng.lat
+						return [d, (lat > first.lat && lat < second.lat) || (lat > second.lat && lat < first.lat)]
+					} else if (m == 0) {
+						let d = Math.abs(event.latlng.lat - first.lat)
+						let lng = event.latlng.lng
+						return [d, (lng > first.lng && lng < second.lng) || (lng > second.lng && lng < first.lng)]
+					} else {
+						let d = Math.sqrt((x0 - event.latlng.lng)**2 + (y0 - event.latlng.lat)**2)
+						if (x0 > Math.min(first.lng, second.lng) && x0 < Math.max(first.lng, second.lng) && y0 > Math.min(first.lat, second.lat) && y0 < Math.max(first.lat, second.lat)) {
+							return [d, true]
+						} else {
+							return [d, false]
+						}
+					}
+				}
+
+				let min = get[0]?.num === 0 ? 1 : 0
+				let inBox = getPerpendicularDistance(0)[1]
+				for (let i = 0; i < get.length; i++) {
+					let [d, _in] = getPerpendicularDistance(i)
+					if (_in && !inBox) {
+						min = i
+						inBox = true
+					} else if ((!_in && !inBox) || (_in && inBox)) {
+						if (d < getPerpendicularDistance(min)[0]) {
+							min = i
+						}
+					}
+				}
+
+				let path = get.slice()
+				if (get[min]?.cmd === Commands.jump) {
+					path = [...path.slice(0, min), { num: min, lat: event.latlng.lat, lng: event.latlng.lng, opacity: 0.5, cmd: Commands[props.getters.placementType] }, ...(path.slice(min).map(point => ({ ...point, num: point.num + 1 })))]
+				} else {
+					path = [...path.slice(0, min + 1), { num: min + (get[0]?.num === 0 ? 1 : 2), lat: event.latlng.lat, lng: event.latlng.lng, opacity: 0.5, cmd: Commands[props.getters.placementType] }, ...(path.slice(min + 1).map(point => ({ ...point, num: point.num + 1 })))]
+				}
+				set(path)
+			}
+		}
+	}
+
 	const jumpClick = (key, datatype) => {
-		if (props.getters.placementMode === "disabled" || props.getters.mode !== "jump") {
+		if (props.getters.placementMode === "disabled" || props.getters.placementType !== "jump") {
 			if (props.getters.placementMode === "distance") {
 				if (props.getters.firstPoint === -1) {
 					props.setters.firstPoint(key)
@@ -248,80 +322,6 @@ const FlightPlanMap = props => {
 				: null}
 			</Marker>
 		)
-	}
-
-	const handleClick = event => {
-		if (props.getters.placementMode === "disabled" || props.getters.mode === "jump") {
-			return
-		}
-		if (props.getters.mode) {
-			let get = props.getters.path
-			let set = props.setters.path
-
-			props.setters.pathSaved(false);
-
-			if (props.getters.placementMode === "push" || (props.getters.placementMode === "insert" && get.length < 2)) {
-				let temp = get.slice()
-				let point = { lat: event.latlng.lat, lng: event.latlng.lng, opacity: 0.5, num: get.length + (get[0]?.num === 0 ? -1 : 1), cmd: Commands[props.getters.mode] }
-				temp.push(point)
-				set(temp)
-			} else if (props.getters.placementMode === "insert") {
-				const getPerpendicularDistance = (i) => {
-					let first
-					let second
-					if (get[i]?.cmd === Commands.jump) {
-						first = get[i - 1]
-						second = get[get[i].p1 - (get[0].num === 0 ? 0 : 1)]
-					} else {
-						first = get[i]
-						second = get[(i + 1) % get.length]
-					}
-
-					let m = (second.lat - first.lat)/(second.lng - first.lng)
-					let x0 = (event.latlng.lng/m + event.latlng.lat - second.lat + m*second.lng)/(m + 1/m) // projection of event point on line
-					let y0 = -(x0 - event.latlng.lng)/m + event.latlng.lat
-
-					if (m === -Infinity || m === Infinity) {
-						let d = Math.abs(event.latlng.lng - first.lng)
-						let lat = event.latlng.lat
-						return [d, (lat > first.lat && lat < second.lat) || (lat > second.lat && lat < first.lat)]
-					} else if (m == 0) {
-						let d = Math.abs(event.latlng.lat - first.lat)
-						let lng = event.latlng.lng
-						return [d, (lng > first.lng && lng < second.lng) || (lng > second.lng && lng < first.lng)]
-					} else {
-						let d = Math.sqrt((x0 - event.latlng.lng)**2 + (y0 - event.latlng.lat)**2)
-						if (x0 > Math.min(first.lng, second.lng) && x0 < Math.max(first.lng, second.lng) && y0 > Math.min(first.lat, second.lat) && y0 < Math.max(first.lat, second.lat)) {
-							return [d, true]
-						} else {
-							return [d, false]
-						}
-					}
-				}
-
-				let min = get[0]?.num === 0 ? 1 : 0
-				let inBox = getPerpendicularDistance(0)[1]
-				for (let i = 0; i < get.length; i++) {
-					let [d, _in] = getPerpendicularDistance(i)
-					if (_in && !inBox) {
-						min = i
-						inBox = true
-					} else if ((!_in && !inBox) || (_in && inBox)) {
-						if (d < getPerpendicularDistance(min)[0]) {
-							min = i
-						}
-					}
-				}
-
-				let path = get.slice()
-				if (get[min]?.cmd === Commands.jump) {
-					path = [...path.slice(0, min), { num: min, lat: event.latlng.lat, lng: event.latlng.lng, opacity: 0.5, cmd: Commands[props.getters.mode] }, ...(path.slice(min).map(point => ({ ...point, num: point.num + 1 })))]
-				} else {
-					path = [...path.slice(0, min + 1), { num: min + (get[0]?.num === 0 ? 1 : 2), lat: event.latlng.lat, lng: event.latlng.lng, opacity: 0.5, cmd: Commands[props.getters.mode] }, ...(path.slice(min + 1).map(point => ({ ...point, num: point.num + 1 })))]
-				}
-				set(path)
-			}
-		}
 	}
 
 	const circle = arr => {

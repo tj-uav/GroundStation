@@ -37,9 +37,9 @@ const FlightPlanToolbar = props => {
 			if (props.getters.currentDistance !== -1) {
 				setModeText("Distance: " + props.getters.currentDistance.toFixed(2) + " ft")
 			} else if (props.getters.firstPoint === -1) {
-				setModeText("Select a point")
+				setModeText("Select a waypoint")
 			} else {
-				setModeText("Select another point")
+				setModeText("Select another waypoint")
 			}
 		} else {
 			setModeText("")
@@ -64,76 +64,69 @@ const FlightPlanToolbar = props => {
 
 
 			<Column style={{ marginBottom: "1rem", gap: "1.5rem" }}>
-				<Row>
-					<Row>
-						<div style={{ "display": "flex", "alignItems": "center" }}>
-							<span>Mode: </span>
-						</div>
-						<Dropdown initial={"Disabled"} onChange={(v) => {
-							props.setters.placementMode(v)
-							if (v !== "distance") {
-								props.setters.currentDistance(-1)
-							}
-						}}>
-							<span value="disabled">Disabled</span>
-							<span value="push">Push</span>
-							<span value="insert">Insert</span>
-							<span value="distance">Distance Calc</span>
-						</Dropdown>
-					</Row>
-					<Label>{modeText}</Label>
+				<Row columns="minmax(0, 3fr) minmax(0, 5fr) minmax(0, 4fr)">
+					<div style={{ "display": "flex", "alignItems": "center" }}>
+						<span>Mode: </span>
+					</div>
+					<Dropdown initial={"Disabled"} onChange={(v) => {
+						props.setters.placementMode(v)
+						if (v !== "distance") {
+							props.setters.currentDistance(-1)
+						}
+					}}>
+						<span value="disabled">Disabled</span>
+						<span value="push">Push</span>
+						<span value="insert">Insert</span>
+						<span value="distance">Distance Calc</span>
+					</Dropdown>
+					<div style={{ "display": "flex", "alignItems": "center" }}>
+						<span>{modeText}</span>
+					</div>
 				</Row>
-				<Row>
-					<Row>
-						<div style={{ "display": "flex", "alignItems": "center" }}>
-							<span>Place: </span>
-						</div>
-						<Dropdown initial={"Waypoint"} onChange={(v) => {
-							props.setters.mode(v)
-						}}>
-							<span value="waypoint">Waypoint</span>
-							<span value="jump">Jump</span>
-							<span value="unlimLoiter">Unlimited Loiter</span>
-							<span value="turnLoiter">Turn Loiter</span>
-							<span value="timeLoiter">Time Loiter</span>
-						</Dropdown>
-					</Row>
+				<Row columns="minmax(0, 3fr) minmax(0, 5fr) minmax(0, 4fr)">
+					<div style={{ "display": "flex", "alignItems": "center" }}>
+						<span>Type: </span>
+					</div>
+					<Dropdown initial={"Waypoint"} onChange={(v) => {
+						props.setters.placementType(v)
+					}}>
+						<span value="waypoint">Waypoint</span>
+						<span value="jump">Jump</span>
+						<span value="unlimLoiter">Unlimited Loiter</span>
+						<span value="turnLoiter">Turn Loiter</span>
+						<span value="timeLoiter">Time Loiter</span>
+					</Dropdown>
 					&nbsp;
 				</Row>
-				<Row>
-					<Row>
-						<div style={{ "display": "flex", "alignItems": "center" }}>
-							<span>Default Altitude:</span>
-						</div>
-						<Box editable={true} content={props.getters.defaultAlt} onChange={(v) => {
-							if (!Number.isNaN(Number(v)) && v.length > 0) {
-								if (v.endsWith(".")) {
-									props.setters.defaultAlt(125)
-								} else {
-									props.setters.defaultAlt(Number(v))
-								}
-								return v
-							} else if (v.substring(0, v.length - 1).endsWith(".")) {
-								return v.substring(0, v.length - 1)
-							} else if (v.length === 0) {
+				<Row columns="minmax(0, 3fr) minmax(0, 5fr) minmax(0, 4fr)">
+					<div style={{ "display": "flex", "alignItems": "center" }}>
+						<span>Default Altitude:</span>
+					</div>
+					<Box editable={true} content={props.getters.defaultAlt} onChange={(v) => {
+						if (!Number.isNaN(Number(v)) && v.length > 0) {
+							if (v.endsWith(".")) {
 								props.setters.defaultAlt(125)
-								return v
-							} else if (v.substring(0, Math.max(v.length - 1, 1)) === "-") {
-								props.setters.defaultAlt(125)
-								return v.substring(0, Math.max(v.length - 1, 1))
-							} else if (Number.isNaN(parseFloat(v))) {
-								return ""
+							} else {
+								props.setters.defaultAlt(Number(v))
 							}
+							return v
+						} else if (v.substring(0, v.length - 1).endsWith(".")) {
+							return v.substring(0, v.length - 1)
+						} else if (v.length === 0) {
+							props.setters.defaultAlt(125)
+							return v
+						} else if (v.substring(0, Math.max(v.length - 1, 1)) === "-") {
+							props.setters.defaultAlt(125)
+							return v.substring(0, Math.max(v.length - 1, 1))
+						} else if (Number.isNaN(parseFloat(v))) {
+							return ""
+						}
 
-							return props.getters.defaultAlt
-						}} />
-					</Row>
-					<Row>
-						<div style={{ "display": "flex", "alignItems": "center" }}>
-							<span>ft</span>
-						</div>
-						&nbsp;
-					</Row>
+						return props.getters.defaultAlt
+					}} />
+					<div style={{ "display": "flex", "alignItems": "center" }}>
+						<span>ft</span>
+					</div>
 				</Row>
 				<br />
 				{props.getters.pathSaved ? <span>&nbsp;</span> :
