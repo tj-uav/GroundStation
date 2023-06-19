@@ -37,17 +37,19 @@ const FlightPlanToolbar = props => {
 			if (props.getters.currentDistance !== -1) {
 				setModeText("Distance: " + props.getters.currentDistance.toFixed(2) + " ft")
 			} else if (props.getters.firstPoint === -1) {
-				setModeText("Select a waypoint")
+				setModeText("Select a start waypoint")
 			} else {
-				setModeText("Select another waypoint")
+				setModeText("Select an end waypoint")
 			}
 		} else if (["push", "insert"].includes(props.getters.placementMode)) {
 			if (props.getters.placementType === "jump") {
 				if (props.getters.firstJump === -1) {
-					setModeText("Select a waypoint")
+					setModeText("Select a start waypoint")
 				} else {
-					setModeText("Select another waypoint")
+					setModeText("Select an end waypoint")
 				}
+			} else {
+				setModeText("Click anywhere to " + props.getters.placementMode)
 			}
 		} else {
 			setModeText("")
