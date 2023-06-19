@@ -315,7 +315,7 @@ const FlightPlanMap = props => {
 				opacity={latlng.opacity}
 			>
 				<Tooltip>
-					{props.display[datatype] + " " + (key)} ({latlng.lat.toFixed(5)}, {latlng.lng.toFixed(5)}{latlng.alt ? ", " + latlng.alt + " ft" : null})
+					{"#" + key + ": " + props.display[datatype]} ({latlng.lat.toFixed(8)}, {latlng.lng.toFixed(8)}{latlng.alt ? ", " + latlng.alt.toFixed(2) + " ft" : null})
 				</Tooltip>
 				{popupMenu ?
 					<Popup>
