@@ -253,7 +253,7 @@ const FlightPlanMap = props => {
 		}
 	}
 
-	const jumpClick = (key, datatype) => {
+	const doubleClick = (key, datatype) => {
 		if (props.getters.placementMode === "disabled" || props.getters.placementType !== "jump") {
 			if (props.getters.placementMode === "distance") {
 				if (props.getters.firstPoint === -1) {
@@ -304,7 +304,7 @@ const FlightPlanMap = props => {
 				eventHandlers={{
 					dragend: (event) => { handleMove(event, key - (props.getters.path[0].num === 0 ? 0 : 1), datatype) },
 					click: () => {
-						jumpClick(key, datatype)
+						doubleClick(key, datatype)
 					}
 				}}
 				onkeydown={event => handleKeyPress(event, key)}
