@@ -180,7 +180,9 @@ const FlightPlanMap = props => {
 	}
 
 	const handleClick = event => {
-		if (props.getters.placementMode === "disabled" || props.getters.placementType === "jump") {
+		console.log(props.getters.path)
+
+		if (["disabled", "distance"].includes(props.getters.placementMode) || ["jump"].includes(props.getters.placementType)) {
 			return
 		}
 		if (props.getters.placementType) {
@@ -191,7 +193,7 @@ const FlightPlanMap = props => {
 
 			if (props.getters.placementMode === "push" || (props.getters.placementMode === "insert" && get.length < 2)) {
 				let temp = get.slice()
-				let point = { lat: event.latlng.lat, lng: event.latlng.lng, opacity: 0.5, num: get.length + (get[0]?.num === 0 ? -1 : 1), cmd: Commands[props.getters.placementType] }
+				let point = { lat: event.latlng.lat, lng: event.latlng.lng, opacity: 0.5, num: get.length + 1, cmd: Commands[props.getters.placementType] }
 				temp.push(point)
 				set(temp)
 			} else if (props.getters.placementMode === "insert") {
@@ -244,7 +246,7 @@ const FlightPlanMap = props => {
 
 				let path = get.slice()
 				if (get[min]?.cmd === Commands.jump) {
-					path = [...path.slice(0, min), { num: min, lat: event.latlng.lat, lng: event.latlng.lng, opacity: 0.5, cmd: Commands[props.getters.placementType] }, ...(path.slice(min).map(point => ({ ...point, num: point.num + 1 })))]
+					path = [...path.slice(0, min), { num: min + 1, lat: event.latlng.lat, lng: event.latlng.lng, opacity: 0.5, cmd: Commands[props.getters.placementType] }, ...(path.slice(min).map(point => ({ ...point, num: point.num + 1 })))]
 				} else {
 					path = [...path.slice(0, min + 1), { num: min + (get[0]?.num === 0 ? 1 : 2), lat: event.latlng.lat, lng: event.latlng.lng, opacity: 0.5, cmd: Commands[props.getters.placementType] }, ...(path.slice(min + 1).map(point => ({ ...point, num: point.num + 1 })))]
 				}
@@ -255,18 +257,18 @@ const FlightPlanMap = props => {
 
 	const doubleClick = (key, datatype) => {
 		if (props.getters.placementMode === "disabled" || props.getters.placementType !== "jump") {
-			if (props.getters.placementMode === "distance") {
-				if (props.getters.firstPoint === -1) {
-					props.setters.firstPoint(key)
-					props.setters.currentDistance(-1)
-				} else {
-					let fromLatLng = L.latLng(props.getters.path[props.getters.firstPoint - 1])
-					let toLatLng = L.latLng(props.getters.path[key - 1])
-					props.setters.currentDistance(fromLatLng.distanceTo(toLatLng))
-					props.setters.firstPoint(-1)
-				}
-			}
 			return
+		}
+		if (props.getters.placementMode === "distance") {
+			if (props.getters.firstPoint === -1) {
+				props.setters.firstPoint(key)
+				props.setters.currentDistance(-1)
+			} else {
+				let fromLatLng = L.latLng(props.getters.path[props.getters.firstPoint - 1])
+				let toLatLng = L.latLng(props.getters.path[key - 1])
+				props.setters.currentDistance(fromLatLng.distanceTo(toLatLng))
+				props.setters.firstPoint(-1)
+			}
 		}
 		if (datatype === "unlim" || datatype === "turn" || datatype === "time" || datatype === "path") {
 			if (props.getters.firstJump === -1) {
