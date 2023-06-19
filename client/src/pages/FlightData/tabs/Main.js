@@ -45,7 +45,7 @@ const Main = () => {
 	const [AdistFromHome, setAdistFromHome] = useState(0)
 	const [Aconnection, setAconnection] = useState([95, 0, 95])
 
-	const [logs, setLogs] = useState([])
+	const [logs, setLogs] = useState(["Loading logs..."])
 	const container = useRef()
 
 	useInterval(400, () => {
