@@ -514,7 +514,7 @@ const FlightPlanMap = props => {
 								<RotatedMarker icon={icons.uavDirection} position={props.getters.uav.latlng} rotationAngle={props.getters.uav.heading} rotationOrigin={"50% 100%"} />
 								<Marker datatype="uav" icon={icons.uav} position={props.getters.uav.latlng}>
 									<Tooltip>
-										UAV ({props.getters.uav.latlng.lat.toFixed(5)}, {props.getters.uav.latlng.lng.toFixed(5)})
+										UAV ({props.getters.uav.latlng.lat.toFixed(8)}, {props.getters.uav.latlng.lng.toFixed(8)})
 									</Tooltip>
 								</Marker>
 								<RotatedMarker icon={icons.uavDirectionOutline} position={props.getters.uav.latlng} rotationAngle={props.getters.uav.heading} rotationOrigin={"50% 100%"} />
@@ -526,7 +526,7 @@ const FlightPlanMap = props => {
 							<LayerGroup>
 								<Marker datatype="home" icon={icons.home} position={props.getters.home}>
 									<Tooltip>
-										Home ({props.getters.home.lat.toFixed(5)}, {props.getters.home.lng.toFixed(5)})
+										Home ({props.getters.home.lat.toFixed(8)}, {props.getters.home.lng.toFixed(8)})
 									</Tooltip>
 								</Marker>
 							</LayerGroup>
@@ -537,7 +537,7 @@ const FlightPlanMap = props => {
 							<LayerGroup>
 								<Marker datatype="water" icon={icons.water} position={props.getters.water}>
 									<Tooltip>
-										Water ({props.getters.water.lat.toFixed(5)}, {props.getters.water.lng.toFixed(5)})
+										Water ({props.getters.water.lat.toFixed(8)}, {props.getters.water.lng.toFixed(8)})
 									</Tooltip>
 								</Marker>
 							</LayerGroup>
