@@ -275,7 +275,6 @@ const UAVbw = styled(RawUAVbw)`
 
 const StyledLog = ({ content, style, index }) => {
 	let type = content.replace(/\].*/, "").slice(1).trim()
-	console.log(content)
 	let date = content.match(/(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}),\d{3}/)
 	if (date) {
 		date = new Date(date[1])
