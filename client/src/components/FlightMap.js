@@ -315,7 +315,7 @@ const FlightPlanMap = props => {
 				opacity={latlng.opacity}
 			>
 				<Tooltip>
-					{"#" + key + ": " + props.display[datatype]} ({latlng.lat.toFixed(8)}, {latlng.lng.toFixed(8)}{latlng.alt ? ", " + latlng.alt.toFixed(2) + " ft" : null})
+					{"#" + key + ": " + props.display[datatype][0]} ({latlng.lat.toFixed(8)}, {latlng.lng.toFixed(8)}{latlng.alt ? ", " + latlng.alt.toFixed(2) + " ft" : null})
 				</Tooltip>
 				{popupMenu ?
 					<Popup>
@@ -491,8 +491,8 @@ const FlightPlanMap = props => {
 				/>
 				<ClickLocation />
 				<LayersControl position="topright">
-					{ /* Need for SUAS: geofence, airdrop, uav, mission path */ }
-					<LayersControl.Overlay checked name={props.display.flightBoundary}>
+					{ /* Need for SUAS: geofence, airdrop, uav, waypoint */ }
+					<LayersControl.Overlay checked name={props.display.flightBoundary[1]}>
 						<LayerGroup>
 							<Polyline positions={circle(props.getters.flightBoundary)} color="#000000" weight={4} />
 							{props.getters.flightBoundary.map((marker, index) => {
@@ -500,7 +500,7 @@ const FlightPlanMap = props => {
 							})}
 						</LayerGroup>
 					</LayersControl.Overlay>
-					<LayersControl.Overlay checked name={props.display.airdropBoundary}>
+					<LayersControl.Overlay checked name={props.display.airdropBoundary[1]}>
 						<LayerGroup>
 							<Polyline positions={circle(props.getters.airdropBoundary)} color="#ee7313" weight={3} />
 							{props.getters.airdropBoundary.map((marker, index) => {
@@ -508,7 +508,7 @@ const FlightPlanMap = props => {
 							})}
 						</LayerGroup>
 					</LayersControl.Overlay>
-					<LayersControl.Overlay checked name={props.display.uav}>
+					<LayersControl.Overlay checked name={props.display.uav[1]}>
 						{props.getters.uav.heading == null ? null : (
 							<LayerGroup>
 								<RotatedMarker icon={icons.uavDirection} position={props.getters.uav.latlng} rotationAngle={props.getters.uav.heading} rotationOrigin={"50% 100%"} />
@@ -521,7 +521,7 @@ const FlightPlanMap = props => {
 							</LayerGroup>
 						)}
 					</LayersControl.Overlay>
-					<LayersControl.Overlay checked name={props.display.home}>
+					<LayersControl.Overlay checked name={props.display.home[1]}>
 						{props.getters.home.lat == null ? null : (
 							<LayerGroup>
 								<Marker datatype="home" icon={icons.home} position={props.getters.home}>
@@ -532,7 +532,7 @@ const FlightPlanMap = props => {
 							</LayerGroup>
 						)}
 					</LayersControl.Overlay>
-					<LayersControl.Overlay name={props.display.water}>
+					<LayersControl.Overlay name={props.display.water[1]}>
 						{props.getters.water.lat == null ? null : (
 							<LayerGroup>
 								<Marker datatype="water" icon={icons.water} position={props.getters.water}>
@@ -543,9 +543,9 @@ const FlightPlanMap = props => {
 							</LayerGroup>
 						)}
 					</LayersControl.Overlay>
-					<LayersControl.Overlay checked name={props.display.path}>
+					<LayersControl.Overlay checked name={props.display.path[1]}>
 						<LayerGroup>
-							<PolylineDecorator layer="Mission Path" positions={props.getters.path.filter(marker => marker.cmd !== Commands.jump)} color="#10336B" decoratorColor="#1d5cc2" />
+							<PolylineDecorator layer="Waypoints" positions={props.getters.path.filter(marker => marker.cmd !== Commands.jump)} color="#10336B" decoratorColor="#1d5cc2" />
 							{props.getters.path.map((marker, i) => {
 
 								if (marker.cmd === Commands.jump) {
@@ -557,7 +557,7 @@ const FlightPlanMap = props => {
 									}
 									return (
 										<>
-											<PolylineDecorator layer="Mission Path" positions={[props.getters.path[j], props.getters.path[marker.p1 - 1]]} color="#17e3cb" decoratorColor="#61e8d9" />
+											<PolylineDecorator layer="Waypoints" positions={[props.getters.path[j], props.getters.path[marker.p1 - 1]]} color="#17e3cb" decoratorColor="#61e8d9" />
 											{popup({...marker, lng: (props.getters.path[j].lng + props.getters.path[marker.p1 - 1].lng)/2, lat: (props.getters.path[j].lat + props.getters.path[marker.p1 - 1].lat)/2}, marker.num, "jump", (
 												<div>
 													<h5>#{i + 1}: Jump</h5>
