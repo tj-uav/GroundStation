@@ -98,16 +98,16 @@ const FlightData = () => {
 	}
 
 	const display = {
-		flightBoundary: "Mission Flight Boundary",
-		airdropBoundary: "Air Drop Boundary",
-		path: "Mission Path",
-		home: "Home Waypoint",
-		unlim: "Unlimited Loiter",
-		turn: "Turn Loiter",
-		time: "Time Loiter",
-		jump: "Jump",
-		uav: "UAV",
-		water: "Bottle Drop",
+		flightBoundary: ["Mission Boundary", "Mission Boundary"],
+		airdropBoundary: ["Air Drop", "Air Drop Boundary"],
+		path: ["Waypoint", "Waypoints"],
+		home: ["Home", "Home Location"],
+		unlim: ["Unlimited Loiter", "Unlimited Loiter"],
+		turn: ["Turn Loiter", "Turn Loiter"],
+		time: ["Time Loiter", "Time Loiter"],
+		jump: ["Jump", "Jump"],
+		uav: ["UAV", "UAV Location"],
+		water: ["Drop", "Bottle Drop Location"]
 	}
 
 	useInterval(500, () => {
