@@ -55,8 +55,8 @@ const FlightData = () => {
 	const [pathSave, setPathSave] = useState([]) // only used for discarding changes
 	const [pathSaved, setPathSaved] = useState(true)
 
-	const [placementType, setPlacementType] = useState("waypoint")
 	const [placementMode, setPlacementMode] = useState("disabled")
+	const [placementType, setPlacementType] = useState("waypoint")
 	const [defaultAlt, setDefaultAlt] = useState(250)
 
 	const [currentDistance, setCurrentDistance] = useState(-1)
@@ -72,8 +72,8 @@ const FlightData = () => {
 		pathSave: pathSave,
 		water: water,
 		pathSaved: pathSaved,
-		placementType: placementType,
 		placementMode: placementMode,
+		placementType: placementType,
 		defaultAlt: defaultAlt,
 		currentDistance: currentDistance,
 		firstJump: firstJump,
@@ -88,8 +88,8 @@ const FlightData = () => {
 		path: setPath,
 		pathSave: setPathSave,
 		pathSaved: setPathSaved,
-		placementType: setPlacementType,
 		placementMode: setPlacementMode,
+		placementType: setPlacementType,
 		water: setWater,
 		defaultAlt: setDefaultAlt,
 		currentDistance: setCurrentDistance,

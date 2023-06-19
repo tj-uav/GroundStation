@@ -12,6 +12,21 @@ const FlightPlanToolbar = props => {
 
 	const [modeText, setModeText] = useState("")
 
+	const placementModes = {
+		"disabled": "Disabled",
+		"push": "Push",
+		"insert": "Insert",
+		"distance": "Distance Calc",
+	}
+
+	const placementTypes = {
+		"waypoint": "Waypoint",
+		"jump": "Jump",
+		"unlimLoiter": "Unlimited Loiter",
+		"turnLoiter": "Turn Loiter",
+		"timeLoiter": "Time Loiter",
+	}
+
 	const savePath = (path) => {
 		for (const [i, marker] of path.entries()) {
 			if (marker.opacity) {
@@ -78,16 +93,15 @@ const FlightPlanToolbar = props => {
 					<div style={{ "display": "flex", "alignItems": "center" }}>
 						<span>Mode: </span>
 					</div>
-					<Dropdown initial={"Disabled"} onChange={(v) => {
+					<Dropdown initial={placementModes[props.getters.placementMode]} onChange={(v) => {
 						props.setters.placementMode(v)
 						if (v !== "distance") {
 							props.setters.currentDistance(-1)
 						}
 					}}>
-						<span value="disabled">Disabled</span>
-						<span value="push">Push</span>
-						<span value="insert">Insert</span>
-						<span value="distance">Distance Calc</span>
+						{Object.entries(placementModes).map(([id, name]) => (
+							<span value={id}>{name}</span>
+						))}
 					</Dropdown>
 					<div style={{ "display": "flex", "alignItems": "center" }}>
 						<span>{modeText}</span>
@@ -97,14 +111,12 @@ const FlightPlanToolbar = props => {
 					<div style={{ "display": "flex", "alignItems": "center" }}>
 						<span>Type: </span>
 					</div>
-					<Dropdown initial={"Waypoint"} onChange={(v) => {
+					<Dropdown initial={placementTypes[props.getters.placementType]} onChange={(v) => {
 						props.setters.placementType(v)
 					}}>
-						<span value="waypoint">Waypoint</span>
-						<span value="jump">Jump</span>
-						<span value="unlimLoiter">Unlimited Loiter</span>
-						<span value="turnLoiter">Turn Loiter</span>
-						<span value="timeLoiter">Time Loiter</span>
+						{Object.entries(placementTypes).map(([id, name]) => (
+							<span value={id}>{name}</span>
+						))}
 					</Dropdown>
 					&nbsp;
 				</Row>
