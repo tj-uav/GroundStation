@@ -56,9 +56,12 @@ const FlightData = () => {
 	const [pathSaved, setPathSaved] = useState(true)
 
 	const [mode, setMode] = useState("waypoint")
-	const [previousMode, setPreviousMode] = useState("disabled")
 	const [placementMode, setPlacementMode] = useState("disabled")
 	const [defaultAlt, setDefaultAlt] = useState(125)
+
+	const [currentDistance, setCurrentDistance] = useState(-1)
+	const [firstJump, setFirstJump] = useState(-1)
+	const [firstPoint, setFirstPoint] = useState(-1)
 
 	const getters = {
 		flightBoundary: flightBoundary,
@@ -70,9 +73,11 @@ const FlightData = () => {
 		water: water,
 		pathSaved: pathSaved,
 		mode: mode,
-		previousMode: previousMode,
 		placementMode: placementMode,
-		defaultAlt: defaultAlt
+		defaultAlt: defaultAlt,
+		currentDistance: currentDistance,
+		firstJump: firstJump,
+		firstPoint: firstPoint
 	}
 
 	const setters = {
@@ -84,10 +89,12 @@ const FlightData = () => {
 		pathSave: setPathSave,
 		pathSaved: setPathSaved,
 		mode: setMode,
-		previousMode: setPreviousMode,
 		placementMode: setPlacementMode,
 		water: setWater,
-		defaultAlt: setDefaultAlt
+		defaultAlt: setDefaultAlt,
+		currentDistance: setCurrentDistance,
+		firstJump: setFirstJump,
+		firstPoint: setFirstPoint
 	}
 
 	const display = {
