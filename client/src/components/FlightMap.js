@@ -255,11 +255,36 @@ const FlightPlanMap = props => {
 		}
 	}
 
-	const doubleClick = (key, datatype) => {
-		if (props.getters.placementMode === "disabled" || props.getters.placementType !== "jump") {
+	const waypointClick = (key, datatype) => {
+		if (props.getters.placementMode === "disabled") {
 			return
-		}
-		if (props.getters.placementMode === "distance") {
+		} else if (["push", "insert"].includes(props.getters.placementMode)) {
+			if (datatype === "unlim" || datatype === "turn" || datatype === "time" || datatype === "path") {
+				if (props.getters.firstJump === -1) {
+					props.setters.firstJump(key)
+				} else {
+					let path = props.getters.path.slice()
+					let point = { num: props.getters.firstJump + 1, cmd: Commands.jump, p1: key + (key < props.getters.firstJump ? 0 : 1), p2: 999 }
+					props.setters.path([...path.slice(0, props.getters.firstJump).map(p => {
+						if (p.cmd == Commands.jump) {
+							if (p.p1 > props.getters.firstJump) {
+								p.p1 += 1
+							}
+						}
+
+						return p
+					}), point, ...path.slice(props.getters.firstJump, path.length).map(p => {
+						p.num += 1
+						if (p.p1 > props.getters.firstJump) {
+							p.p1 += 1
+						}
+						return p
+					})])
+					props.setters.firstJump(-1)
+					props.setters.pathSaved(false)
+				}
+			}
+		} else if (props.getters.placementMode === "distance") {
 			if (props.getters.firstPoint === -1) {
 				props.setters.firstPoint(key)
 				props.setters.currentDistance(-1)
@@ -268,31 +293,6 @@ const FlightPlanMap = props => {
 				let toLatLng = L.latLng(props.getters.path[key - 1])
 				props.setters.currentDistance(fromLatLng.distanceTo(toLatLng))
 				props.setters.firstPoint(-1)
-			}
-		}
-		if (datatype === "unlim" || datatype === "turn" || datatype === "time" || datatype === "path") {
-			if (props.getters.firstJump === -1) {
-				props.setters.firstJump(key)
-			} else {
-				let path = props.getters.path.slice()
-				let point = { num: props.getters.firstJump + 1, cmd: Commands.jump, p1: key + (key < props.getters.firstJump ? 0 : 1), p2: 999 }
-				props.setters.path([...path.slice(0, props.getters.firstJump).map(p => {
-					if (p.cmd == Commands.jump) {
-						if (p.p1 > props.getters.firstJump) {
-							p.p1 += 1
-						}
-					}
-
-					return p
-				}), point, ...path.slice(props.getters.firstJump, path.length).map(p => {
-					p.num += 1
-					if (p.p1 > props.getters.firstJump) {
-						p.p1 += 1
-					}
-					return p
-				})])
-				props.setters.firstJump(-1)
-				props.setters.pathSaved(false)
 			}
 		}
 	}
@@ -306,7 +306,7 @@ const FlightPlanMap = props => {
 				eventHandlers={{
 					dragend: (event) => { handleMove(event, key - (props.getters.path[0].num === 0 ? 0 : 1), datatype) },
 					click: () => {
-						doubleClick(key, datatype)
+						waypointClick(key, datatype)
 					}
 				}}
 				onkeydown={event => handleKeyPress(event, key)}
