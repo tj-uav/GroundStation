@@ -10,6 +10,8 @@ const FlightPlanToolbar = props => {
 	const [open, setOpen] = useState(false)
 	const [missing, setMissing] = useState([])
 
+	const [modeText, setModeText] = useState("")
+
 	const savePath = (path) => {
 		for (const [i, marker] of path.entries()) {
 			if (marker.opacity) {
@@ -29,6 +31,20 @@ const FlightPlanToolbar = props => {
 				p3: (waypoint.p3 ?? 0.0) / 3.281,  // loiter radius to m
 		})) })
 	}
+
+	useEffect(() => {
+		if (props.getters.placementMode === "distance") {
+			if (props.getters.currentDistance !== -1) {
+				setModeText("Distance: " + props.getters.currentDistance.toFixed(2) + " ft")
+			} else if (props.getters.firstPoint === -1) {
+				setModeText("Select a point")
+			} else {
+				setModeText("Select another point")
+			}
+		} else {
+			setModeText("")
+		}
+	}, [props.getters.placementMode, props.getters.firstPoint, props.getters.currentDistance])
 
 	return (
 		<div style={{ marginLeft: 10 }}>
@@ -55,13 +71,17 @@ const FlightPlanToolbar = props => {
 						</div>
 						<Dropdown initial={"Disabled"} onChange={(v) => {
 							props.setters.placementMode(v)
+							if (v !== "distance") {
+								props.setters.currentDistance(-1)
+							}
 						}}>
 							<span value="disabled">Disabled</span>
 							<span value="push">Push</span>
 							<span value="insert">Insert</span>
+							<span value="distance">Distance Calc</span>
 						</Dropdown>
 					</Row>
-					&nbsp;
+					<Label>{modeText}</Label>
 				</Row>
 				<Row>
 					<Row>

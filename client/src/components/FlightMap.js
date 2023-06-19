@@ -51,8 +51,6 @@ const positiveSignedIntValidation = (v, value, set) => {
 	return value
 }
 
-const EMPTY_JUMP = -1
-
 const FlightPlanMap = props => {
 	const [state, setState] = useState({
 		latlng: { lat: 38.315339, lng: -76.548108 },
@@ -63,8 +61,6 @@ const FlightPlanMap = props => {
 	let mapRef = createRef()
 	const [icons, setIcons] = useState({})
 	const tileRef = useRef(null)
-
-	const [firstJump, setFirstJump] = useState(EMPTY_JUMP)
 
 	useEffect(() => {
 
@@ -135,7 +131,7 @@ const FlightPlanMap = props => {
 	}, [])
 
 	useEffect(() => {
-		setFirstJump(EMPTY_JUMP)
+		props.setters.firstJump(-1)
 	}, [props.getters.mode, props.getters.placementMode])
 
 	const checkInternet = () => {
@@ -185,30 +181,41 @@ const FlightPlanMap = props => {
 
 	const jumpClick = (key, datatype) => {
 		if (props.getters.placementMode === "disabled" || props.getters.mode !== "jump") {
+			if (props.getters.placementMode === "distance") {
+				if (props.getters.firstPoint === -1) {
+					props.setters.firstPoint(key)
+					props.setters.currentDistance(-1)
+				} else {
+					let fromLatLng = L.latLng(props.getters.path[props.getters.firstPoint - 1])
+					let toLatLng = L.latLng(props.getters.path[key - 1])
+					props.setters.currentDistance(fromLatLng.distanceTo(toLatLng))
+					props.setters.firstPoint(-1)
+				}
+			}
 			return
 		}
 		if (datatype === "unlim" || datatype === "turn" || datatype === "time" || datatype === "path") {
-			if (firstJump === -1) {
-				setFirstJump(key)
+			if (props.getters.firstJump === -1) {
+				props.setters.firstJump(key)
 			} else {
 				let path = props.getters.path.slice()
-				let point = { num: firstJump + 1, cmd: Commands.jump, p1: key + (key < firstJump ? 0 : 1), p2: 999 }
-				props.setters.path([...path.slice(0, firstJump).map(p => {
+				let point = { num: props.getters.firstJump + 1, cmd: Commands.jump, p1: key + (key < props.getters.firstJump ? 0 : 1), p2: 999 }
+				props.setters.path([...path.slice(0, props.getters.firstJump).map(p => {
 					if (p.cmd == Commands.jump) {
-						if (p.p1 > firstJump) {
+						if (p.p1 > props.getters.firstJump) {
 							p.p1 += 1
 						}
 					}
 
 					return p
-				}), point, ...path.slice(firstJump, path.length).map(p => {
+				}), point, ...path.slice(props.getters.firstJump, path.length).map(p => {
 					p.num += 1
-					if (p.p1 > firstJump) {
+					if (p.p1 > props.getters.firstJump) {
 						p.p1 += 1
 					}
 					return p
 				})])
-				setFirstJump(EMPTY_JUMP)
+				props.setters.firstJump(-1)
 				props.setters.pathSaved(false)
 			}
 		}
