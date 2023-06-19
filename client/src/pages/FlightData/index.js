@@ -57,7 +57,7 @@ const FlightData = () => {
 
 	const [placementType, setPlacementType] = useState("waypoint")
 	const [placementMode, setPlacementMode] = useState("disabled")
-	const [defaultAlt, setDefaultAlt] = useState(125)
+	const [defaultAlt, setDefaultAlt] = useState(250)
 
 	const [currentDistance, setCurrentDistance] = useState(-1)
 	const [firstJump, setFirstJump] = useState(-1)
