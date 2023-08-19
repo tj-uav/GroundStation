@@ -25,6 +25,6 @@ cd "$SCRIPT_DIR"/../server || exit
 export FLASK_APP="$SCRIPT_DIR"/../server/app.py
 export FLASK_ENV=development
 export FLASK_DEBUG=0
-"$SCRIPT_DIR"/../server/venv/bin/python -m flask run
+"$SCRIPT_DIR"/../server/venv/bin/python -m flask run --host=0.0.0.0
 
 wait

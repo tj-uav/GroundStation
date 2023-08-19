@@ -44,7 +44,6 @@
 		"not dead",
 		"not op_mini all"
 	],
-	"proxy": "http://localhost:5000/",
 	"devDependencies": {
 		"prettier": "^2.0.5"
 	}
