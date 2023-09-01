@@ -30,7 +30,9 @@ const Active = ({ listRef, style, height, data, index, setActiveIndex, setModifi
 					</Row>
 				</div>
 				<Column style={{ display: "flex", height: "96%" }}>
-					<Content padded children={data.description} />
+					<Content>
+						<b>{data.DisplayName}</b>{data.DisplayName ? ". " : ""}{data.Description}
+					</Content>
 				</Column>
 				<aside
 					style={{
@@ -48,7 +50,7 @@ const Active = ({ listRef, style, height, data, index, setActiveIndex, setModifi
 									...data,
 									value,
 								}
-								setParameters(params)
+								setParameters(params.slice())
 								setModifiedIndexes(prev => {
 									if (!prev.includes(index)) return [...prev, index]
 									else return prev
