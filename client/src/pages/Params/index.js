@@ -23,16 +23,23 @@ TODO: Read params from mavlink
 TODO: Write params to mavlink
 */
 
-const INITIAL_PARAMS = Object.entries(require("parameters.json")).map(
-	([name, { description, link }]) => ({
-		name,
-		description,
-		link,
-		value: "0",
-	})
-)
+var INITIAL_PARAMS = []
+var enables = {}
+let json = require("parameters.json")
+Object.entries(json).forEach((entry) => {
+	if (entry[0] == "")
+		return
 
-let paramToIndex = {}
+	for (let param in entry[1]) {
+		if (param.includes("_ENABLE")) {
+			enables[entry[0]] = param
+		}
+		let a = { ...entry[1][param], name: param, value: 0 }
+		INITIAL_PARAMS.push(a)
+	}
+})
+
+var paramToIndex = {}
 INITIAL_PARAMS.forEach((val, i) => {
 	paramToIndex[val.name] = i
 })
@@ -51,22 +58,32 @@ const Params = () => {
 	const [parameters, setParameters] = useState(INITIAL_PARAMS)
 	const [parametersSave, setParametersSave] = useState(INITIAL_PARAMS.slice())
 
+	const isEnabled = (param) => {
+		if (param.includes("_ENABLE")) {
+			return true
+		}
+		for (let e in enables) {
+			if (param.indexOf(e) == 0) {
+				return parameters[paramToIndex[enables[e]]].value == 1.0
+			}
+		}
+		return true
+	}
+
 	const [filter, setFilter] = useState("")
 	const parametersDisplay = useMemo(() => {
-		if (filter === "") {
-			return [...Array(INITIAL_PARAMS.length).keys()]
-		}
+		setFilter(filter.toLowerCase())
 
 		let dispMap = []
 		for (let index in parameters) {
 			let param = parameters[index]
-			if (param.name.includes(filter) || param.description.includes(filter)) {
+			if ((filter === "" && param.name.includes("_ENABLE")) || (isEnabled(param.name) && (param.name.toLowerCase().includes(filter) || param.description?.toLowerCase().includes(filter)))) {
 				dispMap.push(index)
 			}
  		}
 
 		return dispMap
-	}, [filter])
+	}, [filter, parameters])
 
 	const inputBox = useRef(null)
 	const listRef = useRef(null)
@@ -79,8 +96,30 @@ const Params = () => {
 		setModifiedIndexes([])
 	}
 
-	const fetch = (url) => {
-		httpget(url, response => {
+	const get = () => {
+		httpget("/uav/params/getall", response => {
+			let data = response.data.result
+			let missingParams = []
+			for (let param in data) {
+				if (paramToIndex[param] != undefined) {
+					parameters[paramToIndex[param]].value = data[param]
+				} else {
+					missingParams.push({ name: param, value: data[param], Description: "N/A" })
+				}
+			}
+			missingParams.forEach((val, i) => {
+				parameters.push(val)
+				paramToIndex[val.name] = i
+			})
+
+			setParameters(parameters)
+			setParametersSave(parameters.slice())
+		})
+		revertParameters()
+	}
+
+	const load = () => {
+		httppost("/uav/params/load", null, response => {
 			let data = response.data.result
 			for (let param in data) {
 				parameters[paramToIndex[param]].value = data[param]
@@ -92,7 +131,7 @@ const Params = () => {
 	}
 
 	useEffect(() => {
-		fetch("/uav/params/getall")
+		get()
 	}, [])
 
 	return (
@@ -113,7 +152,7 @@ const Params = () => {
 						<Button
 							title="Get params from server file"
 							onClick={() => {
-								fetch("/uav/params/getall")
+								get()
 							}}
 						>
 							Get
@@ -135,7 +174,7 @@ const Params = () => {
 						<Button
 							title="Load params from plane"
 							onClick={() => {
-								fetch("/uav/params/load")
+								load()
 							}}
 						>
 							Load
@@ -177,7 +216,7 @@ const Params = () => {
 								<Param
 									key={index}
 									index={mIndex}
-									data={{ ...parameters[mIndex], old: parametersSave[mIndex] }}
+									data={{ ...parameters[mIndex], old: parametersSave[mIndex].value }}
 									active={false}
 									setActiveIndex={setActiveIndex}
 									setModifiedIndexes={setModifiedIndexes}

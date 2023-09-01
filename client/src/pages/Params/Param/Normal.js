@@ -26,13 +26,13 @@ const Normal = ({ listRef, style, height, data, index, setActiveIndex, setModifi
 					{modified ? (
 						<Value
 							style={{ color: modified ? blue : "inherit" }}
-							hook={[data.old.value, null]}
+							hook={[data.old, null]}
 						/>
 					) : null}
 				</Row>
 			</Column>
 			<Column height="2rem">
-				<Description description={data.description.replace(/\s/g, "\u00A0")} />
+				<Description DisplayName={data.DisplayName} description={data.Description} />
 			</Column>
 			{modified ? (
 				<Submit
@@ -40,7 +40,6 @@ const Normal = ({ listRef, style, height, data, index, setActiveIndex, setModifi
 					callback={() => {
 						setModifiedIndexes(prev => prev.filter(i => i !== index))
 						parameters[index] = parametersSave[index]
-						setParameters(parameters)
 					}}
 				/>
 			) : (
@@ -57,7 +56,10 @@ const Normal = ({ listRef, style, height, data, index, setActiveIndex, setModifi
 
 const Description = styled(Content).attrs(props => ({
 	padded: true,
-	children: props.description,
+	children:
+		<>
+			<b>{props.DisplayName}</b>{props.DisplayName ? ". " : ""}{props.description}
+		</>,
 }))`
 	white-space: nowrap;
 	position: relative;
