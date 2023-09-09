@@ -23,8 +23,8 @@ TODO: Read params from mavlink
 TODO: Write params to mavlink
 */
 
-var INITIAL_PARAMS = []
-var enables = {}
+let INITIAL_PARAMS = []
+let enables = {}
 let json = require("parameters.json")
 Object.entries(json).forEach((entry) => {
 	if (entry[0] == "")
@@ -39,7 +39,7 @@ Object.entries(json).forEach((entry) => {
 	}
 })
 
-var paramToIndex = {}
+let paramToIndex = {}
 INITIAL_PARAMS.forEach((val, i) => {
 	paramToIndex[val.name] = i
 })
@@ -77,7 +77,7 @@ const Params = () => {
 		let dispMap = []
 		for (let index in parameters) {
 			let param = parameters[index]
-			if ((filter === "" && param.name.includes("_ENABLE")) || (isEnabled(param.name) && (param.name.toLowerCase().includes(filter) || param.description?.toLowerCase().includes(filter)))) {
+			if ((filter === "" && param.name.includes("_ENABLE")) || (isEnabled(param.name) && (param.name.toLowerCase().includes(filter) || param.Description.toLowerCase().includes(filter) || param.DisplayName.toLowerCase().includes(filter)))) {
 				dispMap.push(index)
 			}
  		}
