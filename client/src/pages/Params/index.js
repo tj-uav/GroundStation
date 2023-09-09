@@ -134,6 +134,8 @@ const Params = () => {
 		get()
 	}, [])
 
+	const [activeSize, setActiveSize] = useState(35)
+
 	return (
 		<ParametersContext.Provider value={[parameters, setParameters]}>
 			<div
@@ -263,15 +265,15 @@ const Params = () => {
 								width={width}
 								itemCount={parametersDisplay.length}
 								ref={listRef}
-								itemSize={(index) => {
-									return activeParamIndex === parametersDisplay[index] ? 130 : 35
+								itemSize={(i) => {
+									return i == activeParamIndex ? activeSize : 35
 								}}
 							>
 								{({ index, style }) => {
 									return (
 										<Param
 											style={style}
-											height={activeParamIndex === parametersDisplay[index] ? 130 : 35}
+											height={activeParamIndex === parametersDisplay[index] ? activeSize : 35}
 											key={parametersDisplay[index]}
 											index={parametersDisplay[index]}
 											data={parameters[parametersDisplay[index]]}
@@ -279,6 +281,7 @@ const Params = () => {
 											setActiveIndex={setActiveIndex}
 											setModifiedIndexes={setModifiedIndexes}
 											parametersSave={parametersSave}
+											setActiveSize={setActiveSize}
 											listRef={listRef}
 										/>
 									)
