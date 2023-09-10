@@ -258,7 +258,10 @@ const Params = () => {
 						</Row>
 						<Label>Description</Label>
 					</Row>
-					<AutoSizer>
+					<AutoSizer onResize={() => {
+						if (activeParamIndex != -1)
+							listRef.current?.resetAfterIndex(activeParamIndex)
+					}}>
 						{({ height, width }) => (
 							<Container
 								height={height - 96}
@@ -266,7 +269,7 @@ const Params = () => {
 								itemCount={parametersDisplay.length}
 								ref={listRef}
 								itemSize={(i) => {
-									return i == activeParamIndex ? activeSize : 35
+									return parametersDisplay[i] == activeParamIndex ? activeSize : 35
 								}}
 							>
 								{({ index, style }) => {

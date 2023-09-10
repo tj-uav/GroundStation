@@ -15,7 +15,7 @@ const Normal = ({ listRef, style, height, data, index, setActiveIndex, setModifi
 	const [parameters, setParameters] = useParameters()
 
 	return (
-		<Row style={style} height={height ?? "2rem"} columns={`min-content auto ${modified ? "3rem" : "6rem"}`}>
+		<Row style={style} height={height ?? "2rem"} columns={`min-content ${modified ? "3rem" : "6rem"} auto`}>
 			<Column height="2rem" style={{ overflow: "hidden" }}>
 				<Row height="2rem" columns={modified ? "11.5rem 5rem 5rem" : "11.5rem 5rem"}>
 					<Content padded children={data.name} />
@@ -30,9 +30,6 @@ const Normal = ({ listRef, style, height, data, index, setActiveIndex, setModifi
 						/>
 					) : null}
 				</Row>
-			</Column>
-			<Column height="2rem">
-				<Description DisplayName={data.DisplayName} description={data.Description} />
 			</Column>
 			{modified ? (
 				<Submit
@@ -50,6 +47,9 @@ const Normal = ({ listRef, style, height, data, index, setActiveIndex, setModifi
 					Modify
 				</Button>
 			)}
+			<Column height="2rem">
+				<Description DisplayName={data.DisplayName} description={data.Description} />
+			</Column>
 		</Row>
 	)
 }

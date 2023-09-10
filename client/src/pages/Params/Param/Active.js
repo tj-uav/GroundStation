@@ -17,11 +17,11 @@ const Active = ({ listRef, style, data, index, setActiveIndex, setModifiedIndexe
 
 	useEffect(() => {
 		setActiveSize(root.current.getBoundingClientRect().height)
-	}, [])
+	}, [root.current?.getBoundingClientRect().width])
 
 	return (
 		<form onSubmit={e => handleSubmit(e, deactivate)}>
-			<Row style={{ ...style, height: undefined }} columns="min-content auto 6rem">
+			<Row ref={root} style={{ ...style, height: undefined }} columns="min-content 6rem auto">
 				<div style={{ display: "flex", flexDirection: "column", gap: "1rem", height: "95%" }}>
 					<Row height="2rem" columns="11.5rem 5rem">
 						<Content padded children={data.name} />
@@ -34,11 +34,6 @@ const Active = ({ listRef, style, data, index, setActiveIndex, setModifiedIndexe
 						<Content padded children={data.options ?? "no options defined."} />
 					</Row>
 				</div>
-				<Column ref={root} style={{ display: "flex", paddingBottom: "2px" }}>
-					<Content>
-						<b>{data.DisplayName}</b>{data.DisplayName ? ". " : ""}{data.Description}
-					</Content>
-				</Column>
 				<aside
 					style={{
 						display: "flex",
@@ -70,6 +65,11 @@ const Active = ({ listRef, style, data, index, setActiveIndex, setModifiedIndexe
 						setActiveIndex(-1)
 					}} />
 				</aside>
+				<Column style={{ display: "flex", paddingBottom: "2px" }}>
+					<Content>
+						<b>{data.DisplayName}</b>{data.DisplayName ? ". " : ""}{data.Description}
+					</Content>
+				</Column>
 			</Row>
 		</form>
 	)
