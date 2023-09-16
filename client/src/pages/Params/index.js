@@ -218,6 +218,7 @@ const Params = () => {
 								<Param
 									key={index}
 									index={mIndex}
+									listRef={listRef}
 									data={{ ...parameters[mIndex], old: parametersSave[mIndex].value }}
 									active={false}
 									setActiveIndex={setActiveIndex}
