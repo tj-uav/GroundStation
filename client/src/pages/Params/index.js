@@ -157,7 +157,7 @@ const Params = () => {
 								get()
 							}}
 						>
-							Get
+							Get file
 						</Button>
 						<Button
 							title="Set params to server file"
@@ -171,7 +171,7 @@ const Params = () => {
 								setModifiedIndexes([])
 							}}
 						>
-							Set
+							Set file
 						</Button>
 						<Button
 							title="Load params from plane"
@@ -179,7 +179,7 @@ const Params = () => {
 								load()
 							}}
 						>
-							Load
+							Load plane
 						</Button>
 						<Button
 							title="Save params to plane"
@@ -187,7 +187,7 @@ const Params = () => {
 								httppost("/uav/params/save", {})
 							}}
 						>
-							Save
+							Save plane
 						</Button>
 					</Row>
 					{modifiedIndexes.length > 0 && (
