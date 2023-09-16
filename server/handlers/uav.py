@@ -377,78 +377,93 @@ class UAVHandler:
 
     # Parameters
 
+    def _load_params_from_file(self):
+        if not self.params:
+            with open(
+                os.path.join(os.getcwd(), "assets", "params", "plane.json"),
+                "r",
+                encoding="utf-8",
+            ) as file:
+                self.params = json.load(file)
+
+    def _save_params_to_file(self):
+        if self.params:
+            with open(
+                os.path.join(os.getcwd(), "assets", "params", "plane.json"),
+                "w",
+                encoding="utf-8",
+            ) as file:
+                json.dump(self.params, file)
+
     @wait_for_param_load
     def get_param(self, key: str):
+        self._load_params_from_file()
         try:
-            return {"result": self.vehicle.parameters[key]}
+            if key not in self.params:
+                self.logger.info("Invalid parameter requested: %s", key)
+                return {}
+            return {"result": self.params[key]}
         except Exception as e:
             raise GeneralError(str(e)) from e
 
     @wait_for_param_load
     def get_params(self):
+        self._load_params_from_file()
         try:
-            return {
-                "result": dict(
-                    (keys, values) for keys, values in tuple(self.vehicle.parameters.items())
-                )
-            }
+            return {"result": self.params}
         except Exception as e:
             raise GeneralError(str(e)) from e
 
     @wait_for_param_load
     def set_param(self, key: str, value: str | float | int):
         try:
-            print(float(value))
+            float(value)
         except ValueError as e:
             raise InvalidRequestError("Parameter Value cannot be converted to float") from e
         try:
-            self.vehicle.parameters[key] = float(value)
+            self.params[key] = float(value)
+            self._save_params_to_file()
             return {}
         except Exception as e:
             raise GeneralError(str(e)) from e
 
     @wait_for_param_load
     def set_params(self, **kwargs):
+        for key, value in kwargs.items():
+            try:
+                float(value)
+            except ValueError as e:
+                raise InvalidRequestError("Parameter Value cannot be converted to float") from e
+            try:
+                self.params[key] = float(value)
+            except Exception as e:
+                raise GeneralError(str(e)) from e
         try:
-            for key, value in kwargs.items():
-                try:
-                    float(value)
-                except ValueError as e:
-                    raise InvalidRequestError(
-                        "Parameter Value cannot be converted to float"
-                    ) from e
-                self.vehicle.parameters[key] = value
-            return {}
+            self._save_params_to_file()
         except Exception as e:
-            raise GeneralError(str(e)) from e
+            raise GeneralError(str(e))
+        return {}
 
     @wait_for_param_load
     def save_params(self):
+        self._load_params_from_file()
         try:
-            with open(
-                os.path.join(os.getcwd(), "assets", "params", "plane.json"),
-                "w",
-                encoding="utf-8",
-            ) as file:
-                json.dump(
-                    dict(
-                        (keys, values) for keys, values in tuple(self.vehicle.parameters.items())
-                    ),
-                    file,
-                )
+            for key in self.params:
+                if key not in self.vehicle.parameters:
+                    continue
+                if self.vehicle.parameters[key] != float(self.params[key]):
+                    self.vehicle.parameters[key] = float(self.params[key])
             return {}
         except Exception as e:
             raise GeneralError(str(e)) from e
 
     @wait_for_param_load
     def load_params(self):
+        self.params = {}
         try:
-            with open(
-                os.path.join(os.getcwd(), "assets", "params", "plane.json"),
-                "r",
-                encoding="utf-8",
-            ) as file:
-                self.vehicle.parameters = json.load(file)
+            for key in self.vehicle.parameters:
+                self.params[key] = self.vehicle.parameters[key]
+            self._save_params_to_file()
             return {}
         except Exception as e:
             raise GeneralError(str(e)) from e
