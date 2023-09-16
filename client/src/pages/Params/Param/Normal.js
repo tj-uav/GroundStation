@@ -37,12 +37,14 @@ const Normal = ({ listRef, style, height, data, index, setActiveIndex, setModifi
 					callback={() => {
 						setModifiedIndexes(prev => prev.filter(i => i !== index))
 						parameters[index] = parametersSave[index]
+						setParameters(parameters.slice())
+						listRef.current.resetAfterIndex(0)
 					}}
 				/>
 			) : (
 				<Button careful style={{ height: "94%" }} onClick={() => {
 					setActiveIndex(index)
-					listRef.current.resetAfterIndex(0);
+					listRef.current.resetAfterIndex(0)
 				}}>
 					Modify
 				</Button>

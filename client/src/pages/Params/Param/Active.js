@@ -57,12 +57,12 @@ const Active = ({ listRef, style, data, index, setActiveIndex, setModifiedIndexe
 								})
 							}
 							setActiveIndex(-1)
-							listRef.current.resetAfterIndex(0);
+							listRef.current.resetAfterIndex(0)
 						}}
 					/>
 					<Submit type="decline" callback={() => {
-						listRef.current.resetAfterIndex(0);
 						setActiveIndex(-1)
+						listRef.current.resetAfterIndex(0)
 					}} />
 				</aside>
 				<Column style={{ display: "flex", paddingBottom: "2px" }}>
