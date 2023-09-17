@@ -107,9 +107,10 @@ const Params = () => {
 					missingParams.push({ name: param, value: data[param], Description: "N/A" })
 				}
 			}
+			let len = parameters.length
 			missingParams.forEach((val, i) => {
 				parameters.push(val)
-				paramToIndex[val.name] = i
+				paramToIndex[val.name] = i + len
 			})
 
 			setParameters(parameters)
