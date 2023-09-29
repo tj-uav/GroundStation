@@ -34,7 +34,7 @@ Object.entries(json).forEach((entry) => {
 		if (param.includes("_ENABLE")) {
 			enables[entry[0]] = param
 		}
-		let a = { ...entry[1][param], name: param, value: 0 }
+		let a = { ...entry[1][param], name: param, value: 0, present: false }
 		INITIAL_PARAMS.push(a)
 	}
 })
@@ -103,8 +103,9 @@ const Params = () => {
 			for (let param in data) {
 				if (paramToIndex[param] != undefined) {
 					parameters[paramToIndex[param]].value = data[param]
+					parameters[paramToIndex[param]].present = true
 				} else {
-					missingParams.push({ name: param, value: data[param], Description: "N/A" })
+					missingParams.push({ name: param, value: data[param], Description: "N/A", present: true })
 				}
 			}
 			let len = parameters.length
@@ -165,7 +166,8 @@ const Params = () => {
 							onClick={() => {
 								let send = {}
 								for (let index of modifiedIndexes) {
-									send[parameters[index].name] = parseFloat(parameters[index].value)
+									if (parameters[index].present)
+										send[parameters[index].name] = parseFloat(parameters[index].value)
 								}
 								httppost("/uav/params/setmultiple", { params: send })
 								setParametersSave(parameters.slice())

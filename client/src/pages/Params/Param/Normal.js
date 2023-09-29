@@ -42,7 +42,7 @@ const Normal = ({ listRef, style, height, data, index, setActiveIndex, setModifi
 					}}
 				/>
 			) : (
-				<Button careful style={{ height: "94%" }} onClick={() => {
+				<Button careful disabled={!data.present} style={{ height: "94%" }} onClick={() => {
 					setActiveIndex(index)
 					listRef.current.resetAfterIndex(0)
 				}}>
