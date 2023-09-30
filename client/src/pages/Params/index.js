@@ -77,7 +77,7 @@ const Params = () => {
 		let dispMap = []
 		for (let index in parameters) {
 			let param = parameters[index]
-			if ((filter === "" && param.name.includes("_ENABLE")) || (isEnabled(param.name) && (param.name.toLowerCase().includes(filter) || param.Description.toLowerCase().includes(filter) || param.DisplayName.toLowerCase().includes(filter)))) {
+			if ((filter === "" && param.name.includes("_ENABLE")) || (isEnabled(param.name) && (param.name.toLowerCase().includes(filter) || param.Description.toLowerCase().includes(filter) || param.DisplayName?.toLowerCase()?.includes(filter)))) {
 				dispMap.push(index)
 			}
  		}
