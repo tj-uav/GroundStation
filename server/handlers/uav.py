@@ -733,7 +733,7 @@ class DummyUAVHandler(UAVHandler):
 
     def get_params(self):
         try:
-            return {"result": {}}
+            return {"result": json.loads(open("assets/params/plane.json").read())}
         except Exception as e:
             raise GeneralError(str(e)) from e
 
