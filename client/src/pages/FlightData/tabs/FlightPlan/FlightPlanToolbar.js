@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react"
+import React, {  useEffect, useState } from "react"
 import { Box, Button, Dropdown, RadioList, Label } from "components/UIElements"
-import { red } from "theme/Colors"
+import { light,dark,darker,red } from "theme/Colors"
 import { httppost } from "backend"
 
 import { Row, Column, Modal, ModalHeader, ModalBody } from "components/Containers"
@@ -11,6 +11,11 @@ const FlightPlanToolbar = props => {
 	const [missing, setMissing] = useState([])
 
 	const [modeText, setModeText] = useState("")
+	const [lat,setLat]=useState("")
+	const [lon,setLon]=useState("")
+	const [alt,setAlt]=useState("")
+
+
 
 	const placementModes = {
 		"disabled": "Disabled",
@@ -47,6 +52,8 @@ const FlightPlanToolbar = props => {
 		})) })
 	}
 
+
+
 	useEffect(() => {
 		if (props.getters.placementMode === "distance") {
 			if (props.getters.currentDistance !== -1) {
@@ -71,6 +78,31 @@ const FlightPlanToolbar = props => {
 		}
 	}, [props.getters.placementMode, props.getters.placementType, props.getters.firstJump, props.getters.firstPoint, props.getters.currentDistance])
 
+	const addWaypoint = (lat, lon, alt) => {
+		// Create a new waypoint
+		console.log(parseInt(alt))
+		let waypoint = {
+			alt:parseInt(alt),
+			cmd:16,
+			lat:parseInt(lat),
+			lng:parseInt(lon),
+			num:props.getters.path.length + 1,
+			p1:0,
+			p2:0,
+			p3:0,
+			p4:0
+
+		};
+		props.setters.path([...props.getters.path,waypoint])
+		//set(props.getters.path)
+		console.log(props.getters.path)
+	
+		
+
+	};
+	
+
+	
 	return (
 		<div style={{ marginLeft: 10 }}>
 			<Modal open={open} setOpen={setOpen}>
@@ -150,6 +182,35 @@ const FlightPlanToolbar = props => {
 						<span>ft</span>
 					</div>
 				</Row>
+				<span>Lat/Long/Alt:</span>
+				<Row columns="minmax(0, 3fr) minmax(0, 3fr) minmax(0, 3fr)">
+					<Box
+						type="text"
+						editable={true}
+						content={lat}
+						onChange={(e)=>setLat(e)}
+						style={{"backgroundColor":"#E2DBD5","borderColor":"transparent" }}
+					/>
+					<Box
+						type="text"
+						editable={true}
+
+						content={lon}
+						onChange={(e)=>setLon((e))}
+						style={{ "backgroundColor":"#E2DBD5","borderColor":"transparent" }}
+					/>
+					<Box
+						type="text"
+						editable={true}
+
+						content={alt}
+						onChange={(e)=>setAlt(e)}
+						style={{ "backgroundColor":"#E2DBD5","borderColor":"transparent" }}
+					/>
+					
+				</Row>
+				<Button onClick={()=>addWaypoint(lat,lon,alt)}>Plot</Button>
+
 				<br />
 				{props.getters.pathSaved ? <span>&nbsp;</span> :
 					<span style={{ color: red }}>You have unsaved points!</span>
