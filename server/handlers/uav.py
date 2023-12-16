@@ -791,6 +791,12 @@ class DummyUAVHandler(UAVHandler):
         except Exception as e:
             raise GeneralError(str(e)) from e
 
+    def clear_commands(self):
+        try:
+            return {}
+        except Exception as e:
+            raise GeneralError(str(e)) from e
+
     # Armed
 
     def get_armed(self):
