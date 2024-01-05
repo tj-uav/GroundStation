@@ -1,5 +1,7 @@
 # GroundStation
 
+[![wakatime](https://wakatime.com/badge/github/tj-uav/GroundStation.svg)](https://wakatime.com/badge/github/tj-uav/GroundStation)
+
 TJUAV's Custom Ground Station
 
 ## Set Up Server
