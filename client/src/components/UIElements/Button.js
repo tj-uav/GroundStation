@@ -8,7 +8,7 @@ import Link from "./Link"
 import { ReactComponent as RawWarning } from "icons/warning.svg"
 import { unselectable } from "css.js"
 
-const Button = forwardRef(({ active, disabled, onChange, onClick, controlled, to, href, careful = false, ...props }, ref) => {
+const Button = forwardRef(({ active, disabled, untouched, onChange, onClick, controlled, to, href, careful = false, ...props }, ref) => {
 	const [isActive, setActive] = useState(active ?? false)
 
 	return (
@@ -20,6 +20,7 @@ const Button = forwardRef(({ active, disabled, onChange, onClick, controlled, to
 			onMouseDown={() => {
 				if (!disabled) setActive(true)
 			}}
+			untouched={untouched}
 			onMouseUp={() => {
 				if (!disabled)
 					setTimeout(() => {
@@ -67,9 +68,9 @@ export const StyledButton = styled(Link).attrs(props => ({
 	${unselectable}
 	position: relative;
 	box-sizing: border-box;
-	background: ${props => (props.active && !props.disabled ? (props.color ?? blue) : dark)};
+	background: ${props => (props.active && !(props.disabled || props.untouched) ? (props.color ?? blue) : dark)};
 	transition: background-color 0.1s ease;
-	color: ${props => (props.active ? dark : (!props.disabled ? props.color ?? blue : "grey"))} !important;
+	color: ${props => (props.active ? dark : (!(props.disabled || props.untouched) ? props.color ?? blue : "grey"))} !important;
 	text-decoration: none !important;
 	display: flex;
 	justify-content: center;
@@ -77,7 +78,7 @@ export const StyledButton = styled(Link).attrs(props => ({
 	text-align: center;
   	padding-top: ${props => (props.large ? "1rem" : "0.3rem")};
   	padding-bottom: ${props => (props.large ? "1rem" : "0.3rem")};
-    cursor: ${props => props.disabled ? "not-allowed" : "pointer"};
+	cursor: ${props => props.disabled ? "not-allowed" : "pointer"};
 
 	::after {
 		content: "";
@@ -86,7 +87,7 @@ export const StyledButton = styled(Link).attrs(props => ({
 		right: 0;
 		bottom: 0;
 		height: 0.25rem;
-		background: ${props => (props.disabled ? "grey" : props.color) ?? blue};
+		background: ${props => ((props.disabled || props.untouched) ? "grey" : props.color) ?? blue};
 		transition: height 0.1s ease;
 	}
 
@@ -97,7 +98,7 @@ export const StyledButton = styled(Link).attrs(props => ({
 		right: 0;
 		bottom: 0;
 		height: ${props => !props.disabled ? "0.5rem" : "0.25rem"};
-		background: ${props => (props.disabled ? "grey" : props.color) ?? blue};
+		background: ${props => ((props.disabled || props.untouched) ? "grey" : props.color) ?? blue};
 	}
 `
 
