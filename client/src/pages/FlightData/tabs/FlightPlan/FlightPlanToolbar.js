@@ -1,4 +1,4 @@
-import React, {  useEffect, useState } from "react"
+import React, {  useEffect, useState,useRef } from "react"
 import { Box, Button, Dropdown, RadioList, Label } from "components/UIElements"
 import { light,dark,darker,red } from "theme/Colors"
 import { httppost } from "backend"
@@ -14,6 +14,18 @@ const FlightPlanToolbar = props => {
 	const [lat,setLat]=useState("")
 	const [lon,setLon]=useState("")
 	const [alt,setAlt]=useState("")
+	const [rad,setRad]=useState("")
+	const [turns,setTurns]=useState("")
+	const [time, setTime]=useState("")
+
+
+	const input1Ref = useRef(null);
+	const input2Ref = useRef(null);
+	const input3Ref = useRef(null);
+	const input4Ref = useRef(null);
+	const input5Ref = useRef(null);
+	const input6Ref = useRef(null);
+
 
 
 
@@ -31,6 +43,7 @@ const FlightPlanToolbar = props => {
 		"turnLoiter": "Turn Loiter",
 		"timeLoiter": "Time Loiter",
 	}
+
 
 	const savePath = (path) => {
 		for (const [i, marker] of path.entries()) {
@@ -81,28 +94,108 @@ const FlightPlanToolbar = props => {
 	const addWaypoint = (lat, lon, alt) => {
 		// Create a new waypoint
 		console.log(parseInt(alt))
-		let waypoint = {
-			alt:parseInt(alt),
-			cmd:16,
-			lat:parseInt(lat),
-			lng:parseInt(lon),
-			num:props.getters.path.length + 1,
-			p1:0,
-			p2:0,
-			p3:0,
-			p4:0
-
-		};
-		props.setters.path([...props.getters.path,waypoint])
-		//set(props.getters.path)
-		console.log(props.getters.path)
-	
 		
+		let cmds=0
+		let point;
+		if (props.getters.placementType== "waypoint"){
+			cmds=Commands.waypoint
+			point = {
+				alt:alt!="" ? parseFloat(alt):props.getters.defaultAlt,
+				cmd:cmds,
+				lat:parseFloat(lat),
+				lng:parseFloat(lon),
+				num:props.getters.path.length + 1,
+				p1:0,
+				p2:0,
+				p3:0,
+				p4:0
+	
+			};
+		}
+		else if (props.getters.placementType=="jump"){
+			return
+		}
+		else if (props.getters.placementType=="unlimLoiter"){
+			cmds=Commands.unlimLoiter
+			point = {
+				alt:alt!="" ? parseFloat(alt):props.getters.defaultAlt,
+				cmd:cmds,
+				lat:parseFloat(lat),
+				lng:parseFloat(lon),
+				num:props.getters.path.length + 1,
+				p1:0,//turns and time
+				p2:0,
+				p3:rad,//radius
+				p4:0
+	
+			};
+		}
+		else if (props.getters.placementType=="turnLoiter"){
+			cmds=Commands.turnLoiter
+		 	point = {
+				alt:alt!="" ? parseFloat(alt):props.getters.defaultAlt,
+				cmd:cmds,
+				lat:parseFloat(lat),
+				lng:parseFloat(lon),
+				num:props.getters.path.length + 1,
+				p1:turns,//turns and time
+				p2:0,
+				p3:rad,//radius
+				p4:0
+	
+			};
+		}
+		else if (props.getters.placementType=="timeLoiter"){
+			cmds=Commands.timeLoiter
+			point = {
+				alt:alt!="" ? parseFloat(alt):props.getters.defaultAlt,
+				cmd:cmds,
+				lat:parseFloat(lat),
+				lng:parseFloat(lon),
+				num:props.getters.path.length + 1,
+				p1:time,//turns and time
+				p2:0,
+				p3:rad,//radius
+				p4:0
+	
+			};
+		}
+		
+		
+		console.log(props.getters.placementType)
+		props.setters.path([...props.getters.path,point])
+		
+		//set(props.getters.path)
+		console.log(props.getters.path)	
 
 	};
 	
+	const greyOutPlacePoint = () =>{
+		if(props.getters.placementType!="jump"){
+			return true
+		}
+		return false
+	}
 
-	
+	const enterPlacePoint = (e) => {
+		if ((e.key === "Enter") && (lat && lon)){
+			e.preventDefault()
+			addWaypoint(lat,lon,alt);
+			setLat("")
+			setLon("")
+			setAlt("")
+			setRad("")
+			setTurns("")
+			setTime("")
+			moveToFirstInput()
+
+		}
+	}
+
+	const moveToFirstInput = () => {
+		input1Ref.current.focus();
+	  };
+
 	return (
 		<div style={{ marginLeft: 10 }}>
 			<Modal open={open} setOpen={setOpen}>
@@ -182,34 +275,90 @@ const FlightPlanToolbar = props => {
 						<span>ft</span>
 					</div>
 				</Row>
-				<span>Lat/Long/Alt:</span>
-				<Row columns="minmax(0, 3fr) minmax(0, 3fr) minmax(0, 3fr)">
+				<span>Place Point:</span>
+				<Row columns="minmax(0, 2fr) minmax(0, 2fr) minmax(0, 2fr) minmax(0, 2fr) minmax(0, 2fr)  minmax(0,1fr)">
 					<Box
+						ref={input1Ref}
 						type="text"
-						editable={true}
-						content={lat}
+						editable={greyOutPlacePoint()}
+						placeholder={greyOutPlacePoint() ? "Lat":"Disabled"}
+						content={greyOutPlacePoint() ? lat:""}
 						onChange={(e)=>setLat(e)}
 						style={{"backgroundColor":"#E2DBD5","borderColor":"transparent" }}
+						onKeyDown={(e) => 
+							enterPlacePoint(e)
+						}
 					/>
 					<Box
+						ref={input2Ref}
 						type="text"
-						editable={true}
-
-						content={lon}
+						editable={greyOutPlacePoint()}
+						placeholder={greyOutPlacePoint() ? "Lon":"Disabled"}
+						content={greyOutPlacePoint() ? lon:""}
 						onChange={(e)=>setLon((e))}
 						style={{ "backgroundColor":"#E2DBD5","borderColor":"transparent" }}
+						onKeyDown={(e) => 
+							enterPlacePoint(e)
+						}
 					/>
 					<Box
+						ref={input3Ref}
 						type="text"
-						editable={true}
-
-						content={alt}
+						editable={greyOutPlacePoint()}
+						placeholder={greyOutPlacePoint() ? "Alt":"Disabled"}
+						content={greyOutPlacePoint() ? alt:""}
 						onChange={(e)=>setAlt(e)}
 						style={{ "backgroundColor":"#E2DBD5","borderColor":"transparent" }}
+						onKeyDown={(e) => 
+							enterPlacePoint(e)
+						}
 					/>
+					{greyOutPlacePoint() && props.getters.placementType!="waypoint"? (
+					<Box
+						ref={input4Ref}
+						type="text"
+						editable={greyOutPlacePoint()}
+						placeholder={greyOutPlacePoint() ? "Radius":"Disabled"}
+						content={greyOutPlacePoint() ? rad:""}
+						onChange={(e)=>setRad(e)}
+						style={{ "backgroundColor":"#E2DBD5","borderColor":"transparent" }}
+						onKeyDown={(e) => 
+							enterPlacePoint(e)
+						}
+					/>):(null)}
+
+					{greyOutPlacePoint() && props.getters.placementType=="turnLoiter"? (
+					<Box
+						ref={input5Ref}
+						type="text"
+						editable={greyOutPlacePoint()}
+						placeholder={greyOutPlacePoint() ? "Turns":"Disabled"}
+						content={greyOutPlacePoint() ? turns:""}
+						onChange={(e)=>setTurns(e)}
+						style={{ "backgroundColor":"#E2DBD5","borderColor":"transparent" }}
+						onKeyDown={(e) => 
+							enterPlacePoint(e)
+						}
+					/>):(null)}
+
+					{greyOutPlacePoint() && props.getters.placementType=="timeLoiter"? (
+					<Box
+						ref={input6Ref}
+						type="text"
+						editable={greyOutPlacePoint()}
+						placeholder={greyOutPlacePoint() ? "Time":"Disabled"}
+						content={greyOutPlacePoint() ? time:""}
+						onChange={(e)=>setTime(e)}
+						style={{ "backgroundColor":"#E2DBD5","borderColor":"transparent" }}
+						onKeyDown={(e) => 
+							enterPlacePoint(e)
+						}
+					/>):(null)}
+					
+					<Button disabled={!(lat && lon)}   onClick={()=>addWaypoint(lat,lon,alt)}>Plot</Button>
 					
 				</Row>
-				<Button onClick={()=>addWaypoint(lat,lon,alt)}>Plot</Button>
+				
 
 				<br />
 				{props.getters.pathSaved ? <span>&nbsp;</span> :
