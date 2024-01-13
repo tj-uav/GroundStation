@@ -2,7 +2,7 @@ import React from "react"
 
 import { dark } from "theme/Colors"
 
-const Value = ({ hook, editable, style }) => {
+const Value = ({ hook, editable, style, ...props }) => {
 	const [value, setValue] = hook
 
 	return (
@@ -11,6 +11,11 @@ const Value = ({ hook, editable, style }) => {
 			name="value"
 			value={value}
 			onChange={e => setValue(e.target.value)}
+			onKeyPress={e => {
+				if (e.key == "Enter") {
+					props.submit()
+				}
+			}}
 			style={{
 				...style,
 				background: dark,

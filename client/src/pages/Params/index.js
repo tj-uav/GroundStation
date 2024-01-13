@@ -64,7 +64,7 @@ const Params = () => {
 		}
 		for (let e in enables) {
 			if (param.indexOf(e) == 0) {
-				return parameters[paramToIndex[enables[e]]].value == 1.0
+				return parameters[paramToIndex[enables[e]]].value != 0
 			}
 		}
 		return true
@@ -100,22 +100,23 @@ const Params = () => {
 		httpget("/uav/params/getall", response => {
 			let data = response.data.result
 			let missingParams = []
+			let params = parameters.slice()
 			for (let param in data) {
 				if (paramToIndex[param] != undefined) {
-					parameters[paramToIndex[param]].value = data[param]
-					parameters[paramToIndex[param]].present = true
+					params[paramToIndex[param]].value = data[param]
+					params[paramToIndex[param]].present = true
 				} else {
 					missingParams.push({ name: param, value: data[param], Description: "N/A", present: true })
 				}
 			}
-			let len = parameters.length
+			let len = params.length
 			missingParams.forEach((val, i) => {
-				parameters.push(val)
+				params.push(val)
 				paramToIndex[val.name] = i + len
 			})
 
-			setParameters(parameters)
-			setParametersSave(parameters.slice())
+			setParameters(params)
+			setParametersSave(params.slice())
 		})
 		revertParameters()
 	}

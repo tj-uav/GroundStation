@@ -15,6 +15,28 @@ const Active = ({ listRef, style, data, index, setActiveIndex, setModifiedIndexe
 	const [params, setParameters] = useParameters()
 	const root = React.useRef()
 
+	const submit = () => {
+		if (value != params[index].value) {
+			params[index] = {
+				...data,
+				value: value,
+				present: true
+			}
+			setParameters(params.slice())
+			setModifiedIndexes(prev => {
+				if (value == parametersSave[index].value) {
+					return prev.filter(ind => ind != index)
+				} else if (!prev.includes(index)) {
+					return [...prev, index]
+				} else {
+					return prev
+				}
+			})
+		}
+		setActiveIndex(-1)
+		listRef.current.resetAfterIndex(0)
+	}
+
 	useEffect(() => {
 		setActiveSize(root.current.getBoundingClientRect().height)
 	}, [root.current?.getBoundingClientRect().width])
@@ -25,7 +47,7 @@ const Active = ({ listRef, style, data, index, setActiveIndex, setModifiedIndexe
 				<div style={{ display: "flex", flexDirection: "column", gap: "1rem", height: "95%" }}>
 					<Row height="2rem" columns="11.5rem 5rem">
 						<Content padded children={data.name} />
-						<Value editable hook={[value, setValue]} />
+						<Value editable hook={[value, setValue]} submit={submit} />
 					</Row>
 					<Row style={{ marginBottom: "-1.15rem" }}>
 						<Label>Options</Label>
@@ -44,21 +66,7 @@ const Active = ({ listRef, style, data, index, setActiveIndex, setModifiedIndexe
 				>
 					<Submit
 						type="accept"
-						callback={() => {
-							if (value != parametersSave[index].value) {
-								params[index] = {
-									...data,
-									value,
-								}
-								setParameters(params.slice())
-								setModifiedIndexes(prev => {
-									if (!prev.includes(index)) return [...prev, index]
-									else return prev
-								})
-							}
-							setActiveIndex(-1)
-							listRef.current.resetAfterIndex(0)
-						}}
+						callback={submit}
 					/>
 					<Submit type="decline" callback={() => {
 						setActiveIndex(-1)
