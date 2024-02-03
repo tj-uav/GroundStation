@@ -4,9 +4,6 @@ from fastkml import kml, geometry
 import argparse
 from sys import stdin, stdout
 
-LOG_FILE = "flight3_telem_2023_04_16T14.51.15.log"
-# color order: alpha, blue, green, red
-
 
 def read_log_file(f):
     lines = []
@@ -58,19 +55,29 @@ def main():
     a.add_argument("in_file", nargs="?", default=None)
     a.add_argument("out_file", nargs="?", default=None)
     args = a.parse_args()
-    in_file = open(args.in_file, "r") if args.in_file else stdin
-    out_file = open(args.out_file, "w") if args.out_file else stdout
-    lines = read_log_file(in_file)
+    try:
+        in_file = open(args.in_file, "r") if args.in_file else stdin
+    except FileNotFoundError:
+        print("input file does not exist")
+        exit(1)
+    try:
+        out_file = open(args.out_file, "w") if args.out_file else stdout
+    except FileNotFoundError:
+        print("output file does not exist")
+        exit(2)
 
-    # print(k.to_string(prettyprint=True))
-    k = gen_doc(lines)
+    try:
+        lines = read_log_file(in_file)
+    except Exception as e:
+        print(f"input file format error: {e}")
+        exit(3)
+    try:
+        k = gen_doc(lines)
+    except Exception:
+        print("input file format error: incorrect JSON format")
+        exit(4)
     out_file.write(k.to_string(prettyprint=True))
 
 
 if __name__ == "__main__":
-    # should_time = False
-    # if should_time:
-    #     start = time.process_time()
     main()
-    # if should_time:
-    #     print(f"Finished in {time.process_time() - start:.2f}s")

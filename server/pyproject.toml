@@ -19,6 +19,7 @@ pymavlink = "^2.4.39"
 pyserial = "^3.5"
 python-socketio = "^5.8.0"
 eventlet = "^0.33.3"
+fastkml = "^0.12"
 
 [tool.poetry.group.dev.dependencies]
 protobuf = "<=3.20.0"
