@@ -116,31 +116,38 @@ def uav_load_commands():
 
 @uav_commands.route("/view")
 def uav_view_commands_file():
-    return send_file(os.path.join(os.getcwd(), "assets", "missions", "plane.txt"))
+    try:
+        return send_file(os.path.join(os.getcwd(), "assets", "missions", "plane.txt"))
+    except FileNotFoundError:
+        return {"result": "File not found"}
 
 
 @uav_commands.route("/export")
 def uav_export_commands_file():
     waypoints = []
-    with open(
-        os.path.join(os.getcwd(), "assets", "missions", "plane.txt"), "r", encoding="utf-8"
-    ) as f:
-        for line in f.readlines()[1:]:
-            spl = line.split("\t")
-            waypoints.append(
-                {
-                    "num": float(spl[0]),
-                    "cmd": float(spl[3]),
-                    "p1": float(spl[4]),
-                    "p2": float(spl[5]),
-                    "p3": float(spl[6]),
-                    "p4": float(spl[7]),
-                    "lat": float(spl[8]),
-                    "lon": float(spl[9]),
-                    "alt": float(spl[10]),
-                }
-            )
-    return {"waypoints": waypoints}
+
+    try:
+        with open(
+            os.path.join(os.getcwd(), "assets", "missions", "plane.txt"), "r", encoding="utf-8"
+        ) as f:
+            for line in f.readlines()[1:]:
+                spl = line.split("\t")
+                waypoints.append(
+                    {
+                        "num": float(spl[0]),
+                        "cmd": float(spl[3]),
+                        "p1": float(spl[4]),
+                        "p2": float(spl[5]),
+                        "p3": float(spl[6]),
+                        "p4": float(spl[7]),
+                        "lat": float(spl[8]),
+                        "lon": float(spl[9]),
+                        "alt": float(spl[10]),
+                    }
+                )
+        return {"waypoints": waypoints}
+    except FileNotFoundError:
+        return {"waypoints": []}
 
 
 @uav_commands.route("/generate", methods=["POST"])
