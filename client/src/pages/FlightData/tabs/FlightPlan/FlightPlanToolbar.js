@@ -92,82 +92,27 @@ const FlightPlanToolbar = props => {
 	}, [props.getters.placementMode, props.getters.placementType, props.getters.firstJump, props.getters.firstPoint, props.getters.currentDistance])
 
 	const addWaypoint = (lat, lon, alt) => {
-		// Create a new waypoint
-		console.log(parseInt(alt))
-		
-		let cmds=0
+		// Create a new waypoint		
 		let point;
+		props.setters.pathSaved(false);
+
 		if (props.getters.placementType== "waypoint"){
-			cmds=Commands.waypoint
-			point = {
-				alt:alt!="" ? parseFloat(alt):props.getters.defaultAlt,
-				cmd:cmds,
-				lat:parseFloat(lat),
-				lng:parseFloat(lon),
-				num:props.getters.path.length + 1,
-				p1:0,
-				p2:0,
-				p3:0,
-				p4:0
-	
-			};
+			point = {alt:alt!="" ? parseFloat(alt):props.getters.defaultAlt, cmd:Commands.waypoint, lat:parseFloat(lat), lng:parseFloat(lon), num:props.getters.path.length + 1, p1:0, p2:0, p3:0, p4:0, opacity:0.5};
 		}
 		else if (props.getters.placementType=="jump"){
 			return
 		}
 		else if (props.getters.placementType=="unlimLoiter"){
-			cmds=Commands.unlimLoiter
-			point = {
-				alt:alt!="" ? parseFloat(alt):props.getters.defaultAlt,
-				cmd:cmds,
-				lat:parseFloat(lat),
-				lng:parseFloat(lon),
-				num:props.getters.path.length + 1,
-				p1:0,//turns and time
-				p2:0,
-				p3:rad,//radius
-				p4:0
-	
-			};
+			point = {alt:alt!="" ? parseFloat(alt):props.getters.defaultAlt, cmd:Commands.unlimLoiter, lat:parseFloat(lat), lng:parseFloat(lon), num:props.getters.path.length + 1, p1:0, p2:0, p3:rad, p4:0, opacity:0.5};
 		}
 		else if (props.getters.placementType=="turnLoiter"){
-			cmds=Commands.turnLoiter
-		 	point = {
-				alt:alt!="" ? parseFloat(alt):props.getters.defaultAlt,
-				cmd:cmds,
-				lat:parseFloat(lat),
-				lng:parseFloat(lon),
-				num:props.getters.path.length + 1,
-				p1:turns,//turns and time
-				p2:0,
-				p3:rad,//radius
-				p4:0
-	
-			};
+		 	point = {alt:alt!="" ? parseFloat(alt):props.getters.defaultAlt, cmd:Commands.turnLoiter, lat:parseFloat(lat), lng:parseFloat(lon), num:props.getters.path.length + 1, p1:turns, p2:0, p3:rad, p4:0, opacity:0.5};
 		}
 		else if (props.getters.placementType=="timeLoiter"){
-			cmds=Commands.timeLoiter
-			point = {
-				alt:alt!="" ? parseFloat(alt):props.getters.defaultAlt,
-				cmd:cmds,
-				lat:parseFloat(lat),
-				lng:parseFloat(lon),
-				num:props.getters.path.length + 1,
-				p1:time,//turns and time
-				p2:0,
-				p3:rad,//radius
-				p4:0
-	
-			};
+			point = {alt:alt!="" ? parseFloat(alt):props.getters.defaultAlt, cmd:Commands.timeLoiter, lat:parseFloat(lat), lng:parseFloat(lon), num:props.getters.path.length + 1, p1:time, p2:0, p3:rad, p4:0, opacity:0.5};
 		}
 		
-		
-		console.log(props.getters.placementType)
 		props.setters.path([...props.getters.path,point])
-		
-		//set(props.getters.path)
-		console.log(props.getters.path)	
-
 	};
 	
 	const greyOutPlacePoint = () =>{
@@ -277,83 +222,69 @@ const FlightPlanToolbar = props => {
 				</Row>
 				<span>Place Point:</span>
 				<Row columns="minmax(0, 2fr) minmax(0, 2fr) minmax(0, 2fr) minmax(0, 2fr) minmax(0, 2fr)  minmax(0,1fr)">
-					<Box
-						ref={input1Ref}
-						type="text"
-						editable={greyOutPlacePoint()}
-						placeholder={greyOutPlacePoint() ? "Lat":"Disabled"}
-						content={greyOutPlacePoint() ? lat:""}
-						onChange={(e)=>setLat(e)}
-						style={{"backgroundColor":"#E2DBD5","borderColor":"transparent" }}
-						onKeyDown={(e) => 
-							enterPlacePoint(e)
-						}
+					<PlacePointInputBox
+						refProp={input1Ref} 
+						editable={()=>greyOutPlacePoint()} 
+						placeholder={greyOutPlacePoint() ? "Lat":"Disabled"} 
+						content={()=>greyOutPlacePoint() ? lat:""} 
+						onChange={(e) => setLat(e)} 
+						style={{"backgroundColor":"#E2DBD5","borderColor":"transparent" }} 
+						onKeyDown={(e) => enterPlacePoint(e)}
 					/>
-					<Box
-						ref={input2Ref}
-						type="text"
-						editable={greyOutPlacePoint()}
-						placeholder={greyOutPlacePoint() ? "Lon":"Disabled"}
-						content={greyOutPlacePoint() ? lon:""}
-						onChange={(e)=>setLon((e))}
-						style={{ "backgroundColor":"#E2DBD5","borderColor":"transparent" }}
-						onKeyDown={(e) => 
-							enterPlacePoint(e)
-						}
+					<PlacePointInputBox
+						refProp={input2Ref} 
+						editable={()=>greyOutPlacePoint()} 
+						placeholder={greyOutPlacePoint() ? "Lon":"Disabled"} 
+						content={()=>greyOutPlacePoint() ? lon:""} 
+						onChange={(e) => setLon(e)} 
+						style={{"backgroundColor":"#E2DBD5","borderColor":"transparent" }} 
+						onKeyDown={(e) => enterPlacePoint(e)}
 					/>
-					<Box
-						ref={input3Ref}
-						type="text"
-						editable={greyOutPlacePoint()}
-						placeholder={greyOutPlacePoint() ? "Alt":"Disabled"}
-						content={greyOutPlacePoint() ? alt:""}
-						onChange={(e)=>setAlt(e)}
-						style={{ "backgroundColor":"#E2DBD5","borderColor":"transparent" }}
-						onKeyDown={(e) => 
-							enterPlacePoint(e)
-						}
+					<PlacePointInputBox
+						refProp={input3Ref} 
+						editable={()=>greyOutPlacePoint()} 
+						placeholder={greyOutPlacePoint() ? "Alt":"Disabled"} 
+						content={()=>greyOutPlacePoint() ? alt:""} 
+						onChange={(e) => setAlt(e)} 
+						style={{"backgroundColor":"#E2DBD5","borderColor":"transparent" }} 
+						onKeyDown={(e) => enterPlacePoint(e)}
 					/>
+					
 					{greyOutPlacePoint() && props.getters.placementType!="waypoint"? (
-					<Box
-						ref={input4Ref}
-						type="text"
-						editable={greyOutPlacePoint()}
-						placeholder={greyOutPlacePoint() ? "Radius":"Disabled"}
-						content={greyOutPlacePoint() ? rad:""}
-						onChange={(e)=>setRad(e)}
-						style={{ "backgroundColor":"#E2DBD5","borderColor":"transparent" }}
-						onKeyDown={(e) => 
-							enterPlacePoint(e)
-						}
-					/>):(null)}
+					<PlacePointInputBox
+						refProp={input4Ref} 
+						editable={()=>greyOutPlacePoint()} 
+						placeholder={greyOutPlacePoint() ? "Radius":"Disabled"} 
+						content={()=>greyOutPlacePoint() ? rad:""} 
+						onChange={(e) => setRad(e)} 
+						style={{"backgroundColor":"#E2DBD5","borderColor":"transparent" }} 
+						onKeyDown={(e) => enterPlacePoint(e)}
+					/>
+					):(null)}
 
 					{greyOutPlacePoint() && props.getters.placementType=="turnLoiter"? (
-					<Box
-						ref={input5Ref}
-						type="text"
-						editable={greyOutPlacePoint()}
-						placeholder={greyOutPlacePoint() ? "Turns":"Disabled"}
-						content={greyOutPlacePoint() ? turns:""}
-						onChange={(e)=>setTurns(e)}
-						style={{ "backgroundColor":"#E2DBD5","borderColor":"transparent" }}
-						onKeyDown={(e) => 
-							enterPlacePoint(e)
-						}
-					/>):(null)}
+					<PlacePointInputBox
+						refProp={input5Ref} 
+						editable={()=>greyOutPlacePoint()} 
+						placeholder={greyOutPlacePoint() ? "Turns":"Disabled"} 
+						content={()=>greyOutPlacePoint() ? turns:""} 
+						onChange={(e) => setTurns(e)} 
+						style={{"backgroundColor":"#E2DBD5","borderColor":"transparent" }} 
+						onKeyDown={(e) => enterPlacePoint(e)}
+					/>
+					):(null)}
 
 					{greyOutPlacePoint() && props.getters.placementType=="timeLoiter"? (
-					<Box
-						ref={input6Ref}
-						type="text"
-						editable={greyOutPlacePoint()}
-						placeholder={greyOutPlacePoint() ? "Time":"Disabled"}
-						content={greyOutPlacePoint() ? time:""}
-						onChange={(e)=>setTime(e)}
-						style={{ "backgroundColor":"#E2DBD5","borderColor":"transparent" }}
-						onKeyDown={(e) => 
-							enterPlacePoint(e)
-						}
-					/>):(null)}
+					<PlacePointInputBox
+						refProp={input6Ref} 
+						editable={()=>greyOutPlacePoint()} 
+						placeholder={greyOutPlacePoint() ? "Time":"Disabled"} 
+						content={()=>greyOutPlacePoint() ? time:""} 
+						onChange={(e) => setTime(e)} 
+						style={{"backgroundColor":"#E2DBD5","borderColor":"transparent" }} 
+						onKeyDown={(e) => enterPlacePoint(e)}
+					/>
+					):(null)}
 					
 					<Button disabled={!(lat && lon)}   onClick={()=>addWaypoint(lat,lon,alt)}>Plot</Button>
 					
@@ -422,5 +353,19 @@ const FlightPlanToolbar = props => {
 		</div>
 	)
 }
+const PlacePointInputBox = ({ refProp, editable, placeholder, content, onChange, style, onKeyDown }) => {
+	return (
+	  <Box
+		ref={refProp}
+		type="text"
+		editable={editable}
+		placeholder={placeholder}
+		content={content}
+		onChange={onChange}
+		style={style}
+		onKeyDown={onKeyDown}
+	  />
+	);
+};
 
 export default FlightPlanToolbar
