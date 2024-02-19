@@ -4,6 +4,7 @@ This is not currently implemented into the code, as the Pixhawk is not yet confi
 these values
 However, this code is kept in the repository for future use and maintenance purposes
 """
+
 from dronekit import Vehicle
 
 
