@@ -19,3 +19,8 @@ pySerial
 # Image Handler
 python-socketio
 eventlet
+
+
+# log -> KML generator
+fastkml
+
