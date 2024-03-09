@@ -2,7 +2,7 @@
     "uav": {
         "telemetry": {
             "port": "/dev/ttyUSB0",
-            "serial": true,
+            "serial": false,
             "log": true
         },
         "images": {
