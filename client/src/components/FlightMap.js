@@ -181,9 +181,7 @@ const FlightPlanMap = props => {
 
 
 	const handleClick = event => {
-		let waypointNum = props.getters.Awaypoint[0].num
-		console.log(waypointNum)
-		console.log(props.getters.path[2])
+
 
 		if (["disabled", "distance"].includes(props.getters.placementMode) || ["jump"].includes(props.getters.placementType)) {
 			return
@@ -346,7 +344,9 @@ const FlightPlanMap = props => {
 	const getTargetWaypoint = () => {
 
 		if (props.getters.Awaypoint.length > 0 && props.getters.planePoints.length > 0 && props.getters.path) {
-			let waypointNum = props.getters.Awaypoint[0].num
+
+			let waypointNum = props.getters.Awaypoint[0].num % props.getters.path.length
+
 			return [props.getters.planePoints[props.getters.planePoints.length - 1], props.getters.path[waypointNum]]
 		}
 		return []
@@ -520,7 +520,7 @@ const FlightPlanMap = props => {
 							})}
 						</LayerGroup>
 					</LayersControl.Overlay>
-					<LayersControl.Overlay checked name="test">
+					<LayersControl.Overlay checked name={props.display.airdropBoundary[1]}>
 						<LayerGroup>
 							<Polyline positions={props.getters.planePoints.slice(-20)} color="#8a2be2" weight={3} />
 							{props.getters.planePoints.map((marker, index) => {
@@ -528,7 +528,7 @@ const FlightPlanMap = props => {
 							})}
 						</LayerGroup>
 					</LayersControl.Overlay>
-					<LayersControl.Overlay checked name="test">
+					<LayersControl.Overlay checked name={props.display.airdropBoundary[1]}>
 						<LayerGroup>
 							<Polyline positions={getTargetWaypoint()} color="#FFFFFF" weight={3} />
 							{props.getters.planePoints.map((marker, index) => {
