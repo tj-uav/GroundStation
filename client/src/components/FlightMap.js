@@ -61,9 +61,7 @@ const FlightPlanMap = props => {
 	let mapRef = createRef()
 	const [icons, setIcons] = useState({})
 	const tileRef = useRef(null)
-
 	useEffect(() => {
-
 		httpget("/uav/commands/export", response => {
 			let points = response.data.waypoints.map((marker) => {
 				return { num: marker.num, cmd: marker.cmd, p1: marker.p1, p2: marker.p2, p3: marker.p3 * 3.281, p4: marker.p4, lat: marker.lat, lng: marker.lon, alt: marker.alt * 3.281 } // convert altitude from meters to feet
@@ -71,7 +69,6 @@ const FlightPlanMap = props => {
 			props.setters.path(points)
 			props.setters.pathSave(structuredClone(points))
 		})
-
 		var MarkerIcon = L.Icon.extend({
 			options: {
 				iconSize: [25, 41],
@@ -86,7 +83,7 @@ const FlightPlanMap = props => {
 		var NoIcon = L.Icon.extend({
 			options: {
 				iconSize: [20, 20],
-                iconAnchor: [10, 10],
+				iconAnchor: [10, 10],
 				iconUrl: "../assets/icon-transparent.svg",
 				popupAnchor: [0, 0],
 				tooltipAnchor: [0, 0],
@@ -119,12 +116,15 @@ const FlightPlanMap = props => {
 			uav: new VehicleIcon({ iconUrl: "../assets/uav.svg" }),
 			uavDirection: new DirectionPointerIcon({ iconUrl: "../assets/pointer.svg" }),
 			uavDirectionOutline: new DirectionPointerIcon({ iconUrl: "../assets/pointer-outline.svg" }),
+			uavPath: new NoIcon(),
 			water: new VehicleIcon({ iconUrl: "../assets/water-drop.svg" }),
 		})
 
 		window.addEventListener("offline", () => {
 			tileRef.current.setUrl("/map/{z}/{x}/{y}.png")
 		})
+
+
 
 		checkInternet()
 
@@ -143,12 +143,12 @@ const FlightPlanMap = props => {
 			}).catch(() => {
 				try {
 					tileRef.current.setUrl("/map/{z}/{x}/{y}.png")
-				} catch {}
+				} catch { }
 			})
 		} else {
 			try {
 				tileRef.current.setUrl("/map/{z}/{x}/{y}.png")
-			} catch {}
+			} catch { }
 		}
 	}
 	useInterval(5000, checkInternet)
@@ -179,8 +179,9 @@ const FlightPlanMap = props => {
 		props.setters.pathSaved(false)
 	}
 
+
 	const handleClick = event => {
-		console.log(props.getters.path)
+
 
 		if (["disabled", "distance"].includes(props.getters.placementMode) || ["jump"].includes(props.getters.placementType)) {
 			return
@@ -208,9 +209,9 @@ const FlightPlanMap = props => {
 						second = get[(i + 1) % get.length]
 					}
 
-					let m = (second.lat - first.lat)/(second.lng - first.lng)
-					let x0 = (event.latlng.lng/m + event.latlng.lat - second.lat + m*second.lng)/(m + 1/m) // projection of event point on line
-					let y0 = -(x0 - event.latlng.lng)/m + event.latlng.lat
+					let m = (second.lat - first.lat) / (second.lng - first.lng)
+					let x0 = (event.latlng.lng / m + event.latlng.lat - second.lat + m * second.lng) / (m + 1 / m) // projection of event point on line
+					let y0 = -(x0 - event.latlng.lng) / m + event.latlng.lat
 
 					if (m === -Infinity || m === Infinity) {
 						let d = Math.abs(event.latlng.lng - first.lng)
@@ -221,7 +222,7 @@ const FlightPlanMap = props => {
 						let lng = event.latlng.lng
 						return [d, (lng > first.lng && lng < second.lng) || (lng > second.lng && lng < first.lng)]
 					} else {
-						let d = Math.sqrt((x0 - event.latlng.lng)**2 + (y0 - event.latlng.lat)**2)
+						let d = Math.sqrt((x0 - event.latlng.lng) ** 2 + (y0 - event.latlng.lat) ** 2)
 						if (x0 > Math.min(first.lng, second.lng) && x0 < Math.max(first.lng, second.lng) && y0 > Math.min(first.lat, second.lat) && y0 < Math.max(first.lat, second.lat)) {
 							return [d, true]
 						} else {
@@ -321,7 +322,7 @@ const FlightPlanMap = props => {
 					<Popup>
 						{popupMenu}
 					</Popup>
-				: null}
+					: null}
 			</Marker>
 		)
 	}
@@ -339,6 +340,17 @@ const FlightPlanMap = props => {
 		});
 		return null;
 	};
+
+	const getTargetWaypoint = () => {
+
+		if (props.getters.Awaypoint.length > 0 && props.getters.planePoints.length > 0 && props.getters.path) {
+
+			let waypointNum = props.getters.Awaypoint[0].num % props.getters.path.length
+
+			return [props.getters.planePoints[props.getters.planePoints.length - 1], props.getters.path[waypointNum]]
+		}
+		return []
+	}
 
 	const MarkerPopup = ({ marker, i, datatype }) => {
 		return (
@@ -398,7 +410,7 @@ const FlightPlanMap = props => {
 					Jump From
 					<Box style={{ "width": "12em", "margin-right": "4em", "height": "3em" }} editable={false} placeholder={"---"} content={i} onChange={v => positiveSignedIntValidation(v, marker.p0, (k) => {
 						let path = props.getters.path
-						props.setters.path([...path.slice(0, i), {...marker, p0: k}, ...path.slice(i + 1)])
+						props.setters.path([...path.slice(0, i), { ...marker, p0: k }, ...path.slice(i + 1)])
 						props.setters.pathSaved(false)
 					})} />
 					<br />
@@ -412,7 +424,7 @@ const FlightPlanMap = props => {
 					Repeat
 					<Box style={{ "width": "12em", "margin-right": "4em", "height": "3em" }} editable={true} placeholder={"---"} content={marker?.p2} onChange={v => positiveSignedIntValidation(v, marker.p2, (k) => {
 						let path = props.getters.path
-						props.setters.path([...path.slice(0, i), { ...marker, p2: k}, ...path.slice(i + 1)])
+						props.setters.path([...path.slice(0, i), { ...marker, p2: k }, ...path.slice(i + 1)])
 						props.setters.pathSaved(false)
 					})} />
 				</div>}
@@ -426,13 +438,13 @@ const FlightPlanMap = props => {
 							if (p.num == j + 2) { // if starting point of jump is at waypoint to be deleted
 								return null
 							} else if (p.p1 > j + 1) {
-								return { ...p, p1: p.p1 - 1, cmd: p.cmd, num: p.num - (p.num > j+1 ? 1 : 0) }
+								return { ...p, p1: p.p1 - 1, cmd: p.cmd, num: p.num - (p.num > j + 1 ? 1 : 0) }
 							} else if (p.p1 == j + 1) { // if destination of jump is to waypoint to be deleted
 								return null // marked for deletion
 							}
 						}
 
-						return { ...p, num: (p.num > j+1 ? p.num - 1 : p.num) }
+						return { ...p, num: (p.num > j + 1 ? p.num - 1 : p.num) }
 					}
 
 					const _delete = (_p, k) => {
@@ -491,7 +503,7 @@ const FlightPlanMap = props => {
 				/>
 				<ClickLocation />
 				<LayersControl position="topright">
-					{ /* Need for SUAS: geofence, airdrop, uav, waypoint */ }
+					{ /* Need for SUAS: geofence, airdrop, uav, waypoint */}
 					<LayersControl.Overlay checked name={props.display.flightBoundary[1]}>
 						<LayerGroup>
 							<Polyline positions={circle(props.getters.flightBoundary)} color="#000000" weight={4} />
@@ -505,6 +517,22 @@ const FlightPlanMap = props => {
 							<Polyline positions={circle(props.getters.airdropBoundary)} color="#ee7313" weight={3} />
 							{props.getters.airdropBoundary.map((marker, index) => {
 								return popup(marker, index, "airdropBoundary")
+							})}
+						</LayerGroup>
+					</LayersControl.Overlay>
+					<LayersControl.Overlay checked name={props.display.airdropBoundary[1]}>
+						<LayerGroup>
+							<Polyline positions={props.getters.planePoints.slice(-20)} color="#8a2be2" weight={3} />
+							{props.getters.planePoints.map((marker, index) => {
+								return popup(marker, index, "uavPath")
+							})}
+						</LayerGroup>
+					</LayersControl.Overlay>
+					<LayersControl.Overlay checked name={props.display.airdropBoundary[1]}>
+						<LayerGroup>
+							<Polyline positions={getTargetWaypoint()} color="#FFFFFF" weight={3} />
+							{props.getters.planePoints.map((marker, index) => {
+								return popup(marker, index, "uavPath")
 							})}
 						</LayerGroup>
 					</LayersControl.Overlay>
@@ -558,10 +586,10 @@ const FlightPlanMap = props => {
 									return (
 										<>
 											<PolylineDecorator layer="Waypoints" positions={[props.getters.path[j], props.getters.path[marker.p1 - 1]]} color="#17e3cb" decoratorColor="#61e8d9" />
-											{popup({...marker, lng: (props.getters.path[j].lng + props.getters.path[marker.p1 - 1].lng)/2, lat: (props.getters.path[j].lat + props.getters.path[marker.p1 - 1].lat)/2}, marker.num, "jump", (
+											{popup({ ...marker, lng: (props.getters.path[j].lng + props.getters.path[marker.p1 - 1].lng) / 2, lat: (props.getters.path[j].lat + props.getters.path[marker.p1 - 1].lat) / 2 }, marker.num, "jump", (
 												<div>
 													<h5>#{i + 1}: Jump</h5>
-													{MarkerPopup({marker: marker, i: i, datatype: "jump"})}
+													{MarkerPopup({ marker: marker, i: i, datatype: "jump" })}
 												</div>
 											), false)}
 										</>
@@ -570,21 +598,21 @@ const FlightPlanMap = props => {
 									return popup(marker, marker.num, "unlim", (
 										<div>
 											<h5>#{i + 1}: Unlimited Loiter</h5>
-											{MarkerPopup({marker: marker, i: i, datatype: "unlim"})}
+											{MarkerPopup({ marker: marker, i: i, datatype: "unlim" })}
 										</div>
 									), true)
 								} else if (marker.cmd === Commands.turnLoiter) {
 									return popup(marker, marker.num, "turn", (
 										<div>
 											<h5>#{i + 1} Turn Loiter</h5>
-											{MarkerPopup({marker: marker, i: i, datatype: "turn"})}
+											{MarkerPopup({ marker: marker, i: i, datatype: "turn" })}
 										</div>
 									), true)
 								} else if (marker.cmd === Commands.timeLoiter) {
 									return popup(marker, marker.num, "time", (
 										<div>
 											<h5>#{i + 1}: Time Loiter</h5>
-											{MarkerPopup({marker: marker, i: i, datatype: "time"})}
+											{MarkerPopup({ marker: marker, i: i, datatype: "time" })}
 										</div>
 									), true)
 								}
@@ -592,7 +620,7 @@ const FlightPlanMap = props => {
 								return popup(marker, marker.num, "path", (
 									<div>
 										<h6>#{i + 1}: Mission Path Waypoint</h6>
-										{MarkerPopup({marker: marker, i: i, datatype: "path"})}
+										{MarkerPopup({ marker: marker, i: i, datatype: "path" })}
 									</div>
 								), true)
 							})}
