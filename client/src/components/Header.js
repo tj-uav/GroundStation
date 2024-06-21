@@ -4,6 +4,7 @@ import { darker } from "theme/Colors"
 import styled from "styled-components"
 import { Box, Button } from "./UIElements"
 import { getUrl, setUrl } from "../backend"
+import {ReactComponent as RawSettingsGear} from "../icons/settingsGear.svg"
 
 const NavContainer = styled.div`
 	background: ${darker};
@@ -28,6 +29,11 @@ const StyledLink = styled.a`
 	text-decoration: none !important;
 	color: black;
 `
+const SettingsGear = styled(RawSettingsGear)`
+	height: 4em;
+	width: 4em;
+	cursor: pointer;
+`
 
 const ConnectionButton = (props) => {
 	const [open, setOpen] = useState(false)
@@ -42,7 +48,7 @@ const ConnectionButton = (props) => {
 			<Button style={{ "width": "3em", "margin-top": "0.75em" }} onChange={() => {
 				setOpen(true)
 			}}>
-				Con
+				<SettingsGear/>
 			</Button>
 			<Modal open={open} setOpen={setOpen}>
 				<ModalHeader>Backend Connection</ModalHeader>

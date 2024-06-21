@@ -5,18 +5,23 @@ import { httppost } from "backend"
 
 import { Row, Column, Modal, ModalHeader, ModalBody } from "components/Containers"
 import Commands from "commands"
+import { point } from "leaflet"
 
 const FlightPlanToolbar = props => {
     const [open, setOpen] = useState(false)
     const [missing, setMissing] = useState([])
 
     const [modeText, setModeText] = useState("")
+    const [editableIndex, setEditableIndex] = useState("")
     const [lat, setLat] = useState("")
     const [lon, setLon] = useState("")
     const [alt, setAlt] = useState("")
     const [rad, setRad] = useState("")
     const [turns, setTurns] = useState("")
     const [time, setTime] = useState("")
+    const [modLat, setModLat] = useState("")
+    const [modLon, setModLon] = useState("")
+    const [modAlt, setModAlt] = useState("")
 
     const input1Ref = useRef(null);
     const input2Ref = useRef(null);
@@ -24,6 +29,9 @@ const FlightPlanToolbar = props => {
     const input4Ref = useRef(null);
     const input5Ref = useRef(null);
     const input6Ref = useRef(null);
+    const edit1Ref = useRef(null);
+    const edit2Ref = useRef(null);
+    const edit3Ref = useRef(null);
 
     const placementModes = {
         "disabled": "Disabled",
@@ -158,7 +166,14 @@ const FlightPlanToolbar = props => {
                 opacity : 0.5
             };
         }
-        
+        setLat("")
+        setLon("")
+        setAlt("")
+        setRad("")
+        setTurns("")
+        setTime("")
+        moveToFirstInput()
+
         props.setters.path([...props.getters.path, point])
     };
     
@@ -173,13 +188,6 @@ const FlightPlanToolbar = props => {
         if ((e.key === "Enter") && (lat && lon)){
             e.preventDefault()
             addWaypoint(lat,lon,alt);
-            setLat("")
-            setLon("")
-            setAlt("")
-            setRad("")
-            setTurns("")
-            setTime("")
-            moveToFirstInput()
         }
     }
 
@@ -187,6 +195,37 @@ const FlightPlanToolbar = props => {
         input1Ref.current.focus();
     };
 
+    const modPoint = (point, i) => {
+        if (!(modLat === "" && modLon === "" && modAlt === "")){
+            let moddedLat, moddedLng, moddedAlt
+            moddedLat = parseFloat(modLat === "" ? point.lat : modLat)
+            moddedLng = parseFloat(modLon === "" ? point.lng : modLon)
+            moddedAlt = parseFloat(modAlt === "" ? point.alt : modAlt)
+            props.setters.path([...props.getters.path.slice(0, i), {...point, lat: moddedLat, lng: moddedLng, alt: moddedAlt, opacity: 0.5}, ...props.getters.path.slice(i + 1)])
+            props.setters.pathSaved(false)
+            setModLat("")
+            setModLon("")
+            setModAlt("")
+        }
+        setEditableIndex("")
+    };
+
+    const deletePoint = (index) => {
+        props.getters.path.splice(index, 1)
+        props.setters.pathSaved(false)
+    }
+
+    const highlightMarker = (point) => {
+        if (!("highlight" in point) | !point["highlight"]){
+            point["highlight"] = true
+        }
+        else{
+            point["highlight"] = false
+        }
+        //delay
+    }
+
+    
     return (
         <div style={{ marginLeft: 10 }}>
             <Modal open={open} setOpen={setOpen}>
@@ -321,18 +360,18 @@ const FlightPlanToolbar = props => {
                     />
                     ):(null)}
                     
-                    <Button disabled={!(lat && lon)}   onClick={()=>addWaypoint(lat,lon,alt)}>Plot</Button>
+                    <Button disabled={!(lat && lon)} onClick={()=>addWaypoint(lat,lon,alt)}>Plot</Button>
                     
                 </Row>
-                <div style={{ overflow: 'auto', height: '200px', backgroundColor: dark }}>
+                <div style={{ overflow: 'auto', height: '175px', backgroundColor: dark }}>
                     <table>
                         <thead>
                             <tr>
-                                <th style={{padding:"8px"}}>Latitude</th>
-                                <th style={{padding:"8px"}}>Longitude</th>
-                                <th style={{padding:"8px"}}>Altitude</th>
-                                <th style={{padding:"8px"}}>Type</th>
-                                
+                                <th style={{ padding: "8px" }}>Pt</th>
+                                <th style={{ padding: "8px" }}>Latitude</th>
+                                <th style={{ padding: "8px" }}>Longitude</th>
+                                <th style={{ padding: "8px" }}>Altitude</th>
+                                <th style={{ padding: "8px" }}>Type</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -340,19 +379,71 @@ const FlightPlanToolbar = props => {
                                 if (point.cmd == Commands.jump) {
                                     return (
                                         <tr key={index}>
-                                            <td style={{ padding: "2px 8px" }}>{point.num-1}</td>
-                                            <td style={{ padding: "2px 8px" }}>{point.p1}</td>
-                                            <td style={{ padding: "2px 8px" }}>{point.alt}</td>
+                                            <td style={{ padding: "2px 8px" }} onMouseEnter={()=>point["highlight"]=true} onMouseLeave={()=>point["highlight"]=false}>{index+1}</td>
+                                            <td style={{ padding: "2px 8px" }}>({point.num-1} to {point.p1})</td>
+                                            <td style={{ padding: "2px 26px" }}>{"---"}</td>
+                                            <td style={{ padding: "2px 8px" }}>Repeats: {point.p2}</td>
                                             <td style={{ padding: "2px 8px" }}>{numToCommands[point.cmd]}</td>
                                         </tr>
                                     )
-                                } else {
+                                }
+                                else if (point.cmd != Commands.jump) {
                                     return (
                                         <tr key={index}>
-                                            <td style={{ padding: "2px 8px" }}>{point.lat}</td>
-                                            <td style={{ padding: "2px 8px" }}>{point.lng}</td>
-                                            <td style={{ padding: "2px 8px" }}>{point.alt}</td>
-                                            <td style={{ padding: "2px 8px" }}>{numToCommands[point.cmd]}</td>
+                                            <td style={{ padding: "2px 8px" }} onMouseEnter={()=>point["highlight"]=true} onMouseLeave={()=>point["highlight"]=false}>{index + 1}</td>
+                                            <td style={{ padding: "2px 8px" }}>
+                                                {editableIndex === index ? (
+                                                    <input
+                                                        type="text"
+                                                        onChange={(e) => setModLat(e.target.value)}
+                                                        ref={edit1Ref}
+                                                        defaultValue={point.lat}
+                                                        style={{width: "100px"}}
+                                                    />
+                                                        
+                                                ) : (
+                                                    point.lat==undefined ? point.lat : point.lat.toFixed(8)
+                                                )}
+                                            </td>
+                                            <td style={{ padding: "2px 8px" }}>
+                                                {editableIndex === index ? (
+                                                    <input
+                                                        type="text"
+                                                        onChange={(e) => setModLon(e.target.value)}
+                                                        ref={edit2Ref}
+                                                        defaultValue={point.lng}
+                                                        style={{width: "100px"}}
+                                                    />
+                                                ) : (
+                                                    point.lng==undefined ? point.lng : point.lng.toFixed(8)
+                                                )}
+                                            </td>
+                                            <td style={{ padding: "2px 8px" }}>
+                                                {editableIndex === index ? (
+                                                    <input
+                                                        type="text"
+                                                        onChange={(e) => setModAlt(e.target.value)}
+                                                        ref={edit3Ref}
+                                                        defaultValue={point.alt}
+                                                        style={{width: "100px"}}
+                                                    />
+                                                ) : (
+                                                    point.alt==undefined ? point.alt : point.alt.toFixed(8)
+                                                )}
+                                            </td>
+                                            <td style={{ padding: "2px 8px" }}>
+                                                {numToCommands[point.cmd]}
+                                            </td>
+                                            <td style={{ padding: "2px 8px"}}>
+                                                <Button onClick={() => editableIndex===index ?  modPoint(point, index) : setEditableIndex(index)} color={editableIndex===index ? "green" : null}>
+                                                    {editableIndex===index ? "Save" : "Edit" }
+                                                </Button>
+                                            </td>
+                                            <td style={{ padding: "2px 8px" }}>
+                                                <Button onClick={()=>deletePoint(index)} color="red">
+                                                    Del
+                                                </Button>
+                                            </td>
                                         </tr>
                                     )
                                 }
