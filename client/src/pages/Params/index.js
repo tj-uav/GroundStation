@@ -3,13 +3,15 @@ import styled from "styled-components"
 
 import { Row, Column } from "components/Containers"
 import { Button, Box, Label } from "components/UIElements"
-import { darkest, darkdark } from "theme/Colors"
+import { dark, darkest, darkdark } from "theme/Colors"
 import { httpget, httppost } from "../../backend"
+import { useInterval } from "../../util"
 
 import { VariableSizeList } from "react-window"
 import AutoSizer from "react-virtualized-auto-sizer"
 
 import Param from "./Param"
+
 /*
 Current params functionality:
 You can load a param file, and it will load all known params (known params are those in the paramDescriptions dictionary).
@@ -57,6 +59,7 @@ const Params = () => {
 	const [modifiedIndexes, setModifiedIndexes] = useState([])
 	const [parameters, setParameters] = useState(INITIAL_PARAMS)
 	const [parametersSave, setParametersSave] = useState(INITIAL_PARAMS.slice())
+	const [downloaded, setDownloaded] = useState(false)
 
 	const isEnabled = (param) => {
 		if (param.includes("_ENABLE")) {
@@ -138,6 +141,12 @@ const Params = () => {
 	}, [])
 
 	const [activeSize, setActiveSize] = useState(35)
+
+	useInterval(1000, () => {
+		httpget("/uav/params/downloaded", response => {
+			setDownloaded(response.data.result)
+		})
+	})
 
 	return (
 		<ParametersContext.Provider value={[parameters, setParameters]}>
@@ -233,6 +242,17 @@ const Params = () => {
 							)
 						})}
 					</section>
+					<div style={{ margin: "0.5em", padding: "0.5em", background: dark }}>
+						{downloaded ? (
+							<>
+								Viewing parameters from plane (not local file)
+							</>
+						) : (
+							<>
+								Viewing local parameters file
+							</>
+						)}
+					</div>
 				</div>
 				<Column
 					height="100%"

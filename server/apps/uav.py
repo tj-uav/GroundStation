@@ -3,6 +3,7 @@ import os.path
 from flask import Blueprint, current_app as app, request, send_file
 import logging
 from utils.errors import InvalidRequestError
+from handlers import DummyUAVHandler
 
 uav = Blueprint("uav", __name__)
 
@@ -249,3 +250,8 @@ def uav_load_params():
     load = app.gs.uav.load_params()
     logger.info("/uav/params/load : Parameters loaded from plane")
     return load
+
+
+@uav_params.route("/downloaded")
+def uav_params_downloaded():
+    return {"result": False if type(app.gs.uav) == DummyUAVHandler else "parameters" in app.gs.uav.vehicle._ready_attrs}
