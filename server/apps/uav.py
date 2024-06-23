@@ -1,11 +1,12 @@
 import os.path
 
 from flask import Blueprint, current_app as app, request, send_file
-
+import logging
 from utils.errors import InvalidRequestError
 
 uav = Blueprint("uav", __name__)
 
+logger: logging.Logger = logging.getLogger('groundstation')
 
 @uav.route("/connect", methods=["POST"])
 def uav_connect():
@@ -207,17 +208,23 @@ uav.register_blueprint(uav_params, url_prefix="/params")
 
 @uav_params.route("/get/<key>")
 def uav_get_param(key):
-    return app.gs.uav.get_param(key)
+    ret = app.gs.uav.get_param(key)
+    logger.info(f"/uav/params/get : Parameter {key} retrieved from local file")
+    return ret
 
 
 @uav_params.route("/getall")
 def uav_get_params():
-    return app.gs.uav.get_params()
+    ret = app.gs.uav.get_params()
+    logger.info("/uav/params/getall : Parameters retrieved from local file")
+    return ret
 
 
 @uav_params.route("/set/<key>/<value>", methods=["POST"])
 def uav_set_param(key, value):
-    return app.gs.uav.set_param(key, value)
+    ret = app.gs.uav.set_param(key, value)
+    logger.info(f"/uav/params/set : Parameter {key} set to {value} in local file")
+    return ret
 
 
 @uav_params.route("/setmultiple", methods=["POST"])
@@ -225,14 +232,20 @@ def uav_set_params():
     f = request.json
     if not all(field in f for field in ["params"]):
         raise InvalidRequestError("Missing required fields in request")
-    return app.gs.uav.set_params(**f.get("params"))  # {"param": "newvalue"}
+    ret = app.gs.uav.set_params(**f.get("params"))  # {"param": "newvalue"}
+    logger.info("/uav/params/setall : Parameters set to local file")
+    return ret
 
 
 @uav_params.route("/save", methods=["POST"])
 def uav_save_params():
-    return app.gs.uav.save_params()
+    save = app.gs.uav.save_params()
+    logger.info("/uav/params/save : Parameters saved to plane")
+    return save
 
 
 @uav_params.route("/load", methods=["POST"])
 def uav_load_params():
-    return app.gs.uav.load_params()
+    load = app.gs.uav.load_params()
+    logger.info("/uav/params/load : Parameters loaded from plane")
+    return load
