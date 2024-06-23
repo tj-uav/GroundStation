@@ -444,7 +444,7 @@ const FlightPlanMap = props => {
 							if (p[j] == null) {
 								p = _delete(p, j)
 								let k = j
-								while (p[k]?.cmd == Commands.jump || p[k] == null) {
+								while (k < p.length && (p[k]?.cmd == Commands.jump || p[k] == null)) {
 									p = _delete(p, k)
 								}
 								hadNull = true
