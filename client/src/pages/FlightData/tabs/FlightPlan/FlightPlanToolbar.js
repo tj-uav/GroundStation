@@ -378,8 +378,8 @@ const FlightPlanToolbar = props => {
                             {props.getters.path.map((point, index) => {
                                 if (point.cmd == Commands.jump) {
                                     return (
-                                        <tr key={index}>
-                                            <td style={{ padding: "2px 8px" }} onMouseEnter={()=>point["highlight"]=true} onMouseLeave={()=>point["highlight"]=false}>{index+1}</td>
+                                        <tr key={index} onMouseEnter={()=>point["highlight"]=true} onMouseLeave={()=>point["highlight"]=false}>
+                                            <td style={{ padding: "2px 8px" }}>{index+1}</td>
                                             <td style={{ padding: "2px 8px" }}>({point.num-1} to {point.p1})</td>
                                             <td style={{ padding: "2px 26px" }}>{"---"}</td>
                                             <td style={{ padding: "2px 8px" }}>Repeats: {point.p2}</td>
@@ -389,8 +389,8 @@ const FlightPlanToolbar = props => {
                                 }
                                 else if (point.cmd != Commands.jump) {
                                     return (
-                                        <tr key={index}>
-                                            <td style={{ padding: "2px 8px" }} onMouseEnter={()=>point["highlight"]=true} onMouseLeave={()=>point["highlight"]=false}>{index + 1}</td>
+                                        <tr key={index} onMouseEnter={()=>point["highlight"]=true} onMouseLeave={()=>point["highlight"]=false}>
+                                            <td style={{ padding: "2px 8px" }}>{index + 1}</td>
                                             <td style={{ padding: "2px 8px" }}>
                                                 {editableIndex === index ? (
                                                     <input
