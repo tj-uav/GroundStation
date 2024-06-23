@@ -7,7 +7,8 @@ from handlers import DummyUAVHandler
 
 uav = Blueprint("uav", __name__)
 
-logger: logging.Logger = logging.getLogger('groundstation')
+logger: logging.Logger = logging.getLogger("groundstation")
+
 
 @uav.route("/connect", methods=["POST"])
 def uav_connect():
@@ -254,4 +255,10 @@ def uav_load_params():
 
 @uav_params.route("/downloaded")
 def uav_params_downloaded():
-    return {"result": False if type(app.gs.uav) == DummyUAVHandler else "parameters" in app.gs.uav.vehicle._ready_attrs}
+    return {
+        "result": (
+            False
+            if type(app.gs.uav) == DummyUAVHandler
+            else "parameters" in app.gs.uav.vehicle._ready_attrs
+        )
+    }
