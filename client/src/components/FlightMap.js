@@ -255,7 +255,7 @@ const FlightPlanMap = props => {
 	const waypointClick = (key, datatype) => {
 		if (props.getters.placementMode === "disabled") {
 			return
-		} else if (["push", "insert"].includes(props.getters.placementMode)) {
+		} else if (props.getters.placementType == "jump" && ["push", "insert"].includes(props.getters.placementMode)) {
 			if (datatype === "unlim" || datatype === "turn" || datatype === "time" || datatype === "path") {
 				if (props.getters.firstJump === -1) {
 					props.setters.firstJump(key)
