@@ -198,11 +198,19 @@ const FlightPlanMap = props => {
 					let first
 					let second
 					if (get[i]?.cmd === Commands.jump) {
-						first = get[i - 1]
+						let b = 1
+						while (get[i - b]?.cmd === Commands.jump) {
+							b += 1
+						}
+						first = get[i - b]
 						second = get[get[i].p1 - (get[0].num === 0 ? 0 : 1)]
 					} else {
 						first = get[i]
-						second = get[(i + 1) % get.length]
+						let f = 1
+						while (get[i + f]?.cmd === Commands.jump) {
+							f += 1
+						}
+						second = get[(i + f) % get.length]
 					}
 
 					let m = (second.lat - first.lat)/(second.lng - first.lng)
@@ -228,15 +236,17 @@ const FlightPlanMap = props => {
 				}
 
 				let min = get[0]?.num === 0 ? 1 : 0
-				let inBox = getPerpendicularDistance(0)[1]
-				for (let i = 0; i < get.length; i++) {
+				let [min_d, inBox] = getPerpendicularDistance(0)
+				for (let i = 1; i < get.length; i++) {
 					let [d, _in] = getPerpendicularDistance(i)
 					if (_in && !inBox) {
 						min = i
+						min_d = d
 						inBox = true
 					} else if ((!_in && !inBox) || (_in && inBox)) {
-						if (d < getPerpendicularDistance(min)[0]) {
+						if (d < min_d) {
 							min = i
+							min_d = d
 						}
 					}
 				}
@@ -245,7 +255,11 @@ const FlightPlanMap = props => {
 				if (get[min]?.cmd === Commands.jump) {
 					path = [...path.slice(0, min), { num: min + 1, lat: event.latlng.lat, lng: event.latlng.lng, opacity: 0.5, cmd: Commands[props.getters.placementType] }, ...(path.slice(min).map(point => ({ ...point, num: point.num + 1 })))]
 				} else {
-					path = [...path.slice(0, min + 1), { num: min + (get[0]?.num === 0 ? 1 : 2), lat: event.latlng.lat, lng: event.latlng.lng, opacity: 0.5, cmd: Commands[props.getters.placementType] }, ...(path.slice(min + 1).map(point => ({ ...point, num: point.num + 1 })))]
+					let a = 1
+					while (a < path.length && get[min + a]?.cmd === Commands.jump) {
+						a += 1
+					}
+					path = [...path.slice(0, min + a), { num: min + a + (get[0]?.num === 0 ? 0 : 1), lat: event.latlng.lat, lng: event.latlng.lng, opacity: 0.5, cmd: Commands[props.getters.placementType] }, ...(path.slice(min + a).map(point => ({ ...point, num: point.num + 1 })))]
 				}
 				set(path)
 			}
