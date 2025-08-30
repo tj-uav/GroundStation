@@ -97,6 +97,24 @@ Then go to config.json and find this
 
 Then change the port string to ""
 
+Install Node.js - https://nodejs.org/en/download/
+Go to the client
+cd .../client
+
+install the dependencies
+
+npm install
+
+start the react development server
+
+npm start
+
+open on https://localhost:3000
+
+
+
+
+
 
 This file is used for configuration of the backend. 
 For now, the default options in sample.config.json should be enough to set up the server.
