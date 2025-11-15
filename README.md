@@ -4,6 +4,10 @@
 
 TJUAV's Custom Ground Station
 
+## Note: Mac specfic updated installation instructions:
+
+[for_mac_users](for_mac_users.md)
+
 ## Set Up Server
 
 The backend/server for the Ground Station is written in Python Flask as an API for the frontend to communicate with.
