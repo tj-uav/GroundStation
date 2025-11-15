@@ -24,3 +24,4 @@ eventlet
 # log -> KML generator
 fastkml
 
+future
