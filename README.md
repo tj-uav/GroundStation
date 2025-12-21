@@ -91,7 +91,7 @@ if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
 and change the port number to 5001
 
-Then go to config.json and find this
+Then go to sample.config.json and find this
 
  "uav": {
         "telemetry": {
@@ -99,21 +99,7 @@ Then go to config.json and find this
             "serial": false,
             "log": true
 
-Then change the port string to ""
-
-Install Node.js - https://nodejs.org/en/download/
-Go to the client
-cd .../client
-
-install the dependencies
-
-npm install
-
-start the react development server
-
-npm start
-
-open on https://localhost:3000
+Then change the "port" string to empty - ""
 
 
 
