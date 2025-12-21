@@ -85,6 +85,27 @@ and for Windows, run:
 copy sample.config.json config.json
 ```
 
+#### FOR DUMMY VERSION ***
+Go to app.py, find 
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000)
+and change the port number to 5001
+
+Then go to sample.config.json and find this
+
+ "uav": {
+        "telemetry": {
+            "port": "/dev/ttyUSB0",
+            "serial": false,
+            "log": true
+
+Then change the "port" string to empty - ""
+
+
+
+
+
+
 This file is used for configuration of the backend. 
 For now, the default options in sample.config.json should be enough to set up the server.
 
