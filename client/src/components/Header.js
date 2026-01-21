@@ -67,11 +67,15 @@ const ConnectionButton = (props) => {
 }
 
 const Header = () => {
+	const [toggled, setToggled] = useState(false);
 	return (
 		<NavContainer>
 			<h1 className="heading" style={{ "margin-right": "25rem" }}>TJUAV Ground Station</h1>
 			<Row width="50%" style={{ "margin-top": "0.5em", "margin-right": "-5em" }}>
 				<Link href="/">Flight Data</Link>
+				<button className={`toggle-btn ${toggled ? "toggled": ""}`} onClick={() => setToggled(!toggled)}>
+				<div className="thumb"></div>
+				</button>
 				<Link href="/params">Params</Link>
 				<Link href="/submissions">Submissions</Link>
 			</Row>
